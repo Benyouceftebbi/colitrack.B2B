@@ -15,7 +15,7 @@ const testimonials = [
     name: "Michael Chen",
     role: "Operations Director",
     company: "Tech Gadgets Co",
-    content: "The automated tracking updates have significantly reduced our customer service workload. It is like having an extra team member handling all our shipping communications.",
+    content: "The automated tracking updates have significantly reduced our customer service workload.  It is like having an extra team member handling all our shipping communications.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80"
   },
