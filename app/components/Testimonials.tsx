@@ -68,7 +68,7 @@ export default function Testimonials() {
               <Quote className="w-10 h-10 text-indigo-200 dark:text-indigo-600/20 mb-4" />
               
               <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                "{testimonial.content}"
+                {testimonial.content}
               </p>
               
               <div className="flex items-center gap-4">
