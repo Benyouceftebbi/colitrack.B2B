@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "badge": "عزز تجارتك الإلكترونية",
+    "title": "رسائل SMS ذكية وأتمتة بالذكاء الاصطناعي للتجارة الإلكترونية",
+    "description": "أتمت إشعارات SMS، وتواصل مع عملائك في الوقت الفعلي، وبسّط عملياتك بسهولة.",
+    "getStarted": "ابدأ الآن",
+    "tryDemo": "جرب العرض التوضيحي"
+  },
+  "nav": {
+    "features": "المميزات",
+    "smsAutomation": "أتمتة SMS",
+    "analytics": "التحليلات",
+    "demo": "تجربة",
+    "pricing": "الأسعار",
+    "signIn": "تسجيل الدخول",
+    "startTrial": "ابدأ النسخة التجريبية"
+  },
+  "smsDemo": {
+    "title": "جرب خدمات SMS لدينا",
+    "description": "جرب خدمات SMS المختلفة لدينا وشاهد كيف يمكنها مساعدة عملك على النمو",
+    "services": {
+      "tracking": {
+        "title": "تتبع الطلبات",
+        "description": "أبقِ عملائك على اطلاع بموقع طردهم ووقت التسليم المقدر.",
+        "inputLabel": "أدخل رقم هاتفك لتلقي تحديث التتبع"
+      },
+      "delivery": {
+        "title": "تحديثات التوصيل",
+        "description": "أخطر العملاء عندما يكون طلبهم قيد التوصيل مع معلومات الاتصال بالسائق.",
+        "inputLabel": "أدخل رقم هاتفك لتلقي تحديث التوصيل"
+      },
+      "retargeting": {
+        "title": "إعادة استهداف SMS",
+        "description": "أعد إشراك العملاء برسائل ترويجية وعروض مخصصة.",
+        "inputLabel": "أدخل أرقام الهواتف (مفصولة بفواصل) للرسائل الجماعية"
+      }
+    },
+    "senderId": "معرف المرسل (11 حرفًا كحد أقصى)",
+    "sendButton": "إرسال رسالة تجريبية",
+    "disclaimer": "بالإرسال، أنت توافق على تلقي رسالة تجريبية واحدة. قد تطبق رسوم الرسائل القياسية."
+  },
+  "pricing": {
+    "title": "اختر خطتك",
+    "description": "احصل على الرموز التي تحتاجها لتشغيل اتصالات SMS الخاصة بك",
+    "mostPopular": "الأكثر شعبية",
+    "perOneTime": "/مرة واحدة",
+    "tokens": "رموز",
+    "bonusTokens": "رموز مجانية إضافية",
+    "getStarted": "ابدأ الآن",
+    "trustedBy": "موثوق به من قبل رواد الصناعة"
+  },
+  "footer": {
+    "copyright": "© 2024 كوليتراك. جميع الحقوق محفوظة."
+  },
+  "headerTitle": "{{appName}}",
+  "trackYourShipment": "تتبع شحنتك",
+  "enterTrackingNumber": "أدخل رقم التتبع للحصول على تحديثات فورية",
+  "currentLanguage": "اللغة الحالية",
+  "changeLanguage": "تغيير اللغة",
+  "trackingDetails": "تفاصيل التتبع",
+  "trackingNumber": "رقم التتبع",
+  "deliveryIssue": "مشكلة في التسليم",
+  "onSchedule": "في الموعد المحدد",
+  "delivered": "تم التوصيل",
+  "deliveryStatusUpdate": "تحديث حالة التسليم",
+  "deliveryIssuesMessage": "هناك مشاكل في تسليم الطرد الخاص بك. يرجى التحقق من الخط الزمني أدناه لمزيد من التفاصيل.",
+  "deliveryAttempt": "محاولة التسليم {{number}}",
+  "enterTrackingNumberPlaceholder": "أدخل رقم التتبع...",
+  "statusDescriptions": {
+    "in-preparation": "يتم تحضير الطرد الخاص بك للشحن.",
+    "transfer": "يتم نقل الطرد الخاص بك بين المراكز",
+    "shipped": "تم شحن الطرد الخاص بك",
+    "distribution-center": "وصل الطرد الخاص بك إلى مركز التوزيع",
+    "en-route-to-region": "الطرد الخاص بك في طريقه إلى ولايتك",
+    "arrived-at-region": "وصل الطرد الخاص بك إلى ولايتك",
+    "ready-for-pickup": "الطرد الخاص بك جاهز للاستلام",
+    "out-for-delivery": "الطرد الخاص بك في طريقه للتسليم",
+    "delivered": "تم تسليم الطرد الخاص بك",
+    "alert": "هناك تنبيه يتعلق بالطرد الخاص بك",
+    "delivery-attempt-failed": "محاولة التسليم لم تنجح",
+    "delivery-failed": "فشل في التسليم",
+    "returning-to-center": "يتم إرجاع الطرد الخاص بك إلى مركز التوزيع",
+    "returned-to-center":"تمت إعادته إلى المركز",
+    "exchange-failed": "فشلت محاولة الاستبدال"
+  },
+  "statusLabels": {
+    "in-preparation": "قيد التحضير",
+    "transfer": "نقل",
+    "shipped": "تم الشحن",
+    "distribution-center": "مركز التوزيع",
+    "en-route-to-region": "في طريقه إلى الولاية",
+    "arrived-at-region": "وصل إلى الولاية",
+    "ready-for-pickup": "جاهز للاستلام",
+    "out-for-delivery": "في طريقه للتسليم",
+    "delivered": "تم التسليم",
+    "alert": "تنبيه",
+   "delivery-attempt-failed": "فشلت محاولة التسليم",
+   "delivery-failed": "فشل في التسليم",
+   "returning-to-center": "إعادة إلى المركز",
+   "returned-to-center": "تمت إعادته إلى المركز",
+   "exchange-failed": "فشل الاستبدال"
+  }
+}

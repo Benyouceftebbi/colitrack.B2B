@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "badge": "Empower Your E-Commerce Business",
+    "title": "Smart SMS and AI Automation for E-commerce",
+    "description": "Automate SMS notifications, connect with customers in real-time, and streamline your operations effortlessly.",
+    "getStarted": "Get Started",
+    "tryDemo": "Try Demo"
+  },
+  "nav": {
+    "features": "Features",
+    "smsAutomation": "SMS Automation",
+    "analytics": "Analytics",
+    "demo": "Demo",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "startTrial": "Start Free Trial"
+  },
+  "smsDemo": {
+    "title": "Experience Our SMS Services",
+    "description": "Try our different SMS services and see how they can help your business grow",
+    "services": {
+      "tracking": {
+        "title": "Order Tracking",
+        "description": "Keep customers informed about their package location and estimated delivery time.",
+        "inputLabel": "Enter your phone number to receive a tracking update"
+      },
+      "delivery": {
+        "title": "Delivery Updates",
+        "description": "Notify customers when their order is out for delivery with driver contact information.",
+        "inputLabel": "Enter your phone number to receive a delivery update"
+      },
+      "retargeting": {
+        "title": "SMS Retargeting",
+        "description": "Re-engage customers with personalized promotional messages and offers.",
+        "inputLabel": "Enter phone numbers (comma-separated) for bulk messaging"
+      }
+    },
+    "senderId": "Sender ID (max 11 characters)",
+    "sendButton": "Send Demo Message",
+    "disclaimer": "By submitting, you agree to receive a one-time demo message. Standard message rates may apply."
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "description": "Get the tokens you need to power your SMS communications",
+    "mostPopular": "Most Popular",
+    "perOneTime": "/one-time",
+    "tokens": "Tokens",
+    "bonusTokens": "Bonus Tokens FREE",
+    "getStarted": "Get Started",
+    "trustedBy": "TRUSTED BY INDUSTRY LEADERS"
+  },
+  "footer": {
+    "copyright": "© 2024 Colitrack. All rights reserved."
+  },
+  "headerTitle": "{{appName}}",
+  "trackYourShipment": "Track Your Shipment",
+  "enterTrackingNumber": "Enter your tracking number to get real-time updates",
+  "currentLanguage": "Current Language",
+  "changeLanguage": "Change Language",
+  "trackingDetails": "Tracking Details",
+  "trackingNumber": "Tracking Number",
+  "deliveryIssue": "Delivery Issue",
+  "onSchedule": "On Schedule",
+  "delivered": "Delivered",
+  "deliveryStatusUpdate": "Delivery Status Update",
+  "deliveryIssuesMessage": "There have been issues with delivering your package. Please check the timeline below for more details.",
+  "deliveryAttempt": "Delivery Attempt {{number}}",
+  "enterTrackingNumberPlaceholder": "Enter tracking number...",
+  "statusDescriptions": {
+    "in-preparation": "Your package is being prepared for shipment.",
+    "transfer": "Your package is being transferred between centers",
+    "shipped": "Your package has been shipped",
+    "distribution-center": "Your package has arrived at a distribution center",
+    "en-route-to-region": "Your package is en route to your wilaya",
+    "arrived-at-region": "Your package has arrived in your wilaya",
+    "ready-for-pickup": "Your package is ready for pickup",
+    "out-for-delivery": "Your package is out for delivery",
+    "delivered": "Your package has been delivered",
+    "alert": "There is an alert with your package",
+    "delivery-attempt-failed": "The delivery attempt was unsuccessful",
+    "delivery-failed": "The delivery has failed",
+    "returning-to-center": "Your package is being returned to the distribution center",
+    "returned-to-center": "Your package has been returned to the distribution center",
+    "exchange-failed": "The exchange attempt has failed"
+  },
+  "statusLabels": {
+    "in-preparation": "In Preparation",
+    "transfer": "Transfer",
+    "shipped": "Shipped",
+    "distribution-center": "Distribution Center",
+    "en-route-to-region": "En Route to Region",
+    "arrived-at-region": "Arrived at Region",
+    "ready-for-pickup": "Ready for Pickup",
+    "out-for-delivery": "Out for Delivery",
+    "delivered": "Delivered",
+    "alert": "Alert",
+    "delivery-attempt-failed": "Delivery Attempt Failed",
+    "delivery-failed": "Delivery Failed",
+    "returning-to-center": "Returning to Center",
+    "returned-to-center": "Returned to Center",
+    "exchange-failed": "Exchange Failed"
+  }
+}

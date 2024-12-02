@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "badge": "Optimisez Votre E-Commerce",
+    "title": "SMS Intelligent et Automatisation IA pour l'E-commerce",
+    "description": "Automatisez les notifications SMS, connectez-vous avec vos clients en temps réel et simplifiez vos opérations sans effort.",
+    "getStarted": "Commencer",
+    "tryDemo": "Essayer la Démo"
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "smsAutomation": "Automatisation SMS",
+    "analytics": "Analytique",
+    "demo": "Démo",
+    "pricing": "Tarifs",
+    "signIn": "Connexion",
+    "startTrial": "Essai Gratuit"
+  },
+  "smsDemo": {
+    "title": "Découvrez Nos Services SMS",
+    "description": "Essayez nos différents services SMS et voyez comment ils peuvent aider votre entreprise à se développer",
+    "services": {
+      "tracking": {
+        "title": "Suivi de Commande",
+        "description": "Tenez vos clients informés de l'emplacement de leur colis et de l'heure de livraison estimée.",
+        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de suivi"
+      },
+      "delivery": {
+        "title": "Mises à Jour de Livraison",
+        "description": "Informez les clients lorsque leur commande est en cours de livraison avec les coordonnées du chauffeur.",
+        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de livraison"
+      },
+      "retargeting": {
+        "title": "Retargeting SMS",
+        "description": "Réengagez les clients avec des messages promotionnels et des offres personnalisés.",
+        "inputLabel": "Entrez les numéros (séparés par des virgules) pour l'envoi en masse"
+      }
+    },
+    "senderId": "ID Expéditeur (max 11 caractères)",
+    "sendButton": "Envoyer Message Démo",
+    "disclaimer": "En soumettant, vous acceptez de recevoir un message de démonstration unique. Des frais de message standard peuvent s'appliquer."
+  },
+  "pricing": {
+    "title": "Choisissez Votre Plan",
+    "description": "Obtenez les jetons nécessaires pour alimenter vos communications SMS",
+    "mostPopular": "Plus Populaire",
+    "perOneTime": "/unique",
+    "tokens": "Jetons",
+    "bonusTokens": "Jetons Bonus GRATUITS",
+    "getStarted": "Commencer",
+    "trustedBy": "FAIT CONFIANCE PAR LES LEADERS DE L'INDUSTRIE"
+  },
+  "footer": {
+    "copyright": "© 2024 Colitrack. Tous droits réservés."
+  },
+  "headerTitle": "Meu Titulo do Cabecalho do {{appName}}",
+    "trackYourShipment": "Suivre votre envoi",
+    "enterTrackingNumber": "Entrez votre numéro de suivi pour obtenir des mises à jour en temps réel",
+    "currentLanguage": "Langue actuelle",
+    "changeLanguage": "Changer de langue",
+    "trackingDetails": "Détails du suivi",
+    "trackingNumber": "Numéro de suivi",
+    "deliveryIssue": "Problème de livraison",
+    "onSchedule": "À l'heure",
+    "delivered": "Livré",
+    "deliveryStatusUpdate": "Mise à jour du statut de livraison",
+    "deliveryIssuesMessage": "Il y a eu des problèmes avec la livraison de votre colis. Veuillez consulter la chronologie ci-dessous pour plus de détails.",
+    "deliveryAttempt": "Tentative de livraison {{number}}",
+    "enterTrackingNumberPlaceholder": "Entrez le numéro de suivi...",
+    "statusDescriptions": {
+      "in-preparation":"Votre colis est en cours de préparation pour l'expédition.",
+      "transfer": "Votre colis est en cours de transfert entre les centres",
+      "shipped": "Votre colis a été expédié",
+      "distribution-center": "Votre colis est arrivé au centre de distribution",
+      "en-route-to-region": "Votre colis est en route vers votre wilaya",
+       "arrived-at-region": "Votre colis est arrivé dans votre wilaya",
+      "ready-for-pickup": "Votre colis est prêt à être récupéré",
+      "out-for-delivery": "Votre colis est en cours de livraison",
+      "delivered": "Votre colis a été livré",
+      "alert": "Il y a une alerte concernant votre colis",
+      "delivery-attempt-failed": "La tentative de livraison a échoué",
+      "delivery-failed": "La livraison a échoué",
+      "returning-to-center": "Votre colis est en cours de retour au centre de distribution",
+      "returned-to-center": "Votre colis a été retourné au centre de distribution",
+      "exchange-failed": "La tentative d'échange a échoué"
+    },
+    "statusLabels": {
+      "in-preparation": "En préparation",
+      "transfer": "Transfert",
+      "shipped": "Expédié",
+      "distribution-center": "Centre",
+      "en-route-to-region": "Vers Wilaya",
+       "arrived-at-region": "Reçu à Wilaya",
+      "ready-for-pickup": "En attente du client",
+      "out-for-delivery": "Sorti en livraison",
+      "delivered": "Livré",
+      "alert": "En alerte",
+      "delivery-attempt-failed": "Tentative échouée",
+      "delivery-failed": "Échec livraison",
+      "returning-to-center": "Retour vers centre",
+      "returned-to-center": "Retourné au centre",
+      "exchange-failed": "Échange échoué"
+    }
+}
