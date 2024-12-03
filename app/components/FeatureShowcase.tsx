@@ -6,12 +6,12 @@ const features = [
   {
     title: "Auto Tracking Link",
     description: "Provide customers with an automated tracking link for their orders, enabling real-time updates and seamless monitoring of delivery status, right from their phones.",
-    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80"
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/74a668d9-4004-4eef-a25e-5ef4051b18f7.jpg?alt=media&token=f52435d1-341f-472b-b930-f313cbc88eeb"
   },
   {
     title: "Personalized SMS Notifications",
     description: "Send tailored SMS alerts to customers with their order details, shipping updates, and delivery schedules, ensuring a personalized experience at every step.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80"
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/ddf06444-c75c-4f8e-a916-b5cbb00b36fa.jpg?alt=media&token=71693a3b-3949-4ff7-8fd1-b1a6db145421"
   },
   {
     title: "SMS Retargeting Campaigns",
@@ -21,7 +21,7 @@ const features = [
   {
     title: "Custom Sender ID",
     description: "Use your brand’s name or a customized sender ID for SMS communications, ensuring that customers instantly recognize your messages and feel connected to your brand.",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80"
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/9f4ef0c6-98ab-4eea-bdf5-8a8b8ace4678.jpg?alt=media&token=4e64081f-3963-4a7e-a3b7-7f8e95de604e"
   }
 ];
 

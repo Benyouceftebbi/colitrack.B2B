@@ -15,10 +15,15 @@ const testimonials = [
     name: "Michael Chen",
     role: "Operations Director",
     company: "Tech Gadgets Co",
-    content: "The automated tracking updates have significantly reduced our customer service workload. It's like having an extra team member handling all our shipping communications.",
+    content: "The automated tracking updates have significantly reduced our customer service workload.  It is like having an extra team member handling all our shipping communications.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80"
   },
+
+
+
+
+
   {
     name: "Emma Rodriguez",
     role: "Founder",
@@ -31,6 +36,12 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
+
+
+
+
+
+    
     <section className="py-20 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -57,7 +68,7 @@ export default function Testimonials() {
               <Quote className="w-10 h-10 text-indigo-200 dark:text-indigo-600/20 mb-4" />
               
               <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                "{testimonial.content}"
+                {testimonial.content}
               </p>
               
               <div className="flex items-center gap-4">

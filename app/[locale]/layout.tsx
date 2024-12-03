@@ -1,4 +1,3 @@
-
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import {notFound} from 'next/navigation';
@@ -30,11 +29,11 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale?: string }; // Optional `locale`
+  params: Promise<{ locale: "en" | "fr" | "ar" }>;
 }) {
-  const locale = (await params).locale
+  const locale = await params;
   // Ensure `locale` is valid
-  if (!locale || !routing.locales.includes(locale)) {
+  if (!locale || !routing.locales.includes(locale.locale)) {
     notFound(); // Redirect to 404 if invalid
   }
 
@@ -42,9 +41,9 @@ export default async function RootLayout({
   const messages = await getMessages(locale);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale.locale} suppressHydrationWarning>
       <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale={locale.locale} messages={messages}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
