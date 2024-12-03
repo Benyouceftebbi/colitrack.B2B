@@ -6,8 +6,8 @@ const solutions = [
   {
     problem: "Lack of real-time updates",
     solution: "Automated SMS order status alerts",
-    description: "customers often called manually to ask about the status of their orders, leading to frustration and a surge in inquiries. Our automated SMS notifications keep customers informed every step of the way, significantly reducing support requests and increasing satisfaction.",
-    image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    description: "Customers often called manually to ask about the status of their orders, leading to frustration and a surge in inquiries. Additionally, many parcels were returned due to delivery companies failing to contact clients about their orders, resulting in wasted time and resources. Our automated SMS notifications keep customers informed every step of the way, significantly reducing support requests, improving delivery success rates, and enhancing overall satisfaction.",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/Youcef_Tebbi_Two_contrasting_scenes_of_an_e-commerce_business_o_7c976dda-cfe5-4820-9c91-03e7eabfb4a8.png?alt=media&token=10290f3c-b501-4de8-b3b7-729567a95286",
     icon: MessageSquare,
     stats: {
       before: "High volume of inquiries",
@@ -17,8 +17,8 @@ const solutions = [
   {
     problem: "Low customer retention",
     solution: "SMS Retargeting Campaigns",
-    description: "Businesses struggle to effectively re-engage customers who abandon their carts or fail to complete their orders, leaving potential sales untapped. With SMS retargeting campaigns, businesses can send timely and personalized messages directly to customers' phones. This approach encourages customers to complete their purchases, and increases conversion rates.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    description: "Don’t let your customers forget your brand. With SMS retargeting, you can reignite their interest with timely and personalized messages. Share irresistible promo codes, announce stunning new collections, and remind them why they fell in love with your products in the first place. Build excitement, nurture loyalty, and watch your audience return with renewed enthusiasm. Every message is a chance to reconnect and inspire.",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/IMG_0530.jpeg?alt=media&token=3f607ab2-6b85-4a30-a892-934a0d84d25c",
     icon: TrendingUp,
     stats: {
       before: "+5% loss of monthly customers",
@@ -28,8 +28,8 @@ const solutions = [
   {
     problem: "Manual order entry from social media",
     solution: "AI automation for order extraction",
-    description: "Before using our AI solution, delivery companies manually entered orders from social media chats, which was time-consuming and error-prone. Our AI reads customer messages, detects order details from emojis and conversation context, and automatically uploads the information to the delivery system, streamlining the process and reducing human errors.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    description: "Our AI solution streamlines order processing by automatically extracting details from social media chats, using advanced natural language processing to detect order information from emojis, keywords, and conversation context. It seamlessly integrates with websites, retrieving data directly from online checkout forms and order databases. This ensures accurate, real-time updates in the delivery system, eliminating manual entry errors, saving time, and optimizing efficiency for delivery companies.",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/88561217-dd9f-4487-b8f5-9fbb643456eb.jpg?alt=media&token=7ff2ed8b-3487-4d4c-8d11-0067de7f6319",
     icon: ShieldCheck,
     stats: {
         before: "2+ hours",
@@ -107,10 +107,10 @@ export default function FeatureSection() {
                   {item.description}
                 </p>
 
-                <button className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold group">
+                {/*<button className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold group">
                   Learn more about {item.solution}
                   <ArrowRight className="w-4 h-4 transform transition-transform group-hover:translate-x-1" />
-                </button>
+                </button>*/}
               </div>
             </div>
           ))}
