@@ -2,17 +2,11 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, Building, Phone } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 
-const businessTypes = [
-  'E-commerce Store',
-  'Retail Shop',
-  'Dropshipping Business',
-  'Marketplace Seller',
-  'Social Commerce',
-  'Other'
-];
 
 export default function SignUp() {
+  const t = useTranslations("signup");
   const router=useRouter()
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -27,11 +21,18 @@ export default function SignUp() {
     businessType: '',
     otherBusinessType: ''
   });
-
+  const businessTypes = [
+    t('businessTypes.ecommerce'),
+    t('businessTypes.retail'),
+    t('businessTypes.dropshipping'),
+    t('businessTypes.marketplace'),
+    t('businessTypes.socialCommerce'),
+    t('businessTypes.other')
+  ]; // Use translations for business types
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      alert(t('passwordMismatch'));
       return;
     }
     // Handle sign up logic here
@@ -55,7 +56,7 @@ export default function SignUp() {
           className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transform transition-transform group-hover:-translate-x-1" />
-          Back to sign in
+          {t('backToSignIn')}
         </a>
 
         {/* Sign Up Form */}
@@ -64,12 +65,12 @@ export default function SignUp() {
             <div className="w-10 h-10 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold">C</span>
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">Colitrack</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">{t('createAccount')}</span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Create your account</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('createAccount')}</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-8">
-            Get started with Colitrack today
+            {t('getStarted')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -77,7 +78,7 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  First name
+                  {t('firstName')}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -95,7 +96,7 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Last name
+                  {t('lastName')}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -113,7 +114,7 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email address
+                  {t('email')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -131,7 +132,7 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Phone number
+                  {t('phoneNumber')}
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -152,7 +153,7 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Company name
+                  {t('companyName')}
                 </label>
                 <div className="relative">
                   <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -170,7 +171,7 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Type of business
+                  {t('businessType')}
                 </label>
                 <select
                   id="businessType"
@@ -190,7 +191,7 @@ export default function SignUp() {
               {formData.businessType === 'Other' && (
                 <div className="md:col-span-2">
                   <label htmlFor="otherBusinessType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Please specify your business type
+                    {t('pleaseSpecify')}
                   </label>
                   <input
                     type="text"
@@ -209,7 +210,7 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
+                  {t('password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -239,7 +240,7 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm password
+                  {t('confirmPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -276,14 +277,7 @@ export default function SignUp() {
                 required
               />
               <label htmlFor="terms" className="ml-2 text-sm text-gray-600 dark:text-gray-300">
-                I agree to the{' '}
-                <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                  Terms of Service
-                </a>
-                {' '}and{' '}
-                <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                  Privacy Policy
-                </a>
+                {t('terms')}
               </label>
             </div>
 
@@ -291,7 +285,7 @@ export default function SignUp() {
               type="submit"
               className="w-full py-3 px-4 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Create account
+              {t('createAccountButton')}
             </button>
           </form>
         </div>

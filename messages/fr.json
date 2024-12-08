@@ -13,7 +13,10 @@
     "demo": "Démo",
     "pricing": "Tarifs",
     "signIn": "Connexion",
-    "startTrial": "Essai Gratuit"
+    "getStarted": "Commencer",
+    "comparison":"Comparaison",
+    "ai":"IA",
+    "testimonials":"Témoignages"
   },
   "smsDemo": {
     "title": "Découvrez Nos Services SMS",
@@ -22,17 +25,20 @@
       "tracking": {
         "title": "Suivi de Commande",
         "description": "Tenez vos clients informés de l'emplacement de leur colis et de l'heure de livraison estimée.",
-        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de suivi"
+        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de suivi",
+        "messageTemplate":"Votre colis (#CT12345) est en route ! Livraison estimée : 14h00 - 16h00 aujourd'hui. Suivez ici : https://colitrack-v1.vercel.app/fr/T?tr=EC587T2411274666238"
       },
       "delivery": {
         "title": "Mises à Jour de Livraison",
         "description": "Informez les clients lorsque leur commande est en cours de livraison avec les coordonnées du chauffeur.",
-        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de livraison"
+        "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de livraison",
+        "messageTemplate":"Votre commande est en cours de livraison ! Votre chauffeur John (555-0123) arrivera entre 14h00 et 16h00. Des questions ? Répondez à ce message."
       },
       "retargeting": {
         "title": "Retargeting SMS",
         "description": "Réengagez les clients avec des messages promotionnels et des offres personnalisés.",
-        "inputLabel": "Entrez les numéros (séparés par des virgules) pour l'envoi en masse"
+        "inputLabel": "Entrez les numéros (séparés par des virgules) pour l'envoi en masse",
+        "messageTemplate":"Offre spéciale rien que pour vous ! Obtenez 20 % de réduction sur votre prochain achat avec le code WELCOME20. Achetez maintenant : https://shop.co/special"
       }
     },
     "senderId": "ID Expéditeur (max 11 caractères)",
@@ -47,11 +53,72 @@
     "tokens": "Jetons",
     "bonusTokens": "Jetons Bonus GRATUITS",
     "getStarted": "Commencer",
-    "trustedBy": "FAIT CONFIANCE PAR LES LEADERS DE L'INDUSTRIE"
+    "trustedBy": "FAIT CONFIANCE PAR LES LEADERS DE L'INDUSTRIE",
+    "plans": [
+    {
+      "name": "Démarreur",
+      "tooltip": "160 commandes lien de suivi et SMS envoyés",
+      "features": [
+        "Notifications SMS",
+        "Lien de suivi des commandes en temps réel",
+        "Campagnes de reciblage SMS",
+        "Automatisation des commandes par IA",
+        "Niveau de support : Standard"
+      ]
+    },
+    {
+      "name": "Entreprise",
+      "tooltip": "1840 commandes lien de suivi et SMS envoyés",
+      "features": [
+        "Notifications SMS",
+        "Lien de suivi des commandes en temps réel",
+        "ID d'expéditeur personnalisé",
+        "Campagnes de reciblage SMS",
+        "Automatisation des commandes par IA",
+        "Niveau de support : Dédié",
+        "Accès aux nouvelles fonctionnalités : le plus tôt",
+        "Analytique avancée"
+      ]
+    },
+    {
+      "name": "Affaires",
+      "tooltip": "1344 commandes lien de suivi et SMS envoyés",
+      "features": [
+        "Notifications SMS",
+        "Lien de suivi des commandes en temps réel",
+        "ID d'expéditeur personnalisé",
+        "Campagnes de reciblage SMS",
+        "Automatisation des commandes par IA",
+        "Niveau de support : Premium",
+        "Accès aux nouvelles fonctionnalités : Précoce",
+        "Analytique avancée"
+      ]
+    }
+  ],
+  "features":[
+    {"title":"Crédit instantané de jetons","description":"Les jetons sont crédités sur votre compte immédiatement après l'achat"},   
+    {"title":"Secure & Reliable","description":"Sécurité de niveau entreprise avec une garantie de disponibilité de 99,9%"}, 
+     {"title":"Flexible Usage","description":"Les jetons n'expirent jamais, utilisez-les à votre propre rythme"}
+  ]
   },
   "footer": {
+    "companyName": "Colitrack",
+    "companyDescription": "Autonomiser les entreprises de commerce électronique avec une automatisation SMS intelligente et des solutions d'engagement client pilotées par l'IA.",
+    "nav": {
+      "features": "Fonctionnalités",
+      "smsAutomation": "Automatisation SMS",
+      "analytics": "Analytique",
+      "demo": "Démo",
+      "pricing": "Tarifs",
+      "signIn": "Connexion",
+      "startTrial": "Essai Gratuit",
+      "comparison":"Comparaison",
+      "ai":"IA",
+      "testimonials":"Témoignages"
+    },
     "copyright": "© 2024 Colitrack. Tous droits réservés."
   },
+  "tracking":{
   "headerTitle": "Meu Titulo do Cabecalho do {{appName}}",
     "trackYourShipment": "Suivre votre envoi",
     "enterTrackingNumber": "Entrez votre numéro de suivi pour obtenir des mises à jour en temps réel",
@@ -100,4 +167,224 @@
       "returned-to-center": "Retourné au centre",
       "exchange-failed": "Échange échoué"
     }
+  },
+    "header": {
+      "badge": "Renforcez votre entreprise de commerce électronique",
+      "title": "Transformez votre entreprise de commerce électronique avec",
+      "highlight": "Solutions SMS intelligentes",
+      "and": "et",
+      "subtitle": "Automatisation par IA",
+      "description": "Notifications en temps réel, satisfaction client améliorée et automatisation fluide pour les entreprises de commerce électronique.",
+      "getStarted": "Commencez maintenant",
+      "tryDemo": "Essayez la démo"
+    },
+    "stats":{
+      "realTimeUpdates": "Mises à jour en temps réel",
+      "customerSatisfaction": "Satisfaction client",
+      "fewerInquiries": "Moins de demandes",
+      "conversionBoost": "Augmentation des conversions"
+    },
+    "featureCarousel": {
+    "transformTitle": "Transformez vos opérations de commerce électronique",
+    "transformDescription": "Découvrez comment nos solutions répondent aux défis courants du commerce électronique et révolutionnent votre entreprise",
+    "theProblem": "Le Problème:",
+    "ourSolution": "Notre Solution:",
+    "Before":"Avant",
+    "After":"Après",
+    "solutions": {
+      "solution1": {
+        "problem": "Manque de mises à jour en temps réel",
+        "solution": "Alertes de statut de commande par SMS automatisées",
+
+       "description": "Les clients appelaient souvent manuellement pour demander le statut de leurs commandes, ce qui entraînait frustration et une augmentation des demandes. De plus, de nombreux colis ont été retournés en raison du fait que les entreprises de livraison ne contactaient pas les clients au sujet de leurs commandes, entraînant un gaspillage de temps et de ressources. Nos notifications SMS automatisées tiennent les clients informés à chaque étape, réduisant considérablement les demandes de support, améliorant les taux de réussite de livraison et augmentant la satisfaction globale.",
+
+
+        "stats": {
+          "before":"Volume élevé de demandes",
+          "after":"Réduction de 50 % des demandes"
+        }
+      },
+      "solution2": {
+        "problem": "Faible fidélisation des clients",
+        "solution": "Campagnes de retargeting par SMS",
+
+        "description": "Ne laissez pas vos clients oublier votre marque. Avec le retargeting par SMS, vous pouvez raviver leur intérêt avec des messages opportuns et personnalisés. Partagez des codes promo irrésistibles, annoncez de nouvelles collections époustouflantes et rappelez-leur pourquoi ils sont tombés amoureux de vos produits en premier lieu. Créez de l'excitation, cultivez la fidélité et regardez votre audience revenir avec un enthousiasme renouvelé. Chaque message est une chance de se reconnecter et d'inspirer.",
+
+        "stats": {
+         "before": "+5 % de perte de clients mensuels",
+
+         "after": "+30 % de fidélisation des clients"
+
+        }
+      },
+      "solution3": {
+        "problem":   "Saisie manuelle des commandes depuis les réseaux sociaux",
+
+
+        "solution":  "Automatisation IA pour l'extraction de commandes",
+
+
+    "description": "Notre solution IA rationalise le traitement des commandes en extrayant automatiquement les détails des discussions sur les réseaux sociaux, en utilisant un traitement du langage naturel avancé pour détecter les informations de commande à partir d'emojis, de mots-clés et du contexte de la conversation. Elle s'intègre parfaitement aux sites Web, récupérant des données directement à partir des formulaires de paiement en ligne et des bases de données de commandes. Cela garantit des mises à jour précises et en temps réel dans le système de livraison, éliminant les erreurs de saisie manuelle, économisant du temps et optimisant l'efficacité des entreprises de livraison.",
+
+        "stats": {
+          "before":  "Plus de 2 heures",
+          "after":  "Moins de 1 minute"
+        }
+      }
+    }
+  },
+  "videoSection": {
+    "title": "Automatisation SMS intelligente",
+    "description": "Transformez la façon dont vous interagissez avec vos clients. Regardez notre vidéo pour voir comment nos fonctionnalités SMS rationalisent les mises à jour de commande, améliorent la satisfaction client et augmentent les conversions. Avec des notifications en temps réel et des campagnes de reciblage, vous pouvez révolutionner votre stratégie de communication et garder les clients informés, connectés et fidèles."
+  },
+  "featureShowcase": {
+    "mainHeader": "Analysez votre public cible et ",
+    "secondaryHeader":"atteignez des résultats records.",
+    "mainDescription": "Notre plateforme complète vous fournit tout ce dont vous avez besoin pour analyser, optimiser et développer votre entreprise.",
+   "features":{
+      "feature1":{
+        "title": "Lien de suivi automatique",
+        "description":"Fournissez aux clients un lien de suivi automatisé pour leurs commandes, permettant des mises à jour en temps réel et un suivi sans faille de l'état de livraison, directement depuis leurs téléphones."
+      },
+      "feature2":{
+        "title": "Notifications SMS personnalisées",
+        "description":"Envoyez des alertes SMS personnalisées aux clients avec les détails de leur commande, les mises à jour d'expédition et les horaires de livraison, garantissant une expérience personnalisée à chaque étape."
+      },
+      "feature3":{
+        "title":"Campagnes de reciblage SMS",
+        "description": "Augmentez vos taux de conversion en réengageant les clients qui ont abandonné leur panier grâce à des campagnes SMS ciblées et opportunes conçues pour les ramener."
+      },
+      "feature4":{
+        "title":"ID d'expéditeur personnalisé",
+        "description":"Utilisez le nom de votre marque ou un ID d'expéditeur personnalisé pour les communications SMS, garantissant que les clients reconnaissent instantanément vos messages et se sentent connectés à votre marque."
+      }
+    }
+   },
+   "comparisonTable": {
+    "features": "Fonctionnalités",
+    "title": "Pourquoi choisir Colitrack?",
+    "description": "Voyez comment nous nous comparons aux solutions traditionnelles sur le marché",
+    "getStarted": "Commencer",
+    "trackingAndDeliveryUpdates": "Suivi et mises à jour de livraison",
+    "realTimeOrderTrackingLink": "Lien de suivi de commande en temps réel",
+    "realTimeOrderTrackingTooltip": "Lien de suivi automatique avec mises à jour en temps réel",
+    "automatedDeliveryUpdates": "Mises à jour de livraison automatisées",
+    "automatedDeliveryTooltip": "Notifications SMS automatisées pour les mises à jour de commande et de livraison",
+    "deliveryCompaniesIntegration": "Intégration des entreprises de livraison",
+    "deliveryCompaniesTooltip": "Intégration transparente avec les entreprises de livraison pour des mises à jour en temps réel",
+    "smsAndCommunication": "SMS et communication",
+    "smsNotifications": "Notifications SMS",
+    "smsNotificationsTooltip": "SMS personnalisés pour les commandes et les livraisons",
+    "smsRetargetingCampaigns": "Campagnes de reciblage SMS",
+    "smsRetargetingTooltip": "Campagnes de reciblage SMS automatisées",
+    "customSenderID": "ID d'expéditeur personnalisé",
+    "customSenderTooltip": "ID d'expéditeur personnalisable (nom de la marque)",
+    "aiAndAutomation": "IA et automatisation",
+    "aiOrderAutomation": "Automatisation des commandes par IA",
+    "aiOrderAutomationTooltip": "Automatisation pilotée par IA pour les commandes",
+    "pricingAndSupport": "Tarification et support",
+    "pricing": "Tarification",
+    "pricingTooltip": "Plans tarifaires flexibles",
+    "customerSupport": "Support client",
+    "customerSupportTooltip": "Support 24/7"
+  },
+  "ai":{
+    "comingSoon": "Bientôt disponible",
+    "aiPoweredSocialCommerce": "Commerce social alimenté par l'IA",
+    "transformSocialMedia": "Transformez vos conversations sur les réseaux sociaux en un traitement de commande fluide grâce à notre technologie avancée d'IA. Fini la saisie manuelle des commandes - laissez notre IA s'en occuper pour vous.",
+    "joinWaitlist": "Rejoindre la liste d'attente",
+    "AI Order Processing": "Traitement des commandes par IA",
+    "Smart Conversation Analysis": "Analyse intelligente des conversations",
+    "Automated Order Creation": "Création de commandes automatisée",
+    "Automatically detect and process orders from social media conversations": "Détecter et traiter automatiquement les commandes à partir des conversations sur les réseaux sociaux",
+    "Understand customer intent and extract order details from natural conversations": "Comprendre l'intention du client et extraire les détails de la commande à partir de conversations naturelles",
+    "Instantly create orders when confirmation emoji is detected": "Créer instantanément des commandes lorsque l'emoji de confirmation est détecté",
+    "AIResponse": {
+      "title": "Détection de commande par IA",
+      "orderDetails": "Détails de la commande récupérés :",
+      "product": "Produit",
+      "size": "Taille",
+      "deliveryAddress": "Adresse de livraison",
+      "status": "Statut",
+      "productName": "Robe Bleue",
+      "sizeValue": "M",
+      "deliveryAddressValue": "123 Rue Principale",
+      "statusValue": "Confirmé"
+    },
+    "ChatHeader": {
+      "customerService": "Service Client",
+      "statusOnline": "En ligne"
+    },
+    "Messages": {
+      "customerOrderRequest": "Salut ! Je voudrais commander la robe bleue en taille M.",
+      "businessOrderConfirmation": "Bonjour ! La robe bleue en taille M est disponible. Voulez-vous procéder à la commande ?",
+      "customerDeliveryRequest": "Oui s'il vous plaît ! Puis-je la faire livrer au 123 Rue Principale ?",
+      "businessConfirmation": "✅"
+    }
+  },
+  "testimonials":{
+    "trusted_by": "Fiable par les entreprises de commerce électronique en pleine croissance",
+    "customer_experience": "Découvrez ce que nos clients disent de leur expérience avec Colitrack",
+    "ready_to_transform": "Prêt à transformer votre entreprise de commerce électronique ?",
+    "join_thousands": "Rejoignez des milliers d'entreprises qui font confiance à Colitrack pour leurs besoins en automatisation SMS et en suivi des commandes.",
+    "start_free_trial": "Commencez votre essai gratuit maintenant",
+    "at":" à ",
+    "testimonials": [
+      {
+        "name": "Sarah Johnson",
+        "role": "Responsable e-commerce",
+        "company": "Fashion Boutique",
+        "content": "Colitrack a transformé notre façon de gérer les communications de commande. Nos taux de satisfaction client ont augmenté de 45 % depuis la mise en œuvre de leur automatisation SMS."
+      },
+      {
+        "name": "Michael Chen",
+        "role": "Directeur des opérations",
+        "company": "Tech Gadgets Co",
+        "content": "Les mises à jour de suivi automatisées ont considérablement réduit notre charge de travail en service client. C'est comme avoir un membre d'équipe supplémentaire s'occupant de toutes nos communications d'expédition."
+      },
+      {
+        "name": "Emma Rodriguez",
+        "role": "Fondatrice",
+        "company": "Artisan Crafts",
+        "content": "En tant que propriétaire d'une petite entreprise, Colitrack a été un changeur de jeu. Les liens de suivi personnalisés et les SMS automatisés nous ont donné une expérience client de niveau entreprise."
+      }
+    ]
+  },
+  "signin":{
+    "backToHome": "Retour à l'accueil",
+    "welcomeBack": "Bienvenue de nouveau",
+    "signInToContinue": "Connectez-vous à votre compte pour continuer",
+    "emailAddress": "Adresse e-mail",
+    "password": "Mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié ?",
+    "signIn": "Se connecter",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "signUp": "S'inscrire"
+  },
+  "signup":{
+   "backToSignIn": "Retour à la connexion",
+  "createAccount": "Créez votre compte",
+  "getStarted": "Commencez avec Colitrack aujourd'hui",
+  "firstName": "Prénom",
+  "lastName": "Nom de famille",
+  "email": "Adresse e-mail",
+  "phoneNumber": "Numéro de téléphone",
+  "companyName": "Nom de l'entreprise",
+  "businessType": "Type d'entreprise",
+  "pleaseSpecify": "Veuillez spécifier votre type d'entreprise",
+  "password": "Mot de passe",
+  "confirmPassword": "Confirmer le mot de passe",
+  "terms": "J'accepte les conditions d'utilisation et la politique de confidentialité",
+  "createAccountButton": "Créer un compte",
+  "passwordMismatch": "Les mots de passe ne correspondent pas !",
+  "businessTypes": {
+    "ecommerce": "Magasin de commerce électronique",
+    "retail": "Magasin de détail",
+    "dropshipping": "Entreprise de dropshipping",
+    "marketplace": "Vendeur de marché",
+    "socialCommerce": "Commerce social",
+    "other": "Autre"
+  }
+  }
 }

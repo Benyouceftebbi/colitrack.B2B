@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from '../context/theme-provider';
 import { AuthProvider } from '../context/AuthContext';
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 
 const geistSans = localFont({
@@ -50,7 +51,10 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AuthProvider>{children}</AuthProvider></ThemeProvider>
+            <AuthProvider>
+              {children}
+            <Toaster />
+            </AuthProvider></ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

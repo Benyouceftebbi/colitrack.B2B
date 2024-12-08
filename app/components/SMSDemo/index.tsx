@@ -3,28 +3,29 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PhoneInput from './PhoneInput';
 import PhonePreview from './PhonePreview';
+import { useTranslations } from 'next-intl';
 
 const services = [
   {
     id: 'tracking',
-    title: 'Order Tracking',
-    description: 'Keep customers informed about their package location and estimated delivery time.',
-    messageTemplate: 'Your package (#CT12345) is on its way! Estimated delivery: 2:00 PM - 4:00 PM today. Track here: https://track.co/CT12345',
-    inputLabel: 'Enter your phone number to receive a tracking update'
+    title: 'services.tracking.title',
+    description: 'services.tracking.description',
+    messageTemplate: 'services.tracking.messageTemplate',
+    inputLabel: 'services.tracking.inputLabel'
   },
   {
     id: 'delivery',
-    title: 'Delivery Updates',
-    description: 'Notify customers when their order is out for delivery with driver contact information.',
-    messageTemplate: 'Your order is out for delivery! Your driver John (555-0123) will arrive between 2:00 PM - 4:00 PM. Questions? Reply to this message.',
-    inputLabel: 'Enter your phone number to receive a delivery update'
+    title: 'services.delivery.title',
+    description: 'services.delivery.description',
+    messageTemplate: 'services.delivery.messageTemplate',
+    inputLabel: 'services.delivery.inputLabel'
   },
   {
     id: 'retargeting',
-    title: 'SMS Retargeting',
-    description: 'Re-engage customers with personalized promotional messages and offers.',
-    messageTemplate: 'Special offer just for you! Get 20% off your next purchase with code WELCOME20. Shop now: https://shop.co/special',
-    inputLabel: 'Enter phone numbers (comma-separated) for bulk messaging'
+    title: 'services.retargeting.title',
+    description: 'services.retargeting.description',
+    messageTemplate: 'services.retargeting.messageTemplate',
+    inputLabel: 'services.retargeting.inputLabel'
   }
 ];
 
@@ -32,6 +33,7 @@ export default function SMSDemo() {
   const [activeService, setActiveService] = useState(0);
   const [isMessageSent, setIsMessageSent] = useState(false);
   const [currentSenderId, setCurrentSenderId] = useState('Colitrack');
+  const t=useTranslations('smsDemo')
 
   const handlePrevious = () => {
     setActiveService((prev) => (prev - 1 + services.length) % services.length);
@@ -57,10 +59,10 @@ export default function SMSDemo() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Experience Our SMS Services
+            {t("title")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Try our different SMS services and see how they can help your business grow
+            {t("description")}
           </p>
         </div>
 
@@ -84,16 +86,16 @@ export default function SMSDemo() {
             <div className="w-full md:max-w-lg order-1 md:order-1">
               <div className="mb-8">
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  {services[activeService].title}
+                  {t(services[activeService].title)}
                 </h3>
                 <p className="text-lg text-gray-600 dark:text-gray-300">
-                  {services[activeService].description}
+                  {t(services[activeService].description)}
                 </p>
               </div>
               <PhoneInput 
                 onSubmit={handleSubmit}
                 onSenderIdChange={handleSenderIdChange}
-                label={services[activeService].inputLabel}
+                label={t(services[activeService].inputLabel)}
                 isMultiNumber={activeService === 2}
               />
             </div>
@@ -101,7 +103,7 @@ export default function SMSDemo() {
               <div className="w-[280px] md:w-[320px]">
                 <PhonePreview 
                   isMessageSent={isMessageSent}
-                  messageTemplate={services[activeService].messageTemplate}
+                  messageTemplate={t(services[activeService].messageTemplate)}
                   senderId={currentSenderId}
                 />
               </div>

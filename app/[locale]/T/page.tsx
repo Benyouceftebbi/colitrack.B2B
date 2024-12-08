@@ -9,7 +9,7 @@ export default function App() {
   const [trackingNumber, setTrackingNumber] = useState('');
   const [isTracking, setIsTracking] = useState(false);
   const [shipmentSteps, setShipmentSteps] = useState<ShipmentStep[]>([]);
-  const t  = useTranslations();
+  const t  = useTranslations('tracking');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

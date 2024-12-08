@@ -1,6 +1,8 @@
 "use client"
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 
 const testimonials = [
   {
@@ -35,21 +37,21 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const t=useTranslations("testimonials")
+  const router =useRouter()
+  const handleGetStarted = () => {
+    router.push('/Auth/SignIn');
+     
+  };
   return (
-
-
-
-
-
-    
-    <section className="py-20 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+<section className="py-20 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Trusted by Growing E-commerce Businesses
+            {t("trusted_by")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            See what our customers say about their experience with Colitrack
+          {t("customer_experience")}
           </p>
         </div>
 
@@ -68,7 +70,7 @@ export default function Testimonials() {
               <Quote className="w-10 h-10 text-indigo-200 dark:text-indigo-600/20 mb-4" />
               
               <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                {testimonial.content}
+                {t(`testimonials.${index}.content`)}
               </p>
               
               <div className="flex items-center gap-4">
@@ -78,9 +80,9 @@ export default function Testimonials() {
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <div className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">{t(`testimonials.${index}.name`)}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {testimonial.role} at {testimonial.company}
+                  {t(`testimonials.${index}.role`)} {t("at")} {t(`testimonials.${index}.company`)}
                   </div>
                 </div>
               </div>
@@ -97,13 +99,13 @@ export default function Testimonials() {
           
           <div className="relative">
             <h3 className="text-3xl font-bold text-white mb-4">
-              Ready to Transform Your E-commerce Business?
+            {t("ready_to_transform")}
             </h3>
             <p className="text-indigo-100 text-lg mb-8 max-w-2xl mx-auto">
-              Join thousands of businesses that trust Colitrack for their SMS automation and order tracking needs.
+            {t("join_thousands")}
             </p>
-            <button className="px-8 py-4 bg-white text-indigo-600 dark:text-indigo-500 rounded-xl font-semibold hover:bg-indigo-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Start Your Free Trial Now
+            <button  onClick={handleGetStarted} className="px-8 py-4 bg-white text-indigo-600 dark:text-indigo-500 rounded-xl font-semibold hover:bg-indigo-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
+            {t("start_free_trial")}
             </button>
           </div>
         </div>

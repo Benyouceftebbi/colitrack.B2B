@@ -4,19 +4,27 @@ import { Menu, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
 import {useTranslations} from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const  t  = useTranslations();
-
+  const  t  = useTranslations("nav");
+const router =useRouter()
+  const handleGetStarted = () => {
+    router.push('/Auth/SignIn');
+     
+  };
   const navItems = [
-    { label: t('nav.features'), sectionId: 'features' },
-    { label: t('nav.smsAutomation'), sectionId: 'sms-automation' },
-    { label: t('nav.analytics'), sectionId: 'analytics' },
-    { label: t('nav.demo'), sectionId: 'sms-demo' },
-    { label: t('nav.pricing'), sectionId: 'pricing' }
+    { label: t('features'), sectionId: 'features' },
+    { label: t('smsAutomation'), sectionId: 'sms-automation' },
+    { label: t('analytics'), sectionId: 'analytics' },
+    { label: t('demo'), sectionId: 'sms-demo' },
+    { label: t('comparison'), sectionId: 'comparison-table' },
+    { label: t('ai'), sectionId: 'ai' },
+    { label: t('pricing'), sectionId: 'pricing' },
+    { label: t('testimonials'), sectionId: 'testimonials' },
   ];
 
   useEffect(() => {
@@ -93,10 +101,10 @@ export default function Navbar() {
               <LanguageSwitcher />
             </div>
             <button 
-              onClick={() => scrollToSection('pricing')}
+              onClick={handleGetStarted}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all duration-300"
             >
-              {t('nav.startTrial')}
+           {t('getStarted')}
             </button>
           </div>
           
@@ -140,10 +148,10 @@ export default function Navbar() {
             </button>
           ))}
           <button 
-            onClick={() => scrollToSection('pricing')}
+            onClick={handleGetStarted}
             className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
-            {t('nav.startTrial')}
+            {t('getStarted')}
           </button>
         </div>
       </div>
