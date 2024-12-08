@@ -18,7 +18,7 @@ interface ShipmentTimelineProps {
 }
 
 export function ShipmentTimeline({ steps }: ShipmentTimelineProps) {
-  const t = useTranslations();
+  const t  = useTranslations('tracking');
 
   function DeliveryAttempts({ attempts }: { attempts: DeliveryAttempt[] }) {
     return (

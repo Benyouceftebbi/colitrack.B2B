@@ -1,17 +1,18 @@
 "use client"
 import React from 'react';
 import { Play } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function VideoSection() {
+  const t = useTranslations('videoSection');
+
   return (
     <section className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">Smart SMS Automation</h2>
+          <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-          Transform the way you engage with your customers. Watch our video to see how our SMS features streamline order updates, 
-          enhance customer satisfaction, and drive conversions. With real-time notifications and retargeting campaigns, 
-          you can revolutionize your communication strategy and keep customers informed, connected, and loyal.
+            {t('description')}
           </p>
         </div>
         

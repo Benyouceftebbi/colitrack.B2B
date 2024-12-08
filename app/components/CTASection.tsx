@@ -1,53 +1,55 @@
 "use client"
 import React from 'react';
-import { ArrowRight, CheckCircle2, Zap, Shield, Coins } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Zap, Shield, Coins, AlertCircle } from 'lucide-react';
 import {useRouter} from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
+
  
 
 const plans = [
   {
-    name: 'Starter',
+    name: "plans.0.name", // Translated name
     price: 10,
     tokens: 2400,
     bonus: null,
+    tooltip: "plans.starter.tooltip", // Translated tooltip
     features: [
-      "160 Orders Link Track and SMS sent",
-      "Real-time Order Tracking Link",
-      "Automated Delivery Updates",
-      "SMS Notifications",
-      "Custom Sender ID"
+      "plans.starter.features.0", // Translated feature
+      "plans.starter.features.1",
+      "plans.starter.features.2",
+      "plans.starter.features.3"
     ]
   },
   {
-    name: 'Enterprise',
+    name: "plans.enterprise.name",
     price: 100,
     tokens: 24000,
     bonus: 15,
+    tooltip: "plans.enterprise.tooltip",
     features: [
-      "1840 Orders Link Track and SMS sent",
-      "Real-time Order Tracking Link",
-      "Automated Delivery Updates",
-      "SMS Notifications",
-      "Custom Sender ID",
-      "SMS Retargeting Campaigns",
-      "AI Order Automation",
-      "Advanced Analytics",
-      "Priority Customer Support"
+      "plans.enterprise.features.0",
+      "plans.enterprise.features.1",
+      "plans.enterprise.features.2",
+      "plans.enterprise.features.3",
+      "plans.enterprise.features.4",
+      "plans.enterprise.features.5",
+      "plans.enterprise.features.6",
+      "plans.enterprise.features.7"
     ]
   },
   {
-    name: 'Business',
+    name: "plans.business.name",
     price: 80,
     tokens: 19200,
     bonus: 5,
+    tooltip: "plans.business.tooltip",
     features: [
-      "1344 Orders Link Track and SMS sent",
-      "Real-time Order Tracking Link",
-      "Automated Delivery Updates",
-      "SMS Notifications",
-      "Custom Sender ID",
-      "SMS Retargeting Campaigns",
-      "AI Order Automation"
+      "plans.business.features.0",
+      "plans.business.features.1",
+      "plans.business.features.2",
+      "plans.business.features.3",
+      "plans.business.features.4",
+      "plans.business.features.5"
     ]
   }
 ];
@@ -90,7 +92,7 @@ const companyLogos = [
 
 export default function CTASection() {
   const router = useRouter();
-
+const t=useTranslations("pricing")
 
   const handleGetStarted = () => {
     router.push('/Auth/SignIn');
@@ -108,32 +110,33 @@ export default function CTASection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Choose Your Plan
+            {t("title")}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Get the tokens you need to power your SMS communications
+            {t("description")}
           </p>
         </div>
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {[plans[0], plans[1], plans[2]].map((plan, index) => (
+          {plans.map((plan, index) => (
             <div key={plan.name} className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 ${
               index === 1 ? 'md:scale-105 md:-translate-y-4 border-2 border-indigo-500 dark:border-indigo-400' : ''
             }`}>
               {index === 1 && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-indigo-600 dark:bg-indigo-500 text-white px-8 py-2 rounded-full text-sm font-medium whitespace-nowrap">
-                  Most Popular
+                  {t("mostPopular")}
+       
                 </div>
               )}
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t(`plans.${index}.name`)}</h3>
                   <div className="flex items-baseline gap-1">
                     <span className={`text-4xl font-bold ${index === 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'}`}>
                       ${plan.price}
                     </span>
-                    <span className="text-gray-600 dark:text-gray-400">/one-time</span>
+                    <span className="text-gray-600 dark:text-gray-400">{t("perOneTime")}</span>
                   </div>
                 </div>
               </div>
@@ -141,11 +144,17 @@ export default function CTASection() {
               <div className="space-y-6 mb-8">
                 <div className={`p-4 ${index === 1 ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-gray-50 dark:bg-gray-700'} rounded-xl`}>
                   <div className={`text-lg font-semibold ${index === 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'} mb-1`}>
-                    {plan.tokens.toLocaleString()} Tokens
+                    {plan.tokens.toLocaleString()} {t("tokens")}
+                    <div className="group relative inline-block ml-2">
+                      <AlertCircle className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 w-48 p-2 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      {t(`plans.${index}.tooltip`)}
+                      </div>
+                    </div>
                   </div>
                   {plan.bonus && (
                     <div className={`text-sm ${index === 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300'}`}>
-                      +{plan.bonus}% Bonus Tokens FREE
+                      +{plan.bonus}% {t("bonusTokens")}
                     </div>
                   )}
                 </div>
@@ -154,19 +163,19 @@ export default function CTASection() {
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <CheckCircle2 className={`w-5 h-5 ${index === 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'} flex-shrink-0`} />
-                      {feature}
+                      {t(`plans.${index}.features.${featureIndex}`)}
                     </li>
                   ))}
                 </ul>
               </div>
               <button 
-                onClick={handleGetStarted} // Update to use the handleGetStarted function
+                onClick={handleGetStarted} //Update to use the handleGetStarted function
                 className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 ${
                   index === 1
                     ? 'bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-lg hover:shadow-xl'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}>
-                Get Started
+                {t("getStarted")}
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
@@ -180,8 +189,8 @@ export default function CTASection() {
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <benefit.icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{benefit.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{benefit.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t(`features.${index}.title`)}</h3>
+              <p className="text-gray-600 dark:text-gray-300">{t(`features.${index}.description`)}</p>
             </div>
           ))}
         </div>
@@ -189,7 +198,7 @@ export default function CTASection() {
         {/* Trust Indicators */}
         <div className="mt-20">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 text-center">
-            TRUSTED BY INDUSTRY LEADERS
+          {t("trustedBy")}
           </p>
           <div className="relative w-full overflow-hidden">
             <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10" />

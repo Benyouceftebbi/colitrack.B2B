@@ -3,16 +3,20 @@ import React, { useState } from 'react';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '../../../context/AuthContext';
+import { useTranslations } from 'next-intl';
+
 export default function SignIn() {
+  const t = useTranslations('signin');
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router=useRouter()
+  const router = useRouter();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login() 
-    router.push('/Dashboard')
+    login();
+    router.push('/Dashboard');
     // Handle sign in logic here
   };
 
@@ -21,11 +25,11 @@ export default function SignIn() {
       <div className="max-w-md w-full">
         {/* Back Button */}
         <Link
-        href='/'
+          href='/'
           className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transform transition-transform group-hover:-translate-x-1" />
-          Back to home
+          {t('backToHome')}
         </Link>
 
         {/* Sign In Form */}
@@ -37,15 +41,15 @@ export default function SignIn() {
             <span className="text-2xl font-bold text-gray-900 dark:text-white">Colitrack</span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome back</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('welcomeBack')}</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-8">
-            Sign in to your account to continue
+            {t('signInToContinue')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email address
+                {t('emailAddress')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -63,7 +67,7 @@ export default function SignIn() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                {t('password')}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -98,11 +102,11 @@ export default function SignIn() {
                   className="h-4 w-4 text-indigo-600 dark:text-indigo-400 border-gray-300 dark:border-gray-700 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400"
                 />
                 <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-300">
-                  Remember me
+                  {t('rememberMe')}
                 </label>
               </div>
               <a href="#" className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                Forgot password?
+                {t('forgotPassword')}
               </a>
             </div>
 
@@ -110,15 +114,15 @@ export default function SignIn() {
               type="submit"
               className="w-full py-3 px-4 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Sign in
+              {t('signIn')}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600 dark:text-gray-300">
-              Dont have an account?{' '}
+              {t('dontHaveAccount')}{' '}
               <Link href="/Auth/SignUp" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
-                Sign up
+                {t('signUp')}
               </Link>
             </p>
           </div>

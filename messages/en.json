@@ -13,7 +13,10 @@
     "demo": "Demo",
     "pricing": "Pricing",
     "signIn": "Sign in",
-    "startTrial": "Start Free Trial"
+    "getStarted": "Get Started",
+    "comparison":"Comparison",
+    "ai":"AI",
+    "testimonials":"Testimonials"
   },
   "smsDemo": {
     "title": "Experience Our SMS Services",
@@ -22,17 +25,20 @@
       "tracking": {
         "title": "Order Tracking",
         "description": "Keep customers informed about their package location and estimated delivery time.",
-        "inputLabel": "Enter your phone number to receive a tracking update"
+        "inputLabel": "Enter your phone number to receive a tracking update",
+        "messageTemplate": "Your package (#CT12345) is on its way! Estimated delivery: 2:00 PM - 4:00 PM today. Track here: https://colitrack-v1.vercel.app/en/T?tr=EC587T2411274666238"
       },
       "delivery": {
         "title": "Delivery Updates",
         "description": "Notify customers when their order is out for delivery with driver contact information.",
-        "inputLabel": "Enter your phone number to receive a delivery update"
+        "inputLabel": "Enter your phone number to receive a delivery update",
+        "messageTemplate":"Your order is out for delivery! Your driver John (555-0123) will arrive between 2:00 PM - 4:00 PM. Questions? Reply to this message."
       },
       "retargeting": {
         "title": "SMS Retargeting",
         "description": "Re-engage customers with personalized promotional messages and offers.",
-        "inputLabel": "Enter phone numbers (comma-separated) for bulk messaging"
+        "inputLabel": "Enter phone numbers (comma-separated) for bulk messaging",
+        "messageTemplate":"Special offer just for you! Get 20% off your next purchase with code WELCOME20. Shop now: https://shop.co/special"
       }
     },
     "senderId": "Sender ID (max 11 characters)",
@@ -47,11 +53,73 @@
     "tokens": "Tokens",
     "bonusTokens": "Bonus Tokens FREE",
     "getStarted": "Get Started",
-    "trustedBy": "TRUSTED BY INDUSTRY LEADERS"
+    "trustedBy": "TRUSTED BY INDUSTRY LEADERS",
+    "plans": [
+      {
+        "name": "Starter",
+
+        "tooltip": "160 Orders Link Track and SMS sent",
+        "features": [
+          "SMS Notifications",
+          "Real-time Order Tracking Link",
+          "SMS Retargeting Campaigns",
+          "AI Order Automation",
+          "Support Level: Standard"
+        ]
+      },
+      {
+        "name": "Enterprise",
+        "tooltip": "1840 Orders Link Track and SMS sent",
+        "features": [
+          "SMS Notifications",
+          "Real-time Order Tracking Link",
+          "Custom Sender ID",
+          "SMS Retargeting Campaigns",
+          "AI Order Automation",
+          "Support Level: Dedicated",
+          "New Feature Access: Earliest",
+          "Advanced Analytics"
+        ]
+      },
+      {
+        "name": "Business",
+        "tooltip": "1344 Orders Link Track and SMS sent",
+        "features": [
+          "SMS Notifications",
+          "Real-time Order Tracking Link",
+          "Custom Sender ID",
+          "SMS Retargeting Campaigns",
+          "AI Order Automation",
+          "Support Level: Premium",
+          "New Feature Access: Early",
+          "Advanced Analytics"
+        ]
+      }
+    ],
+    "features":[
+      {"title":"Instant Token Credit","description":"Tokens are credited to your account immediately after purchase"},   
+      {"title":"Secure & Reliable","description":"Enterprise-grade security with 99.9% uptime guarantee"},  
+       {"title":"Flexible Usage","description":"Tokens never expire, use them at your own pace"}
+    ]
   },
   "footer": {
+    "companyName": "Colitrack",
+    "companyDescription": "Empowering e-commerce businesses with smart SMS automation and AI-driven customer engagement solutions.",
+    "nav": {
+      "features": "Features",
+      "smsAutomation": "SMS Automation",
+      "analytics": "Analytics",
+      "demo": "Demo",
+      "pricing": "Pricing",
+      "signIn": "Sign in",
+      "startTrial": "Start Free Trial",
+      "comparison":"Comparison",
+      "ai":"AI",
+      "testimonials":"Testimonials"
+    },
     "copyright": "© 2024 Colitrack. All rights reserved."
   },
+  "tracking":{
   "headerTitle": "{{appName}}",
   "trackYourShipment": "Track Your Shipment",
   "enterTrackingNumber": "Enter your tracking number to get real-time updates",
@@ -100,4 +168,216 @@
     "returned-to-center": "Returned to Center",
     "exchange-failed": "Exchange Failed"
   }
+},
+  "header": {
+    "badge": "Empower Your E-Commerce Business",
+    "title": "Transform Your E-commerce Business With",
+    "highlight": "Smart SMS Solutions",
+    "and": "and",
+    "subtitle": "AI Automation",
+    "description": "Real-time notifications, enhanced customer satisfaction, and seamless automation for e-commerce businesses.",
+    "getStarted": "Get Started",
+    "tryDemo": "Try Demo"
+  },
+  "stats": {
+    "realTimeUpdates": "Real-time updates",
+    "customerSatisfaction": "Customer satisfaction",
+    "fewerInquiries": "Fewer inquiries",
+    "conversionBoost": "Conversion boost"
+  },
+  "featureCarousel": {
+    "transformTitle": "Transform Your E-commerce Operations",
+    "transformDescription": "See how our solutions address common e-commerce challenges and revolutionize your business",
+    "theProblem": "The Problem:",
+    "ourSolution": "Our Solution:",
+    "Before":"Before",
+    "After":"After",
+    "solutions": {
+      "solution1": {
+        "problem": "Lack of real-time updates",
+        "solution": "Automated SMS order status alerts",
+        "description": "Customers often called manually to ask about the status of their orders, leading to frustration and a surge in inquiries. Additionally, many parcels were returned due to delivery companies failing to contact clients about their orders, resulting in wasted time and resources. Our automated SMS notifications keep customers informed every step of the way, significantly reducing support requests, improving delivery success rates, and enhancing overall satisfaction.",
+
+        "stats": {
+          "before": "High volume of inquiries",
+          "after": "50% reduction in inquiries"
+        }
+      },
+      "solution2": {
+        "problem": "Low customer retention",
+        "solution": "SMS Retargeting Campaigns",
+        "description": "Don’t let your customers forget your brand. With SMS retargeting, you can reignite their interest with timely and personalized messages. Share irresistible promo codes, announce stunning new collections, and remind them why they fell in love with your products in the first place. Build excitement, nurture loyalty, and watch your audience return with renewed enthusiasm. Every message is a chance to reconnect and inspire.",
+
+        "stats": {
+          "before": "+5% loss of monthly customers",
+          "after": "+30% customer retention"
+        }
+      },
+      "solution3": {
+        "problem": "Manual order entry from social media",
+        "solution": "AI automation for order extraction",
+        "description": "Our AI solution streamlines order processing by automatically extracting details from social media chats, using advanced natural language processing to detect order information from emojis, keywords, and conversation context. It seamlessly integrates with websites, retrieving data directly from online checkout forms and order databases. This ensures accurate, real-time updates in the delivery system, eliminating manual entry errors, saving time, and optimizing efficiency for delivery companies.",
+
+        "stats": {
+          "before": "2+ hours",
+          "after": "< 1 minute"
+        }
+      }
+    }
+  },
+  "videoSection": {
+    "title": "Smart SMS Automation",
+    "description": "Transform the way you engage with your customers. Watch our video to see how our SMS features streamline order updates, enhance customer satisfaction, and drive conversions. With real-time notifications and retargeting campaigns, you can revolutionize your communication strategy and keep customers informed, connected, and loyal."
+  },
+  "featureShowcase": {
+    "mainHeader": "Analyze your target audience and ",
+    "secondaryHeader":"achieve record results.",
+    "mainDescription": "Our comprehensive platform provides everything you need to analyze, optimize, and scale your business.",
+   "features":{
+      "feature1":{
+        "title":"Auto Tracking Link",
+        "description":"Provide customers with an automated tracking link for their orders, enabling real-time updates and seamless monitoring of delivery status, right from their phones."
+      },
+      "feature2":{
+        "title":"Personalized SMS Notifications",
+        "description":"Send tailored SMS alerts to customers with their order details, shipping updates, and delivery schedules, ensuring a personalized experience at every step."
+      },
+      "feature3":{
+        "title":"SMS Retargeting Campaigns",
+        "description":"Boost your conversion rates by re-engaging customers who have abandoned their carts through timely, targeted SMS campaigns designed to bring them back."
+      },
+      "feature4":{
+        "title":"Custom Sender ID",
+        "description": "Use your brand’s name or a customized sender ID for SMS communications, ensuring that customers instantly recognize your messages and feel connected to your brand."
+      }
+   }
+  },
+  "comparisonTable": {
+    "features": "Features",
+    "title": "Why Choose Colitrack?",
+    "description": "See how we compare to traditional solutions in the market",
+    "getStarted": "Get Started",
+    "trackingAndDeliveryUpdates": "Tracking & Delivery Updates",
+    "realTimeOrderTrackingLink": "Real-Time Order Tracking Link",
+    "realTimeOrderTrackingTooltip": "Auto tracking link with real-time updates",
+    "automatedDeliveryUpdates": "Automated Delivery Updates",
+    "automatedDeliveryTooltip": "Automated SMS notifications for order and delivery updates",
+    "deliveryCompaniesIntegration": "Delivery Companies Integration",
+    "deliveryCompaniesTooltip": "Seamless integration with delivery companies for real-time updates",
+    "smsAndCommunication": "SMS & Communication",
+    "smsNotifications": "SMS Notifications",
+    "smsNotificationsTooltip": "Personalized order and delivery SMS",
+    "smsRetargetingCampaigns": "SMS Retargeting Campaigns",
+    "smsRetargetingTooltip": "Automated SMS retargeting campaigns",
+    "customSenderID": "Custom Sender ID",
+    "customSenderTooltip": "Customizable sender ID (brand name)",
+    "aiAndAutomation": "AI & Automation",
+    "aiOrderAutomation": "AI Order Automation",
+    "aiOrderAutomationTooltip": "AI-driven automation for orders",
+    "pricingAndSupport": "Pricing & Support",
+    "pricing": "Pricing",
+    "pricingTooltip": "Flexible pricing plans",
+    "customerSupport": "Customer Support",
+    "customerSupportTooltip": "24/7 support"
+  },
+  "ai":{
+    "comingSoon": "Coming Soon",
+  "aiPoweredSocialCommerce": "AI-Powered Social Commerce",
+  "transformSocialMedia": "Transform your social media conversations into seamless order processing with our advanced AI technology. No more manual order entry - let our AI handle it for you.",
+  "joinWaitlist": "Join Waitlist",
+  "AI Order Processing": "AI Order Processing",
+  "Smart Conversation Analysis": "Smart Conversation Analysis",
+  "Automated Order Creation": "Automated Order Creation",
+  "Automatically detect and process orders from social media conversations": "Automatically detect and process orders from social media conversations",
+  "Understand customer intent and extract order details from natural conversations": "Understand customer intent and extract order details from natural conversations",
+  "Instantly create orders when confirmation emoji is detected": "Instantly create orders when confirmation emoji is detected",
+  "AIResponse": {
+    "title": "AI Order Detection",
+    "orderDetails": "Order Details Retrieved:",
+    "product": "Product",
+    "size": "Size",
+    "deliveryAddress": "Delivery Address",
+    "status": "Status",
+    "productName": "Blue Dress",
+    "sizeValue": "M",
+    "deliveryAddressValue": "123 Main St",
+    "statusValue": "Confirmed"
+  },
+  "ChatHeader": {
+    "customerService": "Customer Service",
+    "statusOnline": "Online"
+  },
+  "Messages": {
+    "customerOrderRequest": "Hi! I'd like to order the blue dress in size M.",
+    "businessOrderConfirmation": "Hello! The blue dress in size M is available. Would you like to proceed with the order?",
+    "customerDeliveryRequest": "Yes please! Can I get it delivered to 123 Main St?",
+    "businessConfirmation": "✅"
+  }
+  },
+  "testimonials": {
+    "trusted_by": "Trusted by Growing E-commerce Businesses",
+    "customer_experience": "See what our customers say about their experience with Colitrack",
+    "ready_to_transform": "Ready to Transform Your E-commerce Business?",
+    "join_thousands": "Join thousands of businesses that trust Colitrack for their SMS automation and order tracking needs.",
+    "start_free_trial": "Start Your Free Trial Now",
+    "at":" at ",
+    "testimonials": [
+      {
+        "name": "Sarah Johnson",
+        "role": "E-commerce Manager",
+        "company": "Fashion Boutique",
+        "content": "Colitrack has transformed how we handle order communications. Our customer satisfaction rates have increased by 45% since implementing their SMS automation."
+      },
+      {
+        "name": "Michael Chen",
+        "role": "Operations Director",
+        "company": "Tech Gadgets Co",
+        "content": "The automated tracking updates have significantly reduced our customer service workload. It is like having an extra team member handling all our shipping communications."
+      },
+      {
+        "name": "Emma Rodriguez",
+        "role": "Founder",
+        "company": "Artisan Crafts",
+        "content": "As a small business owner, Colitrack has been a game-changer. The personalized tracking links and automated SMS have given us an enterprise-level customer experience."
+      }
+    ]
+  },
+  "signin":{
+    "backToHome": "Back to home",
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to your account to continue",
+    "emailAddress": "Email address",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign up"
+  },
+  "signup":{
+    "backToSignIn": "Back to sign in",
+    "createAccount": "Create your account",
+    "getStarted": "Get started with Colitrack today",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email address",
+    "phoneNumber": "Phone number",
+    "companyName": "Company name",
+    "businessType": "Type of business",
+    "pleaseSpecify": "Please specify your business type",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "terms": "I agree to the Terms of Service and Privacy Policy",
+    "createAccountButton": "Create account",
+    "passwordMismatch": "Passwords do not match!",
+    "businessTypes": {
+      "ecommerce": "E-commerce Store",
+      "retail": "Retail Shop",
+      "dropshipping": "Dropshipping Business",
+      "marketplace": "Marketplace Seller",
+      "socialCommerce": "Social Commerce",
+      "other": "Other"
+    }
+  }
+
 }

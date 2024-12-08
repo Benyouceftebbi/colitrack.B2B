@@ -3,22 +3,22 @@ import { Message } from './types';
 export const initialMessages: Message[] = [
   {
     sender: 'customer',
-    content: 'Hi! I\'d like to order the blue dress in size M',
+    content: "customerOrderRequest",
     timestamp: '11:24'
   },
   {
     sender: 'business',
-    content: 'Hello! The blue dress in size M is available. Would you like to proceed with the order?',
+    content:"businessOrderConfirmation",
     timestamp: '11:25'
   },
   {
     sender: 'customer',
-    content: 'Yes please! Can I get it delivered to 123 Main St?',
+    content: "customerDeliveryRequest",
     timestamp: '11:26'
   },
   {
     sender: 'business',
-    content: '✅',
+    content: "businessConfirmation",
     timestamp: '11:27'
   }
 ];

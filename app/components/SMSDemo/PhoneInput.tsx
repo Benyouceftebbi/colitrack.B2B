@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface PhoneInputProps {
   onSubmit: (phoneNumber: string, senderId: string) => void;
@@ -10,6 +11,7 @@ interface PhoneInputProps {
 }
 
 export default function PhoneInput({ onSubmit, onSenderIdChange, label, isMultiNumber = false }: PhoneInputProps) {
+  const t=useTranslations("smsDemo")
   const [phoneNumber, setPhoneNumber] = useState('');
   const [senderId, setSenderId] = useState('Colitrack');
 
@@ -29,7 +31,7 @@ export default function PhoneInput({ onSubmit, onSenderIdChange, label, isMultiN
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="senderId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Sender ID (max 11 characters)
+            {t('senderId')}
           </label>
           <input
             type="text"
@@ -69,11 +71,11 @@ export default function PhoneInput({ onSubmit, onSenderIdChange, label, isMultiN
           className="w-full flex items-center justify-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105"
         >
           <Send className="w-5 h-5" />
-          Send Demo Message
+          {t("sendButton")}
         </button>
       </form>
       <div className="text-sm text-gray-500 dark:text-gray-400">
-        By submitting, you agree to receive a one-time demo message. Standard message rates may apply.
+      {t("disclaimer")}
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ function getProgressPercentage(steps: ShipmentStep[], lastStep: ShipmentStep): n
   }
 }
 export function TrackingDetails({ trackingNumber, steps }: TrackingDetailsProps) {
-  const t= useTranslations();
+  const t  = useTranslations('tracking');
   const hasIssues = steps.some(step => step.isIssue);
   const lastStep = steps[steps.length - 1];
   const isDelivered = steps.some(step => step.status === 'delivered'); // New check for delivered status
