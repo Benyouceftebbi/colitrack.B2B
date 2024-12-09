@@ -23,15 +23,15 @@ const Footer = () => {
     {
       title: 'Company',
       links: [
-        { label: 'About Us', href: '#' },
-        { label: 'Contact', href: '#' }
+        { label: 'About Us', sectionId: '#' },
+        { label: 'Contact', sectionId: '#' }
       ]
     },
     {
       title: 'Legal',
       links: [
-        { label: 'Privacy Policy', href: '#' },
-        { label: 'Terms of Service', href: '#' },
+        { label: 'Privacy Policy', sectionId: '#' },
+        { label: 'Terms of Service', sectionId: '#' },
       ]
     }
   ];
@@ -112,12 +112,12 @@ const Footer = () => {
               <ul className="space-y-2">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    <a
+                    <button
                       onClick={() => scrollToSection(link.sectionId)}
                       className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
                     >
                       {link.label}
-                    </a>
+                    </button>
                   </li>
                 ))}
               </ul>
