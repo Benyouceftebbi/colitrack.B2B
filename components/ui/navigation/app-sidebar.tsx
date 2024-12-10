@@ -45,14 +45,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   
     navMain: [
-      { url: "/Dashboard", icon: Home, title: "Dashboard", isActive:pathname[1]==="Dashboard"},
-      { url: "/Dashboard/messages", icon: MessageSquare, title: "Messages", isActive:pathname[1]==="messages" },
-      { url: "/Dashboard/retargeting", icon: Target, title: "Retargeting" , isActive:pathname[1]==="retargeting"},
-      { url: "/Dashboard/orders", icon: Brain, title: "AI Orders", isActive:pathname[1]==="orders" },
-      { url: "/Dashboard/products", icon: Package, title: "Products", isActive:pathname[1]==="products" },
-      { url: "/Dashboard/history", icon: TimerIcon, title: "History", isActive:pathname[1]==="history" },
-      { url: "/Dashboard/billing", icon: CreditCard, title: "Billing", isActive:pathname[1]==="billing" },
-      { url: "/Dashboard/settings", icon: Settings, title: "Settings", isActive:pathname[1]==="settings" },
+      { url: "/dashboard", icon: Home, title: "Dashboard", isActive:pathname[1]==="Dashboard"},
+      { url: "/dashboard/messages", icon: MessageSquare, title: "Messages", isActive:pathname[1]==="messages" },
+      { url: "/dashboard/retargeting", icon: Target, title: "Retargeting" , isActive:pathname[1]==="retargeting"},
+      { url: "/dashboard/orders", icon: Brain, title: "AI Orders", isActive:pathname[1]==="orders" },
+      { url: "/dashboard/products", icon: Package, title: "Products", isActive:pathname[1]==="products" },
+      { url: "/dashboard/history", icon: TimerIcon, title: "History", isActive:pathname[1]==="history" },
+      { url: "/dashboard/billing", icon: CreditCard, title: "Billing", isActive:pathname[1]==="billing" },
+      { url: "/dashboard/settings", icon: Settings, title: "Settings", isActive:pathname[1]==="settings" },
     ],
   }
 

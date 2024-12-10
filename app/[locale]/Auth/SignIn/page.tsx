@@ -16,7 +16,7 @@ export default function SignIn() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     login();
-    router.push('/Dashboard');
+    router.push('/dashboard');
     // Handle sign in logic here
   };
 
