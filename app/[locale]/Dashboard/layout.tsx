@@ -18,6 +18,7 @@ import {usePathname} from "@/i18n/routing";
 
 import React from "react";
 import TopHeader from "@/components/ui/navigation/TopHeader";
+import { ShopProvider } from "@/app/context/ShopContext";
 
 export default function DashboardLayout({
   children,
@@ -33,7 +34,9 @@ export default function DashboardLayout({
     return redirect({ href: "/Auth/SignIn", locale: locale });
   }
   return ( 
+
     <SidebarProvider>
+        <ShopProvider userId="grifashop">
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
@@ -67,6 +70,7 @@ export default function DashboardLayout({
         {children}
       </main>
       </SidebarInset>
+      </ShopProvider>
       </SidebarProvider>
 
   );

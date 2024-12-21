@@ -1,24 +1,17 @@
 "use client"
 
-import { ArrowDown, ArrowUp, ChevronDown, ClipboardCopy, MessageSquare, Users, Activity, Bell, FileText, HelpCircle, Wallet } from 'lucide-react'
+import { ArrowDown, ArrowUp,  MessageSquare, HelpCircle, TrendingUp, Star } from 'lucide-react'
 import Link from "next/link"
 import * as React from "react"
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -29,19 +22,118 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
 import { useTranslations } from 'next-intl';
+import Algeria from "@react-map/algeria";
+import { useTheme } from 'next-themes'
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+} from '@tanstack/react-table'
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+type AlgeriaDataItem = {
+  name: string
+  value: number
+}
+
+const algeriaData: AlgeriaDataItem[] = [
+  { name: 'Algiers', value: 430 },
+  { name: 'Oran', value: 385 },
+  { name: 'Constantine', value: 342 },
+  { name: 'Annaba', value: 289 },
+  { name: 'Blida', value: 276 },
+  { name: 'Batna', value: 250 },
+  { name: 'Setif', value: 230 },
+  { name: 'Sidi Bel Abbes', value: 210 },
+  { name: 'Biskra', value: 190 },
+  { name: 'Tebessa', value: 180 },
+]
+
+const columnHelper = createColumnHelper<AlgeriaDataItem>()
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: 'State',
+    cell: info => info.getValue(),
+  }),
+  columnHelper.accessor('value', {
+    header: 'Total SMS',
+    cell: info => info.getValue(),
+  }),
+]
+
+const chartData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+]
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig
 
 export default function Dashboard() {
   const t = useTranslations('header')
   const [progress, setProgress] = React.useState(13)
   const [showHelp, setShowHelp] = React.useState(false)
+  const { theme } = useTheme()
 
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
     return () => clearTimeout(timer)
   }, [])
+  const table = useReactTable({
+    data: algeriaData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
+  })
+  async function listFirebaseFolders(baseUrl) {
+    try {
+      // Request the list of files and prefixes
+      const response = await fetch(`${baseUrl}?delimiter=/`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+  
+      // Extract folders (prefixes)
+      const folders = data.prefixes || [];
+      if (folders.length === 0) {
+        console.log("No folders found.");
+      } else {
+        console.log("Folders found:");
+        folders.forEach(folder => console.log(folder));
+      }
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+    }
+  }
+  
+  // Example usage
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
@@ -61,8 +153,31 @@ export default function Dashboard() {
           </div>
         </div>
 
+
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+        <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+            <CardContent className="p-2 sm:p-4 md:p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Token Left</p>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">3600</h2>
+                </div>
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
+                </div>
+              </div>
+              <div className="mt-2 sm:mt-4">
+                <Progress value={84} className="h-1 sm:h-2" />
+              </div>
+              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                <span className="text-green-600 flex items-center">
+                  
+                  200-600 sms to be sent left
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -89,8 +204,8 @@ export default function Dashboard() {
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Active Campaigns</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">8</h2>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Total SMS Sent Today</p>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">150</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -131,80 +246,124 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
-            <CardContent className="p-2 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Reached Customers</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">8,432</h2>
-                </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
-                </div>
-              </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={84} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className="text-green-600 flex items-center">
-                  <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  842 new customers
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
 
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-6">
                 <CardTitle className="text-base sm:text-lg md:text-xl">Message Analytics</CardTitle>
-                <Select defaultValue="7days">
-                  <SelectTrigger className="w-full sm:w-[120px] md:w-[140px] text-xs sm:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7days">Last 7 days</SelectItem>
-                    <SelectItem value="30days">Last 30 days</SelectItem>
-                    <SelectItem value="90days">Last 90 days</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
+
+        <div className="flex gap-2 font-medium leading-none">
+          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+        </div>
+        <div className="leading-none text-muted-foreground">
+          Showing total visitors for the last 6 months
+        </div>
+
             </CardHeader>
             <CardContent>
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                Chart visualization will be implemented here
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Balance</CardTitle>
-            </CardHeader>
-            <CardContent className="p-2 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Available Tokens</p>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">1,234,567</h2>
-                </div>
-                <div className="p-2 sm:p-3 md:p-4 bg-primary/10 rounded-full">
-                  <Wallet className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-primary" />
-                </div>
-              </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={75} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 flex justify-between text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span>75% of monthly allocation used</span>
-                <span>25% remaining</span>
-              </div>
-              <div className="mt-3 sm:mt-4 md:mt-6">
-                <Button className="w-full text-xs sm:text-sm">Add More Tokens</Button>
-              </div>
+            <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="dashed" />}
+            />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+          </BarChart>
+        </ChartContainer>
+
+
             </CardContent>
           </Card>
+          <Card className="w-full max-w-4xl mx-auto">
+      <CardContent className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Algeria Interactive Map</h2>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1">
+          <Algeria
+              size={300}
+              type="select-single"
+              mapColor={theme === "dark" ? "#374151" :undefined}
+              hoverColor={theme === "dark" ? "#6B7280" : "#9CA3AF"}
+              selectColor={theme === "dark" ? "#9CA3AF" : "#4B5563"}
+              strokeColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
+              strokeWidth={1}
+              hints={true}
+              hintTextColor={theme === "dark" ? "#000000" : "#FFFFFF"}
+              hintBackgroundColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
+              hintBorderRadius={3}
+
+            />
+          </div>
+          <div className="flex-1">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id} className="dark:border-gray-700">
+                    {headerGroup.headers.map(header => (
+                      <TableHead key={header.id} className="dark:text-gray-300">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map(row => (
+                  <TableRow 
+                    key={row.id} 
+                    className={ "dark:border-gray-700"}
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id} className="dark:text-gray-300">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
         </div>
 
         <Card>
