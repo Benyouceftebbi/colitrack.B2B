@@ -1,6 +1,7 @@
 import * as React from "react"
 import { SMSTemplateCard } from "./sms-template-card"
 import { SMSPreview } from "./sms-preview"
+import { useShop } from "@/app/context/ShopContext"
 
 
 interface SMSTemplatePanelProps {
@@ -10,10 +11,10 @@ interface SMSTemplatePanelProps {
 }
 const smsTemplates = [
   {
-    id: 'expedited',
+    id: 'shippedSms',
     name: 'Real-Time Tracking',
     description: 'Send instant tracking links for expedited deliveries',
-    tokens: 5,
+    tokens: 15,
     icon: '🚀',
     template: `Your package ({{trackingNumber}}) is being expedited!
 
@@ -27,10 +28,10 @@ Reply HELP for support`,
     ]
   },
   {
-    id: 'out_for_delivery',
+    id: 'outForDeliverySms',
     name: 'Out for Delivery Alert',
     description: 'Notify customers when their package is out for delivery',
-    tokens: 2,
+    tokens: 10,
     icon: '📦',
     template: `Your package ({{trackingNumber}}) is out for delivery today!
 
@@ -45,10 +46,10 @@ Reply OK to confirm availability`,
     ]
   },
   {
-    id: 'stop_desk',
+    id: 'readyToBePickedSms',
     name: 'Stop Desk Pickup',
     description: 'Alert customers when packages arrive at pickup locations',
-    tokens: 2,
+    tokens: 10,
     icon: '🏪',
     template: `Your package ({{trackingNumber}}) is ready for pickup!
 
@@ -69,6 +70,7 @@ export function SMSTemplatePanel({
   onPreviewTemplate
 }: SMSTemplatePanelProps) {
   const [activeTemplate, setActiveTemplate] = React.useState<string | null>(null)
+  const {shopData}=useShop()
 
   const handlePreview = (template: string) => {
     setActiveTemplate(template)
@@ -76,12 +78,12 @@ export function SMSTemplatePanel({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
-        <div className="glass rounded-xl p-6 h-full">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold glow">Automated SMS Templates</h3>
-            <span className="text-sm text-muted-foreground">
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="w-full lg:w-2/3">
+        <div className="glass rounded-xl p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold glow">Automated SMS Templates</h3>
+            <span className="text-xs sm:text-sm text-muted-foreground">
               {selectedTemplates.length} Active
             </span>
           </div>
@@ -94,15 +96,16 @@ export function SMSTemplatePanel({
                 isPreviewActive={template.template === activeTemplate}
                 onSelect={() => onTemplateToggle(template.id)}
                 onPreview={() => handlePreview(template.template)}
+                shopData={shopData}
               />
             ))}
           </div>
         </div>
       </div>
       
-      <div className="lg:col-span-1">
-        <div className="glass rounded-xl p-6 sticky top-6">
-          <h3 className="text-lg font-semibold mb-6 glow">Live Preview</h3>
+      <div className="w-full lg:w-1/3">
+        <div className="glass rounded-xl p-4 sm:p-6 lg:sticky lg:top-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 glow">Live Preview</h3>
           <SMSPreview message={activeTemplate} />
         </div>
       </div>

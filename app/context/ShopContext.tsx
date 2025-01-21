@@ -12,14 +12,12 @@ import {
     SidebarInset,
   } from '@/components/ui/sidebar'
   import { Skeleton } from '@/components/ui/skeleton'
-  import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { HelpCircle } from 'lucide-react'
-import { Link } from '@/i18n/routing';
 interface ShopContextType {
  shopData: any; // Define the type based on your shop data structure
  loading: boolean;
  error: string | null;
+ setShopData:any
 }
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({ userId, children }) => {
@@ -35,7 +33,7 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
      try {
        const shopDoc = await getDoc(doc(db, "Shops", userId));
        if (shopDoc.exists()) {
-         setShopData(shopDoc.data());
+         setShopData({...shopDoc.data(),id:shopDoc.id});
        } else {
          setError("No shop data found");
        }
@@ -49,7 +47,7 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
  }, [userId]);
  if(loading===false && shopData){
   return (
-   <ShopContext.Provider value={{ shopData, loading, error }}>
+   <ShopContext.Provider value={{ shopData, loading, error,setShopData }}>
      {children}
    </ShopContext.Provider>
  );

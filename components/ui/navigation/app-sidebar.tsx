@@ -26,10 +26,11 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Link, usePathname } from "@/i18n/routing"
+import { useShop } from "@/app/context/ShopContext"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname= usePathname().split('/').filter(Boolean);
-console.log("patj",pathname);
+  const {shopData}=useShop()
 
   const data = {
     teams: [
@@ -40,8 +41,8 @@ console.log("patj",pathname);
       },
     ],
     user: {
-      name: "shadcn",
-      email: "m@example.com",
+      name: shopData.shopName,
+      email: shopData.email,
       avatar: "/avatars/shadcn.jpg",
     },
   
@@ -78,7 +79,7 @@ console.log("patj",pathname);
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={data.user} shopData={shopData}/>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -1,6 +1,8 @@
 "use client"
 import { auth } from "@/firebase/firebase";
-import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut} from "firebase/auth";
+import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface ExtendedFirebaseUser extends FirebaseUser {
@@ -11,6 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email:string,password:string) => Promise<boolean>;
   logout: () => void;
+  signup:(usr:any)=>Promise<FirebaseUser | null>
   user:ExtendedFirebaseUser | null | false | User;
   
 }
@@ -47,6 +50,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const signup = async (usr:any) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, usr.email, usr.password);
+      const user = userCredential.user;
+
+      // Save user data to Firestore
+      await setDoc(doc(db, "Shops", user.uid), {
+        email: user.email,
+        ...usr // Spread additional user data
+      });
+      setUser(user);
+      setIsAuthenticated(true);
+      return user; // Return the user object
+    } catch (error) {
+      console.error("Signup Error:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+      return null; // Return null on error
+    }
+  };
+
   useEffect(() => {
     return onAuthStateChanged(auth, async (user:User | null) => {
       if (user) {
@@ -62,7 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, user}}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, signup, user}}>
       {children}
     </AuthContext.Provider>
   );

@@ -20,7 +20,7 @@ export default function MessageCenter() {
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="container mx-auto space-y-6">
         <MessageHeader token={token} senderId={senderId} />
-        <MessageStats />
+        {/*<MessageStats />*/}
         
         <SMSTemplatePanel 
           selectedTemplates={selectedTemplates}

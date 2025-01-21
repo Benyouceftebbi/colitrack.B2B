@@ -32,18 +32,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/app/context/AuthContext"
 
 export function NavUser({
-  user,
+  user,shopData
 }: {
   user: {
     name: string
     email: string
     avatar: string
-  }
+  },
+  shopData:any
 }) {
   const { isMobile } = useSidebar()
-
+const {logout}= useAuth()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -93,12 +95,12 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
               <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                <span className="font-medium">3600</span>
+                <span className="font-medium">{shopData.tokens}</span>
 
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IdCard/>
-                Colitrack
+                {shopData.senderId?shopData.senderId:"Colitrack"}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings/>
@@ -106,7 +108,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={async ()=>await logout()}>
               <LogOut />
               Log out
             </DropdownMenuItem>

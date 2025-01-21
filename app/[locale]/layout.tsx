@@ -43,6 +43,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale.locale} suppressHydrationWarning>
+      
       <body>
         <NextIntlClientProvider locale={locale.locale} messages={messages}>
           <ThemeProvider

@@ -25,7 +25,7 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated,user} = useAuth();
   const locale = useLocale();
 
   const pathSegments = usePathname().split('/').filter(Boolean); // Update this line

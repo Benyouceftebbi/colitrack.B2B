@@ -4,6 +4,8 @@ import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '../../../context/AuthContext';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/ui/LoadingButton';
 
 export default function SignIn() {
   const t = useTranslations('signin');
@@ -11,16 +13,19 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading,setLoading]=useState(false)
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoading(true)
     e.preventDefault();
     const logged=await login(email,password);
     if(logged){
       router.push('/dashboard');
-      // Handle sign in logic here
+      setLoading(false)
+      return ;
     }
-
+    setLoading(false)
   };
 
   return (
@@ -113,12 +118,13 @@ export default function SignIn() {
               </a>
             </div>
 
-            <button
+            <LoadingButton
+            loading={loading}
               type="submit"
               className="w-full py-3 px-4 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               {t('signIn')}
-            </button>
+            </LoadingButton>
           </form>
 
           <div className="mt-6 text-center">

@@ -39,23 +39,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useShop } from '@/app/context/ShopContext'
+
 type AlgeriaDataItem = {
   name: string
   value: number
 }
 
-const algeriaData: AlgeriaDataItem[] = [
-  { name: 'Algiers', value: 430 },
-  { name: 'Oran', value: 385 },
-  { name: 'Constantine', value: 342 },
-  { name: 'Annaba', value: 289 },
-  { name: 'Blida', value: 276 },
-  { name: 'Batna', value: 250 },
-  { name: 'Setif', value: 230 },
-  { name: 'Sidi Bel Abbes', value: 210 },
-  { name: 'Biskra', value: 190 },
-  { name: 'Tebessa', value: 180 },
-]
+
 
 const columnHelper = createColumnHelper<AlgeriaDataItem>()
 
@@ -70,31 +61,36 @@ const columns = [
   }),
 ]
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
 
 export default function Dashboard() {
   const t = useTranslations('header')
   const [progress, setProgress] = React.useState(13)
   const [showHelp, setShowHelp] = React.useState(false)
   const { theme } = useTheme()
-
+  const {shopData}=useShop()
+  const chartData = [
+    { month: "January", totalSmsOfOneTapLink: shopData.analytics?.January?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.January?.totalSmsSentInCampaign || 0 },
+    { month: "February", totalSmsOfOneTapLink: shopData.analytics?.February?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.February?.totalSmsSentInCampaign || 0 },
+    { month: "March", totalSmsOfOneTapLink: shopData.analytics?.March?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.March?.totalSmsSentInCampaign || 0 },
+    { month: "April", totalSmsOfOneTapLink: shopData.analytics?.April?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.April?.totalSmsSentInCampaign || 0 },
+    { month: "May", totalSmsOfOneTapLink: shopData.analytics?.May?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.May?.totalSmsSentInCampaign || 0 },
+    { month: "June", totalSmsOfOneTapLink: shopData.analytics?.June?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.June?.totalSmsSentInCampaign || 0 },
+  ];
+  const chartConfig = {
+    desktop: {
+      label: "totalSmsOfOneTapLink",
+      color: "hsl(var(--chart-1))",
+    },
+    mobile: {
+      label: "totalSmsSentInCampaign",
+      color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig
+  const algeriaData: AlgeriaDataItem[] = React.useMemo(() => [
+    { name: 'Algiers', value: shopData.smsByState?.lagos?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+    { name: 'Oran', value: shopData.smsByState?.abuja?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+    { name: 'Constantine', value:  shopData.smsByState?.portHarcourt?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+  ], [shopData]) // Memoize based on shopData
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
     return () => clearTimeout(timer)
@@ -110,30 +106,44 @@ export default function Dashboard() {
       },
     },
   })
-  async function listFirebaseFolders(baseUrl) {
-    try {
-      // Request the list of files and prefixes
-      const response = await fetch(`${baseUrl}?delimiter=/`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.statusText}`);
-      }
-  
-      const data = await response.json();
-  
-      // Extract folders (prefixes)
-      const folders = data.prefixes || [];
-      if (folders.length === 0) {
-        console.log("No folders found.");
-      } else {
-        console.log("Folders found:");
-        folders.forEach(folder => console.log(folder));
-      }
-    } catch (error) {
-      console.error("Error fetching folders:", error);
-    }
-  }
-  
-  // Example usage
+  const totalSmsSent = React.useMemo(() => {
+    return Object.keys(shopData.analytics || {}).reduce((acc, month) => {
+      return acc + (shopData.analytics[month]?.totalSmsSent || 0);
+    }, 0);
+  }, []);
+
+
+  const currentMonth = React.useMemo(() => {
+    return new Date().toLocaleString('default', { month: 'long' });
+  }, []);
+
+  const lastMonth = React.useMemo(() => {
+    return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('default', { month: 'long' });
+  }, []);
+
+  const currentMonthSms = React.useMemo(() => {
+    return shopData.analytics?.[currentMonth]?.totalSmsSent || 0;
+  }, []);
+
+  const lastMonthSms = React.useMemo(() => {
+    return shopData.analytics?.[lastMonth]?.totalSmsSent || 0;
+  }, []);
+
+  const percentageChange = React.useMemo(() => {
+    return lastMonthSms > 0 
+      ? ((currentMonthSms - lastMonthSms) / lastMonthSms) * 100 
+      : 0;
+  }, []);
+
+  const percentageText = React.useMemo(() => {
+    return percentageChange > 0 
+      ? `${percentageChange.toFixed(1)}% from last month` 
+      : `${Math.abs(percentageChange).toFixed(1)}% decrease from last month`;
+  }, []);
+
+  const isChartDataEmpty = chartData.length === 0;
+  const isTableDataEmpty = table.getRowModel().rows.length === 0;
+console.log(isChartDataEmpty,isTableDataEmpty);
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
@@ -154,13 +164,14 @@ export default function Dashboard() {
         </div>
 
 
+
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
         <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Token Left</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">3600</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData.tokens}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -172,7 +183,7 @@ export default function Dashboard() {
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                 <span className="text-green-600 flex items-center">
                   
-                  200-600 sms to be sent left
+                {Math.floor(shopData.tokens/15)}-{Math.floor(shopData.tokens/10)} sms to be sent left
                 </span>
               </div>
             </CardContent>
@@ -182,7 +193,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Total Messages</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">12,543</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{totalSmsSent}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -192,11 +203,15 @@ export default function Dashboard() {
                 <Progress value={progress} className="h-1 sm:h-2" />
               </div>
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className="text-green-600 flex items-center">
-                  <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  12.3% from last month
-                </span>
-              </div>
+    <span className={`flex items-center ${percentageChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
+        {percentageChange > 0 ? (
+            <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+        ) : (
+            <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+        )}
+        {percentageText}
+    </span>
+</div>
             </CardContent>
           </Card>
 
@@ -205,7 +220,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Total SMS Sent Today</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">150</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.smsSentToday|| 0}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -228,7 +243,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Return Rate</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">4.2%</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.returnRate}%</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -250,42 +265,39 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
-          <Card>
+        <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-6">
                 <CardTitle className="text-base sm:text-lg md:text-xl">Message Analytics</CardTitle>
               </div>
-
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total sms for the last 6 months
         </div>
 
             </CardHeader>
             <CardContent>
-
-            <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-          </BarChart>
-        </ChartContainer>
-
-
+              {!isChartDataEmpty ? (
+                <div className="text-center text-gray-500">Not enough data</div>
+              ) : (
+                <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
+                  <BarChart accessibilityLayer data={chartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator="dashed" />}
+                    />
+                    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+                    <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                  </BarChart>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
           <Card className="w-full max-w-4xl mx-auto">
@@ -305,43 +317,46 @@ export default function Dashboard() {
               hintTextColor={theme === "dark" ? "#000000" : "#FFFFFF"}
               hintBackgroundColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
               hintBorderRadius={3}
-
-            />
+/>
           </div>
           <div className="flex-1">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id} className="dark:border-gray-700">
-                    {headerGroup.headers.map(header => (
-                      <TableHead key={header.id} className="dark:text-gray-300">
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map(row => (
-                  <TableRow 
-                    key={row.id} 
-                    className={ "dark:border-gray-700"}
-                  >
-                    {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id} className="dark:text-gray-300">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {!isTableDataEmpty ? (
+              <div className="text-center text-gray-500">Not enough data</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <TableRow key={headerGroup.id} className="dark:border-gray-700">
+                      {headerGroup.headers.map(header => (
+                        <TableHead key={header.id} className="dark:text-gray-300">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows.map(row => (
+                    <TableRow 
+                      key={row.id} 
+                      className={"dark:border-gray-700"}
+                    >
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell key={cell.id} className="dark:text-gray-300">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button
                 variant="outline"
@@ -389,33 +404,17 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">John Doe</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">TRK123456789</TableCell>
-                    <TableCell>
-                      <Badge variant="success" className="text-[8px] sm:text-[10px] md:text-xs">Delivered</Badge>
-                    </TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">{new Date().toLocaleString()}</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">Your package will be delivered today between 2-4 PM</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">Jane Smith</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">TRK987654321</TableCell>
-                    <TableCell>
-                      <Badge variant="destructive" className="text-[8px] sm:text-[10px] md:text-xs">Failed</Badge>
-                    </TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">{new Date(Date.now() - 15 * 60000).toLocaleString()}</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">Package delivery attempted. Please confirm your av...</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">Mike Johnson</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">TRK456789123</TableCell>
-                    <TableCell>
-                      <Badge variant="success" className="text-[8px] sm:text-[10px] md:text-xs">Delivered</Badge>
-                    </TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm">{new Date(Date.now() - 30 * 60000).toLocaleString()}</TableCell>
-                    <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">Your package has been picked up by our courier</TableCell>
-                  </TableRow>
+                  {shopData.smsTracking?.map((tracking) => (
+                    <TableRow key={tracking.trackingNumber}>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">{tracking.customerName}</TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm">{tracking.trackingNumber}</TableCell>
+                      <TableCell>
+                        <Badge variant={tracking.status === 'Delivered' ? 'success' : 'destructive'} className="text-[8px] sm:text-[10px] md:text-xs">{tracking.status}</Badge>
+                      </TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm">{new Date(tracking.time).toLocaleString()}</TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">{tracking.message}</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

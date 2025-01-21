@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
+import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/ui/modal"
 import { cn } from "@/lib/utils"
-import { Eye } from "lucide-react"
+import { Eye, Star } from "lucide-react"
+import { useState } from "react"
 
 interface SMSTemplateCardProps {
   template: {
@@ -15,6 +17,7 @@ interface SMSTemplateCardProps {
   isSelected: boolean
   onSelect: () => void
   onPreview: () => void
+  shopData:any
   className?: string
 }
 
@@ -23,9 +26,20 @@ export function SMSTemplateCard({
   isSelected, 
   onSelect, 
   onPreview,
+  shopData,
   className 
 }: SMSTemplateCardProps) {
+  const [showModal, setShowModal] = useState(false)
+
+  const handleActivate = () => {
+    if (!shopData.apiKey) {
+      setShowModal(true)
+    } else {
+      onSelect()
+    }
+  }
   return (
+    <>
     <div
       className={cn(
         "glass p-4 rounded-xl transition-all duration-300",
@@ -49,8 +63,8 @@ export function SMSTemplateCard({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-4">
-            <span className="text-xs text-cyan-400 font-mono">
-              {template.tokens} tokens per message
+            <span className="text-xs text-cyan-400 font-mono flex items-center">
+              {template.tokens} <Star className="h-3 w-3 text-cyan-500 fill-current mx-1" /> tokens per message
             </span>
             <div className="flex items-center gap-2">
               <Button 
@@ -66,7 +80,7 @@ export function SMSTemplateCard({
                 size="sm"
                 variant={isSelected ? "default" : "secondary"}
                 className={isSelected ? "bg-cyan-500" : "glass"}
-                onClick={onSelect}
+                onClick={ handleActivate }
               >
                 {isSelected ? 'Active' : 'Activate'}
               </Button>
@@ -75,5 +89,21 @@ export function SMSTemplateCard({
         </div>
       </div>
     </div>
+    
+    <Modal open={showModal} onOpenChange={setShowModal}>
+    <ModalContent>
+      <ModalHeader>
+        <ModalTitle>Account Linking Required</ModalTitle>
+        <ModalDescription>
+          You can't activate this option. You need to first link up your delivery account.
+        </ModalDescription>
+      </ModalHeader>
+      <div className="mt-4 flex justify-end">
+        <Button onClick={() => setShowModal(false)} variant="destructive">Close</Button>
+        <Button variant="secondary" className="ml-2">Link Account</Button>
+      </div>
+    </ModalContent>
+  </Modal>
+  </>
   )
 }
