@@ -36,7 +36,7 @@ export default function DashboardLayout({
   return ( 
 
     <SidebarProvider>
-        <ShopProvider userId="grifashop">
+        <ShopProvider userId={user.uid}>
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">

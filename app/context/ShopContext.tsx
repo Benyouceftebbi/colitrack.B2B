@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState,ReactNode } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import {
     Sidebar as SidebarPrimitive,
@@ -24,27 +24,59 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
  const [shopData, setShopData] = useState<any>(null);
  const [loading, setLoading] = useState<boolean>(true);
  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-   const fetchShopData = async () => {
-     if (!userId) {
-       setLoading(false);
-       return;
-     }
-     try {
-       const shopDoc = await getDoc(doc(db, "Shops", userId));
-       if (shopDoc.exists()) {
-         setShopData({...shopDoc.data(),id:shopDoc.id});
-       } else {
-         setError("No shop data found");
-       }
-     } catch (err) {
-       setError("Error fetching shop data");
-     } finally {
-       setLoading(false);
-     }
-   };
-    fetchShopData();
- }, [userId]);
+ useEffect(() => {
+  const fetchShopData = async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const shopRef = doc(db, "Shops", userId);
+
+      // Fetch shop document, SMS, and Trackings in parallel
+      const [shopDoc, smsDocs, trackingDocs] = await Promise.all([
+        getDoc(shopRef),
+        getDocs(collection(shopRef, "SMS")),
+        getDocs(collection(shopRef, "Tracking")),
+      ]);
+
+      if (!shopDoc.exists()) {
+        setError("No shop data found");
+        setLoading(false);
+        return;
+      }
+
+      const shopData = { ...shopDoc.data(), id: shopDoc.id };
+
+      // Process Trackings once: Create both a map and an array
+      const trackingMap = {};
+      const trackingData = trackingDocs.docs.map((trackingDoc) => {
+        const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id };
+        trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null;
+        return trackingInfo;
+      });
+
+      // Enrich SMS data with the lastStatus from Trackings
+      const smsData = smsDocs.docs.map((smsDoc) => ({
+        ...smsDoc.data(),
+        id: smsDoc.id,
+        lastStatus: trackingMap[smsDoc.data().trackingId] || null,
+      }));
+
+      shopData.sms = smsData;
+      shopData.tracking = trackingData;
+
+      setShopData(shopData);
+    } catch (err) {
+      setError("Error fetching shop data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchShopData();
+}, [userId]);
  if(loading===false && shopData){
   return (
    <ShopContext.Provider value={{ shopData, loading, error,setShopData }}>

@@ -26,7 +26,7 @@
         "title": "Order Tracking",
         "description": "Keep customers informed about their package location and estimated delivery time.",
         "inputLabel": "Enter your phone number to receive a tracking update",
-        "messageTemplate": "Your package (#CT12345) is on its way! Estimated delivery: 2:00 PM - 4:00 PM today. Track here: https://colitrack-v1.vercel.app/en/T?tr=EC587T2411274666238"
+        "messageTemplate": "Your package (#CT12345) is on its way! Estimated delivery: 2:00 PM - 4:00 PM today. Track here: https://colitrack-v1.vercel.app/fr/t?tr=yal-AYET67"
       },
       "delivery": {
         "title": "Delivery Updates",

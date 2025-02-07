@@ -1,3 +1,4 @@
+import { useShop } from "@/app/context/ShopContext"
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 
@@ -29,12 +30,15 @@ export const smsHistory: any[] = [
   }
 ]
 export function SMSHistory() {
+  const {shopData}=useShop()
+  console.log("data ",shopData.sms);
+  
   return (
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold glow">Recent Messages</h3>
       </div>
-      <DataTable columns={columns} data={smsHistory} />
+      <DataTable columns={columns} data={shopData.sms} />
     </div>
   )
 }

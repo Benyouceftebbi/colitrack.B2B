@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PhoneInput from './PhoneInput';
 import PhonePreview from './PhonePreview';
 import { useTranslations } from 'next-intl';
+import axios from 'axios';
 
 const services = [
   {
@@ -34,7 +35,21 @@ export default function SMSDemo() {
   const [isMessageSent, setIsMessageSent] = useState(false);
   const [currentSenderId, setCurrentSenderId] = useState('Colitrack');
   const t=useTranslations('smsDemo')
+  const handleSendSms = async (sms,phoneNumber,senderId,smsToken) => {
+    try {
+      const res = await axios.get("/api/send-sms", {
+        params: {
+          sms,
+          phoneNumber,
+          senderId,
+          smsToken,
+        },
+      });
+return true
+    } catch (err) {
 
+    }
+  };
   const handlePrevious = () => {
     setActiveService((prev) => (prev - 1 + services.length) % services.length);
     setIsMessageSent(false);
@@ -45,7 +60,18 @@ export default function SMSDemo() {
     setIsMessageSent(false);
   };
 
-  const handleSubmit = (phoneNumber: string, senderId: string) => {
+  const handleSubmit = async (phoneNumber: string, senderId: string) => {
+    let newSms = "";
+  
+    if (activeService === 0) {
+      newSms = `Cher client, votre colis est en route ! Suivez-le ici :  https://colitrack-v1.vercel.app/fr/t?tr=yal-AYET67. Merci !`;
+    } else if (activeService === 1) {
+      newSms = "Votre commande est en cours de livraison ! Votre chauffeur John (555-0123) arrivera entre 14h00 et 16h00.";
+    } else if (activeService === 2) {
+      newSms = "Bonjour, Profitez de -10% sur votre prochaine commande avec le code RETOUR10. Dépêchez-vous, l’offre expire bientôt ! 🌟 https://sabyange.com";
+    }
+
+  await handleSendSms(newSms,phoneNumber,"SabyAnge","0379004fa017baa6016e3f62f388b832")
     setIsMessageSent(true);
     setCurrentSenderId(senderId);
   };

@@ -40,6 +40,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useShop } from '@/app/context/ShopContext'
+import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import { db } from '@/firebase/firebase'
+import axios from 'axios';
 
 type AlgeriaDataItem = {
   name: string
@@ -143,14 +146,111 @@ export default function Dashboard() {
 
   const isChartDataEmpty = chartData.length === 0;
   const isTableDataEmpty = table.getRowModel().rows.length === 0;
-console.log(isChartDataEmpty,isTableDataEmpty);
+  
 
+
+async function sendSMS(sms, phoneNumber, senderId, smsToken) {
+  try {
+    const response = await axios.get("/api/send-sms", {
+      params: {
+        sms,
+        phoneNumber,
+        senderId,
+        smsToken,
+      },
+    });
+    console.log("SMS sent successfully:", response.data);
+  } catch (error) {
+    console.error("Error sending SMS:", error.response?.data || error.message);
+  }
+}
+
+const fetchTrackingDatas = async () => {
+
+    const trackingRef = collection(db, "/Shops/sabyange/Tracking");
+    const q = query(trackingRef, where("lastStatus", "in", ["delivery-failed", "istribution-center","en-route-to-region","ready-for-pickup"])); // Query for specific statuses
+
+    try {
+      const querySnapshot = await getDocs(q);
+      const trackingData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      trackingData.map(async (track) => {
+        const sms = `Cher client, votre colis est en route ! Suivez-le ici :  https://colitrack-v1.vercel.app/fr/t?tr=${track.id}. Merci !`;
+        await sendSMS(sms, track.data.contact_phone, "SabyAnge", "0379004fa017baa6016e3f62f388b832");
+      });
+    } catch (error) {
+      console.error("Error fetching tracking data: ", error);
+    }
+  };
+  const fetchTrackingData = async () => {
+    const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2"; // Replace with the actual current user ID
+    const grifashopUserId = "grifashop"; // User ID to duplicate from
+
+    // Fetch SMS and tracking data from grifashop
+    const smsRef = collection(db, `/Shops/${grifashopUserId}/SMS`);
+    const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`);
+
+    try {
+        const smsSnapshot = await getDocs(smsRef);
+        const trackingSnapshot = await getDocs(trackingRef);
+
+        // Duplicate SMS data
+        const smsPromises = smsSnapshot.docs.map(docSnap => { 
+          const docRef = doc(db, `Shops/${currentUserId}/SMS`, docSnap.id);
+          return setDoc(docRef, docSnap.data());
+      });
+      
+
+
+        // Wait for all promises to resolve
+        await Promise.all([...smsPromises]);
+
+        console.log("SMS and tracking data duplicated successfully.");
+    } catch (error) {
+        console.error("Error fetching or duplicating tracking data: ", error);
+    }
+};
+const copyECTrackingData = async () => {
+  const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2"; // Replace with the actual current user ID
+  const grifashopUserId = "grifashop"; // User ID to duplicate from
+  // Reference to the Tracking subcollection of grifashop
+  const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`);
+
+  try {
+      const trackingSnapshot = await getDocs(trackingRef);
+
+      // Filter documents that start with "EC" and copy them to the current user's Tracking subcollection
+      const copyPromises = trackingSnapshot.docs
+          .filter(doc => doc.id.startsWith("EC")) // Filter documents starting with "EC"
+          .map(async doca => {
+              const data = doca.data();
+              const lastStatus = data.shippmentTrack?.length > 0 ? data.shippmentTrack[data.shippmentTrack.length - 1].status : null; // Get last status
+
+              // Add lastStatus to the document data
+              const updatedData = {
+                  ...data,
+                  lastStatus, // Add lastStatus field
+              };
+
+              return setDoc(doc(db, `/Shops/${currentUserId}/Tracking`, doca.id), updatedData);
+          });
+
+      // Wait for all copy operations to resolve
+      await Promise.all(copyPromises);
+
+      console.log("Documents starting with 'EC' copied successfully with lastStatus.");
+  } catch (error) {
+      console.error("Error copying EC tracking data: ", error);
+  }
+};
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
           <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto" onClick={copyECTrackingData}>
+            Fetch Tracking Data
+          </Button>
             <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">Export Data</Button>
             <Button 
               variant="outline" 
