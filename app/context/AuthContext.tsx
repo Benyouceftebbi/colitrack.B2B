@@ -35,6 +35,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("Login Error:", error);
       setIsAuthenticated(false);
       setUser(null);
+
+
+
+
+      
       return false
     }
   };
