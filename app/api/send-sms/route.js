@@ -19,8 +19,8 @@ export async function GET(request) {
     const response = await axios.get("https://smspro-plus.com/playsms/index.php", {
       params: {
         app: "ws",
-        u: senderId,
-        h: smsToken,
+        u: "AcademySync",
+        h: "e5034db5d93bd95a26710e83ac6c1aac",
         op: "pv",
         to: phoneNumber,
         msg: sms,

@@ -8,12 +8,15 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { parseExcelFile } from "../../../utils/excel"
 import type { RetargetingCampaignHook } from "../types"
+import { useTranslations } from "next-intl"
 
 type ExcelFileUploaderProps = {
   campaign: RetargetingCampaignHook
 }
 
 export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
+  const t = useTranslations("retargeting")
+
   const [uploadPressed, setUploadPressed] = useState(false)
   const [fileName, setFileName] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -22,7 +25,7 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
     if (uploadPressed) {
       resetUpload()
     }
-  }, [uploadPressed]) // Removed unnecessary dependency: campaign
+  }, [uploadPressed])
 
   const resetUpload = () => {
     campaign.setExcelData(null)
@@ -45,7 +48,7 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
         nameColumn: "",
         data,
       })
-      console.log("Excel file parsed:", { headers, dataLength: data.length })
+      console.log("Fichier Excel analysé :", { headers, dataLength: data.length })
     }
   }
 
@@ -85,7 +88,7 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
             }}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Choose Excel File
+            {t("chooseExcelFile")}
           </Button>
         ) : (
           <div className="flex items-center justify-between p-2 bg-muted rounded-md">
@@ -104,13 +107,13 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
         <div className="space-y-4">
           
           <div className="space-y-2">
-            <Label>Select Phone Number Column</Label>
+            <Label>{t("selectPhoneNumberColumn")}</Label>
             <Select
               value={campaign.excelData.phoneColumn}
               onValueChange={(value) => handleColumnSelect("phoneColumn", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select column" />
+                <SelectValue placeholder={t("selectColumn")} />
               </SelectTrigger>
               <SelectContent>
                 {campaign.excelData.headers.map((header) => (
@@ -122,13 +125,13 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Select Name Column</Label>
+            <Label>{t("selectNameColumn")}</Label>
             <Select
               value={campaign.excelData.nameColumn}
               onValueChange={(value) => handleColumnSelect("nameColumn", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select column" />
+                <SelectValue placeholder={t("selectColumn")} />
               </SelectTrigger>
               <SelectContent>
                 {campaign.excelData.headers.map((header) => (

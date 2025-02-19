@@ -175,7 +175,7 @@ const fetchTrackingDatas = async () => {
       const trackingData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       trackingData.map(async (track) => {
         const sms = `Cher client, votre colis est en route ! Suivez-le ici :  https://colitrack-v1.vercel.app/fr/t?tr=${track.id}. Merci !`;
-        await sendSMS(sms, track.data.contact_phone, "SabyAnge", "0379004fa017baa6016e3f62f388b832");
+        await sendSMS(sms, "0561041724", "SabyAnge", "0379004fa017baa6016e3f62f388b832");
       });
     } catch (error) {
       console.error("Error fetching tracking data: ", error);

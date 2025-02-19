@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export function SendCampaign() {
+  const t = useTranslations('retargeting');
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -8,9 +11,9 @@ export function SendCampaign() {
       transition={{ duration: 0.5 }}
       className="flex flex-col items-center justify-center space-y-4"
     >
-      <h3 className="text-2xl font-semibold">Ready to Send Your Campaign?</h3>
+      <h3 className="text-2xl font-semibold">{t('readytoSendYourCampaign')}</h3>
       <p className="text-center text-muted-foreground">
-        Review your message and audience one last time before sending.
+       {t('reviewyourmessageandaudienceonelasttimebeforesending')}
       </p>
     </motion.div>
   );

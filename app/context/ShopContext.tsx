@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState,ReactNode } from 'react';
-import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import {
     Sidebar as SidebarPrimitive,
@@ -35,10 +35,11 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
       const shopRef = doc(db, "Shops", userId);
 
       // Fetch shop document, SMS, and Trackings in parallel
-      const [shopDoc, smsDocs, trackingDocs] = await Promise.all([
+      const [shopDoc, smsDocs, trackingDocs,smsCampaign] = await Promise.all([
         getDoc(shopRef),
         getDocs(collection(shopRef, "SMS")),
         getDocs(collection(shopRef, "Tracking")),
+        getDocs(collection(shopRef, "SMScampaign")),
       ]);
 
       if (!shopDoc.exists()) {
@@ -63,9 +64,13 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
         id: smsDoc.id,
         lastStatus: trackingMap[smsDoc.data().trackingId] || null,
       }));
-
+      const smsCampaignData = smsCampaign.docs.map((smsDoc) => ({
+        ...smsDoc.data(),
+        id: smsDoc.id,
+      }));
       shopData.sms = smsData;
       shopData.tracking = trackingData;
+      shopData.smsCampaign=smsCampaignData
 
       setShopData(shopData);
     } catch (err) {
@@ -76,6 +81,27 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
   };
 
   fetchShopData();
+}, [userId]);
+useEffect(() => {
+  if (!userId) return;
+
+  // Reference to the SMScampaign collection
+  const campaignRef = collection(db, "Shops", userId, "SMScampaign");
+
+  // Listen for changes in all campaigns
+  const unsubscribe = onSnapshot(campaignRef, (snapshot) => {
+    const updatedCampaigns = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setShopData((prevShopData: any) => ({
+      ...prevShopData,
+      smsCampaign:updatedCampaigns,
+    }));
+
+  });
+
+  return () => unsubscribe(); // Cleanup listener on unmount
 }, [userId]);
  if(loading===false && shopData){
   return (

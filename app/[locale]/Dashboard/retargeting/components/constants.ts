@@ -7,6 +7,6 @@ export const CLIENT_GROUPS = [
     { value: "last_12_months", label: "Last 12 Months Clients", recipients: 5000 },
   ] as const;
   
-  export const CHARACTER_LIMIT = 160;
+  export const CHARACTER_LIMIT = 110;
   export const STEPS = ["Select Audience", "Craft Message", "Preview & Test", "Send Campaign"];
-  export const COST_PER_MESSAGE = 15; // in DZD
+  export const COST_PER_MESSAGE = 10; // in DZD

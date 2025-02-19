@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PhonePreview } from '../PhonePreview';
 import type { RetargetingCampaignHook } from '../../types';
+import { useTranslations } from 'next-intl';
+import { useShop } from '@/app/context/ShopContext';
 
 type PreviewAndTestProps = {
   campaign: RetargetingCampaignHook;
@@ -11,6 +13,8 @@ type PreviewAndTestProps = {
 
 export function PreviewAndTest({ campaign }: PreviewAndTestProps) {
   const [showPhonePreview, setShowPhonePreview] = useState(false);
+  const t = useTranslations('retargeting');
+  const {shopData}=useShop()
 
   return (
     <motion.div
@@ -21,7 +25,7 @@ export function PreviewAndTest({ campaign }: PreviewAndTestProps) {
     >
       <Card>
         <CardContent className="pt-6">
-          <h3 className="text-lg font-semibold mb-4">Message Preview</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('messagePreview')}</h3>
           <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {Array.from({ length: campaign.messageCount }).map((_, index) => (
               <motion.div
@@ -49,14 +53,14 @@ export function PreviewAndTest({ campaign }: PreviewAndTestProps) {
           disabled={!campaign.message}
           className="neon-hover"
         >
-          Preview on Phone
+          {t('previewOnPhone')}
         </Button>
       </div>
 
       {showPhonePreview && (
         <PhonePreview
           messageTemplate={campaign.message}
-          senderId="Your Company"
+          senderId={shopData.senderId|| "Colitrack"}
           onClose={() => setShowPhonePreview(false)}
         />
       )}
