@@ -10,18 +10,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Steps } from "./components/steps"
 import { PlusCircle, Trash2 } from "lucide-react"
 import { useShop } from "@/app/context/ShopContext"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
+import { useTranslations } from "next-intl"
 
 export default function Component() {
   const { shopData } = useShop()
   console.log("shop", shopData)
-
-  const [shippingProviders, setShippingProviders] = useState([])
+  const t = useTranslations("settings")
+  const { toast } = useToast()
+  const [shippingProviders, setShippingProviders] = useState<
+    Array<{ provider: string; language: string }>
+  >(() => {
+    if (shopData.deliveryCompany && shopData.lng) {
+      return [
+        {
+          provider: shopData.deliveryCompany,
+          language: shopData.lng,
+        },
+      ]
+    }
+    return []
+  })
   const [keywords, setKeywords] = useState("")
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [showSetupModal, setShowSetupModal] = useState(false)
-  const [dhdSetupComplete, setDhdSetupComplete] = useState(false)
 
   const providerImages = {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
@@ -32,8 +45,16 @@ export default function Component() {
   }
 
   const addShippingProvider = () => {
-    setSelectedProvider("")
-    setShowSetupModal(true)
+    if (shippingProviders.length === 0) {
+      setSelectedProvider("")
+      setShowSetupModal(true)
+    } else {
+      toast({
+        title: "Provider already set",
+        description: "You can only have one shipping provider. Please remove the existing one to add a new one.",
+        variant: "destructive",
+      })
+    }
   }
 
   const updateShippingProvider = (index, field, value) => {
@@ -48,22 +69,15 @@ export default function Component() {
     setShippingProviders(updatedProviders)
   }
 
-  const handleSetupComplete = (provider, data) => {
-    if (provider === "DHD") {
-      setDhdSetupComplete(true)
-    } else {
-      setShippingProviders([...shippingProviders, { ...data, provider, apiToken: "" }])
-    }
+  const handleSetupComplete = (provider: string, data: { lng: string }) => {
+    setShippingProviders([...shippingProviders, { ...data, provider }])
     setShowSetupModal(false)
   }
 
-  const handleApiTokenSubmit = (index) => {
-    // Here you would typically send the API token to your backend
-    // For now, we'll just show a success message
-    toast({
-      title: "API Token Updated",
-      description: "Your DHD API token has been successfully saved.",
-    })
+  const handleApiTokenChange = (index, value) => {
+    const updatedProviders = [...shippingProviders]
+    updatedProviders[index] = { ...updatedProviders[index] }
+    setShippingProviders(updatedProviders)
   }
 
   return (
@@ -71,7 +85,7 @@ export default function Component() {
       <div className="container mx-auto space-y-8">
         <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8">
           <div className="grid gap-8">
-            <h1 className="text-4xl font-bold">Billing-subscriptions</h1>
+            <h1 className="text-4xl font-bold">{t("title-settings")}</h1>
             <div className="bg-[#faf5ff] p-4 rounded-lg">
               <div className="flex flex-col sm:flex-row gap-4 items-start">
                 <div className="w-full sm:w-1/6">
@@ -89,60 +103,51 @@ export default function Component() {
                   </div>
                 </div>
                 <div className="w-full sm:w-5/6">
-                  <h3 className="text-lg font-semibold mb-2">billing-subscriptions</h3>
-                  <p className="text-sm text-gray-600">billing-subscriptions-description</p>
+                  <h3 className="text-lg font-semibold mb-2">{t("title-settings")}</h3>
+                  <p className="text-sm text-gray-600">{t("description-settings")}</p>
                 </div>
               </div>
             </div>
             <Card>
               <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>Update your personal information.</CardDescription>
+                <CardTitle>{t("title-settings")}</CardTitle>
+                <CardDescription>{t("description-info")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form className="grid gap-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" defaultValue="John Doe" />
+                      <Label htmlFor="name">{t("name")}</Label>
+                      <Input id="name" defaultValue={shopData.firstName} />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" defaultValue="john@example.com" />
+                      <Label htmlFor="email">{t("email")}</Label>
+                      <Input id="email" type="email" defaultValue={shopData.email} />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                      <Label htmlFor="company">Company</Label>
-                      <Input id="company" defaultValue="Acme Inc." />
+                      <Label htmlFor="company">{t("shopName")}</Label>
+                      <Input id="company" defaultValue={shopData.companyName} />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" defaultValue="+1 (555) 555-5555" />
+                      <Label htmlFor="phone">{t("phone")}</Label>
+                      <Input id="phone" defaultValue={shopData.phoneNumber} />
                     </div>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="language">Language</Label>
+                    <Label htmlFor="language">{t("language")}</Label>
                     <Select id="language" defaultValue="en">
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es">Español</SelectItem>
-                        <SelectItem value="fr">Français</SelectItem>
-                        <SelectItem value="de">Deutsch</SelectItem>
+                        <SelectItem value="en">{t("en")}</SelectItem>
+                        <SelectItem value="es">{t("es")}</SelectItem>
+                        <SelectItem value="fr">{t("fr")}</SelectItem>
+                        <SelectItem value="de">{t("de")}</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="keywords">Keywords</Label>
-                    <Input
-                      id="keywords"
-                      value={keywords}
-                      onChange={(e) => setKeywords(e.target.value)}
-                      placeholder="Enter keywords"
-                    />
                   </div>
                 </form>
               </CardContent>
@@ -150,8 +155,8 @@ export default function Component() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Shipping Integration</CardTitle>
-                <CardDescription>Configure your shipping provider settings.</CardDescription>
+                <CardTitle>{t("title-shipping")}</CardTitle>
+                <CardDescription>{t("description-shipping")}</CardDescription>
                 <Button
                   variant="outline"
                   size="sm"
@@ -159,88 +164,48 @@ export default function Component() {
                   onClick={addShippingProvider}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Shipping Provider
+                  {t("addProvider")}
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {shippingProviders.map((provider, index) => (
-                    <div key={index} className="bg-muted p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold">{provider.provider}</h4>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive/90"
-                          onClick={() => removeShippingProvider(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="grid gap-4">
-                        {provider.provider === "DHD" && dhdSetupComplete ? (
+                  {shippingProviders.length > 0 ? (
+                    shippingProviders.map((provider, index) => (
+                      <div key={index} className="bg-muted p-4 rounded-lg">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-lg font-semibold">{provider.provider}</h4>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive/90"
+                            onClick={() => removeShippingProvider(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="grid gap-4">
                           <div className="grid gap-2">
                             <Label htmlFor={`api-token-${index}`}>API Token</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                id={`api-token-${index}`}
-                                value={provider.apiToken}
-                                onChange={(e) => updateShippingProvider(index, "apiToken", e.target.value)}
-                                placeholder="Enter your DHD API Token"
-                              />
-                              <Button onClick={() => handleApiTokenSubmit(index)}>Submit</Button>
-                            </div>
+                            <Input
+                              id={`api-token-${index}`}
+                              value={"************************"}
+                              type="password"
+                            />
                           </div>
-                        ) : (
-                          <>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`api-key-${index}`}>API Key</Label>
-                              <Input
-                                id={`api-key-${index}`}
-                                value={provider.apiKey}
-                                onChange={(e) => updateShippingProvider(index, "apiKey", e.target.value)}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`api-secret-${index}`}>API Secret</Label>
-                              <Input
-                                id={`api-secret-${index}`}
-                                value={provider.apiSecret}
-                                onChange={(e) => updateShippingProvider(index, "apiSecret", e.target.value)}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`webhook-url-${index}`}>Webhook URL</Label>
-                              <Input
-                                id={`webhook-url-${index}`}
-                                value={provider.webhookUrl}
-                                onChange={(e) => updateShippingProvider(index, "webhookUrl", e.target.value)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {dhdSetupComplete && !shippingProviders.some((p) => p.provider === "DHD") && (
-                    <div className="bg-muted p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold">DHD</h4>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="dhd-api-token">API Token</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="dhd-api-token"
-                            placeholder="Enter your DHD API Token"
-                            onChange={(e) =>
-                              updateShippingProvider(shippingProviders.length, "apiToken", e.target.value)
-                            }
-                          />
-                          <Button onClick={() => handleApiTokenSubmit(shippingProviders.length)}>Submit</Button>
+                          <div className="grid gap-2">
+                            <Label htmlFor={`language-${index}`}>{t("language")}</Label>
+                            <Input
+                              id={`language-${index}`}
+                              value={provider.language}
+                             // onChange={(e) => updateShippingProvider(index, "language", e.target.value)}
+                              placeholder={t("language")}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground">{t("noProvider")}</p>
                   )}
                 </div>
               </CardContent>
@@ -253,10 +218,8 @@ export default function Component() {
           {!selectedProvider ? (
             <div className="p-6 space-y-6">
               <DialogHeader>
-                <DialogTitle className="text-2xl">Choose a Shipping Provider</DialogTitle>
-                <DialogDescription>
-                  Select your preferred shipping provider to begin the integration setup process.
-                </DialogDescription>
+                <DialogTitle className="text-2xl">{t("title")}</DialogTitle>
+                <DialogDescription>{t("description")}</DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4">
                 {["DHD", "Yalidin Express", "UPS", "Go livri", "Maystero Delivery"].map((provider) => (

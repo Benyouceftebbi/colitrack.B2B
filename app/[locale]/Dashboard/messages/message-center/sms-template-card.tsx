@@ -32,7 +32,7 @@ export function SMSTemplateCard({
   const [showModal, setShowModal] = useState(false)
 
   const handleActivate = () => {
-    if (!shopData.apiKey) {
+    if (!shopData.deliveryCompany) {
       setShowModal(true)
     } else {
       onSelect()

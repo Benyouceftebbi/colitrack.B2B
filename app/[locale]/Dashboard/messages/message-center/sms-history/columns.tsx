@@ -14,6 +14,8 @@ type Message = {
   createdAt: Date
 }
 
+
+
 export const columns: ColumnDef<Message>[] = [
   {
     accessorKey: "trackingId",
@@ -100,6 +102,7 @@ export const columns: ColumnDef<Message>[] = [
         size="sm"
         onClick={() => {
           // This will be handled in the DataTable component
+
         }}
       >
         Send Reminder

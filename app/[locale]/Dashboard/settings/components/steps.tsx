@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import { Check, ArrowRight, ArrowLeft, Copy, CheckCircle, ZoomIn, ZoomOut } from "lucide-react"
+import { Check, ArrowRight, ArrowLeft, ZoomIn, ZoomOut, Copy, CheckCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
@@ -21,9 +21,15 @@ import { updateShippingInfo } from "@/lib/hooks/settings"
 import { providerConfigs, type ProviderConfig } from "../config/providerConfigs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { useTranslations } from "next-intl"
 
 interface FormData {
-  [key: string]: string
+  apiToken: string
+  language: string
+  apiKey?: string
+  apiId?: string
+  lng?: string
+  accessKey?: string
 }
 
 function useIsMobile() {
@@ -46,16 +52,22 @@ export function Steps({
 }: {
   provider: string
   onComplete: (provider: string, data: FormData) => void
-  shopData: string
+  shopData: {
+    authToken?: string
+    deliveryCompany?: string
+    lng?: string
+    apiId?: string
+  }
 }) {
+  const t = useTranslations("settings")
   const isMobile = useIsMobile()
   const [currentStep, setCurrentStep] = useState(0)
   const [imageLoading, setImageLoading] = useState(true)
+  const [isZoomed, setIsZoomed] = useState(false)
   const [copiedName, setCopiedName] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
-  const [language, setLanguage] = useState("fr")
-  const [isZoomed, setIsZoomed] = useState(false)
+  const [language, setLanguage] = useState<string | null>(shopData.lng || null)
 
   const {
     register,
@@ -66,17 +78,10 @@ export function Steps({
   const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
   const steps = config.steps
 
-  const name = "ColiTrack"
-  const webhookEmail = "your-webhook@example.com"
-  const webhookLink = "https://your-app.com/api/yalidine-webhook"
-
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
       setImageLoading(true)
-      setCopiedName(false)
-      setCopiedEmail(false)
-      setCopiedLink(false)
     }
   }
 
@@ -84,33 +89,48 @@ export function Steps({
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
       setImageLoading(true)
-      setCopiedName(false)
-      setCopiedEmail(false)
-      setCopiedLink(false)
     }
   }
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const submissionData =
-        provider === "Yalidin Express" ? { ...data, provider, lng: language } : { provider, lng: language }
+      const submissionData: FormData = { ...data, provider }
 
-      if (provider === "DHD") {
-        // For DHD, we don't submit any data here
-        onComplete(provider, {})
+      if (!language) {
+        throw new Error(t("language-required"))
+      }
+      submissionData.lng = language
+
+      if (provider === "Yalidin Express") {
+        if (!data.apiId || !data.apiToken) {
+          throw new Error(t("yalidin-credentials-required"))
+        }
       } else {
-        await updateShippingInfo("8hlH0zIJbfNaCDfibG8K", submissionData)
-        onComplete(provider, submissionData)
+        if (!data.apiKey) {
+          throw new Error(t("api-key-required"))
+        }
+        submissionData.accessKey = data.apiKey
       }
 
+      const requiredFields = provider === "Yalidin Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+
+      const missingFields = requiredFields.filter((field) => !submissionData[field])
+      if (missingFields.length > 0) {
+        throw new Error(t("error-required-fields", { fields: missingFields.join(", ") }))
+      }
+
+      await updateShippingInfo(shopData.id, submissionData)
+      onComplete(provider, submissionData)
+
       toast({
-        title: "Setup completed",
-        description: "Your shipping information has been updated successfully.",
+        title: t("setup-completed"),
+        description: t("setup-success"),
       })
     } catch (error) {
+      console.error("Error updating shipping information:", error)
       toast({
-        title: "Error",
-        description: "There was an error updating your shipping information. Please try again.",
+        title: t("error"),
+        description: error instanceof Error ? error.message : t("error-updating"),
         variant: "destructive",
       })
     }
@@ -120,12 +140,48 @@ export function Steps({
     navigator.clipboard.writeText(text).then(() => {
       setCopiedState(true)
       toast({
-        title: "Copied to clipboard",
-        description: "The information has been copied to your clipboard.",
+        title: t("copied-title"),
+        description: t("copied-description"),
       })
       setTimeout(() => setCopiedState(false), 3000)
     })
   }
+
+  useEffect(() => {
+    if (shopData.deliveryCompany && shopData.authToken && shopData.lng) {
+      setCurrentStep(steps.length - 1) // Set to the last step
+    }
+  }, [shopData, steps.length])
+
+  const translations = {
+    "title-payment": "Paramètres de paiement",
+    "description-payment": "Configurez vos méthodes de paiement préférées.",
+    save: "Enregistrer",
+    cancel: "Annuler",
+    success: "Succès",
+    error: "Erreur",
+    loading: "Chargement...",
+    required: "Ce champ est obligatoire",
+    invalid: "Format invalide",
+    confirm: "Confirmer",
+    back: "Retour",
+    next: "Suivant",
+    finish: "Terminer",
+    step: "Étape",
+    of: "sur",
+    complete: "Terminé",
+    incomplete: "Incomplet",
+    "provider-settings": "Paramètres du fournisseur",
+    "api-token": "Clé API",
+    "api-token-description": "Entrez votre clé API pour connecter votre compte.",
+    "test-connection": "Tester la connexion",
+    "connection-success": "Connexion établie avec succès",
+    "connection-error": "Erreur de connexion. Veuillez vérifier vos informations.",
+  }
+
+  const name = "test name"
+  const webhookEmail = "test@email.com"
+  const webhookLink = "https://test.com"
 
   return (
     <SidebarProvider>
@@ -178,7 +234,7 @@ export function Steps({
                     onValueChange={(value) => setCurrentStep(Number.parseInt(value))}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a step" />
+                      <SelectValue placeholder={t("select-step")} />
                     </SelectTrigger>
                     <SelectContent>
                       {steps.map((step, index) => (
@@ -196,7 +252,7 @@ export function Steps({
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {currentStep === steps.length - 3 && provider === "Yalidin Express" ? (
+                {provider === "Yalidin Express" && currentStep === steps.length - 3 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input value={name} readOnly className="bg-muted flex-grow text-lg" />
@@ -232,54 +288,12 @@ export function Steps({
                       </Button>
                     </div>
                   </div>
-                ) : currentStep === steps.length - 2 && provider === "Yalidin Express" ? (
-                  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    <div>
-                      <label htmlFor="language" className="block text-lg font-medium text-gray-700 mb-2">
-                        Language
-                      </label>
-                      <Select value={language} onValueChange={setLanguage}>
-                        <SelectTrigger className="w-full text-lg">
-                          <SelectValue placeholder="Select a language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {config.languageOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {Object.entries(config.fields).map(([key, field]) => (
-                      <div key={key}>
-                        <label htmlFor={key} className="block text-lg font-medium text-gray-700 mb-2">
-                          {field.label}
-                        </label>
-                        <Input
-                          id={key}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          {...register(key, { required: true })}
-                          className={`text-lg ${errors[key] ? "border-red-500" : ""}`}
-                        />
-                        {errors[key] && <p className="mt-1 text-sm text-red-500">This field is required</p>}
-                      </div>
-                    ))}
-                  </div>
-                ) : currentStep === steps.length - 1 && provider === "DHD" ? (
-                  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    <p className="text-center text-lg text-muted-foreground">
-                      You have completed the DHD setup process. Click "Finish Setup" to return to the main screen, where
-                      you can enter your API token.
-                    </p>
-                  </div>
                 ) : steps[currentStep]?.image ? (
                   <div className="relative w-full max-w-2xl aspect-[16/9] bg-muted rounded-lg overflow-hidden group">
                     {imageLoading && <Skeleton className="absolute inset-0 z-10" />}
                     <Image
                       src={steps[currentStep].image || "/placeholder.svg"}
-                      alt={`Step ${currentStep + 1} - ${steps[currentStep].title}`}
+                      alt={t("step-image-alt", { step: currentStep + 1, title: steps[currentStep].title })}
                       fill
                       className={`object-contain transition-transform duration-300 ${
                         isZoomed ? "scale-150" : "scale-100"
@@ -301,7 +315,7 @@ export function Steps({
                         <div className="relative aspect-[16/9]">
                           <Image
                             src={steps[currentStep].image || "/placeholder.svg"}
-                            alt={`Step ${currentStep + 1} - ${steps[currentStep].title}`}
+                            alt={t("step-image-alt", { step: currentStep + 1, title: steps[currentStep].title })}
                             fill
                             className="object-contain"
                           />
@@ -318,6 +332,72 @@ export function Steps({
                     </Button>
                   </div>
                 ) : null}
+                {currentStep === steps.length - 1 && (
+                  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
+                    {provider === "Yalidin Express" ? (
+                      <>
+                        <div>
+                          <label htmlFor="apiId" className="block text-lg font-medium text-gray-700 mb-2">
+                            {t("api-id")}
+                          </label>
+                          <Input
+                            id="apiId"
+                            type="text"
+                            placeholder={t("enter-api-id")}
+                            {...register("apiId", { required: true })}
+                            className={`text-lg ${errors.apiId ? "border-red-500" : ""}`}
+                          />
+                          {errors.apiId && <p className="mt-1 text-sm text-red-500">{t("api-id-required")}</p>}
+                        </div>
+                        <div>
+                          <label htmlFor="apiToken" className="block text-lg font-medium text-gray-700 mb-2">
+                            {t("api-token")}
+                          </label>
+                          <Input
+                            id="apiToken"
+                            type="text"
+                            placeholder={t("enter-api-token")}
+                            {...register("apiToken", { required: true })}
+                            className={`text-lg ${errors.apiToken ? "border-red-500" : ""}`}
+                          />
+                          {errors.apiToken && <p className="mt-1 text-sm text-red-500">{t("api-token-required")}</p>}
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <label htmlFor="apiKey" className="block text-lg font-medium text-gray-700 mb-2">
+                          {t("api-key")}
+                        </label>
+                        <Input
+                          id="apiKey"
+                          type="text"
+                          placeholder={t("enter-api-key")}
+                          {...register("apiKey", { required: true })}
+                          className={`text-lg ${errors.apiKey ? "border-red-500" : ""}`}
+                        />
+                        {errors.apiKey && <p className="mt-1 text-sm text-red-500">{t("api-key-required")}</p>}
+                      </div>
+                    )}
+                    <div>
+                      <label htmlFor="language" className="block text-lg font-medium text-gray-700 mb-2">
+                        {t("language")}
+                      </label>
+                      <Select value={language || ""} onValueChange={(value) => setLanguage(value)}>
+                        <SelectTrigger className="w-full text-lg">
+                          <SelectValue placeholder={t("select-language")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {config.languageOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {!language && <p className="mt-1 text-sm text-red-500">{t("language-required")}</p>}
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between w-full max-w-md pt-6 px-4 md:px-0">
                   <Button
                     onClick={handlePrevious}
@@ -327,16 +407,16 @@ export function Steps({
                     type="button"
                   >
                     <ArrowLeft className="h-5 w-5" />
-                    Previous
+                    {t("previous")}
                   </Button>
                   {currentStep < steps.length - 1 ? (
                     <Button onClick={handleNext} className="flex items-center gap-2 text-lg" type="button">
-                      Next
+                      {t("next")}
                       <ArrowRight className="h-5 w-5" />
                     </Button>
                   ) : (
                     <Button type="submit" className="bg-primary hover:bg-primary/90 text-lg">
-                      Finish Setup
+                      {t("finish-setup")}
                     </Button>
                   )}
                 </div>

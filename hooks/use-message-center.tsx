@@ -6,7 +6,7 @@ export function useMessageCenter() {
   const {shopData,setShopData}=useShop()
  const token=shopData?.token||0
  const senderId=shopData?.senderId|| "Colitrack"
-  const [selectedTemplates, setSelectedTemplates] = React.useState<string[]>([])
+  const [selectedTemplates, setSelectedTemplates] = React.useState<string[]>(['expedited','out_for_delivery','stop_desk'])
   const [previewTemplate, setPreviewTemplate] = React.useState<string | null>(null)
 
 

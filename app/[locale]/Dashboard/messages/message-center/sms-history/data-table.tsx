@@ -27,6 +27,10 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import axios from "axios"
+import { useShop } from "@/app/context/ShopContext"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -47,6 +51,8 @@ export function DataTable<TData, TValue>({
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [reminderMessage, setReminderMessage] = React.useState("")
   const [selectedRecipient, setSelectedRecipient] = React.useState<string | null>(null)
+  const [selectedTrackingId, setSelectedTrackingId] = React.useState<string | null>(null)
+  const {shopData,setShopData}=useShop()
   const table = useReactTable({
     data,
     columns,
@@ -65,33 +71,73 @@ export function DataTable<TData, TValue>({
       pagination,
     },
   })
-  const handleSendReminder = (recipient: string) => {
+  const handleSendReminder = (recipient: string,trackingId:string) => {
     setSelectedRecipient(recipient)
+    setSelectedTrackingId(trackingId)
     setIsModalOpen(true)
   }
-
-  const handleSubmitReminder = () => {
-    if (reminderMessage.trim() === "") {
+  const handleSubmitReminder = async (senderId: string, smsToken: string) => {
+    if (!reminderMessage.trim()) {
       toast({
         title: "Error",
         description: "Please enter a message.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
-
-    // Here you would typically send the reminder message to your backend
-    console.log(`Sending reminder to ${selectedRecipient}: ${reminderMessage}`)
-
-    toast({
-      title: "Reminder Sent",
-      description: "Your reminder has been sent successfully. 15 tokens have been deducted.",
-    })
-
-    setIsModalOpen(false)
-    setReminderMessage("")
-    setSelectedRecipient(null)
-  }
+  
+    if (!selectedRecipient || !selectedTrackingId) {
+      toast({
+        title: "Error",
+        description: "Please select a recipient and tracking ID.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    try {
+      const sendReminderSMS = httpsCallable(functions, "sendReminderSMS");
+  
+      const response = await sendReminderSMS({
+        phoneNumber: "0561041724",
+        sms: reminderMessage,
+        senderId,
+        smsToken,
+        trackingId: selectedTrackingId,
+      });
+  
+      if (response.data?.status === "success") {
+        setShopData((prev) => ({
+          ...prev,
+          tokens: response.data.newTokens,
+          smsReminder: [...(prev.smsReminder || []), response.data.id],
+        }));
+  
+        toast({
+          title: "Reminder Sent",
+          description: "Your reminder has been sent successfully. 15 tokens have been deducted.",
+        });
+  
+        // Reset modal state only after success
+        setIsModalOpen(false);
+        setReminderMessage("");
+        setSelectedRecipient(null);
+      } else {
+        toast({
+          title: "Failed to send SMS.",
+          description: response.data?.error || "An unknown error occurred.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      toast({
+        title: "Error sending SMS.",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -130,7 +176,7 @@ export function DataTable<TData, TValue>({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleSendReminder(row.getValue("phoneNumber"))}
+                          onClick={() => handleSendReminder(row.getValue("phoneNumber"),row.getValue("trackingId"))}
                         >
                           Send Reminder
                         </Button>
@@ -180,7 +226,7 @@ export function DataTable<TData, TValue>({
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmitReminder}>Send Reminder</Button>
+            <Button onClick={()=>handleSubmitReminder(shopData.senderId,shopData.smsToken)}>Send Reminder</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

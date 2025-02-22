@@ -36,7 +36,6 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     name: "Yalidin Express",
     fields: {
       apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
-      apiKey: { label: "API Key", type: "text", placeholder: "Enter API Key" },
       apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
     },
     languageOptions: [
@@ -64,13 +63,13 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
         title: "Create New Webhook",
         description:
           "Follow the on-screen instructions to create a new webhook. Fill in the required information in the input fields.",
-        image: webhookConfig,
+       
       },
       {
         title: "Copy Webhook Information",
         description:
           "Copy the name, email and link provided below and use them to set up your webhook in the Yalidine Express interface, Set the 'Type d'évènement' to the option parcel_status_updated ",
-          image: webhookConfig,
+         
       },
       {
         title: "Enter Configuration Details",
@@ -86,7 +85,8 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
   DHD: {
     name: "DHD",
     fields: {
-     
+      accessKey: { label: "Access Key", type: "text", placeholder: "Enter UPS Access Key" },
+
     },
     languageOptions: [  { value: "fr", label: "Français" },
     { value: "ar", label: "العربية" },],
@@ -124,7 +124,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "View API Token",
         description: "Access your API token, which you'll need to configure the integration in your system.",
-        image: viewToken,
+
       },
     ],
   },
@@ -180,8 +180,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     name: "UPS",
     fields: {
       accessKey: { label: "Access Key", type: "text", placeholder: "Enter UPS Access Key" },
-      userId: { label: "User ID", type: "text", placeholder: "Enter UPS User ID" },
-      password: { label: "Password", type: "password", placeholder: "Enter UPS Password" },
+     
     },
     languageOptions: [
       { value: "en", label: "English" },
@@ -222,7 +221,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Test Integration",
         description: "Perform a test to ensure the UPS integration is working correctly.",
-        image: viewToken,
+   
       },
     ],
   },

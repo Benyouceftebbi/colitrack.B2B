@@ -1,3 +1,4 @@
+
 {
   "hero": {
     "badge": "عزز تجارتك الإلكترونية",
@@ -535,6 +536,57 @@
   "pending": "قيد الانتظار",
   "sent": "تم الإرسال",
   "failed": "فشل"
+},
+"settings": {
+  "title-settings": "الإعدادات",
+  "description-settings": "قم بتحديث إعدادات معلوماتك",
+  "title-profile": "إعدادات الملف الشخصي",
+  "description-info": "قم بتحديث معلوماتك الشخصية.",
+  "name": "الاسم",
+  "email": "البريد الإلكتروني",
+  "shopName": "اسم المتجر",
+  "phone": "الهاتف",
+  "language": "اللغة",
+  "select-language": "اختر لغة",
+  "required": "هذا الحقل مطلوب",
+  "back": "رجوع",
+  "next": "التالي",
+  "finish": "إنهاء",
+  "setup-complete": "الإعداد مكتمل",
+  "setup-success": "تم تحديث معلومات الشحن بنجاح.",
+  "setup-error": "حدث خطأ أثناء تحديث معلوماتك.",
+  "select-step": "اختر خطوة",
+  "previous": "السابق",
+  "finish-setup": "إنهاء الإعداد",
+  "api-id": "معرف API",
+  "api-token": "رمز API",
+  "api-key": "مفتاح API",
+  "enter-api-id": "أدخل معرف API",
+  "enter-api-token": "أدخل رمز API",
+  "enter-api-key": "أدخل مفتاح API",
+  "api-id-required": "معرف API مطلوب",
+  "api-token-required": "رمز API مطلوب",
+  "api-key-required": "مفتاح API مطلوب",
+  "language-required": "اللغة مطلوبة",
+  "error-required-fields": "الحقول المطلوبة مفقودة: {fields}",
+  "error-language-required": "اللغة مطلوبة",
+  "setup-completed": "اكتمل الإعداد",
+  "error": "خطأ",
+  "error-updating": "حدث خطأ أثناء تحديث معلومات الشحن. يرجى المحاولة مرة أخرى.",
+  "copied-title": "تم النسخ إلى الحافظة",
+  "copied-description": "تم نسخ المعلومات إلى الحافظة الخاصة بك.",
+  "step-image-alt": "الخطوة {step} - {title}",
+  "title-shipping": "تكامل الشحن",
+  "description-shipping": "قم بإعداد مزود الشحن الخاص بك.",
+  "addProvider": "إضافة مزود شحن",
+  "noProvider": "لم يتم تكوين أي مزود شحن. انقر فوق \"إضافة مزود شحن\" لإعداده.",
+  "title": "اختر مزود الشحن",
+  "description": "حدد مزود الشحن المفضل لديك لبدء عملية الإعداد.",
+  "en": "الإنجليزية",
+  "es": "الإسبانية",
+  "fr": "الفرنسية",
+  "de": "الألمانية"
 }
+
   
 }

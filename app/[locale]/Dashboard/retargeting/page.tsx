@@ -25,7 +25,7 @@ export default function RetargetingCampaign() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="container mx-auto space-y-8">
-        <Header />
+        <Header token={shopData.tokens} senderId={shopData.senderId}/>
 
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold neon-text">{t("messageHistory")}</h2>

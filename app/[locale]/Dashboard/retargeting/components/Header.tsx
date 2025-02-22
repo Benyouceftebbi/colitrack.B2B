@@ -2,6 +2,7 @@ import { HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
+
 type HeaderProps = {
   token?: string;
   senderId?: string;
@@ -9,6 +10,7 @@ type HeaderProps = {
 
 export function Header({ token, senderId }: HeaderProps) {
   const t = useTranslations('retargeting');
+
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
@@ -31,7 +33,7 @@ export function Header({ token, senderId }: HeaderProps) {
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-muted-foreground">{t('token')}:</span>
             <code className="px-2 py-1 bg-muted rounded text-sm">
-              {token ? `${token.slice(0, 8)}...${token.slice(-8)}` : t('notAvailable')}
+              {token ? token : t('notAvailable')}
             </code>
           </div>
           <div className="flex items-center gap-2">
