@@ -1,4 +1,3 @@
-
 {
   "hero": {
     "badge": "عزز تجارتك الإلكترونية",
@@ -169,16 +168,59 @@
    "exchange-failed": "فشل الاستبدال"
   }
 },
-  "header": {
-      "badge": "عزز تجارتك الإلكترونية",
-      "title": "حوّل عملك في التجارة الإلكترونية مع",
-      "highlight": "حلول SMS الذكية",
-      "and": "و",
-      "subtitle": "أتمتة الذكاء الاصطناعي",
-      "description": "إشعارات فورية، رضا العملاء المحسن، وأتمتة سلسة لأعمال التجارة الإلكترونية.",
-      "getStarted": "ابدأ الآن",
-      "tryDemo": "جرب العرض التوضيحي"
-    },
+"header": {
+  "badge": "عزّز نشاطك في التجارة الإلكترونية",
+  "title": "حوّل أعمالك في التجارة الإلكترونية باستخدام",
+  "highlight": "حلول الرسائل النصية الذكية",
+  "and": "و",
+  "subtitle": "أتمتة الذكاء الاصطناعي",
+  "description": "إشعارات فورية، رضا العملاء المحسن، وأتمتة سلسة لأعمال التجارة الإلكترونية.",
+  "getStarted": "ابدأ الآن",
+  "tryDemo": "جرب النسخة التجريبية",
+
+  "dashboard-overview": "نظرة عامة على لوحة التحكم",
+  "fetch-tracking-data": "استرداد بيانات التتبع",
+  "export-data": "تصدير البيانات",
+  "help": "مساعدة",
+  "tokens-left": "الرموز المتبقية",
+  "total-messages": "إجمالي الرسائل",
+  "total-sms-today": "إجمالي الرسائل القصيرة اليوم",
+  "return-rate": "معدل الإرجاع",
+  "sms-remaining": "تبقى {min}-{max} رسالة لإرسالها",
+  "percentage-change": "{value}% مقارنة بالشهر الماضي",
+  "new-this-week": "{count} جديد هذا الأسبوع",
+  "return-rate-change": "{value}% مقارنة بالأسبوع الماضي",
+  "message-analytics": "تحليل الرسائل",
+  "analytics-description": "عرض إجمالي الرسائل القصيرة خلال الأشهر الستة الماضية",
+  "no-data": "لا توجد بيانات كافية",
+  "algeria-map": "الخريطة التفاعلية للجزائر",
+  "recent-messages": "الرسائل الحديثة",
+  "view-all": "عرض الكل",
+  "track-message-status": "تتبع حالة تسليم رسائلك الأخيرة",
+  "customer": "العميل",
+  "tracking-number": "رقم التتبع",
+  "status": "الحالة",
+  "time": "الوقت",
+  "message": "الرسالة",
+  "delivered": "تم التسليم",
+  "failed": "فشل",
+  "previous": "السابق",
+  "next": "التالي",
+  "state": "الولاية",
+  "total-sms": "إجمالي الرسائل القصيرة",
+  "setup-completed": "تم إكمال الإعداد",
+  "setup-success": "تم تحديث معلوماتك بنجاح",
+  "setup-error": "حدث خطأ أثناء تحديث معلوماتك",
+  "copied-title": "تم النسخ إلى الحافظة",
+  "copied-description": "تم نسخ المعلومات إلى الحافظة الخاصة بك",
+  "error": "خطأ",
+  "error-updating": "حدث خطأ أثناء التحديث. يرجى المحاولة مرة أخرى.",
+  "step-image-alt": "الخطوة {step} - {title}",
+  "chart": {
+    "desktop": "رابط SMS بنقرة واحدة",
+    "mobile": "حملة SMS"
+  }
+},
     "stats":{
       "realTimeUpdates": "تحديثات في الوقت الحقيقي",
       "customerSatisfaction": "رضا العملاء",
@@ -586,7 +628,176 @@
   "es": "الإسبانية",
   "fr": "الفرنسية",
   "de": "الألمانية"
-}
+},
+
+  "messages": {
+    "message-center": "مركز الرسائل",
+    "smart-notifications": "الإشعارات الذكية",
+    "automated-system": "نظام مراسلة آلي لـ:",
+    "order-tracking": "تأكيد الطلب وتتبع الشحنات",
+    "delivery-updates": "تحديثات التوصيل",
+    "enhance-experience": "حسّن تجربة العملاء بإشعارات تلقائية",
+    "no-delivery-company": "لا توجد شركة توصيل",
+    "delivery-integration": "تكامل التوصيل",
+    "connected-delivery": "متصل مع {company}. قم بإدارة إعدادات التوصيل وقواعد الأتمتة.",
+    "connect-delivery": "قم بربط خدمة التوصيل الخاصة بك لتمكين التتبع والإشعارات التلقائية.",
+    "id": "المعرف",
+    "messages-sent-today": "الرسائل المرسلة اليوم",
+    "delivery-updates-count": "تحديثات التوصيل",
+    "success-rate": "معدل النجاح",
+    "settings": "الإعدادات",
+    "info": "معلومات",
+    "notifications": "الإشعارات",
+
+    "stats": {
+      "label": "{label}",
+      "value": "{value}",
+      "trend": "{value}% {direction}",
+      "increase": "زيادة مقارنة بالفترة السابقة",
+      "decrease": "انخفاض مقارنة بالفترة السابقة",
+      "period": "الفترة السابقة"
+    },
+
+    "panel": {
+      "title": "قوالب الرسائل القصيرة الآلية",
+      "active-count": "{count} نشط",
+      "preview": "معاينة مباشرة"
+    },
+
+    "template": {
+      "name": "{name}",
+      "description": "{description}",
+      "benefit": "{benefit}",
+      "tokens-per-message": "{count} رمز لكل رسالة",
+      "preview": "معاينة",
+      "active": "نشط",
+      "activate": "تفعيل"
+    },
+
+    "modal": {
+      "account-linking-title": "مطلوب ربط الحساب",
+      "account-linking-description": "لا يمكنك تفعيل هذا الخيار. يجب عليك أولاً ربط حساب التوصيل.",
+      "close": "إغلاق",
+      "link-account": "ربط الحساب"
+    },
+
+    "templates": {
+      "section-title": "قوالب الرسائل القصيرة",
+      "preview-title": "معاينة",
+      "expedited": {
+        "name": "تتبع مباشر",
+        "description": "إرسال روابط تتبع فورية للتوصيلات السريعة",
+        "template": "طلبك ({{trackingNumber}}) قيد الشحن!\n\nتتبع مباشر: {{trackingLink}}\n\nرد بـ 'مساعدة' للدعم",
+        "benefits": {
+          "support": "تقليل طلبات الدعم",
+          "updates": "تحديثات فورية عن الموقع",
+          "status": "حالة التوصيل الفورية"
+        }
+      },
+      "delivery": {
+        "name": "تنبيه التوصيل",
+        "description": "إعلام العملاء عند خروج طلباتهم للتوصيل",
+        "template": "طلبك ({{trackingNumber}}) سيتم توصيله اليوم!\n\nالموصل: {{driverName}}\nرقم التواصل: {{driverPhone}}\n\nرد بـ 'نعم' لتأكيد استلام الطلب",
+        "benefits": {
+          "failed": "تقليل حالات فشل التوصيل",
+          "contact": "تواصل مباشر مع الموصل",
+          "confirmation": "تأكيد استلام الطلب"
+        }
+      },
+      "pickup": {
+        "name": "استلام من نقطة التوزيع",
+        "description": "إشعار العملاء بوصول شحناتهم إلى نقاط التوزيع",
+        "template": "طلبك ({{trackingNumber}}) جاهز للاستلام!\n\nالموقع: {{stopDeskAddress}}\nساعات العمل: {{businessHours}}\n\nيرجى تقديم هذه الرسالة عند الاستلام",
+        "benefits": {
+          "instructions": "إرشادات واضحة للاستلام",
+          "hours": "معلومات حول ساعات العمل",
+          "verification": "تحقق سريع"
+        }
+      }
+    },
+
+    "metrics": {
+      "total": "الإجمالي",
+      "today": "اليوم",
+      "this-week": "هذا الأسبوع",
+      "this-month": "هذا الشهر"
+    },
+
+    "status": {
+      "connected": "متصل",
+      "disconnected": "غير متصل",
+      "error": "خطأ",
+      "success": "نجاح",
+      "delivered": "تم التوصيل",
+      "failed": "فشل",
+      "pending": "قيد الانتظار"
+    },
+
+    "actions": {
+      "settings": "الإعدادات",
+      "view-all": "عرض الكل",
+      "refresh": "تحديث",
+      "copy": "نسخ",
+      "previous": "السابق",
+      "next": "التالي"
+    },
+
+    "tooltips": {
+      "settings": "فتح الإعدادات",
+      "info": "مزيد من المعلومات",
+      "notifications": "عرض الإشعارات"
+    },
+
+    "errors": {
+      "connection-failed": "فشل الاتصال",
+      "invalid-token": "رمز غير صالح",
+      "service-unavailable": "الخدمة غير متاحة"
+    },
+
+    "success-messages": {
+      "settings-updated": "تم تحديث الإعدادات",
+      "connection-established": "تم الاتصال بنجاح"
+    },
+
+    "placeholders": {
+      "search": "البحث عن الرسائل...",
+      "select-date": "اختر تاريخًا"
+    }
+  },
+  "table": {
+    "recent-messages": "الرسائل الحديثة",
+    "tracking": "رقم التتبع",
+    "recipient": "المستلم",
+    "template": "القالب",
+    "status": "الحالة",
+    "sent": "تم الإرسال",
+    "send-reminder": "إرسال تذكير",
+    "reminder-tooltip": "إرسال رسالة تذكير قصيرة للمستلم. التكلفة: 15 رمزًا لكل رسالة.",
+    "no-results": "لم يتم العثور على نتائج.",
+    "error": "خطأ",
+    "enter-message": "يرجى إدخال رسالة.",
+    "select-recipient-tracking": "يرجى تحديد مستلم ورقم تتبع.",
+    "reminder-sent": "تم إرسال التذكير",
+    "reminder-sent-description": "تم إرسال التذكير بنجاح. تم خصم 15 رمزًا.",
+    "failed-to-send": "فشل إرسال الرسالة القصيرة.",
+    "unknown-error": "حدث خطأ غير معروف.",
+    "error-sending-sms": "خطأ في إرسال الرسالة القصيرة.",
+    "try-again-later": "يرجى المحاولة لاحقًا.",
+    "reminder-description": "أدخل رسالة التذكير أدناه. ستكلف هذه العملية 15 رمزًا. لن يتم إرسال المحتوى غير اللائق، وستفقد الرموز مع ذلك.",
+    "message": "الرسالة",
+    "cancel": "إلغاء",
+    "pagination": {
+      "messages-found": "تم العثور على {count} رسالة",
+      "rows-per-page": "عدد الصفوف لكل صفحة",
+      "page-of": "الصفحة {current} من {total}",
+      "go-to-first-page": "الانتقال إلى الصفحة الأولى",
+      "go-to-previous-page": "الانتقال إلى الصفحة السابقة",
+      "go-to-next-page": "الانتقال إلى الصفحة التالية",
+      "go-to-last-page": "الانتقال إلى الصفحة الأخيرة"
+    }
+  }
+  
+
 
   
 }

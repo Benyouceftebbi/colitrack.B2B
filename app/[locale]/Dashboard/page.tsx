@@ -1,84 +1,86 @@
 "use client"
 
-import { ArrowDown, ArrowUp,  MessageSquare, HelpCircle, TrendingUp, Star } from 'lucide-react'
+import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { useTranslations } from 'next-intl';
-import Algeria from "@react-map/algeria";
-import { useTheme } from 'next-themes'
+import { useTranslations } from "next-intl"
+import Algeria from "@react-map/algeria"
+import { useTheme } from "next-themes"
 import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
   createColumnHelper,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { useShop } from '@/app/context/ShopContext'
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
-import { db } from '@/firebase/firebase'
-import axios from 'axios';
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { useShop } from "@/app/context/ShopContext"
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore"
+import { db } from "@/firebase/firebase"
+import axios from "axios"
 
 type AlgeriaDataItem = {
   name: string
   value: number
 }
 
-
-
 const columnHelper = createColumnHelper<AlgeriaDataItem>()
 
 const columns = [
-  columnHelper.accessor('name', {
-    header: 'State',
-    cell: info => info.getValue(),
+  columnHelper.accessor("name", {
+    header: "State",
+    cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('value', {
-    header: 'Total SMS',
-    cell: info => info.getValue(),
+  columnHelper.accessor("value", {
+    header: "Total SMS",
+    cell: (info) => info.getValue(),
   }),
 ]
 
-
 export default function Dashboard() {
-  const t = useTranslations('header')
+  const t = useTranslations("header")
   const [progress, setProgress] = React.useState(13)
   const [showHelp, setShowHelp] = React.useState(false)
   const { theme } = useTheme()
-  const {shopData}=useShop()
+  const { shopData } = useShop()
   const chartData = [
-    { month: "January", totalSmsOfOneTapLink: shopData.analytics?.January?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.January?.totalSmsSentInCampaign || 0 },
-    { month: "February", totalSmsOfOneTapLink: shopData.analytics?.February?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.February?.totalSmsSentInCampaign || 0 },
-    { month: "March", totalSmsOfOneTapLink: shopData.analytics?.March?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.March?.totalSmsSentInCampaign || 0 },
-    { month: "April", totalSmsOfOneTapLink: shopData.analytics?.April?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.April?.totalSmsSentInCampaign || 0 },
-    { month: "May", totalSmsOfOneTapLink: shopData.analytics?.May?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.May?.totalSmsSentInCampaign || 0 },
-    { month: "June", totalSmsOfOneTapLink: shopData.analytics?.June?.totalSmsOfOneTapLink || 0, totalSmsSentInCampaign: shopData.analytics?.June?.totalSmsSentInCampaign || 0 },
-  ];
+    {
+      month: "January",
+      totalSmsOfOneTapLink: shopData.analytics?.January?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.January?.totalSmsSentInCampaign || 0,
+    },
+    {
+      month: "February",
+      totalSmsOfOneTapLink: shopData.analytics?.February?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.February?.totalSmsSentInCampaign || 0,
+    },
+    {
+      month: "March",
+      totalSmsOfOneTapLink: shopData.analytics?.March?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.March?.totalSmsSentInCampaign || 0,
+    },
+    {
+      month: "April",
+      totalSmsOfOneTapLink: shopData.analytics?.April?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.April?.totalSmsSentInCampaign || 0,
+    },
+    {
+      month: "May",
+      totalSmsOfOneTapLink: shopData.analytics?.May?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.May?.totalSmsSentInCampaign || 0,
+    },
+    {
+      month: "June",
+      totalSmsOfOneTapLink: shopData.analytics?.June?.totalSmsOfOneTapLink || 0,
+      totalSmsSentInCampaign: shopData.analytics?.June?.totalSmsSentInCampaign || 0,
+    },
+  ]
   const chartConfig = {
     desktop: {
       label: "totalSmsOfOneTapLink",
@@ -89,11 +91,14 @@ export default function Dashboard() {
       color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig
-  const algeriaData: AlgeriaDataItem[] = React.useMemo(() => [
-    { name: 'Algiers', value: shopData.smsByState?.lagos?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
-    { name: 'Oran', value: shopData.smsByState?.abuja?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
-    { name: 'Constantine', value:  shopData.smsByState?.portHarcourt?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
-  ], [shopData]) // Memoize based on shopData
+  const algeriaData: AlgeriaDataItem[] = React.useMemo(
+    () => [
+      { name: "Algiers", value: shopData.smsByState?.lagos?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+      { name: "Oran", value: shopData.smsByState?.abuja?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+      { name: "Constantine", value: shopData.smsByState?.portHarcourt?.totalNumberOfSms || 0 }, // Added totalNumberOfSms
+    ],
+    [shopData],
+  ) // Memoize based on shopData
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
     return () => clearTimeout(timer)
@@ -111,166 +116,157 @@ export default function Dashboard() {
   })
   const totalSmsSent = React.useMemo(() => {
     return Object.keys(shopData.analytics || {}).reduce((acc, month) => {
-      return acc + (shopData.analytics[month]?.totalSmsSent || 0);
-    }, 0);
-  }, []);
-
+      return acc + (shopData.analytics[month]?.totalSmsSent || 0)
+    }, 0)
+  }, [shopData.analytics])
 
   const currentMonth = React.useMemo(() => {
-    return new Date().toLocaleString('default', { month: 'long' });
-  }, []);
+    return new Date().toLocaleString("default", { month: "long" })
+  }, [])
 
   const lastMonth = React.useMemo(() => {
-    return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('default', { month: 'long' });
-  }, []);
+    return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString("default", { month: "long" })
+  }, [])
 
   const currentMonthSms = React.useMemo(() => {
-    return shopData.analytics?.[currentMonth]?.totalSmsSent || 0;
-  }, []);
+    return shopData.analytics?.[currentMonth]?.totalSmsSent || 0
+  }, [shopData.analytics, currentMonth])
 
   const lastMonthSms = React.useMemo(() => {
-    return shopData.analytics?.[lastMonth]?.totalSmsSent || 0;
-  }, []);
+    return shopData.analytics?.[lastMonth]?.totalSmsSent || 0
+  }, [shopData.analytics, lastMonth])
 
   const percentageChange = React.useMemo(() => {
-    return lastMonthSms > 0 
-      ? ((currentMonthSms - lastMonthSms) / lastMonthSms) * 100 
-      : 0;
-  }, []);
+    return lastMonthSms > 0 ? ((currentMonthSms - lastMonthSms) / lastMonthSms) * 100 : 0
+  }, [currentMonthSms, lastMonthSms])
 
   const percentageText = React.useMemo(() => {
-    return percentageChange > 0 
-      ? `${percentageChange.toFixed(1)}% from last month` 
-      : `${Math.abs(percentageChange).toFixed(1)}% decrease from last month`;
-  }, []);
+    return percentageChange > 0
+      ? `${percentageChange.toFixed(1)}% from last month`
+      : `${Math.abs(percentageChange).toFixed(1)}% decrease from last month`
+  }, [percentageChange])
 
-  const isChartDataEmpty = chartData.length === 0;
-  const isTableDataEmpty = table.getRowModel().rows.length === 0;
-  
+  const isChartDataEmpty = chartData.length === 0
+  const isTableDataEmpty = table.getRowModel().rows.length === 0
 
-
-async function sendSMS(sms, phoneNumber, senderId, smsToken) {
-  try {
-    const response = await axios.get("/api/send-sms", {
-      params: {
-        sms,
-        phoneNumber,
-        senderId,
-        smsToken,
-      },
-    });
-    console.log("SMS sent successfully:", response.data);
-  } catch (error) {
-    console.error("Error sending SMS:", error.response?.data || error.message);
+  async function sendSMS(sms, phoneNumber, senderId, smsToken) {
+    try {
+      const response = await axios.get("/api/send-sms", {
+        params: {
+          sms,
+          phoneNumber,
+          senderId,
+          smsToken,
+        },
+      })
+      console.log("SMS sent successfully:", response.data)
+    } catch (error) {
+      console.error("Error sending SMS:", error.response?.data || error.message)
+    }
   }
-}
 
-const fetchTrackingDatas = async () => {
-
-    const trackingRef = collection(db, "/Shops/sabyange/Tracking");
-    const q = query(trackingRef, where("lastStatus", "in", ["delivery-failed", "istribution-center","en-route-to-region","ready-for-pickup"])); // Query for specific statuses
+  const fetchTrackingDatas = async () => {
+    const trackingRef = collection(db, "/Shops/sabyange/Tracking")
+    const q = query(
+      trackingRef,
+      where("lastStatus", "in", ["delivery-failed", "istribution-center", "en-route-to-region", "ready-for-pickup"]),
+    ) // Query for specific statuses
 
     try {
-      const querySnapshot = await getDocs(q);
-      const trackingData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const querySnapshot = await getDocs(q)
+      const trackingData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       trackingData.map(async (track) => {
-        const sms = `Cher client, votre colis est en route ! Suivez-le ici :  https://colitrack-v1.vercel.app/fr/t?tr=${track.id}. Merci !`;
-        await sendSMS(sms, "0561041724", "SabyAnge", "0379004fa017baa6016e3f62f388b832");
-      });
+        const sms = `Cher client, votre colis est en route ! Suivez-le ici :  https://colitrack-v1.vercel.app/fr/t?tr=${track.id}. Merci !`
+        await sendSMS(sms, track.data.contact_phone, "SabyAnge", "0379004fa017baa6016e3f62f388b832")
+      })
     } catch (error) {
-      console.error("Error fetching tracking data: ", error);
+      console.error("Error fetching tracking data: ", error)
     }
-  };
+  }
   const fetchTrackingData = async () => {
-    const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2"; // Replace with the actual current user ID
-    const grifashopUserId = "grifashop"; // User ID to duplicate from
+    const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2" // Replace with the actual current user ID
+    const grifashopUserId = "grifashop" // User ID to duplicate from
 
     // Fetch SMS and tracking data from grifashop
-    const smsRef = collection(db, `/Shops/${grifashopUserId}/SMS`);
-    const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`);
+    const smsRef = collection(db, `/Shops/${grifashopUserId}/SMS`)
+    const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`)
 
     try {
-        const smsSnapshot = await getDocs(smsRef);
-        const trackingSnapshot = await getDocs(trackingRef);
+      const smsSnapshot = await getDocs(smsRef)
+      const trackingSnapshot = await getDocs(trackingRef)
 
-        // Duplicate SMS data
-        const smsPromises = smsSnapshot.docs.map(docSnap => { 
-          const docRef = doc(db, `Shops/${currentUserId}/SMS`, docSnap.id);
-          return setDoc(docRef, docSnap.data());
-      });
-      
+      // Duplicate SMS data
+      const smsPromises = smsSnapshot.docs.map((docSnap) => {
+        const docRef = doc(db, `Shops/${currentUserId}/SMS`, docSnap.id)
+        return setDoc(docRef, docSnap.data())
+      })
 
+      // Wait for all promises to resolve
+      await Promise.all([...smsPromises])
 
-        // Wait for all promises to resolve
-        await Promise.all([...smsPromises]);
-
-        console.log("SMS and tracking data duplicated successfully.");
+      console.log("SMS and tracking data duplicated successfully.")
     } catch (error) {
-        console.error("Error fetching or duplicating tracking data: ", error);
+      console.error("Error fetching or duplicating tracking data: ", error)
     }
-};
-const copyECTrackingData = async () => {
-  const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2"; // Replace with the actual current user ID
-  const grifashopUserId = "grifashop"; // User ID to duplicate from
-  // Reference to the Tracking subcollection of grifashop
-  const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`);
+  }
+  const copyECTrackingData = async () => {
+    const currentUserId = "XW4WLUuX8oXMAfQzyrZ69wnVYMk2" // Replace with the actual current user ID
+    const grifashopUserId = "grifashop" // User ID to duplicate from
+    // Reference to the Tracking subcollection of grifashop
+    const trackingRef = collection(db, `/Shops/${grifashopUserId}/Tracking`)
 
-  try {
-      const trackingSnapshot = await getDocs(trackingRef);
+    try {
+      const trackingSnapshot = await getDocs(trackingRef)
 
       // Filter documents that start with "EC" and copy them to the current user's Tracking subcollection
       const copyPromises = trackingSnapshot.docs
-          .filter(doc => doc.id.startsWith("EC")) // Filter documents starting with "EC"
-          .map(async doca => {
-              const data = doca.data();
-              const lastStatus = data.shippmentTrack?.length > 0 ? data.shippmentTrack[data.shippmentTrack.length - 1].status : null; // Get last status
+        .filter((doc) => doc.id.startsWith("EC")) // Filter documents starting with "EC"
+        .map(async (doca) => {
+          const data = doca.data()
+          const lastStatus =
+            data.shippmentTrack?.length > 0 ? data.shippmentTrack[data.shippmentTrack.length - 1].status : null // Get last status
 
-              // Add lastStatus to the document data
-              const updatedData = {
-                  ...data,
-                  lastStatus, // Add lastStatus field
-              };
+          // Add lastStatus to the document data
+          const updatedData = {
+            ...data,
+            lastStatus, // Add lastStatus field
+          }
 
-              return setDoc(doc(db, `/Shops/${currentUserId}/Tracking`, doca.id), updatedData);
-          });
+          return setDoc(doc(db, `/Shops/${currentUserId}/Tracking`, doca.id), updatedData)
+        })
 
       // Wait for all copy operations to resolve
-      await Promise.all(copyPromises);
+      await Promise.all(copyPromises)
 
-      console.log("Documents starting with 'EC' copied successfully with lastStatus.");
-  } catch (error) {
-      console.error("Error copying EC tracking data: ", error);
+      console.log("Documents starting with 'EC' copied successfully with lastStatus.")
+    } catch (error) {
+      console.error("Error copying EC tracking data: ", error)
+    }
   }
-};
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("dashboard-overview")}</h1>
           <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto" onClick={copyECTrackingData}>
-            Fetch Tracking Data
-          </Button>
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">Export Data</Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              aria-label="Help"
-              onClick={() => setShowHelp(!showHelp)}
-            >
+
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">
+              {t("export-data")}
+            </Button>
+            <Button variant="outline" size="icon" aria-label={t("help")} onClick={() => setShowHelp(!showHelp)}>
               <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
 
-
-
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
-        <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Token Left</p>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("tokens-left")}
+                  </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData.tokens}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
@@ -282,17 +278,18 @@ const copyECTrackingData = async () => {
               </div>
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                 <span className="text-green-600 flex items-center">
-                  
-                {Math.floor(shopData.tokens/15)}-{Math.floor(shopData.tokens/10)} sms to be sent left
+                  {t("sms-remaining", { min: Math.floor(shopData.tokens / 15), max: Math.floor(shopData.tokens / 10) })}
                 </span>
               </div>
             </CardContent>
           </Card>
-        <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Total Messages</p>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("total-messages")}
+                  </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{totalSmsSent}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
@@ -303,15 +300,15 @@ const copyECTrackingData = async () => {
                 <Progress value={progress} className="h-1 sm:h-2" />
               </div>
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-    <span className={`flex items-center ${percentageChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
-        {percentageChange > 0 ? (
-            <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-        ) : (
-            <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-        )}
-        {percentageText}
-    </span>
-</div>
+                <span className={`flex items-center ${percentageChange > 0 ? "text-green-600" : "text-red-600"}`}>
+                  {percentageChange > 0 ? (
+                    <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                  ) : (
+                    <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                  )}
+                  {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
+                </span>
+              </div>
             </CardContent>
           </Card>
 
@@ -319,8 +316,12 @@ const copyECTrackingData = async () => {
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Total SMS Sent Today</p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.smsSentToday|| 0}</h2>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("total-sms-today")}
+                  </p>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {shopData?.smsSentToday || 0}
+                  </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -332,7 +333,7 @@ const copyECTrackingData = async () => {
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                 <span className="text-green-600 flex items-center">
                   <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  2 new this week
+                  {t("new-this-week", { count: 2 })}
                 </span>
               </div>
             </CardContent>
@@ -342,7 +343,9 @@ const copyECTrackingData = async () => {
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">Return Rate</p>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("return-rate")}
+                  </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.returnRate}%</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
@@ -355,29 +358,24 @@ const copyECTrackingData = async () => {
               <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                 <span className="text-red-600 flex items-center">
                   <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  2.1% from last week
+                  {t("return-rate-change", { value: 2.1 })}
                 </span>
               </div>
             </CardContent>
           </Card>
-
-
         </div>
 
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
-        <Card>
+          <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-6">
-                <CardTitle className="text-base sm:text-lg md:text-xl">Message Analytics</CardTitle>
+                <CardTitle className="text-base sm:text-lg md:text-xl">{t("message-analytics")}</CardTitle>
               </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total sms for the last 6 months
-        </div>
-
+              <div className="leading-none text-muted-foreground">{t("analytics-description")}</div>
             </CardHeader>
             <CardContent>
               {!isChartDataEmpty ? (
-                <div className="text-center text-gray-500">Not enough data</div>
+                <div className="text-center text-gray-500">{t("no-data")}</div>
               ) : (
                 <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
                   <BarChart accessibilityLayer data={chartData}>
@@ -389,10 +387,7 @@ const copyECTrackingData = async () => {
                       axisLine={false}
                       tickFormatter={(value) => value.slice(0, 3)}
                     />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent indicator="dashed" />}
-                    />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
                     <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
                     <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
                   </BarChart>
@@ -401,118 +396,120 @@ const copyECTrackingData = async () => {
             </CardContent>
           </Card>
           <Card className="w-full max-w-4xl mx-auto">
-      <CardContent className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Algeria Interactive Map</h2>
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-          <Algeria
-              size={300}
-              type="select-single"
-              mapColor={theme === "dark" ? "#374151" :undefined}
-              hoverColor={theme === "dark" ? "#6B7280" : "#9CA3AF"}
-              selectColor={theme === "dark" ? "#9CA3AF" : "#4B5563"}
-              strokeColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
-              strokeWidth={1}
-              hints={true}
-              hintTextColor={theme === "dark" ? "#000000" : "#FFFFFF"}
-              hintBackgroundColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
-              hintBorderRadius={3}
-/>
-          </div>
-          <div className="flex-1">
-            {!isTableDataEmpty ? (
-              <div className="text-center text-gray-500">Not enough data</div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <TableRow key={headerGroup.id} className="dark:border-gray-700">
-                      {headerGroup.headers.map(header => (
-                        <TableHead key={header.id} className="dark:text-gray-300">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows.map(row => (
-                    <TableRow 
-                      key={row.id} 
-                      className={"dark:border-gray-700"}
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold mb-4">{t("algeria-map")}</h2>
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1">
+                  <Algeria
+                    size={300}
+                    type="select-single"
+                    mapColor={theme === "dark" ? "#374151" : undefined}
+                    hoverColor={theme === "dark" ? "#6B7280" : "#9CA3AF"}
+                    selectColor={theme === "dark" ? "#9CA3AF" : "#4B5563"}
+                    strokeColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
+                    strokeWidth={1}
+                    hints={true}
+                    hintTextColor={theme === "dark" ? "#000000" : "#FFFFFF"}
+                    hintBackgroundColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
+                    hintBorderRadius={3}
+                  />
+                </div>
+                <div className="flex-1">
+                  {!isTableDataEmpty ? (
+                    <div className="text-center text-gray-500">{t("no-data")}</div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                          <TableRow key={headerGroup.id} className="dark:border-gray-700">
+                            {headerGroup.headers.map((header) => (
+                              <TableHead key={header.id} className="dark:text-gray-300">
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableHeader>
+                      <TableBody>
+                        {table.getRowModel().rows.map((row) => (
+                          <TableRow key={row.id} className={"dark:border-gray-700"}>
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id} className="dark:text-gray-300">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                  <div className="flex items-center justify-end space-x-2 py-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
                     >
-                      {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id} className="dark:text-gray-300">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Card>
           <CardHeader className="p-2 sm:p-4 md:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-              <CardTitle className="text-base sm:text-lg md:text-xl">Recent Messages</CardTitle>
+              <CardTitle className="text-base sm:text-lg md:text-xl">{t("recent-messages")}</CardTitle>
               <Button variant="link" asChild className="p-0 h-auto text-xs sm:text-sm">
-                <Link href="#">View all</Link>
+                <Link href="#">{t("view-all")}</Link>
               </Button>
             </div>
-            <CardDescription className="text-[10px] sm:text-xs md:text-sm">Track your latest message delivery status</CardDescription>
+            <CardDescription className="text-[10px] sm:text-xs md:text-sm">{t("track-message-status")}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">CUSTOMER</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">TRACKING #</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">STATUS</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">TIME</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">MESSAGE</TableHead>
+                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("customer")}</TableHead>
+                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("tracking-number")}</TableHead>
+                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("status")}</TableHead>
+                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("time")}</TableHead>
+                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("message")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {shopData.smsTracking?.map((tracking) => (
                     <TableRow key={tracking.trackingNumber}>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">{tracking.customerName}</TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">
+                        {tracking.customerName}
+                      </TableCell>
                       <TableCell className="text-[10px] sm:text-xs md:text-sm">{tracking.trackingNumber}</TableCell>
                       <TableCell>
-                        <Badge variant={tracking.status === 'Delivered' ? 'success' : 'destructive'} className="text-[8px] sm:text-[10px] md:text-xs">{tracking.status}</Badge>
+                        <Badge
+                          variant={tracking.status === "Delivered" ? "success" : "destructive"}
+                          className="text-[8px] sm:text-[10px] md:text-xs"
+                        >
+                          {tracking.status}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm">{new Date(tracking.time).toLocaleString()}</TableCell>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">{tracking.message}</TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm">
+                        {new Date(tracking.time).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">
+                        {tracking.message}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -524,4 +521,3 @@ const copyECTrackingData = async () => {
     </div>
   )
 }
-

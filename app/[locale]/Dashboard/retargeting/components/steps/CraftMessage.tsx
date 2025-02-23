@@ -73,7 +73,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         />
 
         <div className="flex justify-between items-center text-sm text-muted-foreground">
-          <span>{t("charactersRemaining")} {campaign.CHARACTER_LIMIT - campaign.message.length }</span>
+          <span>{t("charactersRemaining")} {campaign.CHARACTER_LIMIT + campaign.message.length }</span>
           <span>
             {t("messageCount")} {campaign.messageCount } × {campaign.totalRecipients} {t("recipients")}
           </span>

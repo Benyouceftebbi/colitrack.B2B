@@ -14,35 +14,33 @@ type Message = {
   createdAt: Date
 }
 
-
-
 export const columns: ColumnDef<Message>[] = [
   {
     accessorKey: "trackingId",
-    header: "Tracking #",
+    header: ({ t }) => t("tracking"),
     cell: ({ row }) => <span className="font-mono text-sm">{row.getValue("trackingId")}</span>,
   },
   {
     accessorKey: "phoneNumber",
-    header: "Recipient",
+    header: ({ t }) => t("recipient"),
     cell: ({ row }) => <span className="font-mono text-sm">{row.getValue("phoneNumber")}</span>,
   },
   {
     accessorKey: "type",
-    header: "Template",
-    cell: ({ row }) => {
+    header: ({ t }) => t("template"),
+    cell: ({ row, t }) => {
       const template = row.getValue("type") as string
       return (
         <Badge variant="outline" className="capitalize">
-          {template.replace("_", " ")}
+{t(`templates.${template?.replace("_", "-")}`, { defaultValue: template || "N/A" })}
         </Badge>
       )
     },
   },
   {
     accessorKey: "lastStatus",
-    header: "Status",
-    cell: ({ row }) => {
+    header: ({ t }) => t("status"),
+    cell: ({ row, t }) => {
       const status = row.getValue("lastStatus") as string
       return (
         <Badge
@@ -55,59 +53,48 @@ export const columns: ColumnDef<Message>[] = [
                 : "bg-red-500/10 text-red-500"
           }
         >
-          {status}
+          {t(`statusLabels.${status}`)}
         </Badge>
       )
     },
   },
   {
     accessorKey: "createdAt",
-    header: "Sent",
+    header: ({ t }) => t("sent"),
     cell: ({ row }) => {
-      const createdAtTimestamp = row.getValue("createdAt");
-  
-      // Convert Firestore Timestamp to Date
-      const date = createdAtTimestamp?.toDate
-        ? createdAtTimestamp.toDate()
-        : new Date(createdAtTimestamp);
-  
-      return (
-        <span className="text-sm text-muted-foreground">
-          {formatDistanceToNow(date, { addSuffix: true })}
-        </span>
-      );
+      const createdAtTimestamp = row.getValue("createdAt")
+      const date = createdAtTimestamp instanceof Date ? createdAtTimestamp : new Date(createdAtTimestamp.toDate())
+      return <span className="text-sm text-muted-foreground">{formatDistanceToNow(date, { addSuffix: true })}</span>
     },
     enableSorting: true,
   },
   {
     id: "sendReminder",
-    header: () => (
+    header: ({ t }) => (
       <div className="flex items-center gap-2">
-        Send Reminder
+        {t("send-reminder")}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Send a reminder SMS to the recipient. Costs 15 tokens per message.</p>
+              <p>{t("reminder-tooltip")}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
     ),
-    cell: ({ row }) => (
+    cell: ({ t }) => (
       <Button
         variant="outline"
         size="sm"
         onClick={() => {
           // This will be handled in the DataTable component
-
         }}
       >
-        Send Reminder
+        {t("send-reminder")}
       </Button>
     ),
   },
 ]
-

@@ -168,16 +168,60 @@
       "exchange-failed": "Échange échoué"
     }
   },
-    "header": {
-      "badge": "Renforcez votre entreprise de commerce électronique",
-      "title": "Transformez votre entreprise de commerce électronique avec",
-      "highlight": "Solutions SMS intelligentes",
-      "and": "et",
-      "subtitle": "Automatisation par IA",
-      "description": "Notifications en temps réel, satisfaction client améliorée et automatisation fluide pour les entreprises de commerce électronique.",
-      "getStarted": "Commencez maintenant",
-      "tryDemo": "Essayez la démo"
-    },
+  "header": {
+    "badge": "Optimisez Votre Entreprise E-Commerce",
+    "title": "Transformez Votre Entreprise E-commerce Avec",
+    "highlight": "Des Solutions SMS Intelligentes",
+    "and": "et",
+    "subtitle": "L'Automatisation par IA",
+    "description": "Notifications en temps réel, satisfaction client améliorée et automatisation fluide pour les entreprises e-commerce.",
+    "getStarted": "Commencer",
+    "tryDemo": "Essayer la Démo",
+  
+    "dashboard-overview": "Vue d'ensemble du tableau de bord",
+    "fetch-tracking-data": "Récupérer les données de suivi",
+    "export-data": "Exporter les données",
+    "help": "Aide",
+    "tokens-left": "Jetons restants",
+    "total-messages": "Total des messages",
+    "total-sms-today": "Total SMS aujourd'hui",
+    "return-rate": "Taux de retour",
+    "sms-remaining": "{min}-{max} SMS restants à envoyer",
+    "percentage-change": "{value}% par rapport au mois dernier",
+    "new-this-week": "{count} nouveaux cette semaine",
+    "return-rate-change": "{value}% par rapport à la semaine dernière",
+    "message-analytics": "Analyse des messages",
+    "analytics-description": "Affichage du total des SMS pour les 6 derniers mois",
+    "no-data": "Pas assez de données",
+    "algeria-map": "Carte interactive de l'Algérie",
+    "recent-messages": "Messages récents",
+    "view-all": "Voir tout",
+    "track-message-status": "Suivez l'état de livraison de vos derniers messages",
+    "customer": "CLIENT",
+    "tracking-number": "N° DE SUIVI",
+    "status": "STATUT",
+    "time": "HEURE",
+    "message": "MESSAGE",
+    "delivered": "Livré",
+    "failed": "Échoué",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "state": "État",
+    "total-sms": "Total SMS",
+    "setup-completed": "Configuration terminée",
+    "setup-success": "Vos informations ont été mises à jour avec succès",
+    "setup-error": "Une erreur s'est produite lors de la mise à jour de vos informations",
+    "copied-title": "Copié dans le presse-papiers",
+    "copied-description": "Les informations ont été copiées dans votre presse-papiers",
+    "error": "Erreur",
+    "error-updating": "Une erreur s'est produite lors de la mise à jour. Veuillez réessayer.",
+    "step-image-alt": "Étape {step} - {title}",
+    "chart": {
+      "desktop": "SMS One Tap Link",
+      "mobile": "SMS Campagne"
+    }
+  },
+  
     "stats":{
       "realTimeUpdates": "Mises à jour en temps réel",
       "customerSatisfaction": "Satisfaction client",
@@ -513,5 +557,196 @@
   "es": "Espagnol",
   "fr": "Français",
   "de": "Allemand"
-}
+},
+"messages": {
+  "message-center": "Centre de Messages",
+  "smart-notifications": "Notifications Intelligentes",
+  "automated-system": "Système de messagerie automatisé pour :",
+  "order-tracking": "Confirmation et suivi des commandes",
+  "delivery-updates": "Mises à jour de livraison",
+  "enhance-experience": "Améliorez l'expérience client avec des notifications automatisées",
+  "no-delivery-company": "Aucune société de livraison",
+  "delivery-integration": "Intégration de la livraison",
+  "connected-delivery": "Connecté avec {company}. Gérez les paramètres de livraison et les règles d'automatisation.",
+  "connect-delivery": "Connectez votre service de livraison pour activer le suivi et les notifications automatiques.",
+  "id": "ID",
+  "messages-sent-today": "Messages envoyés aujourd'hui",
+  "delivery-updates-count": "Mises à jour de livraison",
+  "success-rate": "Taux de réussite",
+  "settings": "Paramètres",
+  "info": "Informations",
+  "notifications": "Notifications",
+
+  "stats": {
+    "label": "{label}",
+    "value": "{value}",
+    "trend": "{value}% {direction}",
+    "increase": "d'augmentation par rapport à la période précédente",
+    "decrease": "de diminution par rapport à la période précédente",
+    "period": "période précédente"
+  },
+
+  "panel": {
+    "title": "Modèles SMS automatisés",
+    "active-count": "{count} Actif",
+    "preview": "Aperçu en direct"
+  },
+
+  "template": {
+    "name": "{name}",
+    "description": "{description}",
+    "benefit": "{benefit}",
+    "tokens-per-message": "{count} tokens par message",
+    "preview": "Aperçu",
+    "active": "Actif",
+    "activate": "Activer"
+  },
+
+  "modal": {
+    "account-linking-title": "Liaison de compte requise",
+    "account-linking-description": "Vous ne pouvez pas activer cette option. Vous devez d'abord lier votre compte de livraison.",
+    "close": "Fermer",
+    "link-account": "Lier le compte"
+  },
+
+  "templates": {
+    "section-title": "Modèles SMS",
+    "preview-title": "Aperçu",
+    
+    "expedited": {
+      "name": "Suivi en temps réel",
+      "description": "Envoyez des liens de suivi instantanés pour les livraisons express",
+      "template": "Votre colis 'trackingID' est en cours d'expédition !\n\nSuivez en temps réel : https://colitrcak.trackingID ",
+      "benefits": {
+        "support": "Réduire les demandes de support",
+        "updates": "Mises à jour de localisation en temps réel",
+        "status": "État de livraison instantané"
+      }
+    },
+    "delivery": {
+      "name": "Alerte de livraison",
+      "description": "Informez les clients lorsque leur colis est en cours de livraison",
+      "template": "Votre colis 'trackingID' est en cours de livraison aujourd'hui !\n\nLivreur : 'driverName'\nContact : 'driverPhone'",
+      "benefits": {
+        "failed": "Réduire les échecs de livraison",
+        "contact": "Contact direct avec le livreur",
+        "confirmation": "Confirmation de livraison"
+      }
+    },
+    "pickup": {
+      "name": "Retrait en point relais",
+      "description": "Alertez les clients lorsque les colis arrivent aux points de retrait",
+      "template": "Votre colis 'trackingID' est prêt pour le retrait !\n\nPoint relais : 'stopDeskAddress'\nHoraires : 'businessHours'\n\nPrésentez ce SMS lors du retrait",
+      "benefits": {
+        "instructions": "Instructions de retrait claires",
+        "hours": "Horaires d'ouverture inclus",
+        "verification": "Vérification rapide"
+      }
+    }
+  },
+
+  "metrics": {
+    "total": "Total",
+    "today": "Aujourd'hui",
+    "this-week": "Cette semaine",
+    "this-month": "Ce mois"
+  },
+
+  "status": {
+    "connected": "Connecté",
+    "disconnected": "Déconnecté",
+    "error": "Erreur",
+    "success": "Succès",
+    "delivered": "Livré",
+    "failed": "Échoué",
+    "pending": "En attente"
+  },
+
+  "actions": {
+    "settings": "Paramètres",
+    "view-all": "Voir tout",
+    "refresh": "Actualiser",
+    "copy": "Copier",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+
+  "tooltips": {
+    "settings": "Ouvrir les paramètres",
+    "info": "Plus d'informations",
+    "notifications": "Voir les notifications"
+  },
+
+  "errors": {
+    "connection-failed": "La connexion a échoué",
+    "invalid-token": "Jeton invalide",
+    "service-unavailable": "Service indisponible"
+  },
+
+  "success-messages": {
+    "settings-updated": "Paramètres mis à jour",
+    "connection-established": "Connexion établie"
+  },
+
+  "placeholders": {
+    "search": "Rechercher des messages...",
+    "select-date": "Sélectionner une date"
+  },
+  "table": {
+    "recent-messages": "Messages récents",
+    "tracking": "Numéro de suivi",
+    "recipient": "Destinataire",
+    "template": "Modèle",
+    "status": "Statut",
+    "sent": "Envoyé",
+    "send-reminder": "Envoyer un rappel",
+    "reminder-tooltip": "Envoyer un SMS de rappel au destinataire. Coût : 15 jetons par message.",
+    "no-results": "Aucun résultat trouvé.",
+    "error": "Erreur",
+    "enter-message": "Veuillez entrer un message.",
+    "select-recipient-tracking": "Veuillez sélectionner un destinataire et un numéro de suivi.",
+    "reminder-sent": "Rappel envoyé",
+    "reminder-sent-description": "Votre rappel a été envoyé avec succès. 15 jetons ont été déduits.",
+    "failed-to-send": "Échec de l'envoi du SMS.",
+    "unknown-error": "Une erreur inconnue s'est produite.",
+    "error-sending-sms": "Erreur lors de l'envoi du SMS.",
+    "try-again-later": "Veuillez réessayer plus tard.",
+    "reminder-description": "Saisissez votre message de rappel ci-dessous. Cela coûtera 15 jetons. Tout contenu inapproprié ne sera pas envoyé et vous perdrez tout de même les jetons.",
+    "message": "Message",
+    "cancel": "Annuler",
+    "pagination": {
+      "messages-found": "{count} messages trouvés",
+      "rows-per-page": "Lignes par page",
+      "page-of": "Page {current} sur {total}",
+      "go-to-first-page": "Aller à la première page",
+      "go-to-previous-page": "Aller à la page précédente",
+      "go-to-next-page": "Aller à la page suivante",
+      "go-to-last-page": "Aller à la dernière page"
+    },
+    "templates":{
+      "shipped":"shipped"
+
+
+    },
+    "statusLabels": {
+      "in-preparation": "En préparation",
+      "transfer": "Transfert",
+      "shipped": "Expédié",
+      "distribution-center": "Centre",
+      "en-route-to-region": "Vers Wilaya",
+       "arrived-at-region": "Reçu à Wilaya",
+      "ready-for-pickup": "En attente du client",
+      "out-for-delivery": "Sorti en livraison",
+      "delivered": "Livré",
+      "alert": "En alerte",
+      "delivery-attempt-failed": "Tentative échouée",
+      "delivery-failed": "Échec livraison",
+      "returning-to-center": "Retour vers centre",
+      "returned-to-center": "Retourné au centre",
+      "exchange-failed": "Échange échoué",
+      "null":""
+    }
+  }
+  
+  }
 }

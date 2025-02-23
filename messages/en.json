@@ -177,7 +177,52 @@
     "subtitle": "AI Automation",
     "description": "Real-time notifications, enhanced customer satisfaction, and seamless automation for e-commerce businesses.",
     "getStarted": "Get Started",
-    "tryDemo": "Try Demo"
+    "tryDemo": "Try Demo",
+    
+        "dashboard-overview": "Vue d'ensemble du tableau de bord",
+        "fetch-tracking-data": "Récupérer les données de suivi",
+        "export-data": "Exporter les données",
+        "help": "Aide",
+        "tokens-left": "Jetons restants",
+        "total-messages": "Total des messages",
+        "total-sms-today": "Total SMS aujourd'hui",
+        "return-rate": "Taux de retour",
+        "sms-remaining": "{min}-{max} SMS restants à envoyer",
+        "percentage-change": "{value}% par rapport au mois dernier",
+        "new-this-week": "{count} nouveaux cette semaine",
+        "return-rate-change": "{value}% par rapport à la semaine dernière",
+        "message-analytics": "Analyse des messages",
+        "analytics-description": "Affichage du total des SMS pour les 6 derniers mois",
+        "no-data": "Pas assez de données",
+        "algeria-map": "Carte interactive de l'Algérie",
+        "recent-messages": "Messages récents",
+        "view-all": "Voir tout",
+        "track-message-status": "Suivez l'état de livraison de vos derniers messages",
+        "customer": "CLIENT",
+        "tracking-number": "N° DE SUIVI",
+        "status": "STATUT",
+        "time": "HEURE",
+        "message": "MESSAGE",
+        "delivered": "Livré",
+        "failed": "Échoué",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "state": "État",
+        "total-sms": "Total SMS",
+        "setup-completed": "Configuration terminée",
+        "setup-success": "Vos informations ont été mises à jour avec succès",
+        "setup-error": "Une erreur s'est produite lors de la mise à jour de vos informations",
+        "copied-title": "Copié dans le presse-papiers",
+        "copied-description": "Les informations ont été copiées dans votre presse-papiers",
+        "error": "Erreur",
+        "error-updating": "Une erreur s'est produite lors de la mise à jour. Veuillez réessayer.",
+        "step-image-alt": "Étape {step} - {title}",
+        "chart": {
+          "desktop": "SMS One Tap Link",
+          "mobile": "SMS Campagne"
+        }
+      
+    
   },
   "stats": {
     "realTimeUpdates": "Real-time updates",
@@ -583,8 +628,174 @@
   "es": "Spanish",
   "fr": "French",
   "de": "German"
-}
+},
 
+"messages": {
+    "message-center": "Message Center",
+    "smart-notifications": "Smart Notifications",
+    "automated-system": "Automated messaging system for:",
+    "order-tracking": "Order confirmation and tracking",
+    "delivery-updates": "Delivery updates",
+    "enhance-experience": "Enhance customer experience with automated notifications",
+    "no-delivery-company": "No delivery company",
+    "delivery-integration": "Delivery Integration",
+    "connected-delivery": "Connected with {company}. Manage delivery settings and automation rules.",
+    "connect-delivery": "Connect your delivery service to enable tracking and automatic notifications.",
+    "id": "ID",
+    "messages-sent-today": "Messages sent today",
+    "delivery-updates-count": "Delivery updates",
+    "success-rate": "Success rate",
+    "settings": "Settings",
+    "info": "Information",
+    "notifications": "Notifications",
 
+    "stats": {
+      "label": "{label}",
+      "value": "{value}",
+      "trend": "{value}% {direction}",
+      "increase": "increase compared to the previous period",
+      "decrease": "decrease compared to the previous period",
+      "period": "previous period"
+    },
 
+    "panel": {
+      "title": "Automated SMS Templates",
+      "active-count": "{count} Active",
+      "preview": "Live Preview"
+    },
+
+    "template": {
+      "name": "{name}",
+      "description": "{description}",
+      "benefit": "{benefit}",
+      "tokens-per-message": "{count} tokens per message",
+      "preview": "Preview",
+      "active": "Active",
+      "activate": "Activate"
+    },
+
+    "modal": {
+      "account-linking-title": "Account Linking Required",
+      "account-linking-description": "You cannot enable this option. You must first link your delivery account.",
+      "close": "Close",
+      "link-account": "Link Account"
+    },
+
+    "templates": {
+      "section-title": "SMS Templates",
+      "preview-title": "Preview",
+      "expedited": {
+        "name": "Real-Time Tracking",
+        "description": "Send instant tracking links for express deliveries",
+        "template": "Your package ({{trackingNumber}}) is on its way!\n\nTrack in real-time: {{trackingLink}}\n\nReply HELP for support",
+        "benefits": {
+          "support": "Reduce support requests",
+          "updates": "Real-time location updates",
+          "status": "Instant delivery status"
+        }
+      },
+      "delivery": {
+        "name": "Delivery Alert",
+        "description": "Notify customers when their package is out for delivery",
+        "template": "Your package ({{trackingNumber}}) is out for delivery today!\n\nDriver: {{driverName}}\nContact: {{driverPhone}}\n\nReply OK to confirm availability",
+        "benefits": {
+          "failed": "Reduce delivery failures",
+          "contact": "Direct contact with the driver",
+          "confirmation": "Delivery confirmation"
+        }
+      },
+      "pickup": {
+        "name": "Pickup Notification",
+        "description": "Alert customers when their package is ready for pickup",
+        "template": "Your package ({{trackingNumber}}) is ready for pickup!\n\nPickup point: {{stopDeskAddress}}\nHours: {{businessHours}}\n\nShow this SMS at pickup",
+        "benefits": {
+          "instructions": "Clear pickup instructions",
+          "hours": "Business hours included",
+          "verification": "Quick verification"
+        }
+      }
+    },
+
+    "metrics": {
+      "total": "Total",
+      "today": "Today",
+      "this-week": "This Week",
+      "this-month": "This Month"
+    },
+
+    "status": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "error": "Error",
+      "success": "Success",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+
+    "actions": {
+      "settings": "Settings",
+      "view-all": "View All",
+      "refresh": "Refresh",
+      "copy": "Copy",
+      "previous": "Previous",
+      "next": "Next"
+    },
+
+    "tooltips": {
+      "settings": "Open settings",
+      "info": "More information",
+      "notifications": "View notifications"
+    },
+
+    "errors": {
+      "connection-failed": "Connection failed",
+      "invalid-token": "Invalid token",
+      "service-unavailable": "Service unavailable"
+    },
+
+    "success-messages": {
+      "settings-updated": "Settings updated",
+      "connection-established": "Connection established"
+    },
+
+    "placeholders": {
+      "search": "Search messages...",
+      "select-date": "Select a date"
+    },
+    "table": {
+      "recent-messages":"Recent Messages",
+      "tracking": "Tracking #",
+      "recipient": "Recipient",
+      "template": "Template",
+      "status": "Status",
+      "sent": "Sent",
+      "send-reminder": "Send Reminder",
+      "reminder-tooltip": "Send a reminder SMS to the recipient. Costs 15 tokens per message.",
+      "no-results": "No results found.",
+      "error": "Error",
+        "enter-message": "Please enter a message.",
+        "select-recipient-tracking": "Please select a recipient and tracking ID.",
+        "reminder-sent": "Reminder Sent",
+        "reminder-sent-description": "Your reminder has been sent successfully. 15 tokens have been deducted.",
+        "failed-to-send": "Failed to send SMS.",
+        "unknown-error": "An unknown error occurred.",
+        "error-sending-sms": "Error sending SMS.",
+        "try-again-later": "Please try again later.",
+        "reminder-description": "Enter your reminder message below. This will cost 15 tokens. Inappropriate content will not be sent, and you will still lose the tokens.",
+        "message": "Message",
+        "cancel": "Cancel",
+        "pagination": {
+          "messages-found": "{count} messages found",
+          "rows-per-page": "Rows per page",
+          "page-of": "Page {current} of {total}",
+          "go-to-first-page": "Go to first page",
+          "go-to-previous-page": "Go to previous page",
+          "go-to-next-page": "Go to next page",
+          "go-to-last-page": "Go to last page"
+        }
+     
+    }
+  
+  }
 }
