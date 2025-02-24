@@ -794,7 +794,31 @@
       "go-to-previous-page": "الانتقال إلى الصفحة السابقة",
       "go-to-next-page": "الانتقال إلى الصفحة التالية",
       "go-to-last-page": "الانتقال إلى الصفحة الأخيرة"
+    },
+    "statusLabels": {
+      "in-preparation": "قيد التحضير",
+      "transfer": "نقل",
+      "shipped": "تم الشحن",
+      "distribution-center": "مركز التوزيع",
+      "en-route-to-region": "في الطريق إلى المنطقة",
+      "arrived-at-region": "وصل إلى المنطقة",
+      "ready-for-pickup": "جاهز للاستلام",
+      "out-for-delivery": "جارٍ التوصيل",
+      "delivered": "تم التوصيل",
+      "alert": "تنبيه",
+      "delivery-attempt-failed": "فشلت محاولة التوصيل",
+      "delivery-failed": "فشل التوصيل",
+      "returning-to-center": "يتم الإرجاع إلى المركز",
+      "returned-to-center": "تم الإرجاع إلى المركز",
+      "exchange-failed": "فشل التبديل",
+      "null": " "
+    },
+    "templates": {
+      "shipped": "تم الشحن",
+      "out-for-delivery": "جارٍ التوصيل",
+      "ready-for-pickup": "جاهز للاستلام"
     }
+    
   }
   
 

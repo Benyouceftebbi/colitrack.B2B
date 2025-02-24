@@ -723,30 +723,32 @@
       "go-to-next-page": "Aller à la page suivante",
       "go-to-last-page": "Aller à la dernière page"
     },
-    "templates":{
-      "shipped":"shipped"
-
-
-    },
     "statusLabels": {
       "in-preparation": "En préparation",
       "transfer": "Transfert",
       "shipped": "Expédié",
-      "distribution-center": "Centre",
-      "en-route-to-region": "Vers Wilaya",
-       "arrived-at-region": "Reçu à Wilaya",
-      "ready-for-pickup": "En attente du client",
-      "out-for-delivery": "Sorti en livraison",
+      "distribution-center": "Centre de distribution",
+      "en-route-to-region": "En route vers la région",
+      "arrived-at-region": "Arrivé dans la région",
+      "ready-for-pickup": "Prêt à être récupéré",
+      "out-for-delivery": "En cours de livraison",
       "delivered": "Livré",
-      "alert": "En alerte",
-      "delivery-attempt-failed": "Tentative échouée",
-      "delivery-failed": "Échec livraison",
-      "returning-to-center": "Retour vers centre",
+      "alert": "Alerte",
+      "delivery-attempt-failed": "Tentative de livraison échouée",
+      "delivery-failed": "Échec de la livraison",
+      "returning-to-center": "Retour au centre",
       "returned-to-center": "Retourné au centre",
-      "exchange-failed": "Échange échoué",
-      "null":""
+      "exchange-failed": "Échec de l'échange",
+      "null": " "
+    },
+    "templates": {
+      "shipped": "Expédié",
+      "out-for-delivery": "En cours de livraison",
+      "ready-for-pickup": "Prêt à être récupéré"
     }
+    
   }
+  
   
   }
 }

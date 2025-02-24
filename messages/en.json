@@ -793,8 +793,30 @@
           "go-to-previous-page": "Go to previous page",
           "go-to-next-page": "Go to next page",
           "go-to-last-page": "Go to last page"
+        },
+        "statusLabels": {
+          "in-preparation": "In Preparation",
+          "transfer": "Transfer",
+          "shipped": "Shipped",
+          "distribution-center": "Distribution Center",
+          "en-route-to-region": "En Route to Region",
+          "arrived-at-region": "Arrived at Region",
+          "ready-for-pickup": "Ready for Pickup",
+          "out-for-delivery": "Out for Delivery",
+          "delivered": "Delivered",
+          "alert": "Alert",
+          "delivery-attempt-failed": "Delivery Attempt Failed",
+          "delivery-failed": "Delivery Failed",
+          "returning-to-center": "Returning to Center",
+          "returned-to-center": "Returned to Center",
+          "exchange-failed": "Exchange Failed",
+          "null":" "
+        },
+        "templates":{
+          "shipped": "Shipped",
+          "out-for-delivery":"Out for Delivery",
+          "ready-for-pickup": "Ready for Pickup"
         }
-     
     }
   
   }
