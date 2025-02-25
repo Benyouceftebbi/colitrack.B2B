@@ -219,6 +219,16 @@
   "chart": {
     "desktop": "رابط SMS بنقرة واحدة",
     "mobile": "حملة SMS"
+  },
+  "refresh-tokens": "تحديث الرموز",
+  "tokens": "الرموز",
+  "sender-id": "معرّف المرسل: ",
+  "default-sender": "Colitrack",
+  "pricing": "التسعير",
+  "theme-toggle": {
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام"
   }
 },
     "stats":{
@@ -425,7 +435,11 @@
     "marketplace": "بائع في السوق",
     "socialCommerce": "التجارة الاجتماعية",
     "other": "أخرى"
-  }
+  },
+  "termsAgreement": "أوافق على ",
+  "termsLink": "الشروط والأحكام",
+  "and": " و ",
+  "privacyLink": "سياسة الخصوصية"
   },
   "billing": {
     "billing-subscriptions": "الفوترة والاشتراكات",
@@ -502,7 +516,12 @@
     "last-7-days": "آخر 7 أيام",
     "last-30-days": "آخر 30 يومًا",
     "last-3-months": "آخر 3 أشهر",
-    "billing-subscriptions-description": "قم بإدارة الفواتير والاشتراكات، وتتبع رصيدك واستعرض سجل الاستخدام بسهولة. تعرف على المزيد من خلال مشاهدة الفيديو."
+    "billing-subscriptions-description": "قم بإدارة الفواتير والاشتراكات، وتتبع رصيدك واستعرض سجل الاستخدام بسهولة. تعرف على المزيد من خلال مشاهدة الفيديو.",
+    
+      "per-month": "شهريًا",
+      "per-year": "سنويًا"
+    
+    
 },
 "retargeting": {
   "title": "أفكار حملات إعادة الاستهداف",
@@ -687,7 +706,7 @@
       "expedited": {
         "name": "تتبع مباشر",
         "description": "إرسال روابط تتبع فورية للتوصيلات السريعة",
-        "template": "طلبك ({{trackingNumber}}) قيد الشحن!\n\nتتبع مباشر: {{trackingLink}}\n\nرد بـ 'مساعدة' للدعم",
+        "template": "طلبك 'trackingNumber' قيد الشحن!\n\nتتبع مباشر: 'trackingLink'\n\n",
         "benefits": {
           "support": "تقليل طلبات الدعم",
           "updates": "تحديثات فورية عن الموقع",
@@ -697,7 +716,7 @@
       "delivery": {
         "name": "تنبيه التوصيل",
         "description": "إعلام العملاء عند خروج طلباتهم للتوصيل",
-        "template": "طلبك ({{trackingNumber}}) سيتم توصيله اليوم!\n\nالموصل: {{driverName}}\nرقم التواصل: {{driverPhone}}\n\nرد بـ 'نعم' لتأكيد استلام الطلب",
+        "template": "طلبك 'trackingNumber' سيتم توصيله اليوم!\n\nالموصل: 'driverName'\nرقم التواصل: 'driverPhone'\n\n",
         "benefits": {
           "failed": "تقليل حالات فشل التوصيل",
           "contact": "تواصل مباشر مع الموصل",
@@ -707,7 +726,7 @@
       "pickup": {
         "name": "استلام من نقطة التوزيع",
         "description": "إشعار العملاء بوصول شحناتهم إلى نقاط التوزيع",
-        "template": "طلبك ({{trackingNumber}}) جاهز للاستلام!\n\nالموقع: {{stopDeskAddress}}\nساعات العمل: {{businessHours}}\n\nيرجى تقديم هذه الرسالة عند الاستلام",
+        "template": "طلبك 'trackingNumber' جاهز للاستلام!\n\nالموقع: 'stopDeskAddress'\nساعات العمل: 'businessHours'\n\nيرجى تقديم هذه الرسالة عند الاستلام",
         "benefits": {
           "instructions": "إرشادات واضحة للاستلام",
           "hours": "معلومات حول ساعات العمل",
@@ -762,63 +781,82 @@
     "placeholders": {
       "search": "البحث عن الرسائل...",
       "select-date": "اختر تاريخًا"
-    }
+    },
+    "table": {
+      "recent-messages": "الرسائل الحديثة",
+      "tracking": "رقم التتبع",
+      "recipient": "المستلم",
+      "template": "القالب",
+      "status": "الحالة",
+      "sent": "تم الإرسال",
+      "send-reminder": "إرسال تذكير",
+      "reminder-tooltip": "إرسال رسالة تذكير قصيرة للمستلم. التكلفة: 15 رمزًا لكل رسالة.",
+      "no-results": "لم يتم العثور على نتائج.",
+      "error": "خطأ",
+      "enter-message": "يرجى إدخال رسالة.",
+      "select-recipient-tracking": "يرجى تحديد مستلم ورقم تتبع.",
+      "reminder-sent": "تم إرسال التذكير",
+      "reminder-sent-description": "تم إرسال التذكير بنجاح. تم خصم 15 رمزًا.",
+      "failed-to-send": "فشل إرسال الرسالة القصيرة.",
+      "unknown-error": "حدث خطأ غير معروف.",
+      "error-sending-sms": "خطأ في إرسال الرسالة القصيرة.",
+      "try-again-later": "يرجى المحاولة لاحقًا.",
+      "reminder-description": "أدخل رسالة التذكير أدناه. ستكلف هذه العملية 15 رمزًا. لن يتم إرسال المحتوى غير اللائق، وستفقد الرموز مع ذلك.",
+      "message": "الرسالة",
+      "cancel": "إلغاء",
+      "pagination": {
+        "messages-found": "تم العثور على {count} رسالة",
+        "rows-per-page": "عدد الصفوف لكل صفحة",
+        "page-of": "الصفحة {current} من {total}",
+        "go-to-first-page": "الانتقال إلى الصفحة الأولى",
+        "go-to-previous-page": "الانتقال إلى الصفحة السابقة",
+        "go-to-next-page": "الانتقال إلى الصفحة التالية",
+        "go-to-last-page": "الانتقال إلى الصفحة الأخيرة"
+      },
+      "statusLabels": {
+        "in-preparation": "قيد التحضير",
+        "transfer": "نقل",
+        "shipped": "تم الشحن",
+        "distribution-center": "مركز التوزيع",
+        "en-route-to-region": "في الطريق إلى المنطقة",
+        "arrived-at-region": "وصل إلى المنطقة",
+        "ready-for-pickup": "جاهز للاستلام",
+        "out-for-delivery": "جارٍ التوصيل",
+        "delivered": "تم التوصيل",
+        "alert": "تنبيه",
+        "delivery-attempt-failed": "فشلت محاولة التوصيل",
+        "delivery-failed": "فشل التوصيل",
+        "returning-to-center": "يتم الإرجاع إلى المركز",
+        "returned-to-center": "تم الإرجاع إلى المركز",
+        "exchange-failed": "فشل التبديل",
+        "null": " "
+      },
+      "templates": {
+        "shipped": "تم الشحن",
+        "out-for-delivery": "جارٍ التوصيل",
+        "ready-for-pickup": "جاهز للاستلام"
+      }
+      
+   }
   },
-  "table": {
-    "recent-messages": "الرسائل الحديثة",
-    "tracking": "رقم التتبع",
-    "recipient": "المستلم",
-    "template": "القالب",
-    "status": "الحالة",
-    "sent": "تم الإرسال",
-    "send-reminder": "إرسال تذكير",
-    "reminder-tooltip": "إرسال رسالة تذكير قصيرة للمستلم. التكلفة: 15 رمزًا لكل رسالة.",
-    "no-results": "لم يتم العثور على نتائج.",
-    "error": "خطأ",
-    "enter-message": "يرجى إدخال رسالة.",
-    "select-recipient-tracking": "يرجى تحديد مستلم ورقم تتبع.",
-    "reminder-sent": "تم إرسال التذكير",
-    "reminder-sent-description": "تم إرسال التذكير بنجاح. تم خصم 15 رمزًا.",
-    "failed-to-send": "فشل إرسال الرسالة القصيرة.",
-    "unknown-error": "حدث خطأ غير معروف.",
-    "error-sending-sms": "خطأ في إرسال الرسالة القصيرة.",
-    "try-again-later": "يرجى المحاولة لاحقًا.",
-    "reminder-description": "أدخل رسالة التذكير أدناه. ستكلف هذه العملية 15 رمزًا. لن يتم إرسال المحتوى غير اللائق، وستفقد الرموز مع ذلك.",
-    "message": "الرسالة",
-    "cancel": "إلغاء",
-    "pagination": {
-      "messages-found": "تم العثور على {count} رسالة",
-      "rows-per-page": "عدد الصفوف لكل صفحة",
-      "page-of": "الصفحة {current} من {total}",
-      "go-to-first-page": "الانتقال إلى الصفحة الأولى",
-      "go-to-previous-page": "الانتقال إلى الصفحة السابقة",
-      "go-to-next-page": "الانتقال إلى الصفحة التالية",
-      "go-to-last-page": "الانتقال إلى الصفحة الأخيرة"
+ 
+  
+  "sidebar": {
+    "platform": "المنصة",
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "messages": "الرسائل",
+      "retargeting": "إعادة الاستهداف",
+      "ai-orders": "طلبات الذكاء الاصطناعي",
+      "billing": "الفوترة",
+      "settings": "الإعدادات"
     },
-    "statusLabels": {
-      "in-preparation": "قيد التحضير",
-      "transfer": "نقل",
-      "shipped": "تم الشحن",
-      "distribution-center": "مركز التوزيع",
-      "en-route-to-region": "في الطريق إلى المنطقة",
-      "arrived-at-region": "وصل إلى المنطقة",
-      "ready-for-pickup": "جاهز للاستلام",
-      "out-for-delivery": "جارٍ التوصيل",
-      "delivered": "تم التوصيل",
-      "alert": "تنبيه",
-      "delivery-attempt-failed": "فشلت محاولة التوصيل",
-      "delivery-failed": "فشل التوصيل",
-      "returning-to-center": "يتم الإرجاع إلى المركز",
-      "returned-to-center": "تم الإرجاع إلى المركز",
-      "exchange-failed": "فشل التبديل",
-      "null": " "
-    },
-    "templates": {
-      "shipped": "تم الشحن",
-      "out-for-delivery": "جارٍ التوصيل",
-      "ready-for-pickup": "جاهز للاستلام"
+    "user": {
+      "account": "الحساب",
+      "billing": "الفوترة",
+      "settings": "الإعدادات",
+      "logout": "تسجيل الخروج"
     }
-    
   }
   
 

@@ -5,17 +5,24 @@ import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
 import {useTranslations} from 'next-intl';
 import { useRouter } from '@/i18n/routing';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const {isAuthenticated}=useAuth()
   const  t  = useTranslations("nav");
 const router =useRouter()
-  const handleGetStarted = () => {
-    router.push('/Auth/SignIn');
-     
-  };
+console.log("is",isAuthenticated);
+
+const handleGetStarted = () => {
+  if (isAuthenticated) {
+    router.push('/dashboard'); // Redirect to dashboard if authenticated
+  } else {
+    router.push('/Auth/SignIn'); // Otherwise, go to SignIn page
+  }
+};
   const navItems = [
     { label: t('features'), sectionId: 'features' },
     { label: t('smsAutomation'), sectionId: 'sms-automation' },

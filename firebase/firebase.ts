@@ -15,7 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-export const auth = initializeAuth(app,{ persistence: browserLocalPersistence});
+export const auth = initializeAuth(app,{ persistence: [browserLocalPersistence,browserLocalPersistence]});
 const db = getFirestore(app)
 const storage = getStorage(app);
 const functions = getFunctions(app);

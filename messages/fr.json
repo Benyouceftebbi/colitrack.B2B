@@ -219,6 +219,16 @@
     "chart": {
       "desktop": "SMS One Tap Link",
       "mobile": "SMS Campagne"
+    },
+    "refresh-tokens": "Rafraîchir les jetons",
+    "tokens": "jetons",
+    "sender-id": "Identifiant de l'expéditeur : ",
+    "default-sender": "Colitrack",
+    "pricing": "Tarification",
+    "theme-toggle": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
     }
   },
   
@@ -429,7 +439,11 @@
     "marketplace": "Vendeur de marché",
     "socialCommerce": "Commerce social",
     "other": "Autre"
-  }
+  },
+  "termsAgreement": "J'accepte les ",
+  "termsLink": "Termes et Conditions",
+  "and": " et ",
+  "privacyLink": "Politique de Confidentialité"
   },
   "retargeting": {
     "title": "Idées de campagnes de retargeting",
@@ -558,6 +572,89 @@
   "fr": "Français",
   "de": "Allemand"
 },
+"billing": {
+  
+    "per-month": "Par Mois",
+    "per-year": "Par An",
+  
+  
+  "billing-subscriptions": "Facturation et Abonnements",
+  "overview": "Aperçu",
+  "usage": "Utilisation",
+  "account-balance": "Solde du Compte",
+  "current-prepaid-balance": "Votre Solde Prépayé Actuel",
+  "tokens": "Jetons",
+  "estimated-to-last": "Estimé pour durer : {days} jours",
+  "top-up": "Recharger",
+  "usage-overview": "Aperçu de l'Utilisation",
+  "current-usage": "Utilisation Actuelle",
+  "view-details": "Voir les Détails",
+  "charge-your-tokens": "Rechargez vos Jetons",
+  "get-tokens-description": "Obtenez les jetons nécessaires pour alimenter vos communications SMS",
+  "most-popular": "Le Plus Populaire",
+  "plan-sender-id": "Identifiant d'Expéditeur",
+  "plan-starter": "Starter",
+  "plan-enterprise": "Entreprise",
+  "plan-business": "Business",
+  "one-time": "/Unique",
+  "tokens-amount": "{amount} Jetons",
+  "enterprise-bonus": "+15% de Jetons BONUS GRATUITS",
+  "business-bonus": "+5% de Jetons BONUS GRATUITS",
+  "custom-sender-id": "Identifiant d'Expéditeur Personnalisé (Max 11 caractères)",
+  "improved-brand-recognition": "Reconnaissance de Marque Améliorée",
+  "higher-open-rates": "Taux d'Ouverture Plus Élevé",
+  "priority-support": "Support Prioritaire",
+  "basic-sms-notifications": "Notifications SMS de Base",
+  "standard-delivery-tracking": "Suivi de Livraison Standard",
+  "email-support": "Support par Email",
+  "api-access": "Accès API",
+  "enterprise-sms-automation": "Automatisation SMS Entreprise",
+  "premium-delivery-tracking": "Suivi de Livraison Premium",
+  "24-7-priority-support": "Support Prioritaire 24/7",
+  "advanced-api-access": "Accès API Avancé",
+  "custom-analytics": "Analytique Personnalisée",
+  "dedicated-account-manager": "Gestionnaire de Compte Dédié",
+  "custom-integrations": "Intégrations Personnalisées",
+  "sla-guarantee": "Garantie SLA",
+  "advanced-sms-automation": "Automatisation SMS Avancée",
+  "priority-delivery-tracking": "Suivi de Livraison Prioritaire",
+  "priority-email-chat-support": "Support Prioritaire par Email et Chat",
+  "analytics-dashboard": "Tableau de Bord Analytique",
+  "enter-sender-id": "Saisissez l'Identifiant d'Expéditeur",
+  "characters-remaining": "{count} caractères restants",
+  "get-custom-sender-id": "Obtenir un Identifiant d'Expéditeur Personnalisé",
+  "proceed": "Procéder",
+  "sender-id-subscription": "Abonnement Identifiant d'Expéditeur",
+  "sender-id-description": "Configurez et gérez vos identifiants d'expéditeur personnalisés",
+  "sender-id": "Identifiant d'Expéditeur",
+  "enter-desired-sender-id": "Entrez l'Identifiant d'Expéditeur Désiré",
+  "sender-id-explanation": "C'est le nom qui apparaîtra comme expéditeur de vos SMS",
+  "subscription-period": "Période d'Abonnement",
+  "monthly": "Mensuel",
+  "monthly-price": "29$/mois",
+  "yearly": "Annuel",
+  "yearly-price": "290$/an (Économisez 20%)",
+  "submitting": "Envoi en cours...",
+  "subscribe": "S'abonner",
+  "request-sent-successfully": "Demande Envoyée avec Succès",
+  "sender-id-review-message": "Votre demande d’identifiant d’expéditeur est en cours d’examen. Ce processus prend généralement 7 à 10 jours.",
+  "error": "Erreur",
+  "request-error-message": "Une erreur est survenue lors de la soumission de votre demande. Veuillez réessayer.",
+  "top-up-your-account": "Recharger votre Compte",
+  "purchase-additional-tokens": "Achetez des jetons supplémentaires pour vos communications SMS",
+  "price": "{amount} $",
+  "enter-custom-amount": "Ou entrez un montant personnalisé",
+  "enter-number-of-tokens": "Entrez le Nombre de Jetons",
+  "proceed-to-payment": "Passer au Paiement",
+  "usage-statistics": "Statistiques d'Utilisation",
+  "track-token-consumption": "Suivez votre consommation de jetons au fil du temps",
+  "select-period": "Sélectionner la Période",
+  "last-7-days": "Derniers 7 Jours",
+  "last-30-days": "Derniers 30 Jours",
+  "last-3-months": "Derniers 3 Mois",
+  "billing-subscriptions-description": "Gérez votre facturation et vos abonnements, suivez votre solde et consultez votre historique d'utilisation en toute simplicité. Découvrez-en plus en regardant la vidéo."
+}
+,
 "messages": {
   "message-center": "Centre de Messages",
   "smart-notifications": "Notifications Intelligentes",
@@ -750,5 +847,22 @@
   }
   
   
+  },
+  "sidebar": {
+    "platform": "Plateforme",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "messages": "Messages",
+      "retargeting": "Reciblage",
+      "ai-orders": "Commandes IA",
+      "billing": "Facturation",
+      "settings": "Paramètres"
+    },
+    "user": {
+      "account": "Compte",
+      "billing": "Facturation",
+      "settings": "Paramètres",
+      "logout": "Déconnexion"
+    }
   }
 }

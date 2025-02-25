@@ -179,9 +179,9 @@ export function Steps({
     "connection-error": "Erreur de connexion. Veuillez vérifier vos informations.",
   }
 
-  const name = "test name"
+  const name = "ColiTrack"
   const webhookEmail = "test@email.com"
-  const webhookLink = "https://test.com"
+  const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`;
 
   return (
     <SidebarProvider>

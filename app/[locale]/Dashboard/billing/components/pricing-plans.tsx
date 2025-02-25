@@ -52,7 +52,7 @@ const plans = [
   {
     name: "sender-id",
     price: 50,
-    features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support"],
+    features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support","per-year"],
     customInput: true,
     special: true,
   },
@@ -85,7 +85,7 @@ export function PricingPlans({ className }: { className?: string }) {
               <CardDescription className={`flex items-baseline gap-1 ${plan.special ? "text-white/80" : ""}`}>
                 <span className="text-2xl font-bold">${plan.price}</span>
                 <span className={`text-sm ${plan.special ? "text-white/80" : "text-muted-foreground"}`}>
-                  {t("per-month")}
+                 
                 </span>          
               </CardDescription>
             </CardHeader>

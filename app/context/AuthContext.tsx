@@ -1,6 +1,6 @@
 "use client"
 import { auth } from "@/firebase/firebase";
-import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
+import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -11,7 +11,7 @@ interface ExtendedFirebaseUser extends FirebaseUser {
 // Define the shape of the context
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (email:string,password:string) => Promise<boolean>;
+  login: (email:string,password:string,isRemembered:boolean) => Promise<boolean>;
   logout: () => void;
   signup:(usr:any)=>Promise<FirebaseUser | null>
   user:ExtendedFirebaseUser | null | false | User;
@@ -23,25 +23,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create a provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(undefined);
   const [user, setUser] = useState<ExtendedFirebaseUser | null| User>(null);
-  const login = async (email: string, password: string) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setUser(userCredential.user);
-      setIsAuthenticated(true);
-      return true
-    } catch (error) {
-      console.error("Login Error:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-
-
-
-
-      
-      return false
-    }
+  const login = async (email: string, password: string, isRemembered: boolean) => {
+    return setPersistence(auth, isRemembered?browserLocalPersistence:browserSessionPersistence)
+      .then(() => {
+        return signInWithEmailAndPassword(auth, email, password);
+      })
+      .then((userCredential) => {
+        setUser(userCredential.user);
+        setIsAuthenticated(true);
+        return true;
+      })
+      .catch((error) => {
+        console.error("Login Error:", error);
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
+      });
   };
 
 
@@ -79,6 +78,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     return onAuthStateChanged(auth, async (user:User | null) => {
       if (user) {
+
+        
         setUser({...user});
         setIsAuthenticated(true);
       } else {

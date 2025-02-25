@@ -1,71 +1,61 @@
-'use client'
+"use client"
 
-import React, { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { useRouter } from '@/i18n/routing'
-import { useTranslations } from 'next-intl'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
-import { useAuth } from '@/app/context/AuthContext'
-import { LoadingButton } from '@/components/ui/LoadingButton'
+import type React from "react"
+import { useState } from "react"
+import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { useRouter } from "@/i18n/routing"
+import { useTranslations } from "next-intl"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useAuth } from "@/app/context/AuthContext"
+import { LoadingButton } from "@/components/ui/LoadingButton"
+import Link from "next/link"
 
-const formSchema = z.object({
-  firstName: z.string().min(2, {
-    message: "First name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  phoneNumber: z.string().min(10, {
-    message: "Phone number must be at least 10 digits.",
-  }),
-  companyName: z.string().min(2, {
-    message: "Company name must be at least 2 characters.",
-  }),
-  businessType: z.string().min(1, {
-    message: "Please select a business type.",
-  }),
-  otherBusinessType: z.string().optional(),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  confirmPassword: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  terms: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the terms and conditions.",
-  }),
-  tokens: z.number().min(0, {
-    message: "Tokens must be at least 0.",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-})
+const formSchema = z
+  .object({
+    firstName: z.string().min(2, {
+      message: "First name must be at least 2 characters.",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email address.",
+    }),
+    phoneNumber: z.string().min(10, {
+      message: "Phone number must be at least 10 digits.",
+    }),
+    companyName: z.string().min(2, {
+      message: "Company name must be at least 2 characters.",
+    }),
+    businessType: z.string().min(1, {
+      message: "Please select a business type.",
+    }),
+    otherBusinessType: z.string().optional(),
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters.",
+    }),
+    confirmPassword: z.string().min(8, {
+      message: "Password must be at least 8 characters.",
+    }),
+    terms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the terms and conditions.",
+    }),
+    tokens: z.number().min(0, {
+      message: "Tokens must be at least 0.",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
 interface ModalProps {
-  title: string;
-  message: string;
-  onClose: () => void;
+  title: string
+  message: string
+  onClose: () => void
 }
 
 const Modal: React.FC<ModalProps> = ({ title, message, onClose }) => {
@@ -74,20 +64,21 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose }) => {
       <div className="bg-white rounded-lg p-6 shadow-lg">
         <h2 className="text-xl font-bold">{title}</h2>
         <p className="mt-4">{message}</p>
-        <Button
-          onClick={onClose}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        >
+        <Button onClick={onClose} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
           Close
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
+
 export default function SignUp() {
   const t = useTranslations("signup")
-  const {signup}=useAuth()
+  const { signup } = useAuth()
   const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -100,7 +91,7 @@ export default function SignUp() {
       password: "",
       confirmPassword: "",
       terms: false,
-      tokens:0,
+      tokens: 0,
       analytics: {
         January: {
           totalSmsSent: 0,
@@ -190,69 +181,61 @@ export default function SignUp() {
       smsByState: {
         lagos: {
           totalNumberOfSms: 0,
-
         },
         abuja: {
           totalNumberOfSms: 0,
-
         },
         portHarcourt: {
           totalNumberOfSms: 0,
-
         },
         // ... add other states as needed
       },
       shippedSms: false,
       outForDeliverySms: false,
       readyToBePickedSms: false,
-      totalOrders:0,
-      totalOrdersReturned:0,
+      totalOrders: 0,
+      totalOrdersReturned: 0,
     },
   })
 
   const businessTypes = [
-    t('businessTypes.ecommerce'),
-    t('businessTypes.retail'),
-    t('businessTypes.dropshipping'),
-    t('businessTypes.marketplace'),
-    t('businessTypes.socialCommerce'),
-    t('businessTypes.other')
+    t("businessTypes.ecommerce"),
+    t("businessTypes.retail"),
+    t("businessTypes.dropshipping"),
+    t("businessTypes.marketplace"),
+    t("businessTypes.socialCommerce"),
+    t("businessTypes.other"),
   ]
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const [modalContent, setModalContent] = useState({ title: '', message: '' }); // State for modal content
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalContent, setModalContent] = useState({ title: "", message: "" })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-     const user=await signup(values)
-     if(user){
-      console.log('Sign up successful');
-      router.push('/dashboard');
-      return;
-     }else{
-      console.error('Sign up error:');
+    const user = await signup(values)
+    if (user) {
+      console.log("Sign up successful")
+      router.push("/dashboard")
+      return
+    } else {
+      console.error("Sign up error:")
       setModalContent({
-        title: 'Sign Up Error',
-        message:  'An error occurred during sign up. Please try again.',
-      });
-      setIsModalOpen(true); // Open the modal
-     }
-
+        title: "Sign Up Error",
+        message: "An error occurred during sign up. Please try again.",
+      })
+      setIsModalOpen(true) // Open the modal
+    }
   }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Close the modal
-  };
+    setIsModalOpen(false)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl w-full">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-8 group"
-        >
+        <Button variant="ghost" onClick={() => router.back()} className="mb-8 group">
           <ArrowLeft className="w-4 h-4 mr-2 transform transition-transform group-hover:-translate-x-1" />
-          {t('backToSignIn')}
+          {t("backToSignIn")}
         </Button>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
@@ -260,13 +243,11 @@ export default function SignUp() {
             <div className="w-10 h-10 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold">C</span>
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">{t('createAccount')}</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">{t("createAccount")}</span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('createAccount')}</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-8">
-            {t('getStarted')}
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t("createAccount")}</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">{t("getStarted")}</p>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -276,7 +257,7 @@ export default function SignUp() {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('firstName')}</FormLabel>
+                      <FormLabel>{t("firstName")}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -290,7 +271,7 @@ export default function SignUp() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('email')}</FormLabel>
+                      <FormLabel>{t("email")}</FormLabel>
                       <FormControl>
                         <Input {...field} type="email" />
                       </FormControl>
@@ -304,7 +285,7 @@ export default function SignUp() {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('phoneNumber')}</FormLabel>
+                      <FormLabel>{t("phoneNumber")}</FormLabel>
                       <FormControl>
                         <Input {...field} type="tel" />
                       </FormControl>
@@ -318,7 +299,7 @@ export default function SignUp() {
                   name="companyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('companyName')}</FormLabel>
+                      <FormLabel>{t("companyName")}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -332,7 +313,7 @@ export default function SignUp() {
                   name="businessType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('businessType')}</FormLabel>
+                      <FormLabel>{t("businessType")}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -352,13 +333,13 @@ export default function SignUp() {
                   )}
                 />
 
-                {form.watch('businessType') === t('businessTypes.other') && (
+                {form.watch("businessType") === t("businessTypes.other") && (
                   <FormField
                     control={form.control}
                     name="otherBusinessType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('pleaseSpecify')}</FormLabel>
+                        <FormLabel>{t("pleaseSpecify")}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -373,9 +354,20 @@ export default function SignUp() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('password')}</FormLabel>
+                      <FormLabel>{t("password")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" />
+                        <div className="relative">
+                          <Input {...field} type={showPassword ? "text" : "password"} />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -387,9 +379,20 @@ export default function SignUp() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('confirmPassword')}</FormLabel>
+                      <FormLabel>{t("confirmPassword")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" />
+                        <div className="relative">
+                          <Input {...field} type={showConfirmPassword ? "text" : "password"} />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -406,30 +409,42 @@ export default function SignUp() {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className="dark:border-gray-600 dark:bg-gray-700"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        {t('terms')}
+                      <FormLabel className="dark:text-gray-300">
+                        {t("termsAgreement")}
+                        <Link
+                          href="/terms"
+                          className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        >
+                          {t("termsLink")}
+                        </Link>
+                        {t("and")}
+                        <Link
+                          href="/privacy"
+                          className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        >
+                          {t("privacyLink")}
+                        </Link>
                       </FormLabel>
                     </div>
                   </FormItem>
                 )}
               />
 
-              <LoadingButton type="submit" className="w-full" loading={useForm().formState.isLoading}>
-                {t('createAccountButton')}
+              <LoadingButton
+                type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                loading={form.formState.isSubmitting}
+              >
+                {t("createAccountButton")}
               </LoadingButton>
             </form>
           </Form>
         </div>
-        {isModalOpen && (
-        <Modal
-          title={modalContent.title}
-          message={modalContent.message}
-          onClose={handleCloseModal}
-        />
-      )}
+        {isModalOpen && <Modal title={modalContent.title} message={modalContent.message} onClose={handleCloseModal} />}
       </div>
     </div>
   )

@@ -30,8 +30,11 @@ export default function DashboardLayout({
 
   const pathSegments = usePathname().split('/').filter(Boolean); // Update this line
 
-  if (!isAuthenticated) {
+  if (isAuthenticated==false) {
     return redirect({ href: "/Auth/SignIn", locale: locale });
+  }
+  if(isAuthenticated==undefined){
+    return <p>Loading.....</p>
   }
   return ( 
 
