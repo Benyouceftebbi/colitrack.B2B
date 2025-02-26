@@ -32,7 +32,7 @@ export const smsHistory: any[] = [
 export function SMSHistory() {
   const t = useTranslations("messages.table")
   const {shopData}=useShop()
-  console.log("data ",shopData.sms);
+
   
   return (
     <div className="glass rounded-xl p-6">

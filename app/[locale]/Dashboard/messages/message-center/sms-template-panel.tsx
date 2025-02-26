@@ -19,7 +19,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
 
   const smsTemplates = [
     {
-      id: "shippedSms",
+      id: "expedited",
       name: t("templates.expedited.name"),
       description: t("templates.expedited.description"),
       tokens: 15,
@@ -32,7 +32,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
       ],
     },
     {
-      id: "outForDeliverySms",
+      id: "out_for_delivery",
       name: t("templates.delivery.name"),
       description: t("templates.delivery.description"),
       tokens: 10,
@@ -45,7 +45,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
       ],
     },
     {
-      id: "readyToBePickedSms",
+      id:  "stop_desk",
       name: t("templates.pickup.name"),
       description: t("templates.pickup.description"),
       tokens: 10,
