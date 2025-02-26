@@ -22,6 +22,8 @@ import { providerConfigs, type ProviderConfig } from "../config/providerConfigs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { useTranslations } from "next-intl"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 interface FormData {
   apiToken: string
@@ -94,47 +96,62 @@ export function Steps({
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const submissionData: FormData = { ...data, provider }
 
+      const storeDeliveryToken = httpsCallable(functions, "storeDeliveryToken");
+  
+      const submissionData: FormData = { ...data, provider };
+  
       if (!language) {
-        throw new Error(t("language-required"))
+        throw new Error(t("language-required"));
       }
-      submissionData.lng = language
-
+      submissionData.lng = language;
+  
       if (provider === "Yalidin Express") {
         if (!data.apiId || !data.apiToken) {
-          throw new Error(t("yalidin-credentials-required"))
+          throw new Error(t("yalidin-credentials-required"));
         }
       } else {
         if (!data.apiKey) {
-          throw new Error(t("api-key-required"))
+          throw new Error(t("api-key-required"));
         }
-        submissionData.accessKey = data.apiKey
+        submissionData.accessKey = data.apiKey;
       }
-
-      const requiredFields = provider === "Yalidin Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
-
-      const missingFields = requiredFields.filter((field) => !submissionData[field])
+  
+      const requiredFields =
+        provider === "Yalidin Express"
+          ? ["apiId", "apiToken", "lng"]
+          : ["apiKey", "lng"];
+  
+      const missingFields = requiredFields.filter((field) => !submissionData[field]);
       if (missingFields.length > 0) {
-        throw new Error(t("error-required-fields", { fields: missingFields.join(", ") }))
+        throw new Error(
+          t("error-required-fields", { fields: missingFields.join(", ") })
+        );
       }
+  
+      // Call Firebase Cloud Function to store delivery credentials
+      await storeDeliveryToken({
+        deliveryCompany: provider,
+        apiToken: submissionData.apiToken || submissionData.apiId,
+        apiKey: submissionData.accessKey,
+        lng: submissionData.lng,
+      });
 
-      await updateShippingInfo(shopData.id, submissionData)
-      onComplete(provider, submissionData)
-
+      onComplete(provider, submissionData);
+  
       toast({
         title: t("setup-completed"),
         description: t("setup-success"),
-      })
+      });
     } catch (error) {
-      console.error("Error updating shipping information:", error)
+      console.error("Error updating shipping information:", error);
       toast({
         title: t("error"),
         description: error instanceof Error ? error.message : t("error-updating"),
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const copyToClipboard = (text: string, setCopiedState: (value: boolean) => void) => {
     navigator.clipboard.writeText(text).then(() => {
