@@ -52,36 +52,44 @@ export function useRetargetingCampaign() {
     try {
       setIsSending(true);
   
-      // Firebase Cloud Function URL
+      // Firebase Cloud Function
       const sendBulkSMS = httpsCallable(functions, "sendBulkSMS");
       const response = await sendBulkSMS({
         sms: message, // The SMS content
-        senderId: shopData.senderId,
-        smsToken: shopData.smsToken,
         phoneNumbers: processedData.map((recipient) => ({
           name: recipient.name,
           phoneNumber: recipient.number,
         })),
-        compaignName:campaignName,
-        shopId: shopData.id, // Ensure shopId is passed
-        messageCount:messageCount
-      })
+        compaignName:campaignName, // Ensure campaign name is passed
+        messageCount,
+      });
   
+      const responseData = response.data;
   
-      if (response.data.status === "failed") {
-        // Show modal alert if not enough tokens
-        alert("Not enough tokens to run this campaign!");
+      if (!responseData) {
+        throw new Error("Invalid response from server");
+      }
+  
+      if (responseData.status === "failed") {
+        // Handle different failure reasons
+        if (responseData.error === "Not enough tokens") {
+          alert("⚠️ Not enough tokens to run this campaign! You have: " + responseData.newTokens);
+        } else if (responseData.error === "SMS contains sensitive content") {
+          alert("❌ SMS content was rejected. Please modify your message.");
+        } else {
+          alert("❌ Failed to send SMS: " + responseData.error);
+        }
         setIsSending(false);
         return;
       }
   
-      if (response.data.status === "pending") {
-        console.log("SMS Campaign Pending, handling the rest...");
-        console.log("dasdasdsad",response.data);
-        
+      if (responseData.status === "pending") {
+        console.log("✅ SMS Campaign Pending, handling the rest...");
+        console.log("Response:", responseData);
+  
         // Create a new SMS campaign entry
-        const newMessage: any = {
-          id: response.data.campaignId,
+        const newMessage = {
+          id: responseData.campaignId,
           date: new Date(),
           recipients: totalRecipients,
           campaignName,
@@ -91,11 +99,10 @@ export function useRetargetingCampaign() {
           status: "pending", // Set initial status
         };
   
-        // Update the `shopData.smsCampaign` state
-        setShopData((prevShopData: any) => ({
+        // Update shop data with new tokens
+        setShopData((prevShopData) => ({
           ...prevShopData,
-         
-          tokens:response.data.newTokens
+          tokens: responseData.newTokens,
         }));
   
         // Fire confetti effect
@@ -107,15 +114,15 @@ export function useRetargetingCampaign() {
   
         setIsSending(false);
         setIsAlertOpen(false);
-        resetForm()
-        return newMessage
+        resetForm();
+        return newMessage;
       } else {
-        console.error("Unexpected response status:", response.data.status);
+        console.error("Unexpected response status:", responseData.status);
         setIsSending(false);
       }
-
     } catch (error) {
-      console.error("Error sending SMS campaign:", error.message);
+      console.error("🚨 Error sending SMS campaign:", error);
+      alert("❌ An unexpected error occurred. Please try again.");
       setIsSending(false);
     }
   };

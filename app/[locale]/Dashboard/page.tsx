@@ -243,6 +243,45 @@ export default function Dashboard() {
       console.error("Error copying EC tracking data: ", error)
     }
   }
+  const SUPABASE_URL = "https://zqvbndoentcuriwygcai.supabase.co";
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmJuZG9lbnRjdXJpd3lnY2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0MjAxMzgsImV4cCI6MjA0OTk5NjEzOH0.uDnElNaMYXaRtjlSnjjjBtKdZfg7DrmShfAyPBoly-g"; // Replace with your actual API key
+const USER_ID = "b2eb9517-c005-42bd-ab7e-83b1f77f25a3";
+const userId='b2eb9517-c005-42bd-ab7e-83b1f77f25a3'
+async function checkSubscription() {
+  const SUPABASE_URL = "https://zqvbndoentcuriwygcai.supabase.co";
+  const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmJuZG9lbnRjdXJpd3lnY2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0MjAxMzgsImV4cCI6MjA0OTk5NjEzOH0.uDnElNaMYXaRtjlSnjjjBtKdZfg7DrmShfAyPBoly-g"; // ⚠️ Use Service Role Key (Keep it Secret!)
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to 00:00:00
+  const formattedDate = today.toISOString(); // Convert to ISO 8601 format
+
+  const url = `${SUPABASE_URL}/rest/v1/profiles?select=*&updated_at=lt.${formattedDate}&order=updated_at.desc`;
+
+  try {
+      const response = await fetch(url, {
+          method: "GET",
+          headers: {
+              "apikey": API_KEY,
+              "Authorization": `Bearer ${API_KEY}`,
+              "Content-Type": "application/json"
+          }
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const userData = await response.json();
+      console.log("Users updated before today:", userData);
+      return userData;
+  } catch (error) {
+      console.error("Error fetching users:", error);
+      return null;
+  }
+}
+
+
+
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
@@ -252,6 +291,9 @@ export default function Dashboard() {
 
             <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">
               {t("export-data")}
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto" onClick={checkSubscription}>
+            reterdssd
             </Button>
             <Button variant="outline" size="icon" aria-label={t("help")} onClick={() => setShowHelp(!showHelp)}>
               <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />

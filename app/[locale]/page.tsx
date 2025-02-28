@@ -20,6 +20,7 @@ import { Link } from '@/i18n/routing';
 export default function App() {
 const t= useTranslations('header')
 
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
