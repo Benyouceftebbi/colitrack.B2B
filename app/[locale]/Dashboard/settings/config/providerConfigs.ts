@@ -12,7 +12,6 @@ import stepThree from "../components/dhd-screens/3rd-step-dhd.jpg"
 import submitDhd from "../components/dhd-screens/submition-step-dhd.png"
 import pending from "../components/dhd-screens/pending-step-dhd.png"
 import activated from "../components/dhd-screens/activated-step-dhd.png"
-import viewToken from "../components/dhd-screens/view-token-dhd.png"
 
 export interface ProviderConfig {
   name: string
@@ -172,7 +171,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Test Integration",
         description: "Perform a test to ensure the integration is working correctly.",
-        image: viewToken,
+        
       },
     ],
   },

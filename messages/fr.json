@@ -523,6 +523,9 @@
 },
 
 "settings": {
+  "setup-process": "Processus d'installation",
+  "complete-all-steps": "Complétez toutes les étapes",
+  "progress": "Progression",
   "title-settings": "Paramètres",
   "description-settings": "Mettez à jour vos paramètres d'information",
   "title-profile": "Paramètres du profil",

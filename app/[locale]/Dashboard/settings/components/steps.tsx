@@ -17,7 +17,6 @@ import { Check, ArrowRight, ArrowLeft, ZoomIn, ZoomOut, Copy, CheckCircle } from
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
-import { updateShippingInfo } from "@/lib/hooks/settings"
 import { providerConfigs, type ProviderConfig } from "../config/providerConfigs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
@@ -94,64 +93,64 @@ export function Steps({
     }
   }
 
+  const isStepAccessible = (stepIndex: number) => {
+    // Logic to determine if a step is accessible
+    // For example, only allow accessing steps that are completed or the next step
+    return stepIndex <= currentStep + 1
+  }
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
+      const storeDeliveryToken = httpsCallable(functions, "storeDeliveryToken")
 
-      const storeDeliveryToken = httpsCallable(functions, "storeDeliveryToken");
-  
-      const submissionData: FormData = { ...data, provider };
-  
+      const submissionData: FormData = { ...data, provider }
+
       if (!language) {
-        throw new Error(t("language-required"));
+        throw new Error(t("language-required"))
       }
-      submissionData.lng = language;
-  
+      submissionData.lng = language
+
       if (provider === "Yalidin Express") {
         if (!data.apiId || !data.apiToken) {
-          throw new Error(t("yalidin-credentials-required"));
+          throw new Error(t("yalidin-credentials-required"))
         }
       } else {
         if (!data.apiKey) {
-          throw new Error(t("api-key-required"));
+          throw new Error(t("api-key-required"))
         }
-        submissionData.accessKey = data.apiKey;
+        submissionData.accessKey = data.apiKey
       }
-  
-      const requiredFields =
-        provider === "Yalidin Express"
-          ? ["apiId", "apiToken", "lng"]
-          : ["apiKey", "lng"];
-  
-      const missingFields = requiredFields.filter((field) => !submissionData[field]);
+
+      const requiredFields = provider === "Yalidin Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+
+      const missingFields = requiredFields.filter((field) => !submissionData[field])
       if (missingFields.length > 0) {
-        throw new Error(
-          t("error-required-fields", { fields: missingFields.join(", ") })
-        );
+        throw new Error(t("error-required-fields", { fields: missingFields.join(", ") }))
       }
-  
+
       // Call Firebase Cloud Function to store delivery credentials
       await storeDeliveryToken({
         deliveryCompany: provider,
         apiToken: submissionData.apiToken || submissionData.apiId,
         apiKey: submissionData.accessKey,
         lng: submissionData.lng,
-      });
+      })
 
-      onComplete(provider, submissionData);
-  
+      onComplete(provider, submissionData)
+
       toast({
         title: t("setup-completed"),
         description: t("setup-success"),
-      });
+      })
     } catch (error) {
-      console.error("Error updating shipping information:", error);
+      console.error("Error updating shipping information:", error)
       toast({
         title: t("error"),
         description: error instanceof Error ? error.message : t("error-updating"),
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
 
   const copyToClipboard = (text: string, setCopiedState: (value: boolean) => void) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -170,35 +169,9 @@ export function Steps({
     }
   }, [shopData, steps.length])
 
-  const translations = {
-    "title-payment": "Paramètres de paiement",
-    "description-payment": "Configurez vos méthodes de paiement préférées.",
-    save: "Enregistrer",
-    cancel: "Annuler",
-    success: "Succès",
-    error: "Erreur",
-    loading: "Chargement...",
-    required: "Ce champ est obligatoire",
-    invalid: "Format invalide",
-    confirm: "Confirmer",
-    back: "Retour",
-    next: "Suivant",
-    finish: "Terminer",
-    step: "Étape",
-    of: "sur",
-    complete: "Terminé",
-    incomplete: "Incomplet",
-    "provider-settings": "Paramètres du fournisseur",
-    "api-token": "Clé API",
-    "api-token-description": "Entrez votre clé API pour connecter votre compte.",
-    "test-connection": "Tester la connexion",
-    "connection-success": "Connexion établie avec succès",
-    "connection-error": "Erreur de connexion. Veuillez vérifier vos informations.",
-  }
-
   const name = "ColiTrack"
   const webhookEmail = "test@email.com"
-  const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`;
+  const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`
 
   return (
     <SidebarProvider>
@@ -207,63 +180,145 @@ export function Steps({
           <div className="flex flex-col md:flex-row h-full md:h-[700px] w-full md:w-[900px] mx-auto bg-background rounded-lg shadow-lg overflow-hidden">
             {!isMobile && (
               <Sidebar className="w-full md:w-72 border-b md:border-r border-r-0 bg-muted/50 flex flex-col">
-                <SidebarContent className="flex-1 overflow-y-auto py-6">
-                  <SidebarMenu className="relative">
-                    <div
-                      className="absolute left-8 top-[1.75rem] bottom-[1.75rem] w-[2px] bg-gray-300"
-                      aria-hidden="true"
-                    />
+                <div className="p-4 border-b">
+                  <h2 className="text-lg font-semibold">{t("setup-process") || "Setup Process"}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {t("complete-all-steps") || "Complete all steps to finish setup"}
+                  </p>
+                </div>
+                <SidebarContent className="flex-1 overflow-y-auto py-6 flex items-center justify-center">
+                  <SidebarMenu className="relative w-full max-w-xs">
                     {steps.map((step, index) => (
-                      <SidebarMenuItem key={index} className="relative z-10">
+                      <SidebarMenuItem key={index} className="relative z-10 mb-2">
                         <SidebarMenuButton
-                          onClick={() => setCurrentStep(index)}
+                          onClick={() => (isStepAccessible(index) ? setCurrentStep(index) : null)}
                           isActive={currentStep === index}
                           className={`py-3 px-4 w-full text-left hover:bg-muted transition-colors duration-200 ${
-                            index < currentStep ? "text-primary" : ""
-                          }`}
+                            !isStepAccessible(index) ? "opacity-50 cursor-not-allowed" : ""
+                          } ${index < currentStep ? "text-primary" : ""}`}
                         >
                           <div className="flex items-center gap-3">
-                            <span
-                              className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium shrink-0 ${
-                                currentStep === index
-                                  ? "bg-primary border-primary text-primary-foreground"
-                                  : index < currentStep
-                                    ? "bg-primary/20 border-primary text-primary"
-                                    : "bg-background border-gray-300"
-                              }`}
-                            >
-                              {index < currentStep ? <Check className="h-5 w-5" /> : index + 1}
-                            </span>
-                            <span className="text-sm font-medium">{step.title}</span>
+                            <div className="relative flex items-center justify-center h-12">
+                              {index > 0 && (
+                                <div
+                                  className={`absolute left-1/2 -top-[22px] w-[2px] h-[22px] transform -translate-x-1/2 ${
+                                    index <= currentStep ? "bg-primary" : "bg-gray-300"
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span
+                                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium shrink-0 ${
+                                  currentStep === index
+                                    ? "bg-primary border-primary text-primary-foreground"
+                                    : index < currentStep
+                                      ? "bg-primary border-primary text-primary-foreground"
+                                      : "bg-background border-gray-300"
+                                }`}
+                              >
+                                {index < currentStep ? <Check className="h-5 w-5" /> : index + 1}
+                              </span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className={`text-sm font-medium ${index < currentStep ? "text-primary" : ""}`}>
+                                {step.title}
+                              </span>
+                              {step.subtitle && (
+                                <span
+                                  className={`text-xs ${index < currentStep ? "text-primary/70" : "text-muted-foreground"}`}
+                                >
+                                  {step.subtitle}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
                 </SidebarContent>
+                <div className="p-4 border-t">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium">{t("progress") || "Progress"}</span>
+                    <span className="text-xs font-medium">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+                  </div>
+                  <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
+                </div>
               </Sidebar>
             )}
             <div className="flex-1 flex flex-col w-full">
               {isMobile && (
-                <div className="w-full bg-muted/50 p-4">
+                <div className="w-full bg-muted/50 p-4 border-b">
+                  <div className="mb-2 flex justify-between items-center">
+                    <h3 className="text-sm font-medium">
+                      {t("current-step") || "Current Step"}: {currentStep + 1}/{steps.length}
+                    </h3>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round(((currentStep + 1) / steps.length) * 100)}% {t("complete") || "complete"}
+                    </span>
+                  </div>
+                  <div
+                    className="flex items-center gap-2 mb-3 overflow-x-auto pb-2"
+                    style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
+                  >
+                    {steps.map((step, index) => (
+                      <Button
+                        key={index}
+                        variant={currentStep === index ? "default" : index < currentStep ? "outline" : "ghost"}
+                        size="sm"
+                        className={`rounded-full min-w-[32px] h-8 px-2 ${
+                          currentStep === index
+                            ? "bg-primary text-primary-foreground"
+                            : index < currentStep
+                              ? "border-primary text-primary"
+                              : !isStepAccessible(index)
+                                ? "opacity-50 cursor-not-allowed"
+                                : "text-muted-foreground"
+                        }`}
+                        onClick={() => (isStepAccessible(index) ? setCurrentStep(index) : null)}
+                      >
+                        {index < currentStep ? <Check className="h-4 w-4" /> : index + 1}
+                      </Button>
+                    ))}
+                  </div>
                   <Select
                     value={currentStep.toString()}
                     onValueChange={(value) => setCurrentStep(Number.parseInt(value))}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("select-step")} />
+                      <SelectValue>
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">
+                            {currentStep + 1}
+                          </span>
+                          {steps[currentStep]?.title || t("select-step")}
+                        </div>
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {steps.map((step, index) => (
                         <SelectItem key={index} value={index.toString()}>
-                          {step.title}
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+                                currentStep === index
+                                  ? "bg-primary text-primary-foreground"
+                                  : index < currentStep
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {index + 1}
+                            </span>
+                            {step.title}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               )}
-              <Progress value={((currentStep + 1) / steps.length) * 100} className="rounded-none bg-primary/20" />
+
               <div className="flex-1 flex flex-col items-center justify-center p-10 space-y-8">
                 <div className="text-center max-w-lg">
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
@@ -445,3 +500,4 @@ export function Steps({
     </SidebarProvider>
   )
 }
+

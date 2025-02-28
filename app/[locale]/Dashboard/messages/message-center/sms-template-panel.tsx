@@ -5,6 +5,7 @@ import { SMSTemplateCard } from "./sms-template-card"
 import { SMSPreview } from "./sms-preview"
 import { useShop } from "@/app/context/ShopContext"
 import { useTranslations } from "next-intl"
+import { Star } from "lucide-react"
 
 interface SMSTemplatePanelProps {
   selectedTemplates: string[]
@@ -45,7 +46,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
       ],
     },
     {
-      id:  "stop_desk",
+      id: "stop_desk",
       name: t("templates.pickup.name"),
       description: t("templates.pickup.description"),
       tokens: 10,
@@ -63,6 +64,11 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
     setActiveTemplate(template)
     onPreviewTemplate(template)
   }
+
+  // Calculate total activated tokens
+  const totalActivatedTokens = smsTemplates
+    .filter((template) => selectedTemplates.includes(template.id))
+    .reduce((sum, template) => sum + template.tokens, 0)
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -87,6 +93,15 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
               />
             ))}
           </div>
+          <div className="mt-6 pt-4 border-t border-cyan-900/30">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Coast spent per percel:</span>
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-mono text-cyan-400">{totalActivatedTokens}</span>
+                <Star className="h-3 w-3 text-cyan-500 fill-current" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -99,3 +114,4 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
     </div>
   )
 }
+

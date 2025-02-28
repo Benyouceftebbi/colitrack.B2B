@@ -600,6 +600,9 @@
 },
 
 "settings": {
+  "setup-process":"Setup Process",
+   "complete-all-steps":"Complete All Steps",
+   "progress":"progress",
   "title-settings": "Settings",
   "description-settings": "Update your information settings",
   "title-profile": "Profile Settings",
