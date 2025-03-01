@@ -131,8 +131,8 @@ export function Steps({
       // Call Firebase Cloud Function to store delivery credentials
       await storeDeliveryToken({
         deliveryCompany: provider,
-        apiToken: submissionData.apiToken || submissionData.apiId,
-        apiKey: submissionData.accessKey,
+        apiToken: submissionData.apiToken || null,
+        apiKey: submissionData.apiId || submissionData.apiKey,
         lng: submissionData.lng,
       })
 

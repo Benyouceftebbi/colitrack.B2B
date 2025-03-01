@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { PricingPlans } from "@/app/[locale]/dashboard/billing/components/pricing-plans"
+import { PricingPlans } from "./pricingPlans"
 import { Crown, X } from "lucide-react"
 
 export function PricingModal() {
