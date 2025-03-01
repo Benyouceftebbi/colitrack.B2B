@@ -9,5 +9,8 @@ export async function parseExcelFile(file: File): Promise<{ headers: string[]; d
   const headers = jsonData[0] as string[]
   const rows = jsonData.slice(1) as any[][]
 
-  return { headers, data: rows }
+  // Remove null or empty rows
+  const filteredRows = rows.filter(row => row.some(cell => cell !== null && cell !== ''))
+
+  return { headers, data: filteredRows }
 }
