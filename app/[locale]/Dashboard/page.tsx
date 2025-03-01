@@ -292,9 +292,7 @@ async function checkSubscription() {
             <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">
               {t("export-data")}
             </Button>
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto" onClick={checkSubscription}>
-            reterdssd
-            </Button>
+
             <Button variant="outline" size="icon" aria-label={t("help")} onClick={() => setShowHelp(!showHelp)}>
               <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
