@@ -132,7 +132,7 @@
   "delivered": "Delivered",
   "deliveryStatusUpdate": "Delivery Status Update",
   "deliveryIssuesMessage": "There have been issues with delivering your package. Please check the timeline below for more details.",
-  "deliveryAttempt": "Delivery Attempt {{number}}",
+  "deliveryAttempt": "Delivery Attempt",
   "enterTrackingNumberPlaceholder": "Enter tracking number...",
   "statusDescriptions": {
     "in-preparation": "Your package is being prepared for shipment.",

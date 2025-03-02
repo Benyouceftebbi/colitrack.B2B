@@ -131,7 +131,7 @@
     "delivered": "Livré",
     "deliveryStatusUpdate": "Mise à jour du statut de livraison",
     "deliveryIssuesMessage": "Il y a eu des problèmes avec la livraison de votre colis. Veuillez consulter la chronologie ci-dessous pour plus de détails.",
-    "deliveryAttempt": "Tentative de livraison {{number}}",
+    "deliveryAttempt": "Tentative de livraison",
     "enterTrackingNumberPlaceholder": "Entrez le numéro de suivi...",
     "statusDescriptions": {
       "in-preparation":"Votre colis est en cours de préparation pour l'expédition.",

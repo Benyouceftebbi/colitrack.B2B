@@ -31,7 +31,7 @@ export function ShipmentTimeline({ steps }: ShipmentTimelineProps) {
             <div className="flex items-center gap-2 text-red-700">
               <PhoneOff size={16} />
               <span className="font-medium">
-                {t('deliveryAttempt', { number: index + 1 })}
+                {t('deliveryAttempt')}
               </span>
             </div>
             <p className="text-red-600 mt-1">{attempt.notes}</p>
