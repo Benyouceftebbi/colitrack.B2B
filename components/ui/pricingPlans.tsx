@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Check } from "lucide-react"
+import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -51,7 +51,7 @@ const plans = [
   },
   {
     name: "sender-id",
-    price: 50,
+    pricet: 10000,
     features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support","per-year"],
     customInput: true,
     special: true,
@@ -83,8 +83,9 @@ export function PricingPlans({ className }: { className?: string }) {
             <CardHeader className="pb-2 pt-4 px-4">
               <CardTitle className={`text-lg ${plan.special ? "text-white" : ""}`}>{t(`plan-${plan.name}`)}</CardTitle>
               <CardDescription className={`flex items-baseline gap-1 ${plan.special ? "text-white/80" : ""}`}>
-                <span className="text-2xl font-bold">${plan.price}</span>
-                <span className={`text-sm ${plan.special ? "text-white/80" : "text-muted-foreground"}`}>
+              <span className="text-2xl font-bold">
+  {plan.price ? `$${plan.price}` : `${plan.pricet} Tokens`}
+</span>                <span className={`text-sm ${plan.special ? "text-white/80" : "text-muted-foreground"}`}>
                  
                 </span>          
               </CardDescription>
@@ -99,7 +100,7 @@ export function PricingPlans({ className }: { className?: string }) {
               <ul className="space-y-1 mb-3 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <Check className={`h-4 w-4 ${plan.special ? "text-white" : "text-primary"}`} />
+                    <CheckCircle2 className={`h-4 w-4 ${plan.special ? "text-white" : "text-primary"}`} />
                     <span className={plan.special ? "text-white/90" : ""}>{t(feature)}</span>
                   </li>
                 ))}

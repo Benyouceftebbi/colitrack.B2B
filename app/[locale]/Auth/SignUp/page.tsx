@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react"
 import { useRouter } from "@/i18n/routing"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
@@ -44,6 +44,7 @@ const formSchema = z
     terms: z.boolean().refine((val) => val === true, {
       message: "You must agree to the terms and conditions.",
     }),
+    promoCode: z.string().optional(),
     tokens: z.number().min(0, {
       message: "Tokens must be at least 0.",
     }),
@@ -52,21 +53,137 @@ const formSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   })
+
+// Full-screen loading overlay component
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col items-center">
+      <svg
+        className="animate-spin h-10 w-10 text-indigo-600 mb-4"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">Redirecting to dashboard...</p>
+    </div>
+  </div>
+)
+
 interface ModalProps {
   title: string
   message: string
   onClose: () => void
+  isSuccess?: boolean
 }
 
-const Modal: React.FC<ModalProps> = ({ title, message, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = false }) => {
+  const [testPhoneNumber, setTestPhoneNumber] = useState("")
+  const [isSendingSms, setIsSendingSms] = useState(false)
+  const [smsSent, setSmsSent] = useState(false)
+  const [phoneError, setPhoneError] = useState("")
+
+  // Validate Algerian phone number format
+  const isValidAlgerianPhone = (phone: string) => {
+    // Must start with 0 followed by 5, 6, or 7, and be 10 digits total
+    const algerianPhoneRegex = /^0[5-7][0-9]{8}$/
+    return algerianPhoneRegex.test(phone)
+  }
+
+  const handleSendTestSms = async () => {
+    setPhoneError("")
+
+    if (!testPhoneNumber) {
+      setPhoneError("Please enter a phone number")
+      return
+    }
+
+    if (!isValidAlgerianPhone(testPhoneNumber)) {
+      setPhoneError("Please enter a valid Algerian phone number (e.g., 0561234567)")
+      return
+    }
+
+    setIsSendingSms(true)
+    try {
+      // This is a placeholder for the actual SMS sending function
+      // In a real implementation, you would call your API endpoint
+      await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
+      setSmsSent(true)
+    } catch (error) {
+      setPhoneError("Failed to send test SMS. Please try again later.")
+    } finally {
+      setIsSendingSms(false)
+    }
+  }
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <p className="mt-4">{message}</p>
-        <Button onClick={onClose} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-          Close
-        </Button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg max-w-md w-full">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+        <p className="mt-4 text-gray-700 dark:text-gray-300">{message}</p>
+
+        {isSuccess && (
+          <div className="mt-6 space-y-4">
+            <div className="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                Test SMS Delivery {smsSent && <span className="text-green-600 dark:text-green-400">(Completed)</span>}
+              </h3>
+
+              {!smsSent ? (
+                <>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    You must send a test message before proceeding to the dashboard.
+                  </p>
+                  <div className="flex space-x-2">
+                    <div className="flex-1">
+                      <Input
+                        value={testPhoneNumber}
+                        onChange={(e) => setTestPhoneNumber(e.target.value)}
+                        placeholder="Enter Algerian phone number (e.g., 0561234567)"
+                        className="border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                      />
+                      {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleSendTestSms}
+                      disabled={isSendingSms}
+                      className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                    >
+                      {isSendingSms ? "Sending..." : "Send"}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                  <CheckCircle className="h-5 w-5" />
+                  <div>
+                    <p className="font-medium">Test message sent successfully!</p>
+                    <p className="text-sm">Message sent to: {testPhoneNumber}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={onClose}
+            disabled={isSuccess && !smsSent}
+            className={`${
+              isSuccess && !smsSent ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+            } text-white dark:bg-indigo-500 dark:hover:bg-indigo-600`}
+          >
+            {isSuccess ? "Go to Dashboard" : "Close"}
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -78,6 +195,11 @@ export default function SignUp() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const [validatedPromoCode, setValidatedPromoCode] = useState<string | ''>('')
+  const [tokenAmount, setTokenAmount] = useState(50)
+  const [promoApplied, setPromoApplied] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -91,7 +213,8 @@ export default function SignUp() {
       password: "",
       confirmPassword: "",
       terms: false,
-      tokens: 0,
+      promoCode: "", // Changed from null to empty string
+      tokens: 50,
       analytics: {
         January: {
           totalSmsSent: 0,
@@ -210,11 +333,22 @@ export default function SignUp() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState({ title: "", message: "" })
 
+  // Clean up loading state when component unmounts or route changes
+  useEffect(() => {
+    return () => {
+      setIsLoading(false)
+    }
+  }, [])
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const user = await signup(values)
     if (user) {
       console.log("Sign up successful")
-      router.push("/dashboard")
+      setModalContent({
+        title: "Account Created Successfully!",
+        message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
+      })
+      setIsModalOpen(true)
       return
     } else {
       console.error("Sign up error:")
@@ -222,229 +356,346 @@ export default function SignUp() {
         title: "Sign Up Error",
         message: "An error occurred during sign up. Please try again.",
       })
-      setIsModalOpen(true) // Open the modal
+      setIsModalOpen(true)
     }
   }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false)
+    if (modalContent.title.includes("Success")) {
+      setIsLoading(true)
+      // Navigate to dashboard immediately
+      setIsModalOpen(false)
+      router.push("/dashboard")
+    } else {
+      setIsModalOpen(false)
+    }
+  }
+
+  const handleApplyPromoCode = () => {
+    const promoCode = form.getValues("promoCode")
+
+    if (promoCode === "NEWX10") {
+      setTokenAmount(500)
+      setValidatedPromoCode(promoCode)
+      form.setValue("tokens", 500)
+      setPromoApplied(true)
+    } else {
+      setTokenAmount(50)
+      setValidatedPromoCode('')
+      form.setValue("tokens", 50)
+      form.setValue("promoCode", "")
+      setPromoApplied(true)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
+      {isLoading && <LoadingOverlay />}
+
       <div className="max-w-2xl w-full">
         <Button variant="ghost" onClick={() => router.back()} className="mb-8 group">
           <ArrowLeft className="w-4 h-4 mr-2 transform transition-transform group-hover:-translate-x-1" />
           {t("backToSignIn")}
         </Button>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">C</span>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-blue-500 p-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                <span className="text-indigo-600 font-bold text-xl">C</span>
+              </div>
+              <h1 className="text-2xl font-bold text-white">{t("createAccount")}</h1>
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">{t("createAccount")}</span>
+            <p className="text-indigo-100 mt-2">{t("getStarted")}</p>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t("createAccount")}</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-8">{t("getStarted")}</p>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("firstName")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("email")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("phoneNumber")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="tel" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("companyName")}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="businessType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("businessType")}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {businessTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {form.watch("businessType") === t("businessTypes.other") && (
+          <div className="p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="otherBusinessType"
+                    name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("pleaseSpecify")}</FormLabel>
+                        <FormLabel>{t("firstName")}</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("email")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("phoneNumber")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="tel"
+                            className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("companyName")}</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("businessType")}</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {businessTypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch("businessType") === t("businessTypes.other") && (
+                    <FormField
+                      control={form.control}
+                      name="otherBusinessType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("pleaseSpecify")}</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("password")}</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              {...field}
+                              type={showPassword ? "text" : "password"}
+                              className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500 pr-10"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("confirmPassword")}</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              {...field}
+                              type={showConfirmPassword ? "text" : "password"}
+                              className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500 pr-10"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Promo Code Section */}
+                <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">Have a promo code?</h3>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-300 mb-2">
+                    You already have 50 tokens as a welcome bonus!
+                  </p>
+                  <FormField
+                    control={form.control}
+                    name="promoCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex space-x-2">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Enter promo code"
+                              className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
+                              disabled={promoApplied}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-indigo-500 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-300"
+                            onClick={handleApplyPromoCode}
+                            disabled={promoApplied}
+                          >
+                            Apply
+                          </Button>
+                        </div>
+                        {promoApplied && (
+                          <div className="mt-2">
+                            <p className="text-sm text-green-600 dark:text-green-400">
+                              {validatedPromoCode
+                                ? `Promo code "${validatedPromoCode}" applied! You received ${tokenAmount} tokens.`
+                                : `Default bonus applied! You received ${tokenAmount} tokens.`}
+                            </p>
+                            <Button
+                              type="button"
+                              variant="link"
+                              className="text-xs text-indigo-600 p-0 h-auto mt-1"
+                              onClick={() => {
+                                setPromoApplied(false)
+                                form.setValue("promoCode", "")
+                              }}
+                            >
+                              Try a different code
+                            </Button>
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="terms"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("password")}</FormLabel>
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
-                        <div className="relative">
-                          <Input {...field} type={showPassword ? "text" : "password"} />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </Button>
-                        </div>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="border-gray-300 dark:border-gray-600 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm text-gray-700 dark:text-gray-300">
+                          {t("termsAgreement")}
+                          <Link
+                            href="/terms"
+                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          >
+                            {t("termsLink")}
+                          </Link>
+                          {t("and")}
+                          <Link
+                            href="/privacy"
+                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          >
+                            {t("privacyLink")}
+                          </Link>
+                        </FormLabel>
+                      </div>
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("confirmPassword")}</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input {...field} type={showConfirmPassword ? "text" : "password"} />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          >
-                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <LoadingButton
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white font-medium py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  loading={form.formState.isSubmitting}
+                >
+                  {t("createAccountButton")}
+                </LoadingButton>
 
-              <FormField
-                control={form.control}
-                name="terms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="dark:border-gray-600 dark:bg-gray-700"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="dark:text-gray-300">
-                        {t("termsAgreement")}
-                        <Link
-                          href="/terms"
-                          className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                        >
-                          {t("termsLink")}
-                        </Link>
-                        {t("and")}
-                        <Link
-                          href="/privacy"
-                          className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                        >
-                          {t("privacyLink")}
-                        </Link>
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <LoadingButton
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                loading={form.formState.isSubmitting}
-              >
-                {t("createAccountButton")}
-              </LoadingButton>
-            </form>
-          </Form>
+                <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                  Already have an account?{" "}
+                  <Link
+                    href="/signin"
+                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
+                    Sign in
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </div>
         </div>
-        {isModalOpen && <Modal title={modalContent.title} message={modalContent.message} onClose={handleCloseModal} />}
+        {isModalOpen && (
+          <Modal
+            title={modalContent.title}
+            message={modalContent.message}
+            onClose={handleCloseModal}
+            isSuccess={modalContent.title.includes("Success")}
+          />
+        )}
       </div>
     </div>
   )

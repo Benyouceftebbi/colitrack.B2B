@@ -16,7 +16,8 @@ import {
 import { Check, ArrowRight, ArrowLeft, ZoomIn, ZoomOut, Copy, CheckCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
+
 import { providerConfigs, type ProviderConfig } from "../config/providerConfigs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
@@ -60,6 +61,7 @@ export function Steps({
     apiId?: string
   }
 }) {
+  const { toast } = useToast()
   const t = useTranslations("settings")
   const isMobile = useIsMobile()
   const [currentStep, setCurrentStep] = useState(0)
@@ -69,7 +71,7 @@ export function Steps({
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [language, setLanguage] = useState<string | null>(shopData.lng || null)
-
+  
   const {
     register,
     handleSubmit,
@@ -143,12 +145,13 @@ export function Steps({
         description: t("setup-success"),
       })
     } catch (error) {
-      console.error("Error updating shipping information:", error)
-      toast({
-        title: t("error"),
-        description: error instanceof Error ? error.message : t("error-updating"),
-        variant: "destructive",
-      })
+    // console.error("Error updating shipping information:", error)
+     
+toast({
+  title: t("error"),
+  description: String(error) || "An unexpected error occurred", // Ensure it's a string
+  variant: "destructive",
+});
     }
   }
 
@@ -170,7 +173,7 @@ export function Steps({
   }, [shopData, steps.length])
 
   const name = "ColiTrack"
-  const webhookEmail = "test@email.com"
+  const webhookEmail = "colitrackdz@gmail.com"
   const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`
 
   return (
@@ -452,7 +455,7 @@ export function Steps({
                     )}
                     <div>
                       <label htmlFor="language" className="block text-lg font-medium text-gray-700 mb-2">
-                        {t("language")}
+                       SMS {t("language")}
                       </label>
                       <Select value={language || ""} onValueChange={(value) => setLanguage(value)}>
                         <SelectTrigger className="w-full text-lg">
