@@ -1,5 +1,7 @@
+"use client"
+
 import { motion } from "framer-motion"
-import { InfoIcon } from "lucide-react"
+import { InfoIcon, AlertTriangle } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -18,8 +20,8 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
   const showPersonalizationTip =
     campaign.audienceSource === "excel" && campaign.excelData?.nameColumn && !campaign.message.includes("{{name}}")
 
-  console.log("Debug CraftMessage: messageCount =", campaign.messageCount)
-  console.log("Debug CraftMessage: totalRecipients =", campaign.totalRecipients)
+  // Calculate progress percentage based on the effective character limit
+  const progressPercentage = (campaign.message.length / campaign.effectiveCharLimit) * 100
 
   return (
     <motion.div
@@ -28,13 +30,13 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
       transition={{ duration: 0.5 }}
       className="space-y-6 overflow-hidden"
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
         <h3 className="text-lg font-semibold">{t("campaignIdeas")}</h3>
         <p className="text-sm text-muted-foreground">{t("selectTemplateOrCreate")}</p>
         <CampaignIdeasCarousel onSelectIdea={(idea) => campaign.setMessage(idea)} />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label htmlFor="message" className="block text-sm font-medium">
             {t("retargetingMessage")}
@@ -57,11 +59,20 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
           </TooltipProvider>
         </div>
 
-
+        {showPersonalizationTip && (
           <Alert>
             <AlertDescription>{t("personalizationTip")}</AlertDescription>
           </Alert>
+        )}
 
+        {campaign.hasArabic && (
+          <Alert variant="warning" className="bg-amber-50 border-amber-200">
+            <AlertTriangle className="h-4 w-4 text-amber-600 mr-2" />
+            <AlertDescription className="text-amber-800">
+              Arabic text detected. Character limit reduced to 70 per message segment.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Textarea
           id="message"
@@ -70,24 +81,29 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
           onChange={(e) => campaign.setMessage(e.target.value)}
           rows={4}
           className="w-full resize-none"
+          dir={campaign.hasArabic ? "rtl" : "ltr"}
         />
 
         <div className="flex justify-between items-center text-sm text-muted-foreground">
-          <span>{t("charactersRemaining")} {campaign.CHARACTER_LIMIT + campaign.message.length }</span>
           <span>
-            {t("messageCount")} {campaign.messageCount } × {campaign.totalRecipients} {t("recipients")}
+            {t("charactersRemaining")} {campaign.remainingCharacters} / {campaign.effectiveCharLimit}
+          </span>
+          <span>
+            {t("messageCount")} {campaign.messageCount} × {campaign.totalRecipients} {t("recipients")}
           </span>
         </div>
 
-        <Progress value={(campaign.message.length / campaign.CHARACTER_LIMIT) * 100} />
+        <Progress value={progressPercentage} className={progressPercentage > 90 ? "bg-amber-100" : ""} />
 
         <p className="text-sm text-muted-foreground">
           {t("estimatedCost")} {campaign.totalCost} DZD
         </p>
 
-        {/* Add this debug information */}
         <div className="text-xs text-muted-foreground">
-          <p> Message Count = {campaign.messageCount}</p>
+          <p>
+            Character Limit: {campaign.effectiveCharLimit} {campaign.hasArabic ? "(Arabic)" : "(Latin)"}
+          </p>
+          <p>Message Count = {campaign.messageCount}</p>
           <p>Total Recipients = {campaign.totalRecipients}</p>
           <p>Total Cost = {campaign.totalCost}</p>
         </div>
@@ -95,3 +111,4 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
     </motion.div>
   )
 }
+

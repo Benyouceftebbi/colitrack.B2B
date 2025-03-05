@@ -446,6 +446,9 @@
   "privacyLink": "Politique de Confidentialité"
   },
   "retargeting": {
+    "messages":"messages",
+    "segment":"segment",
+    "messages-description":"messages description",
     "title": "Idées de campagnes de retargeting",
     "specialDiscount": "Remise spéciale pour les clients fidèles",
     "newProductLaunch": "Annonce de lancement de nouveau produit",

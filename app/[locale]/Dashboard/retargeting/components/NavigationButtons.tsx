@@ -1,3 +1,5 @@
+"use client"
+
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
@@ -60,13 +62,18 @@ export function NavigationButtons({
                   recipients: campaign.totalRecipients,
                   totalMessages: campaign.messageCount * campaign.totalRecipients,
                   totalCost: campaign.totalCost.toLocaleString(),
-                  costPerMessage: campaign.CHARACTER_LIMIT,
+                  costPerMessage: campaign.effectiveCharLimit,
                 })}
+                {campaign.hasArabic && (
+                  <p className="mt-2 text-amber-600 font-medium">
+                    Note: Your message contains Arabic text which uses 70 characters per message segment.
+                  </p>
+                )}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-              <AlertDialogAction onClick={onSendCampaign} disabled={campaign.isSending} >
+              <AlertDialogAction onClick={onSendCampaign} disabled={campaign.isSending}>
                 {campaign.isSending ? (
                   <motion.div
                     className="flex items-center"
@@ -92,3 +99,4 @@ export function NavigationButtons({
     </motion.div>
   )
 }
+

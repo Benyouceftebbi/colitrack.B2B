@@ -6,10 +6,13 @@ import { utils, writeFile } from "xlsx"
 import type { SentMessage, ClientGroup, ExcelData, CampaignStatus } from "../types"
 import { CLIENT_GROUPS, CHARACTER_LIMIT, COST_PER_MESSAGE } from "../components/constants"
 import { useShop } from "@/app/context/ShopContext"
-import axios from "axios"
 import { functions } from "@/firebase/firebase"
 import { httpsCallable } from "firebase/functions"
+import { containsArabicCharacters } from "../utils/message"
+import { useToast } from "@/hooks/use-toast"
+
 export function useRetargetingCampaign() {
+  const { toast } = useToast()
   const [selectedGroup, setSelectedGroup] = useState<ClientGroup>(CLIENT_GROUPS[0])
   const [message, setMessage] = useState("")
   const [isAlertOpen, setIsAlertOpen] = useState(false)
@@ -24,11 +27,13 @@ export function useRetargetingCampaign() {
   const [totalRecipients, setTotalRecipients] = useState(0)
   const [campaignName, setCampaignName] = useState("")
 
+  const hasArabic = containsArabicCharacters(message)
+  const effectiveCharLimit = hasArabic ? 70 : CHARACTER_LIMIT
   const characterCount = message.length
-  const messageCount = Math.ceil(characterCount / CHARACTER_LIMIT)
-  const remainingCharacters = CHARACTER_LIMIT - (characterCount % CHARACTER_LIMIT)
+  const messageCount = Math.ceil(characterCount / effectiveCharLimit)
+  const remainingCharacters = effectiveCharLimit - (characterCount % effectiveCharLimit || effectiveCharLimit)
   const totalCost = messageCount * totalRecipients * COST_PER_MESSAGE
-  const {shopData,setShopData}=useShop()
+  const { shopData, setShopData } = useShop()
 
   useEffect(() => {
     if (excelData && excelData.phoneColumn && excelData.nameColumn) {
@@ -50,43 +55,54 @@ export function useRetargetingCampaign() {
 
   const handleSendCampaign = async () => {
     try {
-      setIsSending(true);
-  
+      // Check if senderId exists
+      if (!shopData.senderId) {
+        toast({
+          title: "Sender ID Missing",
+          description: "You need to set up your sender ID. Learn more in upgrade.",
+          variant: "destructive",
+        })
+        return null
+      }
+
+      setIsSending(true)
+
       // Firebase Cloud Function
-      const sendBulkSMS = httpsCallable(functions, "sendBulkSMS");
+      const sendBulkSMS = httpsCallable(functions, "sendBulkSMS")
       const response = await sendBulkSMS({
         sms: message, // The SMS content
         phoneNumbers: processedData.map((recipient) => ({
           name: recipient.name,
           phoneNumber: recipient.number,
         })),
-        compaignName:campaignName, // Ensure campaign name is passed
+        compaignName: campaignName, // Ensure campaign name is passed
         messageCount,
-      });
-  
-      const responseData = response.data;
-  
+        hasArabic, // Pass whether the message contains Arabic characters
+      })
+
+      const responseData = response.data
+
       if (!responseData) {
-        throw new Error("Invalid response from server");
+        throw new Error("Invalid response from server")
       }
-  
+
       if (responseData.status === "failed") {
         // Handle different failure reasons
         if (responseData.error === "Not enough tokens") {
-          alert("⚠️ Not enough tokens to run this campaign! You have: " + responseData.newTokens);
+          alert("⚠️ Not enough tokens to run this campaign! You have: " + responseData.newTokens)
         } else if (responseData.error === "SMS contains sensitive content") {
-          alert("❌ SMS content was rejected. Please modify your message.");
+          alert("❌ SMS content was rejected. Please modify your message.")
         } else {
-          alert("❌ Failed to send SMS: " + responseData.error);
+          alert("❌ Failed to send SMS: " + responseData.error)
         }
-        setIsSending(false);
-        return;
+        setIsSending(false)
+        return null
       }
-  
+
       if (responseData.status === "pending") {
-        console.log("✅ SMS Campaign Pending, handling the rest...");
-        console.log("Response:", responseData);
-  
+        console.log("✅ SMS Campaign Pending, handling the rest...")
+        console.log("Response:", responseData)
+
         // Create a new SMS campaign entry
         const newMessage = {
           id: responseData.campaignId,
@@ -97,35 +113,37 @@ export function useRetargetingCampaign() {
           totalCost,
           content: message,
           status: "pending", // Set initial status
-        };
-  
+        }
+
         // Update shop data with new tokens
         setShopData((prevShopData) => ({
           ...prevShopData,
           tokens: responseData.newTokens,
-        }));
-  
+        }))
+
         // Fire confetti effect
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-        });
-  
-        setIsSending(false);
-        setIsAlertOpen(false);
-        resetForm();
-        return newMessage;
+        })
+
+        setIsSending(false)
+        setIsAlertOpen(false)
+        resetForm()
+        return newMessage
       } else {
-        console.error("Unexpected response status:", responseData.status);
-        setIsSending(false);
+        console.error("Unexpected response status:", responseData.status)
+        setIsSending(false)
+        return null
       }
     } catch (error) {
-      console.error("🚨 Error sending SMS campaign:", error);
-      alert("❌ An unexpected error occurred. Please try again.");
-      setIsSending(false);
+      console.error("🚨 Error sending SMS campaign:", error)
+      alert("❌ An unexpected error occurred. Please try again.")
+      setIsSending(false)
+      return null
     }
-  };
+  }
 
   const updateCampaignStatus = async (messageId: string, newStatus: CampaignStatus) => {
     // In a real application, you would update the status on the server here
@@ -205,5 +223,8 @@ export function useRetargetingCampaign() {
     campaignName,
     setCampaignName,
     resetForm,
+    hasArabic,
+    effectiveCharLimit,
   }
 }
+

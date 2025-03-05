@@ -44,6 +44,8 @@ export type RetargetingCampaignHook = {
   audienceSource?: "excel" | "group"
   selectedGroup?: { recipients: { name: string; phone: string }[] }
   totalCost?: number
+  hasArabic: boolean
+  effectiveCharLimit: number
 }
 
 export type RetargetingCampaignHook = ReturnType<typeof import("./hooks/useRetargetingCampaign").useRetargetingCampaign>

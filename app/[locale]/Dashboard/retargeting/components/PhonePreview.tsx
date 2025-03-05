@@ -1,13 +1,20 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Battery, Signal, Wifi, ChevronLeft } from 'lucide-react';
+"use client"
+
+import { motion, AnimatePresence } from "framer-motion"
+import { X, Battery, Signal, Wifi, ChevronLeft } from "lucide-react"
+import { containsArabicCharacters, splitMessageIntoChunks } from "../utils/message"
 
 type PhonePreviewProps = {
-  messageTemplate: string;
-  senderId: string;
-  onClose: () => void;
-};
+  messageTemplate: string
+  senderId: string
+  onClose: () => void
+}
 
 export function PhonePreview({ messageTemplate, senderId, onClose }: PhonePreviewProps) {
+  const hasArabic = containsArabicCharacters(messageTemplate)
+  const effectiveLimit = hasArabic ? 70 : 110
+  const messageChunks = splitMessageIntoChunks(messageTemplate, effectiveLimit)
+
   return (
     <AnimatePresence>
       <motion.div
@@ -16,11 +23,7 @@ export function PhonePreview({ messageTemplate, senderId, onClose }: PhonePrevie
         exit={{ opacity: 0, scale: 0.9 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       >
-        <motion.div
-          className="relative w-full max-w-[280px]"
-          initial={{ y: 50 }}
-          animate={{ y: 0 }}
-        >
+        <motion.div className="relative w-full max-w-[280px]" initial={{ y: 50 }} animate={{ y: 0 }}>
           <button
             onClick={onClose}
             className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
@@ -28,18 +31,18 @@ export function PhonePreview({ messageTemplate, senderId, onClose }: PhonePrevie
           >
             <X className="w-6 h-6" />
           </button>
-          
+
           <div className="relative w-full h-[500px] bg-black rounded-[2rem] p-2 shadow-2xl neon-border">
             <div className="w-full h-full bg-gray-100 dark:bg-gray-900 rounded-[1.8rem] overflow-hidden">
               <StatusBar />
               <MessageHeader senderId={senderId} />
-              <MessageContent message={messageTemplate} />
+              <MessageContent messageChunks={messageChunks} hasArabic={hasArabic} />
             </div>
           </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  );
+  )
 }
 
 function StatusBar() {
@@ -53,7 +56,7 @@ function StatusBar() {
         <Battery className="w-4 h-4" />
       </div>
     </div>
-  );
+  )
 }
 
 function MessageHeader({ senderId }: { senderId: string }) {
@@ -68,20 +71,37 @@ function MessageHeader({ senderId }: { senderId: string }) {
         <div className="w-4" />
       </div>
     </div>
-  );
+  )
 }
 
-function MessageContent({ message }: { message: string }) {
+function MessageContent({ messageChunks, hasArabic }: { messageChunks: string[]; hasArabic: boolean }) {
   return (
     <div className="h-[calc(100%-90px)] overflow-y-auto px-3 py-2">
       <div className="text-center mb-4">
         <div className="text-xs text-gray-500">Today 11:24</div>
       </div>
-      <div className="flex justify-start mb-4">
-        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg py-2 px-3 max-w-[80%]">
-          <p className="text-sm break-words">{message}</p>
-        </div>
-      </div>
+
+      {messageChunks.map((chunk, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.3 }}
+          className="flex justify-start mb-4"
+        >
+          <div className="bg-gray-200 dark:bg-gray-700 rounded-lg py-2 px-3 max-w-[80%]">
+            <p className="text-sm break-words" dir={hasArabic ? "rtl" : "ltr"}>
+              {chunk}
+            </p>
+            {messageChunks.length > 1 && (
+              <p className="text-[10px] text-gray-500 mt-1 text-right">
+                {index + 1}/{messageChunks.length}
+              </p>
+            )}
+          </div>
+        </motion.div>
+      ))}
     </div>
-  );
+  )
 }
+
