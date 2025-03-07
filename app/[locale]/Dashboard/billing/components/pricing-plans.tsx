@@ -9,9 +9,14 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import { useShop } from "@/app/context/ShopContext"
+import { collection, addDoc, onSnapshot } from "firebase/firestore"
+import { db } from "@/firebase/firebase"
+import { LoadingButton } from "@/components/ui/LoadingButton"
 
 const plans = [
   {
+    id:'price_1Qze0MDIpjCcuDeHIOR6NxQH',
     name: "starter",
     price: 10,
     tokens: "2,400",
@@ -19,20 +24,7 @@ const plans = [
     features: ["basic-sms-notifications", "standard-delivery-tracking", "email-support", "api-access"],
   },
   {
-    name: "business",
-    price: 80,
-    tokens: "19,200",
-    bonus: "business-bonus",
-    features: [
-      "advanced-sms-automation",
-      "priority-delivery-tracking",
-      "priority-email-chat-support",
-      "advanced-api-access",
-      "analytics-dashboard",
-      "custom-integrations",
-    ],
-  },
-  {
+    id:'price_1Qze0MDIpjCcuDeHYaGrnSlE',
     name: "enterprise",
     price: 100,
     tokens: "24,000",
@@ -50,6 +42,22 @@ const plans = [
     popular: true,
   },
   {
+    id:'price_1Qze0MDIpjCcuDeH18DmcHen',
+    name: "business",
+    price: 80,
+    tokens: "19,200",
+    bonus: "business-bonus",
+    features: [
+      "advanced-sms-automation",
+      "priority-delivery-tracking",
+      "priority-email-chat-support",
+      "advanced-api-access",
+      "analytics-dashboard",
+      "custom-integrations",
+    ],
+  },
+
+  {
     name: "sender-id",
     pricet: 10000,
     features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support","per-year"],
@@ -61,10 +69,41 @@ const plans = [
 export function PricingPlans({ className }: { className?: string }) {
   const [senderID, setSenderID] = useState("")
   const t = useTranslations("billing")
+  const {shopData}=useShop()
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
 
   const handleSenderIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSenderID(e.target.value.slice(0, 11))
   }
+
+  const createCheckoutSession = async (id: string) => {
+
+      if(id){     
+        
+      setLoadingStates(prev => ({ ...prev, [id]: true }))
+      const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions");
+      const docRef = await addDoc(checkoutSessionRef, {
+        mode:'payment',
+        price: id,
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        client_reference_id:`${shopData.id}-${id}`, 
+      });
+  
+      onSnapshot(docRef, (snap) => {
+        const { error, url } = snap.data() || {};
+        if (error) {
+          alert(`An error occurred: ${error.message}`);
+          setLoadingStates(prev => ({ ...prev, [id]: false }))
+        }
+        if (url) {
+          window.location.assign(url);
+          setLoadingStates(prev => ({ ...prev, [id]: false }))
+        }
+      });
+    }
+  };
 
   return (
     <div className={`py-2 ${className}`}>
@@ -84,8 +123,8 @@ export function PricingPlans({ className }: { className?: string }) {
               <CardTitle className={`text-lg ${plan.special ? "text-white" : ""}`}>{t(`plan-${plan.name}`)}</CardTitle>
               <CardDescription className={`flex items-baseline gap-1 ${plan.special ? "text-white/80" : ""}`}>
               <span className="text-2xl font-bold">
-  {plan.price ? `$${plan.price}` : `${plan.pricet} tokens`}
-</span>                      <span className={`text-sm ${plan.special ? "text-white/80" : "text-muted-foreground"}`}>
+  {plan.price ? `$${plan.price}` : `${plan.pricet} Tokens`}
+</span>                <span className={`text-sm ${plan.special ? "text-white/80" : "text-muted-foreground"}`}>
                  
                 </span>          
               </CardDescription>
@@ -120,12 +159,14 @@ export function PricingPlans({ className }: { className?: string }) {
                   </p>
                 </div>
               )}
-              <Button
+              <LoadingButton
                 className={`w-full ${plan.special ? "bg-white text-blue-600 hover:bg-white/90" : ""}`}
                 variant={plan.popular ? "default" : plan.special ? "secondary" : "outline"}
+                onClick={() => createCheckoutSession(plan.id)}
+                loading={loadingStates[plan.id] || false}
               >
                 <span className="text-sm">{t("proceed")}</span>
-              </Button>
+              </LoadingButton>
             </CardContent>
           </Card>
         ))}

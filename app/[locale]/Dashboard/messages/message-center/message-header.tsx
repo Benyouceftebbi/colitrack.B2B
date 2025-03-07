@@ -19,7 +19,10 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
   const t = useTranslations("messages")
   const { shopData } = useShop()
   const router = useRouter()
-
+  const currentDate = new Date();
+  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`;
+  const deliveredCount = shopData.tracking.reduce((count, item) => 
+    item.lastStatus === "delivered" ? count + 1 : count, 0);
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
       <div className="flex flex-col space-y-6">
@@ -108,7 +111,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("messages-sent-today")}</p>
-                <p className="text-2xl font-bold text-primary">247</p>
+                <p className="text-2xl font-bold text-primary"> {shopData?.analytics?.smsSentToday || 0}</p>
               </div>
               <MessageSquare className="h-8 w-8 text-primary opacity-50" />
             </div>
@@ -118,7 +121,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("delivery-updates-count")}</p>
-                <p className="text-2xl font-bold text-primary">89</p>
+                <p className="text-2xl font-bold text-primary">{deliveredCount}</p>
               </div>
               <Truck className="h-8 w-8 text-primary opacity-50" />
             </div>
@@ -128,7 +131,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("success-rate")}</p>
-                <p className="text-2xl font-bold text-primary">98.5%</p>
+                <p className="text-2xl font-bold text-primary">{shopData?.analytics?.returnRateByWeek[currentWeek] || 0}%</p>
               </div>
               <Bell className="h-8 w-8 text-primary opacity-50" />
             </div>

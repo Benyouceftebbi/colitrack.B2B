@@ -19,20 +19,6 @@ const plans = [
     features: ["basic-sms-notifications", "standard-delivery-tracking", "email-support", "api-access"],
   },
   {
-    name: "business",
-    price: 80,
-    tokens: "19,200",
-    bonus: "business-bonus",
-    features: [
-      "advanced-sms-automation",
-      "priority-delivery-tracking",
-      "priority-email-chat-support",
-      "advanced-api-access",
-      "analytics-dashboard",
-      "custom-integrations",
-    ],
-  },
-  {
     name: "enterprise",
     price: 100,
     tokens: "24,000",
@@ -49,6 +35,21 @@ const plans = [
     ],
     popular: true,
   },
+  {
+    name: "business",
+    price: 80,
+    tokens: "19,200",
+    bonus: "business-bonus",
+    features: [
+      "advanced-sms-automation",
+      "priority-delivery-tracking",
+      "priority-email-chat-support",
+      "advanced-api-access",
+      "analytics-dashboard",
+      "custom-integrations",
+    ],
+  },
+
   {
     name: "sender-id",
     pricet: 10000,

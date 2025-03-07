@@ -16,6 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/app/context/AuthContext"
 import { LoadingButton } from "@/components/ui/LoadingButton"
 import Link from "next/link"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 const formSchema = z
   .object({
@@ -111,10 +113,14 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = fals
 
     setIsSendingSms(true)
     try {
-      // This is a placeholder for the actual SMS sending function
-      // In a real implementation, you would call your API endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
-      setSmsSent(true)
+      const signUpSMS = httpsCallable(functions, "signUpSMS")
+      const result = await signUpSMS({ phoneNumber: testPhoneNumber })
+      
+      if (result.data?.status === 'success') {
+        setSmsSent(true)
+      } else {
+        setPhoneError("Failed to send SMS. Please try again.")
+      }
     } catch (error) {
       setPhoneError("Failed to send test SMS. Please try again later.")
     } finally {
