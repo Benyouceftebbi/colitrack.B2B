@@ -110,31 +110,32 @@ export default function Dashboard() {
   const [showHelp, setShowHelp] = React.useState(false)
   const { theme } = useTheme()
   const { shopData } = useShop()
-  const chartData = React.useMemo(() => {
+  const chartData = React.useMemo<ChartData[]>(() => {
     // Get the current date
     const currentDate = new Date()
-    const months = []
+    const result: ChartData[] = []
 
     // Generate the last 6 months (including current month)
     for (let i = 5; i >= 0; i--) {
       const date = new Date(currentDate)
       date.setMonth(currentDate.getMonth() - i)
-      months.push(date.toLocaleString("default", { month: "long" }))
-    }
 
-    return months.map((month) => {
-      // Get the month number (1-12) and year for this month
-      const date = new Date(new Date().getFullYear(), months.indexOf(month))
-      const monthNum = String(date.getMonth() + 1).padStart(2, "0")
+      // Get the month name for display
+      const monthName = date.toLocaleString("default", { month: "long" })
+
+      // Get the correct year and month for the data lookup
       const year = date.getFullYear()
+      const monthNum = String(date.getMonth() + 1).padStart(2, "0") // +1 because getMonth() is 0-indexed
       const yearMonth = `${year}-${monthNum}`
 
-      return {
-        month,
-        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.SMS[yearMonth] || 0,
-        totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign[yearMonth] || 0,
-      }
-    })
+      result.push({
+        month: monthName,
+        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0,
+        totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign?.[yearMonth] || 0,
+      })
+    }
+
+    return result
   }, [shopData.analytics])
   const chartConfig = {
     desktop: {
@@ -173,6 +174,8 @@ export default function Dashboard() {
   })
   const currentDate = new Date()
   const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
+  console.log('zakamo123',yearMonth);
+  
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
 
   const currentMonth = React.useMemo(() => {
@@ -426,7 +429,7 @@ export default function Dashboard() {
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                   <span className="text-green-600 flex items-center">
                     <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    {t("daily-target", { value: shopData?.analytics?.dailyTarget || 0 })}
+                    {t("daily-target", { value: shopData?.analytics?.smsSentToday || 0 })}
                   </span>
                 </div>
               </div>
