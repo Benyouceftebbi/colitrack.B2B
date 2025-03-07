@@ -3,11 +3,10 @@
 import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
+import { useRouter } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { useTranslations } from "next-intl"
 import Algeria from "@react-map/algeria"
 import { useTheme } from "next-themes"
@@ -21,10 +20,10 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { useShop } from "@/app/context/ShopContext"
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore"
+import { doc, setDoc } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
-import axios from "axios"
-
+import { DataTable } from "./messages/message-center/sms-history/data-table"
+import { columns } from "./messages/message-center/sms-history/columns"
 type AlgeriaDataItem = {
   name: string
   value: number
@@ -43,10 +42,57 @@ const algeriaStatesMap = {
   "08": "Béchar",
   "09": "Blida",
   "10": "Bouira",
-  // ... add all 58 wilayas
+  "11": "Tamanrasset",
+  "12": "Tébessa",
+  "13": "Tlemcen",
+  "14": "Tiaret",
+  "15": "Tizi Ouzou",
+  "16": "Algiers",
+  "17": "Djelfa",
+  "18": "Jijel",
+  "19": "Sétif",
+  "20": "Saïda",
+  "21": "Skikda",
+  "22": "Sidi Bel Abbès",
+  "23": "Annaba",
+  "24": "Guelma",
+  "25": "Constantine",
+  "26": "Médéa",
+  "27": "Mostaganem",
+  "28": "M'Sila",
+  "29": "Mascara",
+  "30": "Ouargla",
+  "31": "Oran",
+  "32": "El Bayadh",
+  "33": "Illizi",
+  "34": "Bordj Bou Arréridj",
+  "35": "Boumerdès",
+  "36": "El Tarf",
+  "37": "Tindouf",
+  "38": "Tissemsilt",
+  "39": "El Oued",
+  "40": "Khenchela",
+  "41": "Souk Ahras",
+  "42": "Tipaza",
+  "43": "Mila",
+  "44": "Aïn Defla",
+  "45": "Naâma",
+  "46": "Aïn Témouchent",
+  "47": "Ghardaïa",
+  "48": "Relizane",
+  "49": "El M'Ghair",
+  "50": "El Meniaa",
+  "51": "Ouled Djellal",
+  "52": "Bordj Baji Mokhtar",
+  "53": "Béni Abbès",
+  "54": "Timimoun",
+  "55": "Touggourt",
+  "56": "Djanet",
+  "57": "In Salah",
+  "58": "In Guezzam",
 }
 
-const columns = [
+const algeriaColumns = [
   columnHelper.accessor("name", {
     header: "Wilaya",
     cell: (info) => info.getValue(),
@@ -59,25 +105,37 @@ const columns = [
 
 export default function Dashboard() {
   const t = useTranslations("header")
+  const router = useRouter()
   const [progress, setProgress] = React.useState(13)
   const [showHelp, setShowHelp] = React.useState(false)
   const { theme } = useTheme()
   const { shopData } = useShop()
   const chartData = React.useMemo(() => {
-    const months = ["January", "February", "March", "April", "May", "June"];
-    const currentYear = new Date().getFullYear();
+    // Get the current date
+    const currentDate = new Date()
+    const months = []
 
-    return months.map(month => {
-      const monthNum = String(months.indexOf(month) + 1).padStart(2, "0");
-      const yearMonth = `${currentYear}-${monthNum}`;
-      
+    // Generate the last 6 months (including current month)
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate)
+      date.setMonth(currentDate.getMonth() - i)
+      months.push(date.toLocaleString("default", { month: "long" }))
+    }
+
+    return months.map((month) => {
+      // Get the month number (1-12) and year for this month
+      const date = new Date(new Date().getFullYear(), months.indexOf(month))
+      const monthNum = String(date.getMonth() + 1).padStart(2, "0")
+      const year = date.getFullYear()
+      const yearMonth = `${year}-${monthNum}`
+
       return {
         month,
         totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.SMS[yearMonth] || 0,
         totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign[yearMonth] || 0,
-      };
-    });
-  }, [shopData.analytics]);
+      }
+    })
+  }, [shopData.analytics])
   const chartConfig = {
     desktop: {
       label: "SMS Messages",
@@ -88,26 +146,23 @@ export default function Dashboard() {
       color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig
-  const algeriaData: AlgeriaDataItem[] = React.useMemo(
-    () => {
-      if (!shopData.analytics?.totalMessagesByState) return [];
-      
-      return Object.entries(shopData.analytics.totalMessagesByState)
-        .map(([stateCode, count]) => ({
-          name: algeriaStatesMap[stateCode] || stateCode,
-          value: count || 0,
-        }))
-        .sort((a, b) => b.value - a.value);
-    },
-    [shopData.analytics?.totalMessagesByState]
-  );
+  const algeriaData: AlgeriaDataItem[] = React.useMemo(() => {
+    if (!shopData.analytics?.totalMessagesByState) return []
+
+    return Object.entries(shopData.analytics.totalMessagesByState)
+      .map(([stateCode, count]) => ({
+        name: algeriaStatesMap[stateCode] || stateCode,
+        value: count || 0,
+      }))
+      .sort((a, b) => b.value - a.value)
+  }, [shopData.analytics?.totalMessagesByState])
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
     return () => clearTimeout(timer)
   }, [])
   const table = useReactTable({
     data: algeriaData,
-    columns,
+    columns: algeriaColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
@@ -116,10 +171,9 @@ export default function Dashboard() {
       },
     },
   })
-  const currentDate = new Date();
-  const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
-  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`;
-
+  const currentDate = new Date()
+  const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
+  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
 
   const currentMonth = React.useMemo(() => {
     return new Date().toLocaleString("default", { month: "long" })
@@ -138,9 +192,17 @@ export default function Dashboard() {
   }, [shopData.analytics, lastMonth])
 
   const percentageChange = React.useMemo(() => {
-    return lastMonthSms > 0 ? ((shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] - shopData?.analytics?.totalMessagesByMonth?.SMS[`${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`]) / shopData?.analytics?.totalMessagesByMonth?.SMS[`${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`]) * 100 : 0
+    return lastMonthSms > 0
+      ? ((shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] -
+          shopData?.analytics?.totalMessagesByMonth?.SMS[
+            `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
+          ]) /
+          shopData?.analytics?.totalMessagesByMonth?.SMS[
+            `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
+          ]) *
+          100
+      : 0
   }, [currentMonthSms, lastMonthSms])
-
 
   const updateShopAnalytics = async (shopId: string) => {
     try {
@@ -153,7 +215,7 @@ export default function Dashboard() {
             "2024-03": 2890,
             "2024-04": 3100,
             "2024-05": 2950,
-            "2024-06": 3200
+            "2024-06": 3200,
           },
           SMSComapign: {
             "2024-01": 1800,
@@ -161,8 +223,8 @@ export default function Dashboard() {
             "2024-03": 2400,
             "2024-04": 2600,
             "2024-05": 2500,
-            "2024-06": 2800
-          }
+            "2024-06": 2800,
+          },
         },
 
         // Weekly return rates (last 12 weeks)
@@ -178,7 +240,7 @@ export default function Dashboard() {
           "2024-W09": 42.8,
           "2024-W10": 41.9,
           "2024-W11": 43.7,
-          "2024-W12": 45.2
+          "2024-W12": 45.2,
         },
 
         // Distribution by state (all 58 wilayas)
@@ -199,7 +261,48 @@ export default function Dashboard() {
           "14": 2200, // Tiaret
           "15": 2700, // Tizi Ouzou
           "16": 4500, // Algiers
-          // ... add remaining wilayas with realistic data
+          "17": 2000, // Djelfa
+          "18": 2500, // Jijel
+          "19": 3000, // Sétif
+          "20": 1700, // Saïda
+          "21": 2300, // Skikda
+          "22": 1950, // Sidi Bel Abbès
+          "23": 3100, // Annaba
+          "24": 2050, // Guelma
+          "25": 3500, // Constantine
+          "26": 2400, // Médéa
+          "27": 2250, // Mostaganem
+          "28": 1850, // M'Sila
+          "29": 1600, // Mascara
+          "30": 1400, // Ouargla
+          "31": 3800, // Oran
+          "32": 1300, // El Bayadh
+          "33": 1000, // Illizi
+          "34": 2600, // Bordj Bou Arréridj
+          "35": 2900, // Boumerdès
+          "36": 1750, // El Tarf
+          "37": 800, // Tindouf
+          "38": 1900, // Tissemsilt
+          "39": 1550, // El Oued
+          "40": 1800, // Khenchela
+          "41": 2150, // Souk Ahras
+          "42": 2550, // Tipaza
+          "43": 2350, // Mila
+          "44": 2000, // Aïn Defla
+          "45": 1650, // Naâma
+          "46": 1850, // Aïn Témouchent
+          "47": 1500, // Ghardaïa
+          "48": 2200, // Relizane
+          "49": 900, // El M'Ghair
+          "50": 1100, // El Meniaa
+          "51": 1200, // Ouled Djellal
+          "52": 700, // Bordj Baji Mokhtar
+          "53": 600, // Béni Abbès
+          "54": 850, // Timimoun
+          "55": 1350, // Touggourt
+          "56": 500, // Djanet
+          "57": 750, // In Salah
+          "58": 450, // In Guezzam
         },
 
         // Daily metrics
@@ -207,22 +310,25 @@ export default function Dashboard() {
         dailyTarget: 200,
         monthlyTarget: 3000,
         newThisWeek: 45,
-
-      };
+      }
 
       // Update the document in Firebase
-      const shopRef = doc(db, "Shops", shopId);
-      await setDoc(shopRef, {
-        analytics: analyticsData
-      }, { merge: true }); // Using merge: true to only update the analytics field
+      const shopRef = doc(db, "Shops", shopId)
+      await setDoc(
+        shopRef,
+        {
+          analytics: analyticsData,
+        },
+        { merge: true },
+      ) // Using merge: true to only update the analytics field
 
-      console.log("Analytics data updated successfully");
-      return analyticsData;
+      console.log("Analytics data updated successfully")
+      return analyticsData
     } catch (error) {
-      console.error("Error updating analytics data:", error);
-      throw error;
+      console.error("Error updating analytics data:", error)
+      throw error
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
@@ -230,8 +336,12 @@ export default function Dashboard() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("dashboard-overview")}</h1>
           <div className="flex items-center gap-2">
-
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto" onClick={()=>updateShopAnalytics(shopData.id)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm w-full sm:w-auto"
+              onClick={() => updateShopAnalytics(shopData.id)}
+            >
               {t("export-data")}
             </Button>
 
@@ -242,7 +352,7 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -251,50 +361,53 @@ export default function Dashboard() {
                   </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData.tokens}</h2>
                 </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
                 </div>
               </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={84} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className="text-green-600 flex items-center">
-                  {t("sms-remaining", { min: Math.floor(shopData.tokens / 15), max: Math.floor(shopData.tokens / 10) })}
-                </span>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  <span className="text-green-600 flex items-center">
+                    {t("sms-remaining", {
+                      min: Math.floor(shopData.tokens / 15),
+                      max: Math.floor(shopData.tokens / 10),
+                    })}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
                     {t("total-messages")}
                   </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] || 0}</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] || 0}
+                  </h2>
                 </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
                 </div>
               </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={progress} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className={`flex items-center ${percentageChange > 0 ? "text-green-600" : "text-red-600"}`}>
-                  {percentageChange > 0 ? (
-                    <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  ) : (
-                    <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  )}
-                  {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
-                </span>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  <span className={`flex items-center ${percentageChange > 0 ? "text-green-600" : "text-red-600"}`}>
+                    {percentageChange > 0 ? (
+                      <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    ) : (
+                      <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    )}
+                    {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -305,43 +418,49 @@ export default function Dashboard() {
                     {shopData?.analytics?.smsSentToday || 0}
                   </h2>
                 </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
                 </div>
               </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={100} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className="text-green-600 flex items-center">
-                  <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-
-                </span>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  <span className="text-green-600 flex items-center">
+                    <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    {t("daily-target", { value: shopData?.analytics?.dailyTarget || 0 })}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5">
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
                     {t("return-rate")}
                   </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData?.analytics?.returnRateByWeek[currentWeek] || 0}%</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {shopData?.analytics?.returnRateByWeek[currentWeek] || 0}%
+                  </h2>
                 </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:scale-125 group-hover:bg-primary/20">
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
                 </div>
               </div>
-              <div className="mt-2 sm:mt-4">
-                <Progress value={42} className="h-1 sm:h-2" />
-              </div>
-              <div className="mt-1 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span className="text-red-600 flex items-center">
-                  <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                  {t("return-rate-change", { value: shopData?.analytics?.returnRateByWeek[currentWeek]-shopData?.analytics?.returnRateByWeek[`${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)-1).padStart(2, "0")}`] })}
-                </span>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  <span className="text-red-600 flex items-center">
+                    <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    {t("return-rate-change", {
+                      value:
+                        shopData?.analytics?.returnRateByWeek[currentWeek] -
+                        shopData?.analytics?.returnRateByWeek[
+                          `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7) - 1).padStart(2, "0")}`
+                        ],
+                    })}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -356,23 +475,21 @@ export default function Dashboard() {
               <div className="leading-none text-muted-foreground">{t("analytics-description")}</div>
             </CardHeader>
             <CardContent>
-   
-                <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
-                  <BarChart accessibilityLayer data={chartData}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      tickMargin={10}
-                      axisLine={false}
-                      tickFormatter={(value) => value.slice(0, 3)}
-                    />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
-                    <Bar dataKey="totalSmsOfOneTapLink" fill="var(--color-desktop)" radius={4} />
-                    <Bar dataKey="totalSmsSentInCampaign" fill="var(--color-mobile)" radius={4} />
-                  </BarChart>
-                </ChartContainer>
-        
+              <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
+                <BarChart accessibilityLayer data={chartData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+                  <Bar dataKey="totalSmsOfOneTapLink" fill="var(--color-desktop)" radius={4} />
+                  <Bar dataKey="totalSmsSentInCampaign" fill="var(--color-mobile)" radius={4} />
+                </BarChart>
+              </ChartContainer>
             </CardContent>
           </Card>
           <Card className="w-full max-w-4xl mx-auto">
@@ -450,54 +567,23 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="p-2 sm:p-4 md:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-              <CardTitle className="text-base sm:text-lg md:text-xl">{t("recent-messages")}</CardTitle>
-              <Button variant="link" asChild className="p-0 h-auto text-xs sm:text-sm">
-                <Link href="#">{t("view-all")}</Link>
+              <CardTitle className="text-base sm:text-lg md:text-xl">10 {t("recent-messages")}</CardTitle>
+              <Button
+                variant="link"
+                className="p-0 h-auto text-xs sm:text-sm"
+                onClick={() => router.push("/dashboard/messages")}
+              >
+                {t("view-all")}
               </Button>
             </div>
             <CardDescription className="text-[10px] sm:text-xs md:text-sm">{t("track-message-status")}</CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("customer")}</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("tracking-number")}</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("status")}</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("time")}</TableHead>
-                    <TableHead className="text-[10px] sm:text-xs md:text-sm">{t("message")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {shopData.smsTracking?.map((tracking) => (
-                    <TableRow key={tracking.trackingNumber}>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm font-medium">
-                        {tracking.customerName}
-                      </TableCell>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm">{tracking.trackingNumber}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={tracking.status === "Delivered" ? "success" : "destructive"}
-                          className="text-[8px] sm:text-[10px] md:text-xs"
-                        >
-                          {tracking.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm">
-                        {new Date(tracking.time).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-[10px] sm:text-xs md:text-sm max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate">
-                        {tracking.message}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+          <CardContent>
+            <DataTable columns={columns} data={shopData.sms?.slice(0, 10) || []} />
           </CardContent>
         </Card>
       </div>
     </div>
   )
 }
+

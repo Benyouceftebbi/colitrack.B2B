@@ -527,7 +527,7 @@
     "messages":"messages",
     "messages-description":"messages description",
     "segment":"segment",
-    
+
     "title": "Retargeting Campaign Ideas",
     "specialDiscount": "Special Discount for Loyal Customers",
     "newProductLaunch": "New Product Launch Announcement",
@@ -658,6 +658,7 @@
 },
 
 "messages": {
+  "Messages":"Messages",
     "message-center": "Message Center",
     "smart-notifications": "Smart Notifications",
     "automated-system": "Automated messaging system for:",

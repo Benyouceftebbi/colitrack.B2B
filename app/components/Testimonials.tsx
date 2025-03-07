@@ -6,33 +6,28 @@ import { useRouter } from '@/i18n/routing';
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
+    name: "Walid",
     role: "E-commerce Manager",
-    company: "Fashion Boutique",
+    company: "GRIFA SHOP",
     content: "Colitrack has transformed how we handle order communications. Our customer satisfaction rates have increased by 45% since implementing their SMS automation.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80"
+    image: "https://cdn.youcan.shop/stores/230271aba0fb1bc2371a08268a122484/others/vGyDOIW04QW8sA9MpPZlYzhinEEdBkUc4FcsblcJ.png"
   },
   {
-    name: "Michael Chen",
-    role: "Operations Director",
-    company: "Tech Gadgets Co",
+    name: "Salah Eddine",
+    role: "Manager",
+    company: "SABY ANGE",
     content: "The automated tracking updates have significantly reduced our customer service workload.  It is like having an extra team member handling all our shipping communications.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80"
+    image: "https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-1/399351345_347994467908078_257039728288009651_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=SBF65LcGFGMQ7kNvgEYaggG&_nc_oc=Adjd4jIXuD1SyjBQANcABSwLCF3GaUa-d9Q2XqModjJeavl7_zKJxwgqrw7pVS4fbVc&_nc_zt=24&_nc_ht=scontent.falg7-1.fna&_nc_gid=AtI0CyFwH8sEvsUN2rmzcBY&oh=00_AYE-0TelDpcorIpM4pZkuYcHugU5WKBlQXB22uc1rxMzSQ&oe=67D0D83A"
   },
-
-
-
-
-
   {
-    name: "Emma Rodriguez",
+    name: "Ben Youcef",
     role: "Founder",
-    company: "Artisan Crafts",
+    company: "BRUSH MASTER",
     content: "As a small business owner, Colitrack has been a game-changer. The personalized tracking links and automated SMS have given us an enterprise-level customer experience.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80"
+    image: "https://scontent.falg6-2.fna.fbcdn.net/v/t39.30808-1/468664651_122111790902600599_3477962108437721999_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=MPXDFwXzYG0Q7kNvgFPndV0&_nc_oc=AdhBHb2wWYDl6SfSGnNaEjnWybEAFZ_j3EOSxniv5OPvt06iut6R6K4BIO5QfvQOf84&_nc_zt=24&_nc_ht=scontent.falg6-2.fna&_nc_gid=AdgeucUjNq6ErCUQxrqNRDk&oh=00_AYHeNDbYBQv-GivhpkNrM07vGiYpDiMfJkPDQ6RDQlNtRg&oe=67D10CB2"
   }
 ];
 
@@ -76,13 +71,13 @@ export default function Testimonials() {
               <div className="flex items-center gap-4">
                 <img
                   src={testimonial.image}
-                  alt={testimonial.name}
+                 // alt={testimonial.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <div className="font-semibold text-gray-900 dark:text-white">{t(`testimonials.${index}.name`)}</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {t(`testimonials.${index}.role`)} {t("at")} {t(`testimonials.${index}.company`)}
+                  {testimonial.role} {t("at")} {testimonial.company}
                   </div>
                 </div>
               </div>

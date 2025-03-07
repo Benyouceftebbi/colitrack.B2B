@@ -28,15 +28,15 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6 overflow-hidden"
+      className="space-y-3 overflow-hidden"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <h3 className="text-lg font-semibold">{t("campaignIdeas")}</h3>
         <p className="text-sm text-muted-foreground">{t("selectTemplateOrCreate")}</p>
         <CampaignIdeasCarousel onSelectIdea={(idea) => campaign.setMessage(idea)} />
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label htmlFor="message" className="block text-sm font-medium">
             {t("retargetingMessage")}
@@ -68,7 +68,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         {campaign.hasArabic && (
           <Alert variant="warning" className="bg-amber-50 border-amber-200">
             <AlertTriangle className="h-4 w-4 text-amber-600 mr-2" />
-            <AlertDescription className="text-amber-800">
+            <AlertDescription className="text-amber-600">
               Arabic text detected. Character limit reduced to 70 per message segment.
             </AlertDescription>
           </Alert>
