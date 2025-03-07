@@ -69,11 +69,11 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <HoverCard>
               <HoverCardTrigger asChild>
                 <Badge
-                  variant={token ? "default" : "destructive"}
+                  variant={shopData.deliveryCompany ? "default" : "destructive"}
                   className="slide-in hover:scale-105 transition-transform duration-200"
                 >
                   <Truck className="h-4 w-4 mr-2" />
-                  {token ? shopData.deliveryCompany : t("no-delivery-company")}
+                  {shopData.deliveryCompany ? shopData.deliveryCompany : t("no-delivery-company")}
                 </Badge>
               </HoverCardTrigger>
               <HoverCardContent className="glass w-80">

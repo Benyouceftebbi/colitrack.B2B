@@ -380,7 +380,7 @@ export default function SignUp() {
   const handleApplyPromoCode = () => {
     const promoCode = form.getValues("promoCode")
 
-    if (promoCode === "NEWX10") {
+    if (promoCode === "NEW10X") {
       setTokenAmount(500)
       setValidatedPromoCode(promoCode)
       form.setValue("tokens", 500)

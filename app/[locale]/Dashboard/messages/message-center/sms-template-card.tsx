@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Eye, Star } from "lucide-react"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/routing"
 
 interface SMSTemplateCardProps {
   template: {
@@ -34,7 +35,7 @@ export function SMSTemplateCard({
 }: SMSTemplateCardProps) {
   const t = useTranslations("messages")
   const [showModal, setShowModal] = useState(false)
-
+  const router =useRouter()
   const handleActivate = () => {
     if (!shopData.deliveryCompany) {
       setShowModal(true)
@@ -103,7 +104,7 @@ export function SMSTemplateCard({
             <Button onClick={() => setShowModal(false)} variant="destructive">
               {t("modal.close")}
             </Button>
-            <Button variant="secondary" className="ml-2">
+            <Button variant="secondary" className="ml-2" onClick={()=>router.push('/dashboard/settings')}>
               {t("modal.link-account")}
             </Button>
           </div>
