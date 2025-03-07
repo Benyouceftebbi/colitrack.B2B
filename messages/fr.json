@@ -170,7 +170,7 @@
   },
   "header": {
     "daily-target":"daily-target",
-    
+
 
 
 
@@ -410,11 +410,42 @@
     ]
   },
   "signin":{
+    "backToSignIn": "Retour à la connexion",
+    "createAccount": "Créer un compte",
+    "getStarted": "Remplissez vos informations pour commencer",
+    "firstName": "Prénom",
+    "email": "Email",
+    "phoneNumber": "Numéro de téléphone",
+    "companyName": "Nom de l'entreprise",
+    "businessType": "Type d'entreprise",
+    "pleaseSpecify": "Veuillez préciser",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "businessTypes": {
+      "ecommerce": "E-commerce",
+      "retail": "Vente au détail",
+      "dropshipping": "Dropshipping",
+      "marketplace": "Place de marché",
+      "socialCommerce": "Commerce social",
+      "other": "Autre"
+    },
+    "promoCodeSectionTitle": "Vous avez un code promo ?",
+    "promoCodeSectionDescription": "Vous avez déjà 50 jetons en bonus de bienvenue !",
+    "promoCodePlaceholder": "Entrez le code promo",
+    "applyPromoCode": "Appliquer",
+    "promoCodeApplied": "Code promo \"{promoCode}\" appliqué ! Vous avez reçu {tokenAmount} jetons.",
+    "defaultBonusApplied": "Bonus par défaut appliqué ! Vous avez reçu {tokenAmount} jetons.",
+    "tryDifferentCode": "Essayer un autre code",
+    "termsAgreement": "J'accepte les ",
+    "termsLink": "Conditions générales",
+    "and": " et la ",
+    "privacyLink": "Politique de confidentialité",
+    "createAccountButton": "Créer un compte",
+    "alreadyHaveAccount": "Vous avez déjà un compte ? ",
     "backToHome": "Retour à l'accueil",
     "welcomeBack": "Bienvenue de nouveau",
     "signInToContinue": "Connectez-vous à votre compte pour continuer",
     "emailAddress": "Adresse e-mail",
-    "password": "Mot de passe",
     "rememberMe": "Se souvenir de moi",
     "forgotPassword": "Mot de passe oublié ?",
     "signIn": "Se connecter",
@@ -451,9 +482,10 @@
   "privacyLink": "Politique de Confidentialité"
   },
   "retargeting": {
-    "messages":"messages",
+    "messages": "Reciblage",
+"messages-description": "🎯✨ Améliorez l’engagement de vos clients avec la fonctionnalité de reciblage ! 🚀 Recontactez facilement vos anciens clients avec des messages personnalisés. 📲 Essayez-le maintenant et augmentez vos ventes sans effort ! 🔥🇩🇿",
+
     "segment":"segment",
-    "messages-description":"messages description",
     "title": "Idées de campagnes de retargeting",
     "specialDiscount": "Remise spéciale pour les clients fidèles",
     "newProductLaunch": "Annonce de lancement de nouveau produit",
@@ -667,6 +699,10 @@
 }
 ,
 "messages": {
+  "messages":"Messages",
+  "messages-description":"📦✨ Découvrez la fonctionnalité Messages pour les sociétés de livraison ! 🚀  📲 Essayez-le maintenant et informez vos clients sans effort ! 🔥🇩🇿",
+
+
   "message-center": "Centre de Messages",
   "smart-notifications": "Notifications Intelligentes",
   "automated-system": "Système de messagerie automatisé pour :",

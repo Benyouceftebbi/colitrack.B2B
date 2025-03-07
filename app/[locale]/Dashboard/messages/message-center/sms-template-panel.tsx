@@ -65,10 +65,42 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
     onPreviewTemplate(template)
   }
 
-  // Calculate total activated tokens
-  const totalActivatedTokens = smsTemplates
-    .filter((template) => selectedTemplates.includes(template.id))
-    .reduce((sum, template) => sum + template.tokens, 0)
+  // Calculate total activated tokens based on delivery type logic
+  const calculateTotalTokens = () => {
+    const hasStopDesk = selectedTemplates.includes("stop_desk")
+    const hasExpedited = selectedTemplates.includes("expedited")
+    const hasOutForDelivery = selectedTemplates.includes("out_for_delivery")
+    const hasHouseDelivery = hasExpedited || hasOutForDelivery
+
+    // If both shipping types are selected (stop desk and a domicile delivery), return exactly 25
+    if (hasStopDesk && hasHouseDelivery) {
+      return 25
+    }
+
+    let totalTokens = 0
+
+    // Add tokens for stop desk if selected
+    if (hasStopDesk) {
+      totalTokens += 10 // stop_desk tokens
+    }
+
+    // Add tokens for expedited if selected
+    if (hasExpedited) {
+      totalTokens += 15 // expedited tokens
+    }
+
+    // Add tokens for out_for-delivery if selected
+    if (hasOutForDelivery) {
+      totalTokens += 10 // out_for_delivery tokens
+    }
+
+    return totalTokens
+  }
+
+  const totalActivatedTokens = calculateTotalTokens()
+
+  console.log("Selected Templates:", selectedTemplates)
+  console.log("Total Activated Tokens:", totalActivatedTokens)
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -95,7 +127,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
           </div>
           <div className="mt-6 pt-4 border-t border-cyan-900/30">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground">Coast spent per percel:</span>
+              <span className="text-sm font-medium text-muted-foreground">Cost spent per parcel:</span>
               <div className="flex items-center gap-1">
                 <span className="text-sm font-mono text-cyan-400">{totalActivatedTokens}</span>
                 <Star className="h-3 w-3 text-cyan-500 fill-current" />

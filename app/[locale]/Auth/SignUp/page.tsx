@@ -115,8 +115,8 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = fals
     try {
       const signUpSMS = httpsCallable(functions, "signUpSMS")
       const result = await signUpSMS({ phoneNumber: testPhoneNumber })
-      
-      if (result.data?.status === 'success') {
+
+      if (result.data?.status === "success") {
         setSmsSent(true)
       } else {
         setPhoneError("Failed to send SMS. Please try again.")
@@ -196,13 +196,13 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = fals
 }
 
 export default function SignUp() {
-  const t = useTranslations("signup")
+  const t = useTranslations("signin") // Updated translation namespace
   const { signup } = useAuth()
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const [validatedPromoCode, setValidatedPromoCode] = useState<string | ''>('')
+  const [validatedPromoCode, setValidatedPromoCode] = useState<string | "">("")
   const [tokenAmount, setTokenAmount] = useState(50)
   const [promoApplied, setPromoApplied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -387,7 +387,7 @@ export default function SignUp() {
       setPromoApplied(true)
     } else {
       setTokenAmount(50)
-      setValidatedPromoCode('')
+      setValidatedPromoCode("")
       form.setValue("tokens", 50)
       form.setValue("promoCode", "")
       setPromoApplied(true)
@@ -585,9 +585,11 @@ export default function SignUp() {
 
                 {/* Promo Code Section */}
                 <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">Have a promo code?</h3>
+                  <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">
+                    {t("promoCodeSectionTitle")}
+                  </h3>
                   <p className="text-xs text-indigo-600 dark:text-indigo-300 mb-2">
-                    You already have 50 tokens as a welcome bonus!
+                    {t("promoCodeSectionDescription")}
                   </p>
                   <FormField
                     control={form.control}
@@ -598,7 +600,7 @@ export default function SignUp() {
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Enter promo code"
+                              placeholder={t("promoCodePlaceholder")}
                               className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
                               disabled={promoApplied}
                             />
@@ -610,15 +612,15 @@ export default function SignUp() {
                             onClick={handleApplyPromoCode}
                             disabled={promoApplied}
                           >
-                            Apply
+                            {t("applyPromoCode")}
                           </Button>
                         </div>
                         {promoApplied && (
                           <div className="mt-2">
                             <p className="text-sm text-green-600 dark:text-green-400">
                               {validatedPromoCode
-                                ? `Promo code "${validatedPromoCode}" applied! You received ${tokenAmount} tokens.`
-                                : `Default bonus applied! You received ${tokenAmount} tokens.`}
+                                ? `${t("promoCodeApplied", { promoCode: validatedPromoCode, tokenAmount: tokenAmount })}`
+                                : `${t("defaultBonusApplied", { tokenAmount: tokenAmount })}`}
                             </p>
                             <Button
                               type="button"
@@ -629,7 +631,7 @@ export default function SignUp() {
                                 form.setValue("promoCode", "")
                               }}
                             >
-                              Try a different code
+                              {t("tryDifferentCode")}
                             </Button>
                           </div>
                         )}
@@ -682,12 +684,12 @@ export default function SignUp() {
                 </LoadingButton>
 
                 <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-                  Already have an account?{" "}
+                  {t("alreadyHaveAccount")}
                   <Link
                     href="/signin"
                     className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                   >
-                    Sign in
+                    {t("signIn")}
                   </Link>
                 </div>
               </form>

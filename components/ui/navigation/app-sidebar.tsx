@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         isActive: pathname[1] === "retargeting",
       },
       { url: "/dashboard/orders", icon: Brain, title: t("nav.ai-orders"), isActive: pathname[1] === "orders" },
-      { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },
+    //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },
       { url: "/dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],
   }

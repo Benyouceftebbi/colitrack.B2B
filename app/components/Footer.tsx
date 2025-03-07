@@ -37,9 +37,9 @@ const Footer = () => {
   ];
 
   const contactInfo = [
-    { icon: Mail, text: 'contact@colitrack.com' },
-    { icon: Phone, text: '+1 (555) 123-4567' },
-    { icon: MapPin, text: '123 Innovation Street, Tech City, TC 12345' }
+    { icon: Mail, text: 'colitrackdz@gmail.com' },
+    { icon: Phone, text: '+1 (740) 971-2396' },
+    { icon: MapPin, text: "1111B S Governors Ave STE 26234, DoverDE ,19904" }
   ];
   useEffect(() => {
     const handleScroll = () => {

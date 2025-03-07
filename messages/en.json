@@ -401,11 +401,42 @@
     ]
   },
   "signin":{
+    "backToSignIn": "Back to Sign In",
+    "createAccount": "Create Account",
+    "getStarted": "Fill in your details to get started",
+    "firstName": "First Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "companyName": "Company Name",
+    "businessType": "Business Type",
+    "pleaseSpecify": "Please Specify",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "businessTypes": {
+      "ecommerce": "E-commerce",
+      "retail": "Retail",
+      "dropshipping": "Dropshipping",
+      "marketplace": "Marketplace",
+      "socialCommerce": "Social Commerce",
+      "other": "Other"
+    },
+    "promoCodeSectionTitle": "Have a promo code?",
+    "promoCodeSectionDescription": "You already have 50 tokens as a welcome bonus!",
+    "promoCodePlaceholder": "Enter promo code",
+    "applyPromoCode": "Apply",
+    "promoCodeApplied": "Promo code \"{promoCode}\" applied! You received {tokenAmount} tokens.",
+    "defaultBonusApplied": "Default bonus applied! You received {tokenAmount} tokens.",
+    "tryDifferentCode": "Try a different code",
+    "termsAgreement": "I agree to the ",
+    "termsLink": "Terms and Conditions",
+    "and": " and ",
+    "privacyLink": "Privacy Policy",
+    "createAccountButton": "Create Account",
+    "alreadyHaveAccount": "Already have an account? ",
     "backToHome": "Back to home",
     "welcomeBack": "Welcome back",
     "signInToContinue": "Sign in to your account to continue",
     "emailAddress": "Email address",
-    "password": "Password",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "signIn": "Sign in",
@@ -524,8 +555,9 @@
   }
   ,
   "retargeting": {
-    "messages":"messages",
-    "messages-description":"messages description",
+    "messages": "Retargeting",
+    "messages-description": "🎯✨ Boost your customer engagement with the Retargeting feature! 🚀 Easily reconnect with your past clients by sending personalized messages. 📲 Try it now and increase your sales effortlessly! 🔥🇩🇿",
+    
     "segment":"segment",
 
     "title": "Retargeting Campaign Ideas",
@@ -658,6 +690,10 @@
 },
 
 "messages": {
+  "messages": "Messages",
+"messages-description": "📦✨ Discover the Messages feature for shipping companies! 🚀 📲 Try it now and keep your clients informed effortlessly! 🔥🇩🇿",
+
+
   "Messages":"Messages",
     "message-center": "Message Center",
     "smart-notifications": "Smart Notifications",
