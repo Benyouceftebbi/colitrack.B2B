@@ -707,7 +707,7 @@
     "connect-delivery": "Connect your delivery service to enable tracking and automatic notifications.",
     "id": "ID",
     "messages-sent-today": "Messages sent today",
-    "delivery-updates-count": "Delivery updates",
+    "delivery-updates-count": "Delivered Packages",
     "success-rate": "Success rate",
     "settings": "Settings",
     "info": "Information",

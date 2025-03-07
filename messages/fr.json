@@ -29,7 +29,7 @@
         "messageTemplate":"Votre colis (#CT12345) est en route ! Livraison estimée : 14h00 - 16h00 aujourd'hui. Suivez ici : https://colitrack-v1.vercel.app/fr/t?tr=yal-AYET67"
       },
       "delivery": {
-        "title": "Mises à Jour de Livraison",
+        "title": "Colis Livrés",
         "description": "Informez les clients lorsque leur commande est en cours de livraison avec les coordonnées du chauffeur.",
         "inputLabel": "Entrez votre numéro pour recevoir une mise à jour de livraison",
         "messageTemplate":"Votre commande est en cours de livraison ! Votre chauffeur John (555-0123) arrivera entre 14h00 et 16h00. Des questions ? Répondez à ce message."
@@ -715,7 +715,7 @@
   "connect-delivery": "Connectez votre service de livraison pour activer le suivi et les notifications automatiques.",
   "id": "ID",
   "messages-sent-today": "Messages envoyés aujourd'hui",
-  "delivery-updates-count": "Mises à jour de livraison",
+  "delivery-updates-count": "Colis Livrés",
   "success-rate": "Taux de réussite",
   "settings": "Paramètres",
   "info": "Informations",
