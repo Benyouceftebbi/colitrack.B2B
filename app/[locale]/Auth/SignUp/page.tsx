@@ -407,7 +407,7 @@ export default function SignUp() {
       {isLoading && <LoadingOverlay />}
 
       <div className="max-w-2xl w-full">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-8 group">
+        <Button variant="ghost" onClick={() => router.replace('/')} className="mb-8 group">
           <ArrowLeft className="w-4 h-4 mr-2 transform transition-transform group-hover:-translate-x-1" />
           {t("backToSignIn")}
         </Button>
