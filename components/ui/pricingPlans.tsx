@@ -11,8 +11,10 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
 import { collection, addDoc, onSnapshot } from "firebase/firestore"
-import { db } from "@/firebase/firebase"
+import { db, functions } from "@/firebase/firebase"
 import { LoadingButton } from "@/components/ui/LoadingButton"
+import { httpsCallable } from "firebase/functions"
+import { toast } from "@/hooks/use-toast"
 
 const plans = [
   {
@@ -58,6 +60,7 @@ const plans = [
   },
 
   {
+    id:'senderId',
     name: "sender-id",
     pricet: 10000,
     features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support","per-year"],
@@ -69,7 +72,7 @@ const plans = [
 export function PricingPlans({ className }: { className?: string }) {
   const [senderID, setSenderID] = useState("")
   const t = useTranslations("billing")
-  const {shopData}=useShop()
+  const {shopData,setShopData}=useShop()
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
 
   const handleSenderIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +81,7 @@ export function PricingPlans({ className }: { className?: string }) {
 
   const createCheckoutSession = async (id: string) => {
 
-      if(id){     
+      if(id!='senderId'){     
         
       setLoadingStates(prev => ({ ...prev, [id]: true }))
       const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions");
@@ -102,6 +105,46 @@ export function PricingPlans({ className }: { className?: string }) {
           setLoadingStates(prev => ({ ...prev, [id]: false }))
         }
       });
+    }
+    else{
+      try {
+        setLoadingStates(prev => ({ ...prev, [id]: true }))
+        const requestSenderId = httpsCallable(functions, 'requestSenderId')
+        const result = await requestSenderId({ senderId: senderID })
+        const response = result.data as any
+
+        if (response.status === 'success') {
+          setShopData((prev) => ({
+            ...prev,
+            tokens: response.data.newTokens,
+            senderIdRequest: {
+              status: "pending",
+              requestDate: new Date(),
+              expectedDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+              senderId: senderID
+            }
+          }))
+          toast({
+            title:"success",
+            description: response.message,
+            variant: "default"
+          })
+        } else {
+          toast({
+            title:"error",
+            description: response.message,
+            variant: "destructive"
+          })
+        }
+      } catch (error) {
+        toast({
+          title:"error",
+          description:t("something-went-wrong"),
+          variant: "destructive"
+        })
+      } finally {
+        setLoadingStates(prev => ({ ...prev, [id]: false }))
+      }
     }
   };
 
@@ -164,8 +207,13 @@ export function PricingPlans({ className }: { className?: string }) {
                 variant={plan.popular ? "default" : plan.special ? "secondary" : "outline"}
                 onClick={() => createCheckoutSession(plan.id)}
                 loading={loadingStates[plan.id] || false}
+                disabled={plan.id === 'senderId' && (shopData.senderId || shopData.senderIdRequest)}
               >
-                <span className="text-sm">{t("proceed")}</span>
+                <span className="text-sm">
+                 
+                 
+                {t("proceed")}
+                </span>
               </LoadingButton>
             </CardContent>
           </Card>
