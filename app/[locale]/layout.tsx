@@ -8,6 +8,7 @@ import { ThemeProvider } from '../context/theme-provider';
 import { AuthProvider } from '../context/AuthContext';
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
+import FacebookPixel from '@/components/FacebookPixel';
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -52,6 +53,15 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+              <noscript
+          dangerouslySetInnerHTML={{
+            __html: `
+              <img height="1" width="1" style="display:none"
+              src="https://www.facebook.com/tr?id=992156329733178&ev=PageView&noscript=1" />
+            `,
+          }}
+        />
+              <FacebookPixel pixelId="992156329733178" />
             <AuthProvider>
               {children}
             <Toaster />
