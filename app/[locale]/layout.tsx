@@ -57,11 +57,11 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               <img height="1" width="1" style="display:none"
-              src="https://www.facebook.com/tr?id=992156329733178&ev=PageView&noscript=1" />
+              src="https://www.facebook.com/tr?id=613067405045316&ev=PageView&noscript=1" />
             `,
           }}
         />
-              <FacebookPixel pixelId="992156329733178" />
+              <FacebookPixel pixelId="613067405045316" />
             <AuthProvider>
               {children}
             <Toaster />
