@@ -395,7 +395,7 @@ export default function Dashboard() {
               variant="outline"
               size="sm"
               className="text-xs sm:text-sm w-full sm:w-auto"
-              onClick={() => updateShopAnalytics(shopData.id)}
+              
             >
               {t("export-data")}
             </Button>
