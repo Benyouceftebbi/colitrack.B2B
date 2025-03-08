@@ -38,11 +38,11 @@ export default function RetargetingCampaign() {
         )}
 
         {showInfoDiv && (
-          <div className="bg-[#faf5ff] p-4 rounded-lg relative">
+          <div className="bg-[#faf5ff] dark:bg-slate-800/50 p-4 rounded-lg relative">
             <Button
               variant="secondary"
               size="icon"
-              className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full bg-white/80 hover:bg-white"
+              className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/80 dark:hover:bg-slate-700"
               onClick={() => setShowInfoDiv(false)}
               aria-label="Close info section"
             >
@@ -65,14 +65,14 @@ export default function RetargetingCampaign() {
               </div>
               <div className="w-full sm:w-5/6">
                 <h3 className="text-lg font-semibold mb-2">{t("messages")}</h3>
-                <p className="text-sm text-gray-600">{t("messages-description")}</p>
+                <p className="text-sm text-gray-600 dark:text-slate-300">{t("messages-description")}</p>
               </div>
             </div>
           </div>
         )}
 
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold neon-text">{t("messageHistory")}</h2>
+          <h2 className="text-2xl font-semibold neon-text dark:text-indigo-300">{t("messageHistory")}</h2>
           <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
             <DialogTrigger asChild>
               <Button variant="neon">{t("createNewCampaign")}</Button>

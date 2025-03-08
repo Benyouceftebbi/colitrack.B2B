@@ -1,7 +1,6 @@
 "use client"
 
-import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star } from "lucide-react"
-import Link from "next/link"
+import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star, X, Eye } from "lucide-react"
 import * as React from "react"
 import { useRouter } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
@@ -27,6 +26,12 @@ import { columns } from "./messages/message-center/sms-history/columns"
 type AlgeriaDataItem = {
   name: string
   value: number
+}
+
+type ChartData = {
+  month: string
+  totalSmsOfOneTapLink: number
+  totalSmsSentInCampaign: number
 }
 
 const columnHelper = createColumnHelper<AlgeriaDataItem>()
@@ -108,6 +113,7 @@ export default function Dashboard() {
   const router = useRouter()
   const [progress, setProgress] = React.useState(13)
   const [showHelp, setShowHelp] = React.useState(false)
+  const [showInfoDiv, setShowInfoDiv] = React.useState(true)
   const { theme } = useTheme()
   const { shopData } = useShop()
   const chartData = React.useMemo<ChartData[]>(() => {
@@ -174,8 +180,8 @@ export default function Dashboard() {
   })
   const currentDate = new Date()
   const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
-  console.log('zakamo123',yearMonth);
-  
+  console.log("zakamo123", yearMonth)
+
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
 
   const currentMonth = React.useMemo(() => {
@@ -336,6 +342,52 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+        {!showInfoDiv && (
+          <div className="flex justify-end mb-4">
+            <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowInfoDiv(true)}>
+              <Eye className="h-4 w-4" />
+              Show Info Section
+            </Button>
+          </div>
+        )}
+
+        {showInfoDiv && (
+          <div className="bg-[#faf5ff] dark:bg-slate-800/50 p-4 rounded-lg relative">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/80 dark:hover:bg-slate-700"
+              onClick={() => setShowInfoDiv(false)}
+              aria-label="Close info section"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+              <div className="w-full sm:w-1/6">
+                <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/ynSsw6D5gFg"
+                    title="Dashboard Tutorial Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                </div>
+              </div>
+              <div className="w-full sm:w-5/6">
+                <h3 className="text-lg font-semibold mb-2">{t("dashboard-overview")}</h3>
+                <p className="text-sm text-gray-600 dark:text-slate-300">
+                  {t("dashboard-description") ||
+                    "This dashboard provides an overview of your SMS messaging analytics and performance metrics. Watch the video for a quick tutorial on how to use the dashboard features."}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("dashboard-overview")}</h1>
           <div className="flex items-center gap-2">
