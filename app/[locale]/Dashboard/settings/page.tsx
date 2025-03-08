@@ -17,7 +17,7 @@ export default function Component() {
   console.log("shop", shopData)
   const t = useTranslations("settings")
   const { toast } = useToast()
-  const [showInfoDiv, setShowInfoDiv] = useState(true)
+  const [showInfoDiv, setShowInfoDiv] = useState(false)
   const [shippingProviders, setShippingProviders] = useState<Array<{ provider: string; language: string }>>(() => {
     if (shopData.deliveryCompany && shopData.lng) {
       return [
@@ -106,7 +106,7 @@ export default function Component() {
 
             {!showInfoDiv && (
               <div className="flex justify-end mb-4">
-                <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowInfoDiv(true)}>
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowInfoDiv(false)}>
                   <Eye className="h-4 w-4" />
                   Show Info Section
                 </Button>
