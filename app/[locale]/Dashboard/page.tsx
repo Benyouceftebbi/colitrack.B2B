@@ -180,9 +180,15 @@ export default function Dashboard() {
   })
   const currentDate = new Date()
   const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
-  console.log("zakamo123", yearMonth)
+
+  
+  console.log("zakamo123", shopData?.analytics?.returnRateByWeek)
 
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
+  console.log('',currentWeek);
+    console.log("zakamo123", shopData?.analytics?.returnRateByWeek)
+
+    //console.log("zakamo", shopData?.analytics?.returnRateByWeek[currentWeek])
 
   const currentMonth = React.useMemo(() => {
     return new Date().toLocaleString("default", { month: "long" })
@@ -191,6 +197,7 @@ export default function Dashboard() {
   const lastMonth = React.useMemo(() => {
     return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString("default", { month: "long" })
   }, [])
+console.log('..',yearMonth);
 
   const currentMonthSms = React.useMemo(() => {
     return shopData.analytics?.[currentMonth]?.totalSmsSent || 0
@@ -440,7 +447,7 @@ export default function Dashboard() {
                     {t("total-messages")}
                   </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] || 0}
+                    {shopData?.analytics?.totalMessagesByMonth[yearMonth] || 0}
                   </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
@@ -496,7 +503,7 @@ export default function Dashboard() {
                     {t("return-rate")}
                   </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {shopData?.analytics?.returnRateByWeek[currentWeek] || 0}%
+                    {/*shopData?.analytics?.returnRateByWeek[currentWeek] || 0*/}%
                   </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
@@ -507,13 +514,13 @@ export default function Dashboard() {
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                   <span className="text-red-600 flex items-center">
                     <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    {t("return-rate-change", {
+                    {/*t("return-rate-change", {
                       value:
                         shopData?.analytics?.returnRateByWeek[currentWeek] -
                         shopData?.analytics?.returnRateByWeek[
                           `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7) - 1).padStart(2, "0")}`
                         ],
-                    })}
+                    })*/}
                   </span>
                 </div>
               </div>
