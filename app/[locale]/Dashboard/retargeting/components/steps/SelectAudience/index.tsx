@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ClientGroupSelector } from "./ClientGroupSelector"
@@ -35,7 +35,7 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
     } else {
       campaign.excelFile = null
     }
-  }, [campaign.audienceSource, campaign]) // Added campaign dependency
+  }, [campaign.audienceSource, campaign])
 
   const handleAudienceSourceChange = (value: "group" | "excel") => {
     campaign.setAudienceSource(value)
@@ -43,44 +43,59 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
 
   return (
     <div className="space-y-3">
-
-      <div className="space-y-2">
-        <Label htmlFor="campaign-name">{t("campaignName")}</Label>
-        <Input
-          id="campaign-name"
-          value={campaign.campaignName}
-          onChange={(e) => campaign.setCampaignName(e.target.value)}
-          placeholder={t("enterCampaignName")}
-          className="mb-4"
-        />
-      </div>
       <Card>
-        <CardContent className="pt-4 space-y-6">
-          <div className="space-y-4">
-            <Label>{t("selectAudienceSource")}</Label>
-            <RadioGroup
-              value={campaign.audienceSource}
-              onValueChange={handleAudienceSourceChange}
-              className="space-y-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="group" id="group" />
-                <Label htmlFor="group">{t("selectClientGroup")}</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="excel" id="excel" />
-                <Label htmlFor="excel">{t("uploadExcelFile")}</Label>
-              </div>
-            </RadioGroup>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-medium">{t("campaignName")}</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="relative">
+            <Input
+              id="campaign-name"
+              value={campaign.campaignName}
+              onChange={(e) => campaign.setCampaignName(e.target.value)}
+              placeholder={t("enterCampaignName")}
+              className="pr-8 font-medium text-primary"
+            />
+            <Star className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
+        </CardContent>
+      </Card>
 
-          {campaign.audienceSource === "group" ? (
-            <ClientGroupSelector campaign={campaign} />
-          ) : (
-            <ExcelFileUploader campaign={campaign} />
-          )}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-medium flex items-center">
+            <span>{t("selectAudienceSource")}</span>
+            {campaign.campaignName && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">{`for "${campaign.campaignName}"`}</span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-6">
+          <RadioGroup
+            value={campaign.audienceSource}
+            onValueChange={handleAudienceSourceChange}
+            className="space-y-2 pt-2"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="group" id="group" />
+              <Label htmlFor="group">{t("selectClientGroup")}</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="excel" id="excel" />
+              <Label htmlFor="excel">{t("uploadExcelFile")}</Label>
+            </div>
+          </RadioGroup>
+
+          <div className="pt-2">
+            {campaign.audienceSource === "group" ? (
+              <ClientGroupSelector campaign={campaign} />
+            ) : (
+              <ExcelFileUploader campaign={campaign} />
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
   )
 }
+

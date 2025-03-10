@@ -96,7 +96,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         <Progress value={progressPercentage} className={progressPercentage > 90 ? "bg-amber-100" : ""} />
 
         <p className="text-sm text-muted-foreground">
-          {t("estimatedCost")} {campaign.totalCost} DZD
+          {t("estimatedCost")} {campaign.totalCost} Tkn
         </p>
 
         <div className="text-xs text-muted-foreground">
