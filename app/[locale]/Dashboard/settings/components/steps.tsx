@@ -204,9 +204,9 @@ export function Steps({
             {!isMobile && (
               <Sidebar className="w-full md:w-72 border-b md:border-r border-r-0 bg-muted/50 dark:bg-muted/20 flex flex-col">
                 <div className="p-4 border-b dark:border-border">
-                  <h2 className="text-lg font-semibold">{t("setup-process") || "Setup Process"}</h2>
+                  <h2 className="text-lg font-semibold">{t("setup-process")}</h2>
                   <p className="text-sm text-muted-foreground">
-                    {t("complete-all-steps") || "Complete all steps to finish setup"}
+                    {t("complete-all-steps")}
                   </p>
                 </div>
                 <SidebarContent className="flex-1 overflow-y-auto py-6 flex items-center justify-center">
@@ -262,7 +262,7 @@ export function Steps({
                 </SidebarContent>
                 <div className="p-4 border-t">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">{t("progress") || "Progress"}</span>
+                    <span className="text-sm font-medium">{t("progress")}</span>
                     <span className="text-xs font-medium">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
                   </div>
                   <Progress value={((currentStep + 1) / steps.length) * 100} className="h-2" />
@@ -274,10 +274,10 @@ export function Steps({
                 <div className="w-full bg-muted/50 dark:bg-muted/20 p-4 border-b dark:border-border">
                   <div className="mb-2 flex justify-between items-center">
                     <h3 className="text-sm font-medium">
-                      {t("current-step") || "Current Step"}: {currentStep + 1}/{steps.length}
+                      {t("current-step")}: {currentStep + 1}/{steps.length}
                     </h3>
                     <span className="text-xs text-muted-foreground">
-                      {Math.round(((currentStep + 1) / steps.length) * 100)}% {t("complete") || "complete"}
+                      {Math.round(((currentStep + 1) / steps.length) * 100)}% {t("complete")}
                     </span>
                   </div>
                   <div
