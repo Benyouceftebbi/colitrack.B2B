@@ -636,7 +636,10 @@
   "sent": "تم الإرسال",
   "failed": "فشل"
 },
+
 "settings": {
+  "current-step":"الخطوة الحالية",
+  "complete":"مكتمل",
   "setup-process": "عملية الإعداد",
   "complete-all-steps": "أكمل جميع الخطوات",
   "progress": "التقدم",

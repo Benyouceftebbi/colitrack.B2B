@@ -563,6 +563,8 @@
 },
 
 "settings": {
+  "current-step":"Étape actuelle",
+  "complete":"Complète",
   "setup-process": "Processus d'installation",
   "complete-all-steps": "Complétez toutes les étapes",
   "progress": "Progression",

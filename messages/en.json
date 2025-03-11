@@ -638,6 +638,8 @@
 },
 
 "settings": {
+  "current-step":"Current Step",
+  "complete":"Complete",
   "setup-process":"Setup Process",
    "complete-all-steps":"Complete All Steps",
    "progress":"progress",

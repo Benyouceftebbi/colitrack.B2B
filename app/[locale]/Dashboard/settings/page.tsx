@@ -140,7 +140,7 @@ export default function Component() {
                 <Button
                   variant="outline"
                   className="flex items-center gap-2 text-sm md:text-base"
-                  onClick={() => setShowInfoDiv(true)}
+                  onClick={() => setShowInfoDiv(false)}
                 >
                   <Eye className="h-4 w-4" />
                   <span className="hidden sm:inline">Show Info Section</span>
