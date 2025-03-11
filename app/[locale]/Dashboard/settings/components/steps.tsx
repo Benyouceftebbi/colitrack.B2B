@@ -112,7 +112,7 @@ export function Steps({
       }
       submissionData.lng = language
 
-      if (provider === "Yalidin Express") {
+      if (provider === "Yalidin Express" || provider === "Gupex") {
         if (!data.apiId || !data.apiToken) {
           throw new Error(t("yalidin-credentials-required"))
         }
@@ -123,7 +123,7 @@ export function Steps({
         submissionData.accessKey = data.apiKey
       }
 
-      const requiredFields = provider === "Yalidin Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+      const requiredFields = (provider === "Yalidin Express" || provider === "Gupex") ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
 
       const missingFields = requiredFields.filter((field) => !submissionData[field])
       if (missingFields.length > 0) {
@@ -327,7 +327,7 @@ toast({
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {provider === "Yalidin Express" && currentStep === steps.length - 3 ? (
+                {(provider === "Yalidin Express" || provider === "Gupex") && currentStep === steps.length - 3 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input value={name} readOnly className="bg-muted flex-grow text-lg" />
@@ -409,7 +409,7 @@ toast({
                 ) : null}
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    {provider === "Yalidin Express" ? (
+                    {(provider === "Yalidin Express" || provider === "Gupex") ? (
                       <>
                         <div>
                           <label htmlFor="apiId" className="block text-lg font-medium text-gray-700 mb-2">

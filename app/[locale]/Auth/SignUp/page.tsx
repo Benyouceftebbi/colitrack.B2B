@@ -691,17 +691,20 @@ export default function SignUp() {
                   {t("createAccountButton")}
                 </LoadingButton>
 
-                <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-                  {t("alreadyHaveAccount")}
-                  <Link
-                    href="/signin"
-                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >
-                    {t("signIn")}
-                  </Link>
-                </div>
+               
               </form>
             </Form>
+            <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+            <p className="text-gray-600 dark:text-gray-300">
+      {t("alreadyHaveAccount")}
+      <button
+        onClick={() => router.replace('/')}
+        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+      >
+        {t("signIn")}
+      </button>
+      </p>
+    </div>
           </div>
         </div>
         {isModalOpen && (

@@ -67,7 +67,55 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
       {
         title: "Enter Configuration Details",
-        description: "Enter the required configuration details for Yalidine Express (You can get those info from ).",
+        description: "Enter the required configuration details for Yalidine Express (You can get those info from the previous step ).",
+        image: webhookConfig,
+      },
+      {
+        title: "Finalize Setup",
+        description: "Review your information and finalize the setup.",
+      },
+    ],
+  },
+  "Gupex": {
+    name: "Gupex",
+    fields: {
+      apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
+      apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Login to Gupex",
+        description:
+          "Visit https://guepex.app/app/login.php and log in to your account. If you don't have an account yet, you'll need to register first.",
+        image: yalidineLoginImage,
+      },
+      {
+        title: "Navigate to Development",
+        description: "Open the hamburger menu, then click on 'Development' to access developer options.",
+        image: yalidineDevelopmentImage,
+      },
+      {
+        title: "Access Webhook Settings",
+        description: "Click on 'Gérer les webhooks' to navigate to the webhook creation screen.",
+        image: yalidineDevelopmentImage2,
+      },
+      {
+        title: "Create New Webhook",
+        description:
+          "Follow the on-screen instructions to create a new webhook. Fill in the required information in the input fields.",
+      },
+      {
+        title: "Copy Webhook Information",
+        description:
+          "Copy the name, email and link provided below and use them to set up your webhook in the Gupex interface, Set the 'Type d'évènement' to the option parcel_status_updated ",
+      },
+      {
+        title: "Enter Configuration Details",
+        description: "Enter the required configuration details for Gupex (You can get those info from the previous step).",
         image: webhookConfig,
       },
       {

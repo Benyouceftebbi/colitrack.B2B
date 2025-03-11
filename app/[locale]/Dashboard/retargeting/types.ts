@@ -34,6 +34,7 @@ export type ExcelData = {
 }
 
 export type RetargetingCampaignHook = {
+  compaignName:string
   message: string
   setMessage: (message: string) => void
   excelData: ExcelData | null

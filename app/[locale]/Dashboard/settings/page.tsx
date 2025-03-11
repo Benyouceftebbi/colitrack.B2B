@@ -37,6 +37,7 @@ export default function Component() {
   const providerImages = {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
+    "Gupex":"https://www.guepex.com/assets/images/logo/logo-dark.webp",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
     "Go livri": "https://www.golivri.dz/assets/img/logo.png",
     "Maystero Delivery": "https://maystro-delivery.com/img/logo.svg",
@@ -245,6 +246,7 @@ export default function Component() {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                   "Yalidin Express",
+                  "Gupex",
                   "DHD",
                   "UPS",
                   "Go livri",

@@ -559,7 +559,7 @@
   "retargeting": {
     "messages": "Retargeting",
     "messages-description": "🎯✨ Boost your customer engagement with the Retargeting feature! 🚀 Easily reconnect with your past clients by sending personalized messages. 📲 Try it now and increase your sales effortlessly! 🔥🇩🇿",
-    
+    "noMessagesTitle":"No Messages Found",
     "segment":"segment",
 
     "title": "Retargeting Campaign Ideas",

@@ -484,7 +484,7 @@
   "retargeting": {
     "messages": "Reciblage",
 "messages-description": "🎯✨ Améliorez l’engagement de vos clients avec la fonctionnalité de reciblage ! 🚀 Recontactez facilement vos anciens clients avec des messages personnalisés. 📲 Essayez-le maintenant et augmentez vos ventes sans effort ! 🔥🇩🇿",
-
+"noMessagesTitle":  "Aucun message trouvé",
     "segment":"segment",
     "title": "Idées de campagnes de retargeting",
     "specialDiscount": "Remise spéciale pour les clients fidèles",

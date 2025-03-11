@@ -3,21 +3,50 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Download, ArrowDown, ArrowUp } from "lucide-react"
+import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { SentMessage } from "../types"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-type SortField = "campaignName" | "date" | "recipients" | "messageCount" | "totalCost" | "content" | "status"
+type SortField = "compaignName" | "date" | "recipients" | "messageCount" | "totalCost" | "content" | "status"
 type SortDirection = "asc" | "desc"
 
 type MessageHistoryProps = {
   sentMessages: SentMessage[]
   exportToExcel: (message: SentMessage) => void
+}
+
+function SortableHeader({ field, children }: { field: SortField; children: React.ReactNode }) {
+  const t = useTranslations("retargeting")
+  const [sortField, setSortField] = useState<SortField>("date")
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // Toggle direction if clicking the same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      // Set new field and default to ascending
+      setSortField(field)
+      setSortDirection("asc")
+    }
+  }
+
+  const isSorted = sortField === field
+  const direction = isSorted ? (sortDirection === "asc" ? "ascending" : "descending") : undefined
+
+  return (
+    <TableHead className="cursor-pointer group" onClick={() => handleSort(field)}>
+      <div className="flex items-center justify-between">
+        {children}
+        {isSorted && <span className="ml-2">{direction === "ascending" ? "▲" : "▼"}</span>}
+      </div>
+    </TableHead>
+  )
 }
 
 export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryProps) {
@@ -41,8 +70,8 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
       let comparison = 0
 
       switch (sortField) {
-        case "campaignName":
-          comparison = a.campaignName.localeCompare(b.campaignName)
+        case "compaignName":
+          comparison = a.compaignName.localeCompare(b.compaignName)
           break
         case "date":
           comparison = a.date.toDate().getTime() - b.date.toDate().getTime()
@@ -104,46 +133,46 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
 
   if (sentMessages.length === 0) {
     return (
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle>{t("noMessagesTitle")}</CardTitle>
-       {/*   <CardDescription>{t("noMessagesDescription")}</CardDescription>*/}
-        </CardHeader>
+      <Card className="overflow-hidden border">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                  <TableHead className="font-semibold">{t("campaignName")}</TableHead>
+                  <TableHead className="font-semibold">{t("date")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("recipients")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("messageCount")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("totalCost")}</TableHead>
+                  <TableHead className="font-semibold">{t("content")}</TableHead>
+                  <TableHead className="font-semibold">{t("status")}</TableHead>
+                  <TableHead className="font-semibold">{t("actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                      <p>{t("noMessagesTitle") || "No data found"}</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
       </Card>
     )
   }
 
-  const renderSortIcon = (field: SortField) => {
-    if (sortField !== field) return null
-
-    return sortDirection === "asc" ? (
-      <ArrowUp className="ml-1 h-4 w-4 inline" />
-    ) : (
-      <ArrowDown className="ml-1 h-4 w-4 inline" />
-    )
-  }
-
-  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <TableHead
-      className="font-semibold cursor-pointer hover:text-primary transition-colors"
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center">
-        {children}
-        {renderSortIcon(field)}
-      </div>
-    </TableHead>
-  )
-
   return (
     <Card className="overflow-hidden border">
-  
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <SortableHeader field="campaignName">{t("campaignName")}</SortableHeader>
+                <SortableHeader field="compaignName">{t("campaignName")}</SortableHeader>
                 <SortableHeader field="date">{t("date")}</SortableHeader>
                 <SortableHeader field="recipients">
                   <div className="text-right w-full">{t("recipients")}</div>
@@ -160,41 +189,51 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedMessages.map((msg) => (
-                <TableRow key={msg.id} className="hover:bg-muted/30 transition-colors border-b last:border-b-0">
-                  <TableCell className="font-medium">{msg.campaignName}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(msg.date.toDate()).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-right">{msg.recipients.length}</TableCell>
-                  <TableCell className="text-right">{msg.messageCount}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(msg.totalCost)}</TableCell>
-                  <TableCell className="max-w-xs">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="truncate max-w-[200px]">{msg.content}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-md">
-                          <p>{msg.content}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(msg.status)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => exportToExcel(msg)}
-                      className="transition-all hover:bg-primary hover:text-primary-foreground"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {t("export")}
-                    </Button>
+              {sortedMessages.length > 0 ? (
+                sortedMessages.map((msg) => (
+                  <TableRow key={msg.id} className="hover:bg-muted/30 transition-colors border-b last:border-b-0">
+                    <TableCell className="font-medium">{msg.compaignName}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(msg.date.toDate()).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">{msg.recipients.length}</TableCell>
+                    <TableCell className="text-right">{msg.messageCount}</TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(msg.totalCost)}</TableCell>
+                    <TableCell className="max-w-xs">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="truncate max-w-[200px]">{msg.content}</div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-md">
+                            <p>{msg.content}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(msg.status)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => exportToExcel(msg)}
+                        className="transition-all hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {t("export")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                      <p className="text-sm">{t("noMessagesTitle") || "No data found"}</p>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
