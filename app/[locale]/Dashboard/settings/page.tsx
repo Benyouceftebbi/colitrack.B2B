@@ -50,15 +50,13 @@ export default function Component() {
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   useEffect(() => {
-    // Check if user prefers dark mode
+    // Only detect the initial preference, don't modify the DOM
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
-    document.documentElement.classList.toggle("dark", prefersDarkMode)
     setIsDarkMode(prefersDarkMode)
 
     // Listen for changes in color scheme preference
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
     const handleChange = (e) => {
-      document.documentElement.classList.toggle("dark", e.matches)
       setIsDarkMode(e.matches)
     }
 
@@ -224,7 +222,10 @@ export default function Component() {
                   variant="outline"
                   size="sm"
                   className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={addShippingProvider}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    addShippingProvider()
+                  }}
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   {t("addProvider")}
@@ -307,7 +308,10 @@ export default function Component() {
                     key={provider}
                     variant="outline"
                     className="h-auto p-2 md:p-4 flex flex-col items-center gap-1 md:gap-2 border dark:border-border"
-                    onClick={() => setSelectedProvider(provider)}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setSelectedProvider(provider)
+                    }}
                   >
                     <div className="w-10 h-10 md:w-16 md:h-16 flex items-center justify-center overflow-hidden">
                       <img
