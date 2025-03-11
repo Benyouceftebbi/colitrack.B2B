@@ -71,7 +71,7 @@ export function Steps({
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [language, setLanguage] = useState<string | null>(shopData.lng || null)
-  
+
   const {
     register,
     handleSubmit,
@@ -80,6 +80,25 @@ export function Steps({
 
   const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
   const steps = config.steps
+
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  useEffect(() => {
+    // Check if user prefers dark mode
+    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+    document.documentElement.classList.toggle("dark", prefersDarkMode)
+    setIsDarkMode(prefersDarkMode)
+
+    // Listen for changes in color scheme preference
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleChange = (e) => {
+      document.documentElement.classList.toggle("dark", e.matches)
+      setIsDarkMode(e.matches)
+    }
+
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -123,7 +142,8 @@ export function Steps({
         submissionData.accessKey = data.apiKey
       }
 
-      const requiredFields = (provider === "Yalidin Express" || provider === "Gupex") ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+      const requiredFields =
+        provider === "Yalidin Express" || provider === "Gupex" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
 
       const missingFields = requiredFields.filter((field) => !submissionData[field])
       if (missingFields.length > 0) {
@@ -145,13 +165,13 @@ export function Steps({
         description: t("setup-success"),
       })
     } catch (error) {
-    // console.error("Error updating shipping information:", error)
-     
-toast({
-  title: t("error"),
-  description: String(error) || "An unexpected error occurred", // Ensure it's a string
-  variant: "destructive",
-});
+      // console.error("Error updating shipping information:", error)
+
+      toast({
+        title: t("error"),
+        description: String(error) || "An unexpected error occurred", // Ensure it's a string
+        variant: "destructive",
+      })
     }
   }
 
@@ -179,11 +199,11 @@ toast({
   return (
     <SidebarProvider>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-          <div className="flex flex-col md:flex-row h-full md:h-[700px] w-full md:w-[900px] mx-auto bg-background rounded-lg shadow-lg overflow-hidden">
+        <div className="flex items-center justify-center min-h-screen bg-background dark:bg-background p-4">
+          <div className="flex flex-col md:flex-row h-full md:h-[700px] w-full md:w-[900px] mx-auto bg-background dark:bg-background rounded-lg shadow-lg overflow-hidden border dark:border-border">
             {!isMobile && (
-              <Sidebar className="w-full md:w-72 border-b md:border-r border-r-0 bg-muted/50 flex flex-col">
-                <div className="p-4 border-b">
+              <Sidebar className="w-full md:w-72 border-b md:border-r border-r-0 bg-muted/50 dark:bg-muted/20 flex flex-col">
+                <div className="p-4 border-b dark:border-border">
                   <h2 className="text-lg font-semibold">{t("setup-process") || "Setup Process"}</h2>
                   <p className="text-sm text-muted-foreground">
                     {t("complete-all-steps") || "Complete all steps to finish setup"}
@@ -216,7 +236,7 @@ toast({
                                     ? "bg-primary border-primary text-primary-foreground"
                                     : index < currentStep
                                       ? "bg-primary border-primary text-primary-foreground"
-                                      : "bg-background border-gray-300"
+                                      : "bg-background dark:bg-muted border-gray-300 dark:border-gray-600"
                                 }`}
                               >
                                 {index < currentStep ? <Check className="h-5 w-5" /> : index + 1}
@@ -251,7 +271,7 @@ toast({
             )}
             <div className="flex-1 flex flex-col w-full">
               {isMobile && (
-                <div className="w-full bg-muted/50 p-4 border-b">
+                <div className="w-full bg-muted/50 dark:bg-muted/20 p-4 border-b dark:border-border">
                   <div className="mb-2 flex justify-between items-center">
                     <h3 className="text-sm font-medium">
                       {t("current-step") || "Current Step"}: {currentStep + 1}/{steps.length}
@@ -261,7 +281,7 @@ toast({
                     </span>
                   </div>
                   <div
-                    className="flex items-center gap-2 mb-3 overflow-x-auto pb-2"
+                    className="flex items-center gap-2 mb-3 overflow-x-auto pb-2 no-scrollbar"
                     style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
                   >
                     {steps.map((step, index) => (
@@ -330,7 +350,11 @@ toast({
                 {(provider === "Yalidin Express" || provider === "Gupex") && currentStep === steps.length - 3 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
-                      <Input value={name} readOnly className="bg-muted flex-grow text-lg" />
+                      <Input
+                        value={name}
+                        readOnly
+                        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+                      />
                       <Button
                         onClick={() => copyToClipboard(name, setCopiedName)}
                         className="flex items-center justify-center"
@@ -341,7 +365,11 @@ toast({
                       </Button>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Input value={webhookEmail} readOnly className="bg-muted flex-grow text-lg" />
+                      <Input
+                        value={webhookEmail}
+                        readOnly
+                        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+                      />
                       <Button
                         onClick={() => copyToClipboard(webhookEmail, setCopiedEmail)}
                         className="flex items-center justify-center"
@@ -352,7 +380,11 @@ toast({
                       </Button>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Input value={webhookLink} readOnly className="bg-muted flex-grow text-lg" />
+                      <Input
+                        value={webhookLink}
+                        readOnly
+                        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+                      />
                       <Button
                         onClick={() => copyToClipboard(webhookLink, setCopiedLink)}
                         className="flex items-center justify-center"
@@ -364,7 +396,7 @@ toast({
                     </div>
                   </div>
                 ) : steps[currentStep]?.image ? (
-                  <div className="relative w-full max-w-2xl aspect-[16/9] bg-muted rounded-lg overflow-hidden group">
+                  <div className="relative w-full max-w-2xl aspect-[16/9] bg-muted dark:bg-muted/30 rounded-lg overflow-hidden group">
                     {imageLoading && <Skeleton className="absolute inset-0 z-10" />}
                     <Image
                       src={steps[currentStep].image || "/placeholder.svg"}
@@ -409,10 +441,10 @@ toast({
                 ) : null}
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    {(provider === "Yalidin Express" || provider === "Gupex") ? (
+                    {provider === "Yalidin Express" || provider === "Gupex" ? (
                       <>
                         <div>
-                          <label htmlFor="apiId" className="block text-lg font-medium text-gray-700 mb-2">
+                          <label htmlFor="apiId" className="block text-lg font-medium mb-2">
                             {t("api-id")}
                           </label>
                           <Input
@@ -420,12 +452,12 @@ toast({
                             type="text"
                             placeholder={t("enter-api-id")}
                             {...register("apiId", { required: true })}
-                            className={`text-lg ${errors.apiId ? "border-red-500" : ""}`}
+                            className={`text-base md:text-lg ${errors.apiId ? "border-red-500" : ""}`}
                           />
                           {errors.apiId && <p className="mt-1 text-sm text-red-500">{t("api-id-required")}</p>}
                         </div>
                         <div>
-                          <label htmlFor="apiToken" className="block text-lg font-medium text-gray-700 mb-2">
+                          <label htmlFor="apiToken" className="block text-lg font-medium mb-2">
                             {t("api-token")}
                           </label>
                           <Input
@@ -433,14 +465,14 @@ toast({
                             type="text"
                             placeholder={t("enter-api-token")}
                             {...register("apiToken", { required: true })}
-                            className={`text-lg ${errors.apiToken ? "border-red-500" : ""}`}
+                            className={`text-base md:text-lg ${errors.apiToken ? "border-red-500" : ""}`}
                           />
                           {errors.apiToken && <p className="mt-1 text-sm text-red-500">{t("api-token-required")}</p>}
                         </div>
                       </>
                     ) : (
                       <div>
-                        <label htmlFor="apiKey" className="block text-lg font-medium text-gray-700 mb-2">
+                        <label htmlFor="apiKey" className="block text-lg font-medium mb-2">
                           {t("api-key")}
                         </label>
                         <Input
@@ -448,14 +480,14 @@ toast({
                           type="text"
                           placeholder={t("enter-api-key")}
                           {...register("apiKey", { required: true })}
-                          className={`text-lg ${errors.apiKey ? "border-red-500" : ""}`}
+                          className={`text-base md:text-lg ${errors.apiKey ? "border-red-500" : ""}`}
                         />
                         {errors.apiKey && <p className="mt-1 text-sm text-red-500">{t("api-key-required")}</p>}
                       </div>
                     )}
                     <div>
-                      <label htmlFor="language" className="block text-lg font-medium text-gray-700 mb-2">
-                       SMS {t("language")}
+                      <label htmlFor="language" className="block text-lg font-medium mb-2">
+                        SMS {t("language")}
                       </label>
                       <Select value={language || ""} onValueChange={(value) => setLanguage(value)}>
                         <SelectTrigger className="w-full text-lg">
@@ -478,19 +510,23 @@ toast({
                     onClick={handlePrevious}
                     disabled={currentStep === 0}
                     variant="outline"
-                    className="flex items-center gap-2 text-lg"
+                    className="flex items-center gap-1 md:gap-2 text-sm md:text-lg"
                     type="button"
                   >
-                    <ArrowLeft className="h-5 w-5" />
-                    {t("previous")}
+                    <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="hidden sm:inline">{t("previous")}</span>
                   </Button>
                   {currentStep < steps.length - 1 ? (
-                    <Button onClick={handleNext} className="flex items-center gap-2 text-lg" type="button">
-                      {t("next")}
-                      <ArrowRight className="h-5 w-5" />
+                    <Button
+                      onClick={handleNext}
+                      className="flex items-center gap-1 md:gap-2 text-sm md:text-lg"
+                      type="button"
+                    >
+                      <span className="hidden sm:inline">{t("next")}</span>
+                      <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
                     </Button>
                   ) : (
-                    <Button type="submit" className="bg-primary hover:bg-primary/90 text-lg">
+                    <Button type="submit" className="bg-primary hover:bg-primary/90 text-sm md:text-lg">
                       {t("finish-setup")}
                     </Button>
                   )}
@@ -500,6 +536,15 @@ toast({
           </div>
         </div>
       </form>
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </SidebarProvider>
   )
 }
