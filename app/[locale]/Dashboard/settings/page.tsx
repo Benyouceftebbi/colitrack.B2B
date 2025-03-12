@@ -69,27 +69,21 @@ export default function Component() {
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
     Gupex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
-    "Go livri": "https://www.golivri.dz/assets/img/logo.png",
-    "Maystero Delivery": "https://maystro-delivery.com/img/logo.svg",
-    "NOEST Express": "https://noest-dz.com/assets/img/logo_colors_new.png",
-    "BA CONSULT":
-      "https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-6/475111862_1099808351946474_2343518860893375878_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=86c6b0&_nc_ohc=qxQrg2l_5eYQ7kNvgGEYoQA&_nc_oc=AdhlWPB_h1C3oHJHXEYv-lQVYD0YUsnE4x07NEY699RZAqANI1YXUOig9WnONcvNr4U&_nc_zt=23&_nc_ht=scontent.falg7-1.fna&_nc_gid=AP_mcxO85CCInjpgEXNpflH&oh=00_AYCFOO8o2CffLeECa53RclQ89IVcMDpyS1lEyEwEgZPRZg&oe=67C95F1D",
-    Anderson: "https://andersonlogistique.com/medias/logo.png",
-    "WORLD Express":
-      "https://scontent.falg6-1.fna.fbcdn.net/v/t39.30808-1/434769415_722458340089641_9012205629968470051_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=108&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=r7YAOB2MUKsQ7kNvgHPaYRv&_nc_oc=AdiPLPfeUG4jpAz78iSdJY5CMHJEUClR8CazFK4JAzO0gaq4qM2EFqrlQf7dMjj7PJU&_nc_zt=24&_nc_ht=scontent.falg6-1.fna&_nc_gid=A-Dh7X3mD9NpMUpY-InAs11&oh=00_AYCEi_whG4ICiL88FJ2-F2M6R5CyG1DylFlxQaTQ2og70w&oe=67C93AE7",
+    "Go livri":"https://www.golivri.dz/assets/img/logo.png",
+    "Maystero Delivery":"https://maystro-delivery.com/img/logo.svg",
+    "NOEST Express":"https://noest-dz.com/assets/img/logo_colors_new.png",
+    "BA CONSULT":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2D63PFOQPrtLtQ2xZVR-BRByg9blYiqm4vA&s",
+    Anderson:"https://andersonlogistique.com/medias/logo.png",
+    "WORLD Express": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLZY6x8DaDX_SOfkyJX06QDjFdkZpL45vRwTdSPPqKROHsCQFqYC0o6B_IL0AJBmXJ6Uk&usqp=CAU",
     FRET: "https://www.fret.direct/images/logoFRETs.png",
-    "48H":
-      "https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-1/305769282_479708007506758_5994560203379088099_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=105&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=c3B2jxsWBS4Q7kNvgFn1IXW&_nc_oc=AdiYdW9zEBWfxhyhtPLfe7W0rBEIQ2k3FN6uH2tof6xVrXwk0DT5wJPo2EDLaPhTyH4&_nc_zt=24&_nc_ht=scontent.falg7-1.fna&_nc_gid=AYTFCCYI08wEpTejTO0FFRx&oh=00_AYBB02yaGJ_SwRRbnK8u0Pp-jKN7lbvWhoxw940VOqioLQ&oe=67C93DDC",
-    Packers:
-      "https://scontent.falg7-6.fna.fbcdn.net/v/t39.30808-1/293208422_413753410769695_2061037653088408367_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=106&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=t9Qwk0E9ABcQ7kNvgGdOtDZ&_nc_oc=AdioRj-gRvJA16BnTfdSemytVF6oxEEYhHfu5nqwe1_xi10JM16Eut5CH3b4ic4vR90&_nc_zt=24&_nc_ht=scontent.falg7-6.fna&_nc_gid=AEkoZBxmG1aBh5Wm3eY7ZuR&oh=00_AYCrZuHie8h5fsDyt5fRRsPwJqQts8geYtDbHyWaxBOjvA&oe=67C9388F",
+    NAVEX:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw8WbXWF7NuJKeikuhF98ZI58fJ5_kJLH_om3qE_HMRYayXZJxQXx2Qn56CpF6jTDfCzs&usqp=CAU",
+    "48H":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpvBI5915GAHfwbfd0K0cJkj7Ai5uAkVjLDA&s",
+    Packers:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ2VUy_Kw0lnmKeo-GgtTnsUy2NZvYkO86Dw&s",
     "Fast mail": "https://www.fastmaildz.com/images/logo.jpg",
-    "NEGMAR Express":
-      "https://scontent.falg6-2.fna.fbcdn.net/v/t39.30808-1/263758272_435108671603514_5845124433874265577_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=109&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=eRlOxHGFug0Q7kNvgH4AFoZ&_nc_oc=AdgMpI8HCcRae6ogXJUDNDeVHoI6gO3OSNi1Dg1HTXAxq0Vi04BFX6wWxUmqx0CO3jQ&_nc_zt=24&_nc_ht=scontent.falg6-2.fna&_nc_gid=A-Knn4X9gtpZx7HhTMiZx4L&oh=00_AYB2oAXqcrULM4BaBr2oD1y7vcENvvKJtqxQoRceHYf3LA&oe=67C947CA",
-    Expedia:
-      "https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-1/402021614_327699743341843_5588031550523391196_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=105&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=yWZGgWUhbQgQ7kNvgFNgN7G&_nc_oc=Adi1mC-9Aju87tsnq8k-yTMie68fTvtcE3XRRenHKdCI5ngstJPiR9ZATKxkCMtDyf0&_nc_zt=24&_nc_ht=scontent.falg7-1.fna&_nc_gid=A8RILBFur7JuAeyc7euhg-E&oh=00_AYBTUQxbtP99GEu24IOfWOdoEijZBDHi5ABPYo2RV-Dd3g&oe=67C96550",
-    "Rocket Delivery": "https://www.rocket-dz.com/assets/img/logo_white.png",
-    "MSM GO":
-      "https://scontent.falg6-2.fna.fbcdn.net/v/t39.30808-1/458740709_938179221669263_4771285373707372818_n.jpg?stp=dst-jpg_s480x480_tt6&_nc_cat=103&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=Y47KFaocfDcQ7kNvgGKmLpV&_nc_oc=AdiNNYeI7HBjQHc7jv1e5jQ_2tas4HokjZYzw9v8zwyQ10gcEdFXQp1X3lpwxJR9Qxo&_nc_zt=24&_nc_ht=scontent.falg6-2.fna&_nc_gid=AOi1SolIIVlf2Mkfs-mA55L&oh=00_AYAIqt7FwxvBrHijnaZmTCKwNdYmj6-BhadOoKECddHK3w&oe=67C968BE",
+    "NEGMAR Express":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPLpbiZjfLvVR71s-OEV8iTbHJxuT02xQ26w&s",
+    Expedia:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRol7hWuJm6Szh9barkJdXuIJH_f_I8CYigg&s",
+    "Rocket Delivery":"https://www.rocket-dz.com/assets/img/logo_white.png",
+    "MSM GO":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYAQJ8l-R2I2lii4WQ6bkZ7dySXLgMflsivg&s",
   }
 
   const addShippingProvider = () => {
@@ -296,6 +290,7 @@ export default function Component() {
                   "Anderson",
                   "WORLD Express",
                   "FRET",
+                  "NAVEX",
                   "48H",
                   "Packers",
                   "Fast mail",

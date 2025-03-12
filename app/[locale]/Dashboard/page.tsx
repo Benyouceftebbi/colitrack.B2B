@@ -136,7 +136,7 @@ export default function Dashboard() {
 
       result.push({
         month: monthName,
-        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0,
+        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.[yearMonth] || 0,
         totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign?.[yearMonth] || 0,
       })
     }
@@ -209,16 +209,17 @@ console.log('..',yearMonth);
 
   const percentageChange = React.useMemo(() => {
     return lastMonthSms > 0
-      ? ((shopData?.analytics?.totalMessagesByMonth?.SMS[yearMonth] -
-          shopData?.analytics?.totalMessagesByMonth?.SMS[
+      ? ((shopData?.analytics?.totalMessagesByMonth?.[yearMonth] -
+          shopData?.analytics?.totalMessagesByMonth?.[
             `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
           ]) /
-          shopData?.analytics?.totalMessagesByMonth?.SMS[
+          shopData?.analytics?.totalMessagesByMonth?.[
             `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
           ]) *
           100
-      : 0
-  }, [currentMonthSms, lastMonthSms])
+      : 0;
+  }, [currentMonthSms, lastMonthSms]);
+  
 
   const updateShopAnalytics = async (shopId: string) => {
     try {
@@ -477,7 +478,7 @@ console.log('..',yearMonth);
                     {t("total-sms-today")}
                   </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {shopData?.analytics?.smsSentToday || 0}
+                    {shopData?.analytics?.totalSMSSentToday || 0}
                   </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">

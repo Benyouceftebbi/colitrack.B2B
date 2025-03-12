@@ -127,7 +127,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
   DHD: {
     name: "DHD",
     fields: {
-      accessKey: { label: "Access Key", type: "text", placeholder: "Enter UPS Access Key" },
+      accessKey: { label: "Access Key", type: "text", placeholder: "Enter DHD Access Key" },
     },
     languageOptions: [
       { value: "fr", label: "Français" },
@@ -808,6 +808,52 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Integration Activated",
         description: "Congratulations! Your MSM GO integration has been activated.",
+        image: activated,
+      },
+      {
+        title: "View API Token",
+        description: "Access your API token, which you'll need to configure the integration in your system.",
+      },
+    ],
+  },
+  NAVEX: {
+    name: "NAVEX",
+    fields: {
+      accessKey: { label: "Access Key", type: "text", placeholder: "Enter NAVEX Delivery Access Key" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Start MSM Integration",
+        description: "Begin the NAVEX Delivery  integration process by accessing the integration page.",
+        image: stepOne,
+      },
+      {
+        title: "Enter Integration Details",
+        description: "Fill in the required integration details, including your company information.",
+        image: stepTwo,
+      },
+      {
+        title: "Provide Additional Information",
+        description: "Enter any additional information required for the NAVEX Delivery  integration.",
+        image: stepThree,
+      },
+      {
+        title: "Submit Integration Request",
+        description: "Review your information and submit the NAVEX Delivery  integration request.",
+        image: submitDhd,
+      },
+      {
+        title: "Await Approval",
+        description: "Your integration request is pending. Wait for NAVEX Delivery  to review and approve it.",
+        image: pending,
+      },
+      {
+        title: "Integration Activated",
+        description: "Congratulations! Your NAVEX Delivery  integration has been activated.",
         image: activated,
       },
       {
