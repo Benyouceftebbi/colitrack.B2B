@@ -63,6 +63,9 @@ console.log("path",params)
     }
 
     mediaQuery.addEventListener("change", handleChange)
+
+
+    
     if(!shopData.lng){
       setSelectedProvider("")
       setShowSetupModal(true)
