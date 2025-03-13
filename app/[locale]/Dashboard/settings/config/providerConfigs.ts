@@ -76,8 +76,8 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
     ],
   },
-  "Gupex": {
-    name: "Gupex",
+  "Guepex": {
+    name: "Guepex",
     fields: {
       apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
       apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
@@ -88,7 +88,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     ],
     steps: [
       {
-        title: "Login to Gupex",
+        title: "Login to Guepex",
         description:
           "Visit https://guepex.app/app/login.php and log in to your account. If you don't have an account yet, you'll need to register first.",
         image: yalidineLoginImage,
@@ -111,11 +111,11 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Copy Webhook Information",
         description:
-          "Copy the name, email and link provided below and use them to set up your webhook in the Gupex interface, Set the 'Type d'évènement' to the option parcel_status_updated ",
+          "Copy the name, email and link provided below and use them to set up your webhook in the Guepex interface, Set the 'Type d'évènement' to the option parcel_status_updated ",
       },
       {
         title: "Enter Configuration Details",
-        description: "Enter the required configuration details for Gupex (You can get those info from the previous step).",
+        description: "Enter the required configuration details for Guepex (You can get those info from the previous step).",
         image: webhookConfig,
       },
       {

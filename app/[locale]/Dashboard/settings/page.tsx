@@ -73,7 +73,7 @@ console.log("path",params)
   const providerImages = {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
-    Gupex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
+    Guepex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
     "Go livri":"https://www.golivri.dz/assets/img/logo.png",
     "Maystero Delivery":"https://maystro-delivery.com/img/logo.svg",
@@ -286,7 +286,7 @@ console.log("path",params)
               >
                 {[
                   "Yalidin Express",
-                  "Gupex",
+                  "Guepex",
                   "DHD",
                   "UPS",
                   "Go livri",
