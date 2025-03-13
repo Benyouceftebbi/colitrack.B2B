@@ -57,7 +57,7 @@ const formSchema = z
   })
 
 // Full-screen loading overlay component
-const LoadingOverlay = () => (
+export const LoadingOverlay = () => (
   <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col items-center">
       <svg

@@ -11,6 +11,8 @@ import { Steps } from "./components/steps"
 import { useShop } from "@/app/context/ShopContext"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
+import { getPathname, useRouter } from "@/i18n/routing"
+import { useSearchParams } from "next/navigation"
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
@@ -27,7 +29,6 @@ function useIsMobile() {
 
 export default function Component() {
   const { shopData } = useShop()
-  console.log("shop", shopData)
   const t = useTranslations("settings")
   const { toast } = useToast()
   const [showInfoDiv, setShowInfoDiv] = useState(false)
@@ -48,7 +49,8 @@ export default function Component() {
   const [showSetupModal, setShowSetupModal] = useState(false)
   const isMobile = useIsMobile()
   const [isDarkMode, setIsDarkMode] = useState(false)
-
+const params=useSearchParams()
+console.log("path",params)
   useEffect(() => {
     // Only detect the initial preference, don't modify the DOM
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -61,6 +63,10 @@ export default function Component() {
     }
 
     mediaQuery.addEventListener("change", handleChange)
+    if(!shopData.lng){
+      setSelectedProvider("")
+      setShowSetupModal(true)
+    }
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [])
 

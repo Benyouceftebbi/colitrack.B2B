@@ -15,10 +15,10 @@ import { useLocale } from "next-intl";
 import { AppSidebar } from "@/components/ui/navigation/app-sidebar"
 import { Separator } from "@/components/ui/separator";
 import {usePathname} from "@/i18n/routing";
-
+import { LoadingOverlay } from "../Auth/SignUp/page";
 import React from "react";
 import TopHeader from "@/components/ui/navigation/TopHeader";
-import { ShopProvider } from "@/app/context/ShopContext";
+import { ShopProvider} from "@/app/context/ShopContext";
 
 export default function DashboardLayout({
   children,
@@ -34,7 +34,7 @@ export default function DashboardLayout({
     return redirect({ href: "/Auth/SignIn", locale: locale });
   }
   if(isAuthenticated==undefined){
-    return <p>Loading.....</p>
+    return <LoadingOverlay/>
   }
   return ( 
 
@@ -71,6 +71,7 @@ export default function DashboardLayout({
       <main>
 
         {children}
+ 
       </main>
       </SidebarInset>
       </ShopProvider>

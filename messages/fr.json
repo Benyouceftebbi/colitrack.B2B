@@ -172,7 +172,12 @@
     "daily-target":"daily-target",
     "dashboard-description": "Gérez facilement vos messages et améliorez votre service de livraison avec Colitack.",
 
-
+    "modal": {
+      "account-linking-title": "Liaison de compte requise",
+      "account-linking-description": "Veuillez lier votre compte de société de livraison pour profiter pleinement de nos services.",
+      "close": "Fermer",
+      "link-account": "Lier le compte"
+    },
 
     "badge": "Optimisez Votre Entreprise E-Commerce",
     "title": "Transformez Votre Entreprise E-commerce Avec",

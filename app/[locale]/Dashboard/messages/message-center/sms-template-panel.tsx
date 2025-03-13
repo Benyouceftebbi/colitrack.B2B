@@ -99,8 +99,6 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
 
   const totalActivatedTokens = calculateTotalTokens()
 
-  console.log("Selected Templates:", selectedTemplates)
-  console.log("Total Activated Tokens:", totalActivatedTokens)
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">

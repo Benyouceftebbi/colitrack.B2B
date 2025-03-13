@@ -23,6 +23,8 @@ import { doc, setDoc } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import { DataTable } from "./messages/message-center/sms-history/data-table"
 import { columns } from "./messages/message-center/sms-history/columns"
+import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/ui/modal"
+
 type AlgeriaDataItem = {
   name: string
   value: number
@@ -116,6 +118,9 @@ export default function Dashboard() {
   const [showInfoDiv, setShowInfoDiv] = React.useState(true)
   const { theme } = useTheme()
   const { shopData } = useShop()
+  const [showModal, setShowModal] = React.useState(!shopData.lng); // Show modal if shopData.lng is not present
+
+
   const chartData = React.useMemo<ChartData[]>(() => {
     // Get the current date
     const currentDate = new Date()
@@ -182,14 +187,9 @@ export default function Dashboard() {
   const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
 
   
-  console.log("zakamo123", shopData?.analytics?.returnRateByWeek)
+
 
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
-  console.log('',currentWeek);
-    console.log("zakamo123", shopData?.analytics?.returnRateByWeek)
-
-    //console.log("zakamo", shopData?.analytics?.returnRateByWeek[currentWeek])
-
   const currentMonth = React.useMemo(() => {
     return new Date().toLocaleString("default", { month: "long" })
   }, [])
@@ -197,7 +197,6 @@ export default function Dashboard() {
   const lastMonth = React.useMemo(() => {
     return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString("default", { month: "long" })
   }, [])
-console.log('..',yearMonth);
 
   const currentMonthSms = React.useMemo(() => {
     return shopData.analytics?.[currentMonth]?.totalSmsSent || 0
@@ -646,6 +645,22 @@ console.log('..',yearMonth);
           </CardContent>
         </Card>
       </div>
+      <Modal open={showModal} onOpenChange={setShowModal}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t("modal.account-linking-title")}</ModalTitle>
+            <ModalDescription>{t("modal.account-linking-description")}</ModalDescription>
+          </ModalHeader>
+          <div className="mt-4 flex justify-end">
+            <Button onClick={() => setShowModal(false)} variant="destructive">
+              {t("modal.close")}
+            </Button>
+            <Button variant="secondary" className="ml-2" onClick={() => router.push({ pathname: '/dashboard/settings', query: { link:true } })}>
+              {t("modal.link-account")}
+            </Button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

@@ -180,7 +180,12 @@
     "description": "Real-time notifications, enhanced customer satisfaction, and seamless automation for e-commerce businesses.",
     "getStarted": "Get Started",
     "tryDemo": "Try Demo",
-    
+    "modal": {
+      "account-linking-title": "Account Linking Required",
+      "account-linking-description": "Please link your delivery company account to fully utilize our services.",
+      "close": "Close",
+      "link-account": "Link Account"
+    },
     
       "dashboard-overview": "Dashboard Overview",
       "fetch-tracking-data": "Fetch Tracking Data",
@@ -266,7 +271,7 @@
       "solution2": {
         "problem": "Low customer retention",
         "solution": "SMS Retargeting Campaigns",
-        "description": "Don’t let your customers forget your brand. With SMS retargeting, you can reignite their interest with timely and personalized messages. Share irresistible promo codes, announce stunning new collections, and remind them why they fell in love with your products in the first place. Build excitement, nurture loyalty, and watch your audience return with renewed enthusiasm. Every message is a chance to reconnect and inspire.",
+        "description": "Don't let your customers forget your brand. With SMS retargeting, you can reignite their interest with timely and personalized messages. Share irresistible promo codes, announce stunning new collections, and remind them why they fell in love with your products in the first place. Build excitement, nurture loyalty, and watch your audience return with renewed enthusiasm. Every message is a chance to reconnect and inspire.",
 
         "stats": {
           "before": "+5% loss of monthly customers",
@@ -308,7 +313,7 @@
       },
       "feature4":{
         "title":"Custom Sender ID",
-        "description": "Use your brand’s name or a customized sender ID for SMS communications, ensuring that customers instantly recognize your messages and feel connected to your brand."
+        "description": "Use your brand's name or a customized sender ID for SMS communications, ensuring that customers instantly recognize your messages and feel connected to your brand."
       }
    }
   },
@@ -744,7 +749,7 @@
 
     "modal": {
       "account-linking-title": "Account Linking Required",
-      "account-linking-description": "You cannot enable this option. You must first link your delivery account.",
+      "account-linking-description": "Please link your delivery company account to fully utilize our services. \nيرجى ربط حساب شركة التوصيل الخاصة بك للاستفادة الكاملة من خدماتنا. \nVeuillez lier votre compte de société de livraison pour profiter pleinement de nos services.",
       "close": "Close",
       "link-account": "Link Account"
     },
