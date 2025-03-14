@@ -611,7 +611,7 @@
   "copied-title": "Copié dans le presse-papiers",
   "copied-description": "Les informations ont été copiées dans votre presse-papiers.",
   "step-image-alt": "Étape {step} - {title}",
-  "title-shipping": "Intégration de l'expédition",
+  "title-shipping": "Choisissez un fournisseur de livraison et obtenez 500 jetons gratuits",
   "description-shipping": "Configurez les paramètres de votre fournisseur de livraison.",
   "addProvider": "Ajouter un fournisseur de livraison",
   "noProvider": "Aucun fournisseur de livraison configuré. Cliquez sur \"Ajouter un fournisseur de livraison\" pour en configurer un.",
