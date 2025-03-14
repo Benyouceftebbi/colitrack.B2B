@@ -168,7 +168,7 @@ export function Steps({
 
       toast({
         title: t("error"),
-        description: String(error) || "An unexpected error occurred", // Ensure it's a string
+        description: "wrong shipping information", // Ensure it's a string
         variant: "destructive",
       })
     }

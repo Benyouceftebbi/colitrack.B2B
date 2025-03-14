@@ -49,8 +49,8 @@ export default function Component() {
   const [showSetupModal, setShowSetupModal] = useState(false)
   const isMobile = useIsMobile()
   const [isDarkMode, setIsDarkMode] = useState(false)
-const params=useSearchParams()
-console.log("path",params)
+  const router=useRouter()
+
   useEffect(() => {
     // Only detect the initial preference, don't modify the DOM
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -123,6 +123,7 @@ console.log("path",params)
   const handleSetupComplete = (provider: string, data: { lng: string }) => {
     setShippingProviders([...shippingProviders, { ...data, provider }])
     setShowSetupModal(false)
+    router.push('/dashboard/messages')
   }
 
   const handleApiTokenChange = (index, value) => {

@@ -379,7 +379,7 @@ export default function SignUp() {
       setIsLoading(true)
       // Navigate to dashboard immediately
       setIsModalOpen(false)
-      router.push("/dashboard")
+      router.push("/dashboard/settings")
     } else {
       setIsModalOpen(false)
     }
@@ -591,7 +591,7 @@ export default function SignUp() {
                   />
                 </div>
 
-                {/* Promo Code Section */}
+                {/* Promo Code Section 
                 <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">
                     {t("promoCodeSectionTitle")}
@@ -647,7 +647,7 @@ export default function SignUp() {
                       </FormItem>
                     )}
                   />
-                </div>
+                </div>*/}
 
                 <FormField
                   control={form.control}
