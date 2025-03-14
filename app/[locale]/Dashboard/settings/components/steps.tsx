@@ -51,6 +51,7 @@ export function Steps({
   provider,
   onComplete,
   shopData,
+  setShopData
 }: {
   provider: string
   onComplete: (provider: string, data: FormData) => void
@@ -61,6 +62,7 @@ export function Steps({
     apiId?: string
     id?: string
   }
+  setShopData:any
 }) {
   const { toast } = useToast()
   const t = useTranslations("settings")
@@ -156,7 +158,13 @@ export function Steps({
         apiKey: submissionData.apiId || submissionData.apiKey,
         lng: submissionData.lng,
       })
-
+      setShopData(prev => ({
+        ...prev,
+        deliveryCompany: provider,
+        apiToken: submissionData.apiToken || null,
+        apiKey: submissionData.apiId || submissionData.apiKey,
+        lng: submissionData.lng,
+      }))
       onComplete(provider, submissionData)
 
       toast({

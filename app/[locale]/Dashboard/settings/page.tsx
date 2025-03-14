@@ -28,7 +28,7 @@ function useIsMobile() {
 }
 
 export default function Component() {
-  const { shopData } = useShop()
+  const { shopData,setShopData } = useShop()
   const t = useTranslations("settings")
   const { toast } = useToast()
   const [showInfoDiv, setShowInfoDiv] = useState(false)
@@ -123,6 +123,7 @@ export default function Component() {
   const handleSetupComplete = (provider: string, data: { lng: string }) => {
     setShippingProviders([...shippingProviders, { ...data, provider }])
     setShowSetupModal(false)
+
     router.push('/dashboard/messages')
   }
 
@@ -338,7 +339,7 @@ export default function Component() {
                 className="absolute right-4 top-4 z-10"
                 onClick={() => setShowSetupModal(false)}
               ></Button>
-              <Steps shopData={shopData} provider={selectedProvider} onComplete={handleSetupComplete} />
+              <Steps shopData={shopData} provider={selectedProvider} onComplete={handleSetupComplete} setShopData={setShopData}/>
             </>
           )}
         </DialogContent>
