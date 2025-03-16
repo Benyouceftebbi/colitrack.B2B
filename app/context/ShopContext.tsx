@@ -18,10 +18,13 @@ interface ShopContextType {
  loading: boolean;
  error: string | null;
  setShopData:any
+ setShops:any
+ shops:any
 }
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({ userId, children }) => {
  const [shopData, setShopData] = useState<any>(null);
+ const [shops,setShops]=useState<any>([])
  const [loading, setLoading] = useState<boolean>(true);
  const [error, setError] = useState<string | null>(null);
  useEffect(() => {
@@ -73,6 +76,7 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
       shopData.smsCampaign=smsCampaignData
 
       setShopData(shopData);
+      setShops([shopData]);
     } catch (err) {
       setError("Error fetching shop data");
     } finally {
@@ -105,7 +109,7 @@ useEffect(() => {
 }, [userId]);
  if(loading===false && shopData){
   return (
-   <ShopContext.Provider value={{ shopData, loading, error,setShopData }}>
+   <ShopContext.Provider value={{ shopData, loading, error,setShopData,setShops,shops}}>
      {children}
    </ShopContext.Provider>
  );

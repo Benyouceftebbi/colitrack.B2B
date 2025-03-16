@@ -18,10 +18,12 @@ import {
 import { Link, usePathname } from "@/i18n/routing"
 import { useShop } from "@/app/context/ShopContext"
 import { useTranslations } from "next-intl"
+import { ShopSwitcher } from "./shop-switcher"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname().split("/").filter(Boolean)
   const { shopData } = useShop()
+  const {shops}=useShop()
   const t = useTranslations("sidebar")
 
   const data = {
@@ -66,21 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Colitrack</span>
-                  <span className="truncate text-xs">{t("platform")}</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <ShopSwitcher teams={shops} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
