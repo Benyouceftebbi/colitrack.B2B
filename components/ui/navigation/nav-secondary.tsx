@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Coins, HelpCircle, type LucideIcon, MessageSquare } from "lucide-react"
+import { Coins, HelpCircle, MessageSquare } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   SidebarGroup,
@@ -16,9 +17,8 @@ import { AffiliateDialog } from "./affiliate-dialog"
 import { FeedbackDialog } from "./feedback-dialog"
 import { SupportDialog } from "./support-dialog"
 
-export function NavSecondaryWithDialogs({
-  ...props
-}: {} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+export function NavSecondaryWithDialogs({ ...props }: {} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const t = useTranslations("navigation")
   const [feedbackOpen, setFeedbackOpen] = React.useState(false)
   const [supportOpen, setSupportOpen] = React.useState(false)
   const [affiliateOpen, setAffiliateOpen] = React.useState(false)
@@ -43,8 +43,8 @@ export function NavSecondaryWithDialogs({
               <Coins className="h-5 w-5" />
             </div>
             <div className="text-left">
-              <div className="font-bold text-white">Become an Affiliate</div>
-              <div className="text-xs text-white/80">Earn rewards for referrals</div>
+              <div className="font-bold text-white">{t("becomeAffiliate")}</div>
+              <div className="text-xs text-white/80">{t("earnRewardsReferrals")}</div>
             </div>
           </div>
         </button>
@@ -53,19 +53,19 @@ export function NavSecondaryWithDialogs({
       <SidebarSeparator />
 
       <SidebarGroup>
-        <SidebarGroupLabel>Help & Support</SidebarGroupLabel>
+        <SidebarGroupLabel>{t("helpAndSupport")}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="sm" onClick={() => setFeedbackOpen(true)}>
                 <MessageSquare />
-                <span>Submit Feedback</span>
+                <span>{t("submitFeedback")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton size="sm" onClick={() => setSupportOpen(true)}>
                 <HelpCircle />
-                <span>Get Support</span>
+                <span>{t("getSupport")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

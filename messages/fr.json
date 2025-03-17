@@ -921,5 +921,80 @@
       "settings": "Paramètres",
       "logout": "Déconnexion"
     }
+  },
+  "navigation": {
+    "addShop": "Ajouter une boutique",
+    "addNewShop": "Ajouter une nouvelle boutique",
+    "enterShopDetails": "Entrez les détails de votre boutique pour l'ajouter à votre compte.",
+    "companyName": "Nom de l'entreprise",
+    "companyNamePlaceholder": "Acme Inc.",
+    "phoneNumber": "Numéro de téléphone",
+    "phoneNumberPlaceholder": "+1 (555) 123-4567",
+    "businessType": "Type d'entreprise",
+    "selectBusinessType": "Sélectionnez le type d'entreprise",
+    "businessTypes": {
+      "retail": "Vente au détail",
+      "ecommerce": "E-Commerce",
+      "wholesale": "Vente en gros",
+      "manufacturing": "Fabrication",
+      "service": "Service",
+      "other": "Autre"
+    },
+    "senderIdOptional": "ID de l'expéditeur (Optionnel)",
+    "senderIdPlaceholder": "Colitrack",
+    "cancel": "Annuler",
+
+    "affiliateDashboard": "Votre tableau de bord d'affiliation",
+    "shareCodeEarnRewards": "Partagez votre code et gagnez des récompenses pour chaque nouveau parrainage",
+    "yourAffiliateCode": "Votre code d'affiliation",
+    "copiedToClipboard": "Copié dans le presse-papier",
+    "affiliateCodeCopied": "Code d'affiliation {code} copié !",
+    "shareMessageCopied": "Message de partage copié",
+    "shareMessageCopiedDesc": "Message de partage copié dans le presse-papier. Collez-le où vous voulez pour le partager !",
+    "affiliateShareMessage": "Rejoignez-moi avec mon code d'affiliation {code} et bénéficiez d'une réduction spéciale !",
+    "levelAffiliate": "Affilié Niveau {level}",
+    "referrals": "Parrainages",
+    "moreReferralsToReach": "{count} parrainages restants pour atteindre le niveau {nextLevel}",
+    "totalEarnings": "Gains totaux",
+    "unlockedRewards": "Récompenses débloquées",
+    "nextLevelRewards": "Récompenses du prochain niveau",
+    "unlockedRewardsList": {
+      "0": "5 % de commission sur tous les parrainages",
+      "1": "Tableau de bord d'affiliation personnalisé"
+    },
+    "upcomingRewardsList": {
+      "0": "10 % de commission sur tous les parrainages",
+      "1": "Support prioritaire",
+      "2": "Bonus mensuels",
+      "3": "Matériel de formation exclusif"
+    },
+
+    "submitFeedback": "Envoyer un avis",
+    "shareThoughts": "Partagez vos idées et suggestions avec nous.",
+    "yourFeedback": "Votre avis",
+    "tellUsWhatYouThink": "Dites-nous ce que vous pensez...",
+    "attachImagesOptional": "Joindre des images (optionnel)",
+    "chooseFiles": "Choisir des fichiers",
+    "previewImage": "Aperçu {index}",
+    "feedbackSubmitted": "Avis soumis",
+    "thankYouFeedback": "Merci pour votre avis !",
+    "error": "Erreur",
+    "feedbackSubmitError": "Une erreur s'est produite lors de l'envoi de votre avis. Veuillez réessayer.",
+
+    "becomeAffiliate": "Devenir affilié",
+    "earnRewardsReferrals": "Gagnez des récompenses grâce aux parrainages",
+    "helpAndSupport": "Aide & Support",
+    "getSupport": "Obtenir de l'aide",
+
+    "supportRequestDescription": "Soumettez une demande d'assistance et nous vous aiderons à résoudre votre problème.",
+    "title": "Titre",
+    "titlePlaceholder": "Titre bref de votre problème",
+    "description": "Description",
+    "descriptionPlaceholder": "Veuillez décrire votre problème en détail",
+    "supportRequestSubmitted": "Demande d'assistance envoyée",
+    "supportRequestResponse": "Nous vous répondrons dès que possible.",
+    "supportRequestError": "Une erreur s'est produite lors de l'envoi de votre demande. Veuillez réessayer.",
+    "submitRequest": "Soumettre la demande"
   }
+
 }

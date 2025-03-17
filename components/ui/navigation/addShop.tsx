@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Building2, Phone, Store } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +36,7 @@ const formSchema = z.object({
 })
 
 export function AddShopModal() {
+  const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
   const { addShop } = useShop()
 
@@ -66,13 +68,13 @@ export function AddShopModal() {
           <div className="flex size-6 items-center justify-center rounded-md border bg-background">
             <Store className="size-4" />
           </div>
-          <div className="font-medium text-muted-foreground">Add Shop</div>
+          <div className="font-medium text-muted-foreground">{t("navigation.addShop")}</div>
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Shop</DialogTitle>
-          <DialogDescription>Enter the details of your shop to add it to your account.</DialogDescription>
+          <DialogTitle>{t("navigation.addNewShop")}</DialogTitle>
+          <DialogDescription>{t("navigation.enterShopDetails")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -81,11 +83,11 @@ export function AddShopModal() {
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
+                  <FormLabel>{t("navigation.companyName")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input className="pl-10" placeholder="Acme Inc." {...field} />
+                      <Input className="pl-10" placeholder={t("navigation.companyNamePlaceholder")} {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -97,11 +99,11 @@ export function AddShopModal() {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>{t("navigation.phoneNumber")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input className="pl-10" placeholder="+1 (555) 123-4567" {...field} />
+                      <Input className="pl-10" placeholder={t("navigation.phoneNumberPlaceholder")} {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -113,20 +115,20 @@ export function AddShopModal() {
               name="businessType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Type</FormLabel>
+                  <FormLabel>{t("navigation.businessType")}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select business type" />
+                        <SelectValue placeholder={t("navigation.selectBusinessType")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="retail">Retail</SelectItem>
-                      <SelectItem value="ecommerce">E-Commerce</SelectItem>
-                      <SelectItem value="wholesale">Wholesale</SelectItem>
-                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                      <SelectItem value="service">Service</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="retail">{t("navigation.businessTypes.retail")}</SelectItem>
+                      <SelectItem value="ecommerce">{t("navigation.businessTypes.ecommerce")}</SelectItem>
+                      <SelectItem value="wholesale">{t("navigation.businessTypes.wholesale")}</SelectItem>
+                      <SelectItem value="manufacturing">{t("navigation.businessTypes.manufacturing")}</SelectItem>
+                      <SelectItem value="service">{t("navigation.businessTypes.service")}</SelectItem>
+                      <SelectItem value="other">{t("navigation.businessTypes.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -138,9 +140,9 @@ export function AddShopModal() {
               name="senderId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sender ID (Optional)</FormLabel>
+                  <FormLabel>{t("navigation.senderIdOptional")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Colitrack" {...field} />
+                    <Input placeholder={t("navigation.senderIdPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,9 +150,9 @@ export function AddShopModal() {
             />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t("navigation.cancel")}
               </Button>
-              <Button type="submit">Add Shop</Button>
+              <Button type="submit">{t("navigation.addShop")}</Button>
             </DialogFooter>
           </form>
         </Form>

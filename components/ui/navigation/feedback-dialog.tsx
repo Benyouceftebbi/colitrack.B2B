@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Loader2, Upload, X } from "lucide-react"
+import { Loader2, Upload, X } from 'lucide-react'
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,6 +25,7 @@ export function FeedbackDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useTranslations("navigation")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [images, setImages] = React.useState<File[]>([])
   const [imageUrls, setImageUrls] = React.useState<string[]>([])
@@ -65,8 +67,8 @@ export function FeedbackDialog({
       })
 
       toast({
-        title: "Feedback submitted",
-        description: "Thank you for your feedback!",
+        title: t("feedbackSubmitted"),
+        description: t("thankYouFeedback"),
       })
 
       // Reset form and close dialog
@@ -77,8 +79,8 @@ export function FeedbackDialog({
     } catch (error) {
       console.error("Error submitting feedback:", error)
       toast({
-        title: "Error",
-        description: "There was an error submitting your feedback. Please try again.",
+        title: t("error"),
+        description: t("feedbackSubmitError"),
         variant: "destructive",
       })
     } finally {
@@ -91,29 +93,29 @@ export function FeedbackDialog({
       <DialogContent className="sm:max-w-[450px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Submit Feedback</DialogTitle>
-            <DialogDescription>Share your thoughts and suggestions with us.</DialogDescription>
+            <DialogTitle>{t("submitFeedback")}</DialogTitle>
+            <DialogDescription>{t("shareThoughts")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="comment">Your Feedback</Label>
+              <Label htmlFor="comment">{t("yourFeedback")}</Label>
               <Textarea
                 id="comment"
                 name="comment"
-                placeholder="Tell us what you think..."
+                placeholder={t("tellUsWhatYouThink")}
                 required
                 className="min-h-[120px]"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="feedback-images">Attach Images (optional)</Label>
+              <Label htmlFor="feedback-images">{t("attachImagesOptional")}</Label>
               <div className="flex items-center gap-2">
                 <Label
                   htmlFor="feedback-images"
                   className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Upload className="mr-2 h-4 w-4" />
-                  Choose Files
+                  {t("chooseFiles")}
                 </Label>
                 <Input
                   id="feedback-images"
@@ -131,7 +133,7 @@ export function FeedbackDialog({
                     <div key={index} className="relative rounded-md border">
                       <img
                         src={url || "/placeholder.svg"}
-                        alt={`Preview ${index}`}
+                        alt={t("previewImage", { index: index + 1 })}
                         className="h-20 w-full rounded-md object-cover"
                       />
                       <Button
@@ -151,11 +153,11 @@ export function FeedbackDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Feedback
+              {t("submitFeedback")}
             </Button>
           </DialogFooter>
         </form>
@@ -163,4 +165,3 @@ export function FeedbackDialog({
     </Dialog>
   )
 }
-

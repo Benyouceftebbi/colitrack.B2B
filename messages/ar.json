@@ -913,7 +913,82 @@
       "settings": "الإعدادات",
       "logout": "تسجيل الخروج"
     }
+  },
+  "navigation": {
+    "addShop": "إضافة متجر",
+    "addNewShop": "إضافة متجر جديد",
+    "enterShopDetails": "أدخل تفاصيل متجرك لإضافته إلى حسابك.",
+    "companyName": "اسم الشركة",
+    "companyNamePlaceholder": "Acme Inc.",
+    "phoneNumber": "رقم الهاتف",
+    "phoneNumberPlaceholder": "+1 (555) 123-4567",
+    "businessType": "نوع النشاط التجاري",
+    "selectBusinessType": "اختر نوع النشاط التجاري",
+    "businessTypes": {
+      "retail": "تجزئة",
+      "ecommerce": "التجارة الإلكترونية",
+      "wholesale": "بيع بالجملة",
+      "manufacturing": "التصنيع",
+      "service": "الخدمات",
+      "other": "أخرى"
+    },
+    "senderIdOptional": "معرف المرسل (اختياري)",
+    "senderIdPlaceholder": "Colitrack",
+    "cancel": "إلغاء",
+
+    "affiliateDashboard": "لوحة تحكم الشراكة",
+    "shareCodeEarnRewards": "شارك رمزك واربح مكافآت عن كل إحالة جديدة",
+    "yourAffiliateCode": "رمز الشراكة الخاص بك",
+    "copiedToClipboard": "تم النسخ إلى الحافظة",
+    "affiliateCodeCopied": "تم نسخ رمز الشراكة {code}!",
+    "shareMessageCopied": "تم نسخ رسالة المشاركة",
+    "shareMessageCopiedDesc": "تم نسخ رسالة المشاركة إلى الحافظة. الصقها في أي مكان لمشاركتها!",
+    "affiliateShareMessage": "انضم إلي باستخدام رمز الشراكة {code} واحصل على خصم خاص!",
+    "levelAffiliate": "شريك من المستوى {level}",
+    "referrals": "الإحالات",
+    "moreReferralsToReach": "تبقى {count} إحالة للوصول إلى المستوى {nextLevel}",
+    "totalEarnings": "إجمالي الأرباح",
+    "unlockedRewards": "المكافآت المكتسبة",
+    "nextLevelRewards": "المكافآت القادمة",
+    "unlockedRewardsList": {
+      "0": "عمولة 5% على جميع الإحالات",
+      "1": "لوحة تحكم شراكة مخصصة"
+    },
+    "upcomingRewardsList": {
+      "0": "عمولة 10% على جميع الإحالات",
+      "1": "دعم أولوية",
+      "2": "مكافآت شهرية",
+      "3": "مواد تدريبية حصرية"
+    },
+
+    "submitFeedback": "إرسال ملاحظات",
+    "shareThoughts": "شارك أفكارك واقتراحاتك معنا.",
+    "yourFeedback": "ملاحظاتك",
+    "tellUsWhatYouThink": "أخبرنا برأيك...",
+    "attachImagesOptional": "إرفاق صور (اختياري)",
+    "chooseFiles": "اختر الملفات",
+    "previewImage": "معاينة {index}",
+    "feedbackSubmitted": "تم إرسال الملاحظات",
+    "thankYouFeedback": "شكرًا لملاحظاتك!",
+    "error": "خطأ",
+    "feedbackSubmitError": "حدث خطأ أثناء إرسال ملاحظاتك. يرجى المحاولة مرة أخرى.",
+
+    "becomeAffiliate": "كن شريكًا",
+    "earnRewardsReferrals": "اكسب المكافآت من خلال الإحالات",
+    "helpAndSupport": "المساعدة والدعم",
+    "getSupport": "الحصول على المساعدة",
+
+    "supportRequestDescription": "قم بإرسال طلب دعم وسنساعدك في حل مشكلتك.",
+    "title": "العنوان",
+    "titlePlaceholder": "عنوان مختصر لمشكلتك",
+    "description": "الوصف",
+    "descriptionPlaceholder": "يرجى وصف مشكلتك بالتفصيل",
+    "supportRequestSubmitted": "تم إرسال طلب الدعم",
+    "supportRequestResponse": "سنرد عليك في أقرب وقت ممكن.",
+    "supportRequestError": "حدث خطأ أثناء إرسال طلبك. يرجى المحاولة مرة أخرى.",
+    "submitRequest": "إرسال الطلب"
   }
+
   
 
 

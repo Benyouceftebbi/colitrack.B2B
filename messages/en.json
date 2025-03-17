@@ -914,5 +914,79 @@
         "settings": "Settings",
         "logout": "Log out"
       }
+    },
+    "navigation": {
+      "addShop": "Add Shop",
+      "addNewShop": "Add New Shop",
+      "enterShopDetails": "Enter the details of your shop to add it to your account.",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "Acme Inc.",
+      "phoneNumber": "Phone Number",
+      "phoneNumberPlaceholder": "+1 (555) 123-4567",
+      "businessType": "Business Type",
+      "selectBusinessType": "Select business type",
+      "businessTypes": {
+        "retail": "Retail",
+        "ecommerce": "E-Commerce",
+        "wholesale": "Wholesale",
+        "manufacturing": "Manufacturing",
+        "service": "Service",
+        "other": "Other"
+      },
+      "senderIdOptional": "Sender ID (Optional)",
+      "senderIdPlaceholder": "Colitrack",
+      "cancel": "Cancel",
+  
+      "affiliateDashboard": "Your Affiliate Dashboard",
+      "shareCodeEarnRewards": "Share your code and earn rewards for every new referral",
+      "yourAffiliateCode": "Your Affiliate Code",
+      "copiedToClipboard": "Copied to clipboard",
+      "affiliateCodeCopied": "Affiliate code {code} copied!",
+      "shareMessageCopied": "Share message copied",
+      "shareMessageCopiedDesc": "Share message copied to clipboard. Paste it anywhere to share!",
+      "affiliateShareMessage": "Join using my affiliate code {code} and get a special discount!",
+      "levelAffiliate": "Level {level} Affiliate",
+      "referrals": "Referrals",
+      "moreReferralsToReach": "{count} more referrals to reach Level {nextLevel}",
+      "totalEarnings": "Total Earnings",
+      "unlockedRewards": "Unlocked Rewards",
+      "nextLevelRewards": "Next Level Rewards",
+      "unlockedRewardsList": {
+        "0": "5% commission on all referrals",
+        "1": "Custom affiliate dashboard"
+      },
+      "upcomingRewardsList": {
+        "0": "10% commission on all referrals",
+        "1": "Priority support",
+        "2": "Monthly bonus rewards",
+        "3": "Exclusive training materials"
+      },
+  
+      "submitFeedback": "Submit Feedback",
+      "shareThoughts": "Share your thoughts and suggestions with us.",
+      "yourFeedback": "Your Feedback",
+      "tellUsWhatYouThink": "Tell us what you think...",
+      "attachImagesOptional": "Attach Images (optional)",
+      "chooseFiles": "Choose Files",
+      "previewImage": "Preview {index}",
+      "feedbackSubmitted": "Feedback submitted",
+      "thankYouFeedback": "Thank you for your feedback!",
+      "error": "Error",
+      "feedbackSubmitError": "There was an error submitting your feedback. Please try again.",
+  
+      "becomeAffiliate": "Become an Affiliate",
+      "earnRewardsReferrals": "Earn rewards for referrals",
+      "helpAndSupport": "Help & Support",
+      "getSupport": "Get Support",
+  
+      "supportRequestDescription": "Submit a support request and we'll help you resolve your issue.",
+      "title": "Title",
+      "titlePlaceholder": "Brief title for your issue",
+      "description": "Description",
+      "descriptionPlaceholder": "Please describe your issue in detail",
+      "supportRequestSubmitted": "Support request submitted",
+      "supportRequestResponse": "We'll get back to you as soon as possible.",
+      "supportRequestError": "There was an error submitting your request. Please try again.",
+      "submitRequest": "Submit Request"
     }
 }

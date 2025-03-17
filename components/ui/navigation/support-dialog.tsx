@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Loader2, Upload, X } from "lucide-react"
+import { Loader2, Upload, X } from 'lucide-react'
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,6 +25,7 @@ export function SupportDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useTranslations("navigation")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [images, setImages] = React.useState<File[]>([])
   const [imageUrls, setImageUrls] = React.useState<string[]>([])
@@ -67,8 +69,8 @@ export function SupportDialog({
       })
 
       toast({
-        title: "Support request submitted",
-        description: "We'll get back to you as soon as possible.",
+        title: t("supportRequestSubmitted"),
+        description: t("supportRequestResponse"),
       })
 
       // Reset form and close dialog
@@ -79,8 +81,8 @@ export function SupportDialog({
     } catch (error) {
       console.error("Error submitting support request:", error)
       toast({
-        title: "Error",
-        description: "There was an error submitting your request. Please try again.",
+        title: t("error"),
+        description: t("supportRequestError"),
         variant: "destructive",
       })
     } finally {
@@ -93,33 +95,33 @@ export function SupportDialog({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Get Support</DialogTitle>
-            <DialogDescription>Submit a support request and we'll help you resolve your issue.</DialogDescription>
+            <DialogTitle>{t("getSupport")}</DialogTitle>
+            <DialogDescription>{t("supportRequestDescription")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="Brief title for your issue" required />
+              <Label htmlFor="title">{t("title")}</Label>
+              <Input id="title" name="title" placeholder={t("titlePlaceholder")} required />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("description")}</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Please describe your issue in detail"
+                placeholder={t("descriptionPlaceholder")}
                 required
                 className="min-h-[120px]"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="support-images">Attach Images (optional)</Label>
+              <Label htmlFor="support-images">{t("attachImagesOptional")}</Label>
               <div className="flex items-center gap-2">
                 <Label
                   htmlFor="support-images"
                   className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Upload className="mr-2 h-4 w-4" />
-                  Choose Files
+                  {t("chooseFiles")}
                 </Label>
                 <Input
                   id="support-images"
@@ -137,7 +139,7 @@ export function SupportDialog({
                     <div key={index} className="relative rounded-md border">
                       <img
                         src={url || "/placeholder.svg"}
-                        alt={`Preview ${index}`}
+                        alt={t("previewImage", { index: index + 1 })}
                         className="h-20 w-full rounded-md object-cover"
                       />
                       <Button
@@ -157,11 +159,11 @@ export function SupportDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Request
+              {t("submitRequest")}
             </Button>
           </DialogFooter>
         </form>
@@ -169,4 +171,3 @@ export function SupportDialog({
     </Dialog>
   )
 }
-

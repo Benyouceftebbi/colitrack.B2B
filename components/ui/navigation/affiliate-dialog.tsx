@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Check, Copy, Share2, Trophy } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -32,6 +33,7 @@ export function AffiliateDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useTranslations("navigation")
   const [copied, setCopied] = React.useState(false)
 
   // Calculate progress percentage
@@ -41,8 +43,8 @@ export function AffiliateDialog({
     navigator.clipboard.writeText(AFFILIATE_DATA.code)
     setCopied(true)
     toast({
-      title: "Copied to clipboard",
-      description: `Affiliate code ${AFFILIATE_DATA.code} copied!`,
+      title: t("copiedToClipboard"),
+      description: t("affiliateCodeCopied", { code: AFFILIATE_DATA.code }),
     })
 
     setTimeout(() => setCopied(false), 2000)
@@ -51,12 +53,12 @@ export function AffiliateDialog({
   const shareAffiliate = () => {
     // This would typically open a share dialog or prepare a message
     // For now, we'll just copy a pre-formatted message
-    const shareMessage = `Join using my affiliate code ${AFFILIATE_DATA.code} and get a special discount!`
+    const shareMessage = t("affiliateShareMessage", { code: AFFILIATE_DATA.code })
     navigator.clipboard.writeText(shareMessage)
 
     toast({
-      title: "Share message copied",
-      description: "Share message copied to clipboard. Paste it anywhere to share!",
+      title: t("shareMessageCopied"),
+      description: t("shareMessageCopiedDesc"),
     })
   }
 
@@ -64,16 +66,14 @@ export function AffiliateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">Your Affiliate Dashboard</DialogTitle>
-          <DialogDescription className="text-center">
-            Share your code and earn rewards for every new referral
-          </DialogDescription>
+          <DialogTitle className="text-center text-2xl font-bold">{t("affiliateDashboard")}</DialogTitle>
+          <DialogDescription className="text-center">{t("shareCodeEarnRewards")}</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 space-y-6">
           {/* Affiliate Code Section */}
           <div className="rounded-lg border bg-muted/50 p-4">
-            <div className="mb-2 text-sm font-medium text-muted-foreground">Your Affiliate Code</div>
+            <div className="mb-2 text-sm font-medium text-muted-foreground">{t("yourAffiliateCode")}</div>
             <div className="flex items-center gap-2">
               <div className="flex-1 rounded-md bg-background p-3 text-center text-xl font-bold tracking-wider">
                 {AFFILIATE_DATA.code}
@@ -92,25 +92,27 @@ export function AffiliateDialog({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-amber-500" />
-                <span className="font-medium">Level {AFFILIATE_DATA.currentLevel} Affiliate</span>
+                <span className="font-medium">{t("levelAffiliate", { level: AFFILIATE_DATA.currentLevel })}</span>
               </div>
               <span className="text-sm text-muted-foreground">
-                {AFFILIATE_DATA.referrals}/{AFFILIATE_DATA.nextLevelAt} Referrals
+                {AFFILIATE_DATA.referrals}/{AFFILIATE_DATA.nextLevelAt} {t("referrals")}
               </span>
             </div>
 
             <Progress value={progressPercentage} className="h-2" />
 
             <div className="text-center text-sm text-muted-foreground">
-              {AFFILIATE_DATA.nextLevelAt - AFFILIATE_DATA.referrals} more referrals to reach Level{" "}
-              {AFFILIATE_DATA.currentLevel + 1}
+              {t("moreReferralsToReach", {
+                count: AFFILIATE_DATA.nextLevelAt - AFFILIATE_DATA.referrals,
+                nextLevel: AFFILIATE_DATA.currentLevel + 1,
+              })}
             </div>
           </div>
 
           {/* Earnings Section */}
           <div className="rounded-lg border p-4">
             <div className="text-center">
-              <div className="text-sm font-medium text-muted-foreground">Total Earnings</div>
+              <div className="text-sm font-medium text-muted-foreground">{t("totalEarnings")}</div>
               <div className="text-3xl font-bold text-green-600">{AFFILIATE_DATA.earnings}</div>
             </div>
           </div>
@@ -118,24 +120,24 @@ export function AffiliateDialog({
           {/* Rewards Section */}
           <div className="space-y-4">
             <div>
-              <h3 className="mb-2 font-medium">Unlocked Rewards</h3>
+              <h3 className="mb-2 font-medium">{t("unlockedRewards")}</h3>
               <ul className="space-y-1">
                 {AFFILIATE_DATA.unlockedRewards.map((reward, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span>{reward}</span>
+                    <span>{t(`unlockedRewardsList.${index}`)}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h3 className="mb-2 font-medium">Next Level Rewards</h3>
+              <h3 className="mb-2 font-medium">{t("nextLevelRewards")}</h3>
               <ul className="space-y-1">
                 {AFFILIATE_DATA.upcomingRewards.map((reward, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="h-4 w-4 rounded-full border border-muted-foreground/30" />
-                    <span>{reward}</span>
+                    <span>{t(`upcomingRewardsList.${index}`)}</span>
                   </li>
                 ))}
               </ul>
