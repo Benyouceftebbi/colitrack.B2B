@@ -19,6 +19,7 @@ import { Link, usePathname } from "@/i18n/routing"
 import { useShop } from "@/app/context/ShopContext"
 import { useTranslations } from "next-intl"
 import { ShopSwitcher } from "./shop-switcher"
+import { NavSecondaryWithDialogs } from "./nav-secondary"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname().split("/").filter(Boolean)
@@ -74,7 +75,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
+      <NavSecondaryWithDialogs className="mt-auto"/>
         <NavUser user={data.user} shopData={shopData} />
+
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
