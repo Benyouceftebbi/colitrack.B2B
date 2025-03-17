@@ -71,6 +71,7 @@ export function Steps({
   const [imageLoading, setImageLoading] = useState(true)
   const [isZoomed, setIsZoomed] = useState(false)
   const [copiedName, setCopiedName] = useState(false)
+  const [copiedtextEmail,setCopidTextEamil] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [language, setLanguage] = useState<string | null>(shopData.lng || null)
@@ -202,6 +203,31 @@ export function Steps({
   const name = "ColiTrack"
   const webhookEmail = "colitrackdz@gmail.com"
   const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`
+
+  const email = `Subject: Urgent: Webhook Not Triggering Issue
+
+Dear Yalidine Support Team,
+
+I hope this email finds you well. I am reaching out regarding an issue with the webhook setup on my Yalidine account. While the webhook has been successfully created and activated, it is not being triggered when expected.
+
+Here are the details of my setup:
+
+Account Name/ID: ${shopData.id}
+
+
+Expected Events: parcel_status_updated
+
+Issue Faced: The webhook is not being triggered despite being activated. I have tested the endpoint separately, and it is receiving requests correctly from other sources.
+
+Despite these steps, the webhook is still not triggering. I would appreciate your assistance in resolving this issue as soon as possible.
+
+Please let me know if you need any additional information from my side. Looking forward to your prompt response.
+
+Best regards,
+**${shopData.companyName},**
+**${shopData.firstName},**
+`;
+
 
   return (
     <SidebarProvider>
@@ -352,7 +378,7 @@ export function Steps({
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {(provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 3 ? (
+                {(provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 4 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input
@@ -444,6 +470,25 @@ export function Steps({
                     </Button>
                   </div>
                 ) : null}
+                { 
+  (provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 2 ? (
+    <div className="flex items-center space-x-2">
+      <Input
+        value={email}
+        readOnly
+        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+      />
+      <Button
+        onClick={() => copyToClipboard(email, setCopidTextEamil)}
+        className="flex items-center justify-center"
+        size="icon"
+        type="button"
+      >
+        {copiedtextEmail ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+      </Button>
+    </div>
+  ) : null }
+
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     {provider === "Yalidin Express" || provider === "Guepex" ? (
@@ -553,4 +598,3 @@ export function Steps({
     </SidebarProvider>
   )
 }
-

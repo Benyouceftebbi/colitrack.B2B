@@ -44,15 +44,17 @@ export const columns: ColumnDef<Message>[] = [
       const status = row.getValue("lastStatus") as string
       return (
         <Badge
-          variant="outline"
-          className={
-            status === "delivered"
-              ? "bg-emerald-500/10 text-emerald-500"
-              : status === "shipped"
-                ? "bg-yellow-500/10 text-yellow-500"
-                : "bg-red-500/10 text-red-500"
-          }
-        >
+        variant="outline"
+        className={
+          status === "delivered"
+            ? "bg-emerald-500/10 text-emerald-500"
+            : status === "shipped"
+              ? "bg-yellow-500/10 text-yellow-500"
+              : status === "delivery-failed"
+                ? "bg-red-500/10 text-red-500"
+                : "bg-yellow-500/10 text-yellow-500" // <-- Added default case to prevent syntax error
+        }
+      >
           {t(`statusLabels.${status}`)}
         </Badge>
       )

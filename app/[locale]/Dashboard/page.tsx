@@ -39,15 +39,15 @@ type ChartData = {
 const columnHelper = createColumnHelper<AlgeriaDataItem>()
 
 const algeriaStatesMap = {
-  "01": "Adrar",
-  "02": "Chlef",
-  "03": "Laghouat",
-  "04": "Oum El Bouaghi",
-  "05": "Batna",
-  "06": "Béjaïa",
-  "07": "Biskra",
-  "08": "Béchar",
-  "09": "Blida",
+  "1": "Adrar",
+  "2": "Chlef",
+  "3": "Laghouat",
+  "4": "Oum El Bouaghi",
+  "5": "Batna",
+  "6": "Béjaïa",
+  "7": "Biskra",
+  "8": "Béchar",
+  "9": "Blida",
   "10": "Bouira",
   "11": "Tamanrasset",
   "12": "Tébessa",
@@ -186,6 +186,7 @@ export default function Dashboard() {
   const currentDate = new Date()
   const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
 
+
   
 
 
@@ -219,6 +220,25 @@ export default function Dashboard() {
       : 0;
   }, [currentMonthSms, lastMonthSms]);
   
+
+const previousWeek = `W${String(Math.ceil(currentDate.getDate() / 7) - 1).padStart(2, "0")}`;
+const currentYear = currentDate.getFullYear();
+
+
+
+const currentWeekKey = `${currentWeek}`;
+const previousWeekKey = `${currentYear}-${previousWeek}`;
+
+
+
+const currentReturnRate = shopData?.analytics?.returnRateByWeek[currentWeekKey] || 0;
+const previousReturnRate = shopData?.analytics?.returnRateByWeek[previousWeekKey] || 0;
+
+
+const percentageChangereturn =
+  previousReturnRate === 0
+    ? currentReturnRate
+    : ((currentReturnRate - previousReturnRate) / previousReturnRate) * 100;
 
   const updateShopAnalytics = async (shopId: string) => {
     try {
@@ -446,9 +466,34 @@ export default function Dashboard() {
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
                     {t("total-messages")}
                   </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {shopData?.analytics?.totalMessagesByMonth[yearMonth] || 0}
-                  </h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold flex items-center space-x-2">
+  {(() => {
+    const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[yearMonth] || 0;
+
+    // Compute previous month string correctly
+    const prevDate = new Date(currentDate);
+    prevDate.setMonth(prevDate.getMonth() - 1);
+    const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
+
+    const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[prevYearMonth] || 0;
+    const difference = currentMonthMessages - previousMonthMessages;
+
+    return (
+      <>
+        <span>{currentMonthMessages}</span>
+        {difference > 0 ? (
+          <span className="text-green-500">▲</span> // Increase indicator
+        ) : difference < 0 ? (
+          <span className="text-red-500">▼</span> // Decrease indicator
+        ) : (
+          <span className="text-gray-500">➖</span> // No change
+        )}
+      </>
+    );
+  })()}
+</h2>
+
+
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -456,14 +501,59 @@ export default function Dashboard() {
               </div>
               <div className="mt-3 sm:mt-4 pt-2">
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                  <span className={`flex items-center ${percentageChange > 0 ? "text-green-600" : "text-red-600"}`}>
-                    {percentageChange > 0 ? (
-                      <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    ) : (
-                      <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    )}
-                    {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
-                  </span>
+                <span
+   className={`flex items-center ${
+    percentageChange > 0
+      ? "text-green-600"  // Increase → Green
+      : percentageChange < 0
+      ? "text-red-600"    // Decrease → Red
+      : "text-gray-500"   // No change → Gray
+  }`}
+>
+  {(() => {
+    const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[yearMonth] || 0;
+
+    // Compute previous month string correctly
+    const prevDate = new Date(currentDate);
+    prevDate.setMonth(prevDate.getMonth() - 1);
+    const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
+
+    const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[prevYearMonth] || 0;
+    
+    let percentageChange = 0;
+
+    if (previousMonthMessages > 0) {
+      percentageChange = ((currentMonthMessages - previousMonthMessages) / previousMonthMessages) * 100;
+    } else if (currentMonthMessages > 0) {
+      percentageChange = 100; // Full increase if last month was 0
+    }
+
+    return (
+      <span
+      className={`flex items-center ${
+        percentageChange > 0
+          ? "text-green-600"  // Positive change → Green
+          : percentageChange < 0
+          ? "text-red-600"    // Negative change → Red
+          : "text-gray-500"   // No change → Gray
+      }`}
+    >
+      {percentageChange > 0 ? (
+        <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+      ) : percentageChange < 0 ? (
+        <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+      ) : (
+        <span>➖</span> // No change indicator
+      )}
+      {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
+    </span>
+    
+    );
+  })()}
+</span>
+
+
+
                 </div>
               </div>
             </CardContent>
@@ -486,46 +576,93 @@ export default function Dashboard() {
               </div>
               <div className="mt-3 sm:mt-4 pt-2">
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                  <span className="text-green-600 flex items-center">
-                    <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    {t("daily-target", { value: shopData?.analytics?.smsSentToday || 0 })}
-                  </span>
+                {(() => {
+  const currentMonth = currentDate.getMonth() + 1;
+  const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+  const previousYear =
+    currentMonth === 1 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
+
+  const previousYearMonth = `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
+  const previousMonthTotal = shopData?.analytics?.totalMessagesByMonth[previousYearMonth] || 0;
+  const dailyAverageLastMonth = previousMonthTotal / 30; // Assume 30 days for simplicity
+  const todayMessages = shopData?.analytics?.totalSMSSentToday || 0;
+
+  const percentageChange = ((todayMessages - dailyAverageLastMonth) / dailyAverageLastMonth) * 100;
+
+  return (
+    <span
+      className={`flex items-center ${
+        percentageChange > 0
+          ? "text-green-600"
+          : percentageChange < 0
+          ? "text-red-600"
+          : "text-gray-500"
+      }`}
+    >
+      {percentageChange > 0 ? (
+        <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+      ) : percentageChange < 0 ? (
+        <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+      ) : (
+        <span>➖</span>
+      )}
+      {t("daily-target", { value: todayMessages })}
+    </span>
+  );
+})()}
+
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
-            <CardContent className="p-2 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
-                    {t("return-rate")}
-                  </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {/*shopData?.analytics?.returnRateByWeek[currentWeek] || 0*/}%
-                  </h2>
-                </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
-                  <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
-                </div>
-              </div>
-              <div className="mt-3 sm:mt-4 pt-2">
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                  <span className="text-red-600 flex items-center">
-                    <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-                    {/*t("return-rate-change", {
-                      value:
-                        shopData?.analytics?.returnRateByWeek[currentWeek] -
-                        shopData?.analytics?.returnRateByWeek[
-                          `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7) - 1).padStart(2, "0")}`
-                        ],
-                    })*/}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+    <CardContent className="p-2 sm:p-4 md:p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+            {t("return-rate")}
+          </p>
+          <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+            {currentReturnRate.toFixed(1)}%
+          </h2>
+        </div>
+        <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
+          {percentageChangereturn > 0 ? (
+            <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-green-600" />
+          ) : percentageChangereturn < 0 ? (
+            <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-red-600" />
+          ) : (
+            <span className="text-gray-500">➖</span>
+          )}
+        </div>
+      </div>
+      <div className="mt-3 sm:mt-4 pt-2">
+        <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+          <span
+            className={`flex items-center ${
+              percentageChangereturn > 0
+                ? "text-green-600"
+                : percentageChangereturn < 0
+                ? "text-red-600"
+                : "text-gray-500"
+            }`}
+          >
+            {percentageChangereturn > 0 ? (
+              <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+            ) : percentageChangereturn < 0 ? (
+              <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+            ) : (
+              <span>➖</span>
+            )}
+            {t("return-rate-change", {
+              value: Math.abs(percentageChangereturn).toFixed(1),
+            })}
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
         </div>
 
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">

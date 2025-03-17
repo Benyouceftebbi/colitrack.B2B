@@ -415,6 +415,9 @@
     ]
   },
   "signin":{
+    "checkYourEmail": "Vérifiez votre e-mail",
+    "checkSpam": "Vérifiez le dossier spam",
+    "close": "Fermer",
     "backToSignIn": "Retour à la connexion",
     "createAccount": "Créer un compte",
     "getStarted": "Remplissez vos informations pour commencer",

@@ -77,6 +77,7 @@ export default function Component() {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
     Guepex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
+    ZR: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-bMOgnI9-8ouSZ3YXAKcdPVMKfElvleuonQ&s",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
     "Go livri":"https://www.golivri.dz/assets/img/logo.png",
     "Maystero Delivery":"https://maystro-delivery.com/img/logo.svg",
@@ -287,11 +288,12 @@ export default function Component() {
                 <DialogDescription>{t("description")}</DialogDescription>
               </DialogHeader>
               <div
-                className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3 ${isMobile ? "max-h-[70vh] overflow-y-auto pr-2" : ""}`}
+                className={`grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3 ${isMobile ? "max-h-[70vh] overflow-y-auto pr-2" : ""}`}
               >
                 {[
                   "Yalidin Express",
                   "Guepex",
+                  "ZR",
                   "DHD",
                   "UPS",
                   "Go livri",

@@ -111,7 +111,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("messages-sent-today")}</p>
-                <p className="text-2xl font-bold text-primary"> {shopData?.analytics?.smsSentToday || 0}</p>
+                <p className="text-2xl font-bold text-primary"> {shopData?.analytics?.totalSMSSentToday || 0}</p>
               </div>
               <MessageSquare className="h-8 w-8 text-primary opacity-50" />
             </div>

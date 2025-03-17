@@ -71,6 +71,11 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
         image: webhookConfig,
       },
       {
+        title: "Send Email to the Development team ",
+        description: "Use this text and send it to Yalidine development team to ensure the webhook is setted correctly : developer@yalidine.com",
+
+      },
+      {
         title: "Finalize Setup",
         description: "Review your information and finalize the setup.",
       },
@@ -117,6 +122,11 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
         title: "Enter Configuration Details",
         description: "Enter the required configuration details for Guepex (You can get those info from the previous step).",
         image: webhookConfig,
+      },
+      {
+        title: "Send Email to the Development team ",
+        description: "Use this text and send it to Guepex development team to ensure the webhook is setted correctly : developer@guepex.com",
+
       },
       {
         title: "Finalize Setup",
@@ -878,5 +888,30 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
      
     ],
-  },}
+  },
+
+  ZR: {
+    name: "ZR express",
+    fields: {
+     
+    },
+    languageOptions: [
+     
+    ],
+    steps: [
+      {
+        title: "Send Email to the Development team ",
+        description: "Use this text and send it to ZR development team to ask them to provide the getDoc() fucntion on their api",
+
+      },
+      {
+        title: "Comming Soon .......",
+        description: "Comming Soon ....",
+      
+      },
+     
+    ],
+  },
+
+}
 

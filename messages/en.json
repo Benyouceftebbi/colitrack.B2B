@@ -408,6 +408,9 @@
     ]
   },
   "signin":{
+    "checkYourEmail":"Check your email",
+    "checkSpam":"Check Spam",
+    "close":"Close",
     "backToSignIn": "Back to Sign In",
     "createAccount": "Create Account",
     "getStarted": "Fill in your details to get started",
