@@ -28,6 +28,7 @@ export function NavSecondaryWithDialogs({ ...props }: {} & React.ComponentPropsW
       {/* Affiliate Marketing Button */}
       <div className="mx-2 my-3 overflow-hidden rounded-lg">
         <button
+        disabled={true}
           onClick={() => setAffiliateOpen(true)}
           className="group relative w-full overflow-hidden rounded-lg p-0.5 transition-all duration-300 hover:shadow-lg"
         >

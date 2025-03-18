@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 export function FeedbackDialog({
   open,
@@ -55,11 +57,13 @@ export function FeedbackDialog({
 
     try {
       // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+   
+
 
       const formData = new FormData(e.currentTarget)
       const comment = formData.get("comment") as string
-
+      //const uploadFeedback=httpsCallable(functions,"getFeedback")
+      //await uploadFeedback({comment,images})
       // Log the form data to console (for demonstration purposes)
       console.log({
         comment,

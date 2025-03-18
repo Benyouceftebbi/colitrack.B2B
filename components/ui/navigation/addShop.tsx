@@ -36,7 +36,7 @@ const formSchema = z.object({
 })
 
 export function AddShopModal() {
-  const { t } = useTranslation()
+  const  t  = useTranslations("navigation")
   const [open, setOpen] = React.useState(false)
   const { addShop } = useShop()
 
@@ -62,19 +62,19 @@ export function AddShopModal() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen} >
+      <DialogTrigger  disabled={true}>
         <div className="flex w-full cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-accent">
           <div className="flex size-6 items-center justify-center rounded-md border bg-background">
             <Store className="size-4" />
           </div>
-          <div className="font-medium text-muted-foreground">{t("navigation.addShop")}</div>
+          <div className="font-medium text-muted-foreground">{t("addShop")}</div>
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("navigation.addNewShop")}</DialogTitle>
-          <DialogDescription>{t("navigation.enterShopDetails")}</DialogDescription>
+          <DialogTitle>{t("addNewShop")}</DialogTitle>
+          <DialogDescription>{t("enterShopDetails")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -83,11 +83,11 @@ export function AddShopModal() {
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("navigation.companyName")}</FormLabel>
+                  <FormLabel>{t("companyName")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input className="pl-10" placeholder={t("navigation.companyNamePlaceholder")} {...field} />
+                      <Input className="pl-10" placeholder={t("companyNamePlaceholder")} {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -99,11 +99,11 @@ export function AddShopModal() {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("navigation.phoneNumber")}</FormLabel>
+                  <FormLabel>{t("phoneNumber")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input className="pl-10" placeholder={t("navigation.phoneNumberPlaceholder")} {...field} />
+                      <Input className="pl-10" placeholder={t("phoneNumberPlaceholder")} {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -115,20 +115,20 @@ export function AddShopModal() {
               name="businessType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("navigation.businessType")}</FormLabel>
+                  <FormLabel>{t("businessType")}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("navigation.selectBusinessType")} />
+                        <SelectValue placeholder={t("selectBusinessType")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="retail">{t("navigation.businessTypes.retail")}</SelectItem>
-                      <SelectItem value="ecommerce">{t("navigation.businessTypes.ecommerce")}</SelectItem>
-                      <SelectItem value="wholesale">{t("navigation.businessTypes.wholesale")}</SelectItem>
-                      <SelectItem value="manufacturing">{t("navigation.businessTypes.manufacturing")}</SelectItem>
-                      <SelectItem value="service">{t("navigation.businessTypes.service")}</SelectItem>
-                      <SelectItem value="other">{t("navigation.businessTypes.other")}</SelectItem>
+                      <SelectItem value="retail">{t("businessTypes.retail")}</SelectItem>
+                      <SelectItem value="ecommerce">{t("businessTypes.ecommerce")}</SelectItem>
+                      <SelectItem value="wholesale">{t("businessTypes.wholesale")}</SelectItem>
+                      <SelectItem value="manufacturing">{t("businessTypes.manufacturing")}</SelectItem>
+                      <SelectItem value="service">{t("businessTypes.service")}</SelectItem>
+                      <SelectItem value="other">{t("businessTypes.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -140,9 +140,9 @@ export function AddShopModal() {
               name="senderId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("navigation.senderIdOptional")}</FormLabel>
+                  <FormLabel>{t("senderIdOptional")}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t("navigation.senderIdPlaceholder")} {...field} />
+                    <Input placeholder={t("senderIdPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,9 +150,9 @@ export function AddShopModal() {
             />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                {t("navigation.cancel")}
+                {t("cancel")}
               </Button>
-              <Button type="submit">{t("navigation.addShop")}</Button>
+              <Button type="submit">{t("addShop")}</Button>
             </DialogFooter>
           </form>
         </Form>
