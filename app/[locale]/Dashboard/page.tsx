@@ -231,8 +231,9 @@ const previousWeekKey = `${currentYear}-${previousWeek}`;
 
 
 
-const currentReturnRate = shopData?.analytics?.returnRateByWeek[currentWeekKey] || 0;
-const previousReturnRate = shopData?.analytics?.returnRateByWeek[previousWeekKey] || 0;
+// Check if the keys exist in returnRateByWeek before accessing them
+const currentReturnRate = shopData?.analytics?.returnRateByWeek?.[currentWeekKey] || 0;
+const previousReturnRate = shopData?.analytics?.returnRateByWeek?.[previousWeekKey] || 0;
 
 
 const percentageChangereturn =
@@ -583,7 +584,7 @@ const percentageChangereturn =
     currentMonth === 1 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
 
   const previousYearMonth = `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
-  const previousMonthTotal = shopData?.analytics?.totalMessagesByMonth[previousYearMonth] || 0;
+  const previousMonthTotal = shopData?.analytics?.totalMessagesByMonth?.previousYearMonth || 0;
   const dailyAverageLastMonth = previousMonthTotal / 30; // Assume 30 days for simplicity
   const todayMessages = shopData?.analytics?.totalSMSSentToday || 0;
 
