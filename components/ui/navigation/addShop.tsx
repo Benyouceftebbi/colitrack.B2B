@@ -36,9 +36,9 @@ const formSchema = z.object({
 })
 
 export function AddShopModal() {
-  const  t  = useTranslations("navigation")
+  const t = useTranslations("navigation")
   const [open, setOpen] = React.useState(false)
-  const { addShop } = useShop()
+  const { shops, setShops, setShopData } = useShop()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,19 +51,33 @@ export function AddShopModal() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    addShop({
+    // Create a new shop with the form values
+    const newShop = {
+      id: `shop-${Date.now()}`, // Generate a simple ID
       companyName: values.companyName,
       phoneNumber: values.phoneNumber,
       businessType: values.businessType,
       senderId: values.senderId || "Colitrack",
-    })
+      sms: [],
+      tracking: [],
+      smsCampaign: [],
+    }
+
+    // Add the new shop to the shops array
+    const updatedShops = [...shops, newShop]
+    setShops(updatedShops)
+
+    // Set the new shop as the current shop
+    setShopData(newShop)
+
+    // Reset the form and close the dialog
     form.reset()
     setOpen(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} >
-      <DialogTrigger  disabled={true}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger disabled={true}>
         <div className="flex w-full cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-accent">
           <div className="flex size-6 items-center justify-center rounded-md border bg-background">
             <Store className="size-4" />
@@ -160,4 +174,3 @@ export function AddShopModal() {
     </Dialog>
   )
 }
-

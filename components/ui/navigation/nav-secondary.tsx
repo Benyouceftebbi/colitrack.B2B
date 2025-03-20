@@ -16,19 +16,20 @@ import {
 import { AffiliateDialog } from "./affiliate-dialog"
 import { FeedbackDialog } from "./feedback-dialog"
 import { SupportDialog } from "./support-dialog"
+import { useShop } from "@/app/context/ShopContext"
 
 export function NavSecondaryWithDialogs({ ...props }: {} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const t = useTranslations("navigation")
   const [feedbackOpen, setFeedbackOpen] = React.useState(false)
   const [supportOpen, setSupportOpen] = React.useState(false)
   const [affiliateOpen, setAffiliateOpen] = React.useState(false)
-
+  const {shopData}=useShop()
   return (
     <>
       {/* Affiliate Marketing Button */}
       <div className="mx-2 my-3 overflow-hidden rounded-lg">
         <button
-        disabled={true}
+          disabled={true}
           onClick={() => setAffiliateOpen(true)}
           className="group relative w-full overflow-hidden rounded-lg p-0.5 transition-all duration-300 hover:shadow-lg"
         >
@@ -58,9 +59,22 @@ export function NavSecondaryWithDialogs({ ...props }: {} & React.ComponentPropsW
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="sm" onClick={() => setFeedbackOpen(true)}>
-                <MessageSquare />
-                <span>{t("submitFeedback")}</span>
+            <SidebarMenuButton
+                size="sm"
+                onClick={() => setFeedbackOpen(true)}
+                className="group relative overflow-hidden"
+              >
+                <MessageSquare className="relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                <span className="relative z-10">{t("submitFeedback")}</span>
+
+                {/* Token indicator */}
+               {!shopData.feedbackSent &&( <div className="relative z-10 ml-auto flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  <Coins className="h-3 w-3" />
+                  <span className="text-xs font-medium">+50</span>
+                </div>)}
+
+                {/* Animated background */}
+                <div className="absolute inset-0 -z-0 translate-y-full bg-gradient-to-r from-amber-100/50 to-amber-200/50 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 dark:from-amber-900/20 dark:to-amber-800/20" />
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>

@@ -61,8 +61,18 @@ export function SupportDialog({
       const formData = new FormData(e.currentTarget)
       const title = formData.get("title") as string
       const description = formData.get("description") as string
-     // const support=httpsCallable(functions,"getSupport")
-      //await support({title,description,images})
+     const support=httpsCallable(functions,"uploadSupportTicket")
+     const formattedImages = await Promise.all(
+      images.map(async (image) => {
+        const reader = new FileReader();
+        return new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(image);
+        });
+      })
+    );
+      await support({title,description,formattedImages})
 
       // Log the form data to console (for demonstration purposes)
       console.log({

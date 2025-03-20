@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Loader2, Upload, X } from 'lucide-react'
+import { Coins, Loader2, Upload, X } from 'lucide-react'
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
+import { useShop } from "@/app/context/ShopContext"
+
 
 export function FeedbackDialog({
   open,
@@ -31,7 +33,7 @@ export function FeedbackDialog({
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [images, setImages] = React.useState<File[]>([])
   const [imageUrls, setImageUrls] = React.useState<string[]>([])
-
+const {shopData,setShopData}=useShop()
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files)
@@ -52,54 +54,63 @@ export function FeedbackDialog({
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
+    e.preventDefault();
+    setIsSubmitting(true);
+  
     try {
-      // Simulate API call with a timeout
-   
-
-
-      const formData = new FormData(e.currentTarget)
-      const comment = formData.get("comment") as string
-      //const uploadFeedback=httpsCallable(functions,"getFeedback")
-      //await uploadFeedback({comment,images})
-      // Log the form data to console (for demonstration purposes)
-      console.log({
-        comment,
-        images: images.map((img) => img.name),
-      })
-
+      const formData = new FormData(e.currentTarget);
+      const comment = formData.get("comment") as string;
+      const uploadFeedback = httpsCallable(functions, "uploadFeedback");
+  
+      // Convert images to Base64
+      const formattedImages = await Promise.all(
+        images.map(async (image) => {
+          const reader = new FileReader();
+          return new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(image);
+          });
+        })
+      );
+  
+      await uploadFeedback({ comment, images: formattedImages });
+      setShopData((prev)=>({...prev,tokens:prev.tokens+50,feedbackSent:true}))
       toast({
-        title: t("feedbackSubmitted"),
-        description: t("thankYouFeedback"),
-      })
-
-      // Reset form and close dialog
-      e.currentTarget.reset()
-      setImages([])
-      setImageUrls([])
-      onOpenChange(false)
+        title: "Feedback submitted",
+        description: "Thank you for your feedback!",
+      });
+  
+      setImages([]);
+      setImageUrls([]);
+      onOpenChange(false);
     } catch (error) {
-      console.error("Error submitting feedback:", error)
+      console.error("Error submitting feedback:", error);
       toast({
-        title: t("error"),
-        description: t("feedbackSubmitError"),
+        title: "Error",
+        description: "Failed to submit feedback.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{t("submitFeedback")}</DialogTitle>
-            <DialogDescription>{t("shareThoughts")}</DialogDescription>
-          </DialogHeader>
+        <DialogHeader>
+              <DialogTitle>Submit Feedback</DialogTitle>
+              <DialogDescription className="flex flex-col items-center text-center">
+                <span>Share your thoughts and suggestions with us.</span>
+               {!shopData.feedbackSent &&( <div className="mt-2 flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  <Coins className="h-4 w-4" />
+                  <span className="text-sm font-medium">Earn 50 tokens for your feedback!</span>
+                </div>)}
+              </DialogDescription>
+            </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="comment">{t("yourFeedback")}</Label>
@@ -167,5 +178,8 @@ export function FeedbackDialog({
         </form>
       </DialogContent>
     </Dialog>
+
+          
+          </>
   )
 }
