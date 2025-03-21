@@ -58,13 +58,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           typeof column.header === "function"
             ? (props: any) => column.header({ ...props, t })
             : t(column.header as string), // Translate static headers
-        cell: 
-          typeof column.cell === "function"
-            ? (props: any) => column.cell({ ...props, t })
-            : column.cell,
+        cell: typeof column.cell === "function" ? (props: any) => column.cell({ ...props, t }) : column.cell,
       })),
-    [columns, t]
-  );
+    [columns, t],
+  )
 
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [reminderMessage, setReminderMessage] = React.useState("")
@@ -161,7 +158,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <div className="space-y-4">
-      <TableToolbar table={table} />
+      <TableToolbar table={table} setGlobalFilter={setGlobalFilter} globalFilter={globalFilter} />
 
       <div className="rounded-lg border bg-card">
         <Table>
@@ -252,3 +249,4 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     </div>
   )
 }
+

@@ -847,8 +847,12 @@
     "select-date": "Sélectionner une date"
   },
   "table": {
+    "search-placeholder": "Rechercher",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
     "recent-messages": "Messages récents",
     "tracking": "Numéro de suivi",
+    "clear-search": "Effacer la recherche",
     "recipient": "Destinataire",
     "template": "Modèle",
     "status": "Statut",
@@ -901,6 +905,31 @@
       "ready-for-pickup": "Prêt à être récupéré"
     }
     
+  },
+  "import": {
+    "tracking-ids-found": "Identifiants de suivi trouvés",
+    "import-tracking": "Importer les identifiants de suivi",
+    "import-description": "Téléchargez un fichier Excel contenant les identifiants de suivi à importer",
+    "drop-file": "Déposez le fichier Excel ici...",
+    "drag-or-click": "Glissez-déposez un fichier Excel ici, ou cliquez pour sélectionner",
+    "supported-formats": "Prend en charge les fichiers .xlsx, .xls et .csv",
+    "select-tracking-column": "Sélectionnez la colonne contenant les identifiants de suivi",
+    "select-column": "Sélectionnez une colonne",
+    "preview": "Aperçu",
+    "tracking-ids-preview": "Identifiants de suivi de la colonne sélectionnée :",
+    "empty": "vide",
+    "cancel": "Annuler",
+    "import": "Importer",
+    "importing": "Importation...",
+    "error": "Erreur",
+    "success": "Succès",
+    "import-success": "Importation réussie",
+    "import-success-message": "Les identifiants de suivi ont été importés avec succès",
+    "empty-file": "Le fichier semble être vide",
+    "parse-error": "Échec de l'analyse du fichier. Assurez-vous qu'il s'agit d'un fichier Excel valide.",
+    "read-error": "Échec de la lecture du fichier",
+    "no-tracking-ids": "Aucun identifiant de suivi trouvé dans la colonne sélectionnée",
+    "import-error": "Échec de l'importation des identifiants de suivi"
   }
   
   
@@ -923,6 +952,10 @@
     }
   },
   "navigation": {
+    "customBusinessType": "Type d'entreprise personnalisé",
+    "customBusinessTypePlaceholder": "Type d'entreprise personnalisé",
+    "firstName": "Prénom",
+    "firstNamePlaceholder": "Prénom",
     "addShop": "Ajouter une boutique",
     "addNewShop": "Ajouter une nouvelle boutique",
     "enterShopDetails": "Entrez les détails de votre boutique pour l'ajouter à votre compte.",

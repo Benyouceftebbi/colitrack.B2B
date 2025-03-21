@@ -839,6 +839,10 @@
       "select-date": "اختر تاريخًا"
     },
     "table": {
+      "search-placeholder": "بحث",
+      "filter": "تصفية",
+      "reset": "إعادة تعيين",
+      "clear-search": "مسح البحث",
       "recent-messages": "الرسائل الحديثة",
       "tracking": "رقم التتبع",
       "recipient": "المستلم",
@@ -893,7 +897,32 @@
         "ready-for-pickup": "جاهز للاستلام"
       }
       
-   }
+   },
+   "import": {
+    "tracking-ids-found": "تم العثور على معرفات التتبع",
+    "import-tracking": "استيراد معرفات التتبع",
+    "import-description": "قم بتحميل ملف Excel يحتوي على معرفات التتبع للاستيراد",
+    "drop-file": "أسقط ملف Excel هنا...",
+    "drag-or-click": "قم بسحب وإفلات ملف Excel هنا، أو انقر لتحديده",
+    "supported-formats": "يدعم ملفات .xlsx و .xls و .csv",
+    "select-tracking-column": "حدد العمود الذي يحتوي على معرفات التتبع",
+    "select-column": "حدد عمودًا",
+    "preview": "معاينة",
+    "tracking-ids-preview": "معرفات التتبع من العمود المحدد:",
+    "empty": "فارغ",
+    "cancel": "إلغاء",
+    "import": "استيراد",
+    "importing": "جارٍ الاستيراد...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "import-success": "تم الاستيراد بنجاح",
+    "import-success-message": "تم استيراد معرفات التتبع بنجاح",
+    "empty-file": "يبدو أن الملف فارغ",
+    "parse-error": "فشل في تحليل الملف. يرجى التأكد من أنه ملف Excel صالح.",
+    "read-error": "فشل في قراءة الملف",
+    "no-tracking-ids": "لم يتم العثور على معرفات التتبع في العمود المحدد",
+    "import-error": "فشل في استيراد معرفات التتبع"
+  }
   },
  
   
@@ -915,6 +944,10 @@
     }
   },
   "navigation": {
+    "customBusinessType": "نوع النشاط التجاري المخصص",
+  "customBusinessTypePlaceholder": "نوع النشاط التجاري المخصص",
+  "firstName": "الاسم الأول",
+  "firstNamePlaceholder": "الاسم الأول",
     "addShop": "إضافة متجر",
     "addNewShop": "إضافة متجر جديد",
     "enterShopDetails": "أدخل تفاصيل متجرك لإضافته إلى حسابك.",

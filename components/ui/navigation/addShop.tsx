@@ -4,7 +4,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Building2, Phone, Store } from "lucide-react"
+import { Building2, Phone, Store, User } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useShop } from "@/app/context/ShopContext"
 
 const formSchema = z.object({
+  firstName: z.string().min(2, {
+    message: "First name must be at least 2 characters.",
+  }),
   companyName: z.string().min(2, {
     message: "Company name must be at least 2 characters.",
   }),
@@ -32,36 +35,50 @@ const formSchema = z.object({
   businessType: z.string().min(1, {
     message: "Please select a business type.",
   }),
-  senderId: z.string().optional(),
+  customBusinessType: z.string().optional(),
 })
 
 export function AddShopModal() {
   const t = useTranslations("navigation")
   const [open, setOpen] = React.useState(false)
-  const { shops, setShops, setShopData } = useShop()
+  const { shops, setShops, setShopData,shopData } = useShop()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: "",
       companyName: "",
       phoneNumber: "",
       businessType: "",
-      senderId: "",
+      customBusinessType: "",
     },
   })
 
+  // Watch the businessType field to conditionally show the custom business type input
+  const businessType = form.watch("businessType")
+
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // Determine the final business type (use custom if "other" was selected)
+    const finalBusinessType =
+      values.businessType === "other" && values.customBusinessType ? values.customBusinessType : values.businessType
+
     // Create a new shop with the form values
     const newShop = {
       id: `shop-${Date.now()}`, // Generate a simple ID
+      firstName: values.firstName,
       companyName: values.companyName,
       phoneNumber: values.phoneNumber,
-      businessType: values.businessType,
-      senderId: values.senderId || "Colitrack",
+      businessType: finalBusinessType,
+      senderId: "Colitrack", // Default sender ID
       sms: [],
       tracking: [],
       smsCampaign: [],
-    }
+      lng:'',
+      terms:true,
+      deliveryCompany:'',
+      email:shopData.email
+
+     }
 
     // Add the new shop to the shops array
     const updatedShops = [...shops, newShop]
@@ -77,7 +94,7 @@ export function AddShopModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger disabled={true}>
+      <DialogTrigger asChild>
         <div className="flex w-full cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-accent">
           <div className="flex size-6 items-center justify-center rounded-md border bg-background">
             <Store className="size-4" />
@@ -92,6 +109,22 @@ export function AddShopModal() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("firstName")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input className="pl-10" placeholder={t("firstNamePlaceholder")} {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="companyName"
@@ -149,19 +182,21 @@ export function AddShopModal() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="senderId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("senderIdOptional")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={t("senderIdPlaceholder")} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {businessType === "other" && (
+              <FormField
+                control={form.control}
+                name="customBusinessType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("customBusinessType")}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t("customBusinessTypePlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 {t("cancel")}
@@ -174,3 +209,4 @@ export function AddShopModal() {
     </Dialog>
   )
 }
+

@@ -840,7 +840,11 @@
       "select-date": "Select a date"
     },
     "table": {
+      "search-placeholder":"Search",
+      "filter":"Filter",
+      "reset":"Reset",
       "recent-messages":"Recent Messages",
+      "clear-search":"Clear Search",
       "tracking": "Tracking #",
       "recipient": "Recipient",
       "template": "Template",
@@ -893,6 +897,31 @@
           "out-for-delivery":"Out for Delivery",
           "ready-for-pickup": "Ready for Pickup"
         }
+    }, 
+    "import": {
+      "tracking-ids-found":"Tracking IDs Found",
+      "import-tracking": "Import Tracking IDs",
+      "import-description": "Upload an Excel file containing tracking IDs to import",
+      "drop-file": "Drop the Excel file here...",
+      "drag-or-click": "Drag and drop an Excel file here, or click to select",
+      "supported-formats": "Supports .xlsx, .xls, and .csv files",
+      "select-tracking-column": "Select column containing tracking IDs",
+      "select-column": "Select a column",
+      "preview": "Preview",
+      "tracking-ids-preview": "Tracking IDs from selected column:",
+      "empty": "empty",
+      "cancel": "Cancel",
+      "import": "Import",
+      "importing": "Importing...",
+      "error": "Error",
+      "success": "Success",
+      "import-success": "Import Successful",
+      "import-success-message": "Tracking IDs imported successfully",
+      "empty-file": "The file appears to be empty",
+      "parse-error": "Failed to parse the file. Please ensure it's a valid Excel file.",
+      "read-error": "Failed to read the file",
+      "no-tracking-ids": "No tracking IDs found in the selected column",
+      "import-error": "Failed to import tracking IDs"
     }
 
   
@@ -916,6 +945,10 @@
       }
     },
     "navigation": {
+      "customBusinessType":"Custom Business Type",
+      "customBusinessTypePlaceholder":"Custom Business Type",
+      "firstName":"First Name",
+      "firstNamePlaceholder":"First Name",
       "addShop": "Add Shop",
       "addNewShop": "Add New Shop",
       "enterShopDetails": "Enter the details of your shop to add it to your account.",
