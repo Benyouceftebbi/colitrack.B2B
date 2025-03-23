@@ -50,7 +50,18 @@ export default function Component() {
   const isMobile = useIsMobile()
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router=useRouter()
-
+  useEffect(() => {
+    if (shopData.deliveryCompany && shopData.lng) {
+      setShippingProviders([
+        {
+          provider: shopData.deliveryCompany,
+          language: shopData.lng,
+        },
+      ])
+    } else {
+      setShippingProviders([])
+    }
+  }, [shopData]) // Update shippingProviders when shopData changes
   useEffect(() => {
     // Only detect the initial preference, don't modify the DOM
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
