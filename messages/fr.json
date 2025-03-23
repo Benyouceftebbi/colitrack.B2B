@@ -571,6 +571,8 @@
 },
 
 "settings": {
+  "token":"Token",
+  "guid":"GUID",
   "current-step":"Étape actuelle",
   "complete":"Complète",
   "setup-process": "Processus d'installation",

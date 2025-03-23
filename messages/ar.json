@@ -647,6 +647,8 @@
 },
 
 "settings": {
+  "token":"Token",
+  "guid":"GUID",
   "current-step":"الخطوة الحالية",
   "complete":"مكتمل",
   "setup-process": "عملية الإعداد",

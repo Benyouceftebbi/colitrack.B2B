@@ -9,7 +9,7 @@ import stepThree from "../components/dhd-screens/3rd-step-dhd.jpg"
 import submitDhd from "../components/dhd-screens/submition-step-dhd.png"
 import pending from "../components/dhd-screens/pending-step-dhd.png"
 import activated from "../components/dhd-screens/activated-step-dhd.png"
-
+import noestlast from "../components/dhd-screens/noest-last-step.png"
 export interface ProviderConfig {
   name: string
   fields: {
@@ -131,6 +131,53 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Finalize Setup",
         description: "Review your information and finalize the setup.",
+      },
+    ],
+  },
+  "NOEST Express": {
+    name: "NOEST Express",
+    fields: {
+      apiId: { label: "Token", type: "text", placeholder: "Enter NOEST Express Token" },
+      apiToken:{label:"GUID",type:"text",placeholder:"Enter NOEST Express GUID"}
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Start NOEST Express Integration",
+        description: "Begin the NOEST Express integration process by accessing the integration page.",
+        image: stepOne,
+      },
+      {
+        title: "Enter Integration Details",
+        description: "Fill in the required integration details, including your company information.",
+        image: stepTwo,
+      },
+      {
+        title: "Provide Additional Information",
+        description: "Enter any additional information required for the NOEST Express integration.",
+        image: stepThree,
+      },
+      {
+        title: "Submit Integration Request",
+        description: "Review your information and submit the NOEST Express integration request.",
+        image: submitDhd,
+      },
+      {
+        title: "Await Approval",
+        description: "Your integration request is pending. Wait for NOEST Express to review and approve it.",
+        image: pending,
+      },
+      {
+        title: "Integration Activated",
+        description: "Congratulations! Your NOEST Express integration has been activated.",
+        image: noestlast,
+      },
+      {
+        title: "View API Token and GUID",
+        description: "Access your API token, which you'll need to configure the integration in your system and fill the following inputs .",
       },
     ],
   },
@@ -271,52 +318,6 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Test Integration",
         description: "Perform a test to ensure the UPS integration is working correctly.",
-      },
-    ],
-  },
-  "NOEST Express": {
-    name: "NOEST Express",
-    fields: {
-      accessKey: { label: "Access Key", type: "text", placeholder: "Enter NOEST Express Access Key" },
-    },
-    languageOptions: [
-      { value: "fr", label: "Français" },
-      { value: "ar", label: "العربية" },
-    ],
-    steps: [
-      {
-        title: "Start NOEST Express Integration",
-        description: "Begin the NOEST Express integration process by accessing the integration page.",
-        image: stepOne,
-      },
-      {
-        title: "Enter Integration Details",
-        description: "Fill in the required integration details, including your company information.",
-        image: stepTwo,
-      },
-      {
-        title: "Provide Additional Information",
-        description: "Enter any additional information required for the NOEST Express integration.",
-        image: stepThree,
-      },
-      {
-        title: "Submit Integration Request",
-        description: "Review your information and submit the NOEST Express integration request.",
-        image: submitDhd,
-      },
-      {
-        title: "Await Approval",
-        description: "Your integration request is pending. Wait for NOEST Express to review and approve it.",
-        image: pending,
-      },
-      {
-        title: "Integration Activated",
-        description: "Congratulations! Your NOEST Express integration has been activated.",
-        image: activated,
-      },
-      {
-        title: "View API Token",
-        description: "Access your API token, which you'll need to configure the integration in your system.",
       },
     ],
   },

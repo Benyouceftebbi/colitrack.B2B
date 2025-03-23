@@ -14,10 +14,9 @@ export function SMSHistory() {
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold glow">{t("recent-messages")}</h3>
-        <ExcelImportButton />
+        {shopData.deliveryCompany === "NOEST Express" && <ExcelImportButton />}
       </div>
       <DataTable columns={columns} data={shopData.sms} />
     </div>
   )
 }
-

@@ -133,7 +133,7 @@ export function Steps({
       }
       submissionData.lng = language
 
-      if (provider === "Yalidin Express" || provider === "Guepex") {
+      if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express") {
         if (!data.apiId || !data.apiToken) {
           throw new Error(t("yalidin-credentials-required"))
         }
@@ -145,7 +145,7 @@ export function Steps({
       }
 
       const requiredFields =
-        provider === "Yalidin Express" || provider === "Guepex" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+        provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
 
       const missingFields = requiredFields.filter((field) => !submissionData[field])
       if (missingFields.length > 0) {
@@ -378,7 +378,7 @@ Best regards,
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {(provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 4 ? (
+                {(provider === "Yalidin Express" || provider === "Guepex" ) && currentStep === steps.length - 4 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input
@@ -491,14 +491,14 @@ Best regards,
 
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    {provider === "Yalidin Express" || provider === "Guepex" ? (
+                    {provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ? (
                       <>
                         <div>
-                          <label htmlFor="apiId" className="block text-lg font-medium mb-2">
-                            {t("api-id")}
-                          </label>
+                        <label htmlFor="apiId" className="block text-lg font-medium mb-2">
+                        {provider === "NOEST Express" ? t("token") : t("api-token")}
+                      </label>
                           <Input
-                            id="apiId"
+                            id={"apiId"}
                             type="text"
                             placeholder={t("enter-api-id")}
                             {...register("apiId", { required: true })}
@@ -507,9 +507,9 @@ Best regards,
                           {errors.apiId && <p className="mt-1 text-sm text-red-500">{t("api-id-required")}</p>}
                         </div>
                         <div>
-                          <label htmlFor="apiToken" className="block text-lg font-medium mb-2">
-                            {t("api-token")}
-                          </label>
+                        <label htmlFor="apiId" className="block text-lg font-medium mb-2">
+                        {provider === "NOEST Express" ? t("guid") : t("api-token")}
+                      </label>
                           <Input
                             id="apiToken"
                             type="text"
