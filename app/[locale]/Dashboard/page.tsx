@@ -19,7 +19,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { useShop } from "@/app/context/ShopContext"
-import { doc, setDoc } from "firebase/firestore"
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import { DataTable } from "./messages/message-center/sms-history/data-table"
 import { columns } from "./messages/message-center/sms-history/columns"
@@ -366,7 +366,65 @@ const percentageChangereturn =
       throw error
     }
   }
+  const fetchContactRates = async () => {
+    try {
+      // Query only shops that have a "deliveryCompany" field
+      const shopsQuery = query(collection(db, "Shops"), where("deliveryCompany", "!=", null));
+      const querySnapshot = await getDocs(shopsQuery);
+  
+      let totalContacts = 0;
+      let rateCounts = { Ooredoo: 0, Mobilis: 0, Djezzy: 0 };
+  
+      // Fetch Tracking subcollections in parallel
+      await Promise.all(
+        querySnapshot.docs.map(async (shopDoc) => {
+          const trackingDocs = await getDocs(collection(shopDoc.ref, "Tracking"));
+         
+          
+          trackingDocs.docs.forEach((trackingDoc) => {
+            const trackingData = trackingDoc.data().data;
+            const phone=trackingDoc.data().data.contact_phone
+            console.log("id",phone);
 
+                if (typeof phone === "string") {
+                  totalContacts++; // Count total contacts
+                  if (phone.startsWith("05")) {
+                    rateCounts.Ooredoo++;
+                  } else if (phone.startsWith("06")) {
+                    rateCounts.Mobilis++;
+                  } else if (phone.startsWith("07")) {
+                    rateCounts.Djezzy++;
+                  }
+                }
+              
+            
+          });
+        })
+      );
+  
+      // Calculate percentages
+      const ratePercentages = {
+        Ooredoo: totalContacts ? ((rateCounts.Ooredoo / totalContacts) * 100).toFixed(2) + "%" : "0%",
+        Mobilis: totalContacts ? ((rateCounts.Mobilis / totalContacts) * 100).toFixed(2) + "%" : "0%",
+        Djezzy: totalContacts ? ((rateCounts.Djezzy / totalContacts) * 100).toFixed(2) + "%" : "0%",
+      };
+  
+      const smsCosts = { Ooredoo: 7, Mobilis: 4, Djezzy: 4 };
+
+    // Calculate average SMS cost
+    const totalSmsCost =
+      rateCounts.Ooredoo * smsCosts.Ooredoo +
+      rateCounts.Mobilis * smsCosts.Mobilis +
+      rateCounts.Djezzy * smsCosts.Djezzy;
+
+    const averageSmsCost = totalContacts ? (totalSmsCost / totalContacts).toFixed(2) : "0.00";
+
+    console.log({ totalContacts, rateCounts, ratePercentages, averageSmsCost });
+    return { totalContacts, rateCounts, ratePercentages, averageSmsCost };
+    } catch (err) {
+      console.error("Error fetching contact rates:", err);
+    }
+  };
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
@@ -423,7 +481,7 @@ const percentageChangereturn =
               variant="outline"
               size="sm"
               className="text-xs sm:text-sm w-full sm:w-auto"
-              
+              //onClick={fetchContactRates}
             >
               {t("export-data")}
             </Button>

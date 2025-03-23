@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { TrackingDetails } from './components/TrackingDetails';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
 import { useTranslations } from 'next-intl';
 import './index.css'
@@ -22,7 +22,7 @@ export default function App() {
         try {
           const trackingDoc = await getDoc(doc(db, 'Tracking', trackingParam));
           if (trackingDoc.exists()) {
-            
+            await setDoc(doc(db, 'Tracking',  trackingParam  ), { opened: true }, { merge: true });
             setShipmentSteps(trackingDoc.data().shippmentTrack|| []);
             setTrackingNumber(trackingParam);
             setIsTracking(true);

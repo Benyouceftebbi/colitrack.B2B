@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState,ReactNode } from 'react';
-import { doc, getDoc, getDocs, collection, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import {
     Sidebar as SidebarPrimitive,
@@ -22,61 +22,91 @@ interface ShopContextType {
  shops:any
 }
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
-export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({ userId, children }) => {
+export const ShopProvider: React.FC<{ userId: string;userEmail:string;children: ReactNode }> = ({ userId,userEmail, children }) => {
  const [shopData, setShopData] = useState<any>(null);
  const [shops,setShops]=useState<any>([])
  const [loading, setLoading] = useState<boolean>(true);
  const [error, setError] = useState<string | null>(null);
+
  useEffect(() => {
-  const fetchShopData = async () => {
-    if (!userId) {
+
+  
+const fetchShopData = async () => {
+
+  
+    if (!userEmail) {
+      console.log("hello how are you");
+      
       setLoading(false);
       return;
     }
 
     try {
-      const shopRef = doc(db, "Shops", userId);
+   
+  
+      // Query Firestore for all shops where email matches userEmail
+      const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail));
 
-      // Fetch shop document, SMS, and Trackings in parallel
-      const [shopDoc, smsDocs, trackingDocs,smsCampaign] = await Promise.all([
-        getDoc(shopRef),
-        getDocs(collection(shopRef, "SMS")),
-        getDocs(collection(shopRef, "Tracking")),
-        getDocs(collection(shopRef, "SMScampaign")),
-      ]);
+      const shopDocs = await getDocs(shopsQuery);
+      console.log("dasasdasd2222226655",userEmail);
+console.log("mamam",shopDocs.size);
 
-      if (!shopDoc.exists()) {
+      if (shopDocs.empty) {
+        console.log("dasasdasd");
+        
         setError("No shop data found");
         setLoading(false);
         return;
       }
 
-      const shopData = { ...shopDoc.data(), id: shopDoc.id };
+      const fetchedShops = [];
 
-      // Process Trackings once: Create both a map and an array
-      const trackingMap = {};
-      const trackingData = trackingDocs.docs.map((trackingDoc) => {
-        const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id };
-        trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null;
-        return trackingInfo;
-      });
+      for (const shopDoc of shopDocs.docs) {
+        const shopData = { ...shopDoc.data(), id: shopDoc.id };
 
-      // Enrich SMS data with the lastStatus from Trackings
-      const smsData = smsDocs.docs.map((smsDoc) => ({
-        ...smsDoc.data(),
-        id: smsDoc.id,
-        lastStatus: trackingMap[smsDoc.data().trackingId] || null,
-      }));
-      const smsCampaignData = smsCampaign.docs.map((smsDoc) => ({
-        ...smsDoc.data(),
-        id: smsDoc.id,
-      }));
-      shopData.sms = smsData;
-      shopData.tracking = trackingData;
-      shopData.smsCampaign=smsCampaignData
 
-      setShopData(shopData);
-      setShops([shopData]);
+        // Reference to shop document
+        const shopRef = doc(db, "Shops", shopDoc.id);
+
+        // Fetch subcollections in parallel
+        const [smsDocs, trackingDocs, smsCampaignDocs] = await Promise.all([
+          getDocs(collection(shopRef, "SMS")),
+          getDocs(collection(shopRef, "Tracking")),
+          getDocs(collection(shopRef, "SMScampaign")),
+        ]);
+
+        // Process tracking data
+        const trackingMap = {};
+        const trackingData = trackingDocs.docs.map((trackingDoc) => {
+          const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id };
+          trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null;
+          return trackingInfo;
+        });
+
+        // Process SMS data
+        const smsData = smsDocs.docs.map((smsDoc) => ({
+          ...smsDoc.data(),
+          id: smsDoc.id,
+          lastStatus: trackingMap[smsDoc.data().trackingId] || null, // Match lastStatus
+        }));
+
+        // Process SMS campaigns
+        const smsCampaignData = smsCampaignDocs.docs.map((smsDoc) => ({
+          ...smsDoc.data(),
+          id: smsDoc.id,
+        }));
+
+        // Attach subcollections
+        shopData.sms = smsData;
+        shopData.tracking = trackingData;
+        shopData.smsCampaign = smsCampaignData;
+
+        fetchedShops.push(shopData);
+      }
+
+      // Set the first retrieved shop as the main shopData
+      setShopData(fetchedShops[0] || null);
+      setShops(fetchedShops);
     } catch (err) {
       setError("Error fetching shop data");
     } finally {
@@ -85,28 +115,8 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
   };
 
   fetchShopData();
-}, [userId]);
-useEffect(() => {
-  if (!userId) return;
+}, [userEmail])
 
-  // Reference to the SMScampaign collection
-  const campaignRef = collection(db, "Shops", userId, "SMScampaign");
-
-  // Listen for changes in all campaigns
-  const unsubscribe = onSnapshot(campaignRef, (snapshot) => {
-    const updatedCampaigns = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setShopData((prevShopData: any) => ({
-      ...prevShopData,
-      smsCampaign:updatedCampaigns,
-    }));
-
-  });
-
-  return () => unsubscribe(); // Cleanup listener on unmount
-}, [userId]);
  if(loading===false && shopData){
   return (
    <ShopContext.Provider value={{ shopData, loading, error,setShopData,setShops,shops}}>

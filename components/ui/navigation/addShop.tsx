@@ -21,6 +21,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useShop } from "@/app/context/ShopContext"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -57,35 +59,34 @@ export function AddShopModal() {
   // Watch the businessType field to conditionally show the custom business type input
   const businessType = form.watch("businessType")
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Determine the final business type (use custom if "other" was selected)
     const finalBusinessType =
       values.businessType === "other" && values.customBusinessType ? values.customBusinessType : values.businessType
 
     // Create a new shop with the form values
     const newShop = {
-      id: `shop-${Date.now()}`, // Generate a simple ID
       firstName: values.firstName,
       companyName: values.companyName,
       phoneNumber: values.phoneNumber,
       businessType: finalBusinessType,
-      senderId: "Colitrack", // Default sender ID
       sms: [],
       tracking: [],
       smsCampaign: [],
-      lng:'',
       terms:true,
-      deliveryCompany:'',
-      email:shopData.email
-
+      email:shopData.email,
+      tokens:0,
      }
+    const addShop = httpsCallable(functions, "addShop")
+    const response = await addShop({ newShop })
+    const newShopWithId = { ...newShop, id: response.data.id }
 
     // Add the new shop to the shops array
-    const updatedShops = [...shops, newShop]
+    const updatedShops = [...shops, newShopWithId]
     setShops(updatedShops)
 
     // Set the new shop as the current shop
-    setShopData(newShop)
+    setShopData(newShopWithId)
 
     // Reset the form and close the dialog
     form.reset()

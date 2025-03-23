@@ -39,7 +39,7 @@ export default function DashboardLayout({
   return ( 
 
     <SidebarProvider>
-        <ShopProvider userId={user.uid}>
+        <ShopProvider userId={user.uid} userEmail={user.email}>
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
