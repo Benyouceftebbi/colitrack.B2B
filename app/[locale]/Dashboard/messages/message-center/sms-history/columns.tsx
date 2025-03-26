@@ -31,41 +31,6 @@ export const columns: ColumnDef<Message>[] = [
     cell: ({ row }) => <span className="font-mono text-sm">{row.getValue("phoneNumber")}</span>,
   },
   {
-    accessorKey: "location",
-    header: ({ t }) => t("location"),
-    cell: ({ row }) => <span className="text-sm">{row.getValue("location")}</span>,
-  },
-  {
-    accessorKey: "messageTypes",
-    header: ({ t }) => t("message-types"),
-    cell: ({ row }) => {
-      const messageTypes = row.getValue("messageTypes") as string[] | undefined
-      return (
-        <div className="flex flex-wrap gap-1">
-          {messageTypes && messageTypes.length > 0 ? (
-            messageTypes.map((type, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className={
-                  type === "Real-Time Tracking"
-                    ? "bg-blue-500/10 text-blue-500"
-                    : type === "Delivery Alert"
-                      ? "bg-emerald-500/10 text-emerald-500"
-                      : "bg-amber-500/10 text-amber-500"
-                }
-              >
-                {type}
-              </Badge>
-            ))
-          ) : (
-            <span className="text-sm text-muted-foreground">No messages</span>
-          )}
-        </div>
-      )
-    },
-  },
-  {
     accessorKey: "lastStatus",
     header: ({ t }) => t("status"),
     cell: ({ row, t }) => {
@@ -89,10 +54,42 @@ export const columns: ColumnDef<Message>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
-    header: ({ t }) => t("sent"),
+    accessorKey: "messageTypes",
+    header: ({ t }) => t("message-types"),
     cell: ({ row }) => {
-      const createdAtTimestamp = row.getValue("createdAt")
+      const messageTypes = row.getValue("messageTypes") as string[] | undefined
+      return (
+        <div className="flex flex-wrap gap-1">
+          {messageTypes && messageTypes.length > 0 ? (
+            messageTypes.map((type, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className={
+                  type === "shipped" ||  type === "out-for-delivery" ||  type === "ready-for-pickup"
+                    ? "bg-blue-500/10 text-blue-500"
+                    : "bg-emerald-500/10 text-emerald-500"
+                      //? 
+                      //: "bg-amber-500/10 text-amber-500"
+                }
+              >
+                {type}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-sm text-muted-foreground">No messages</span>
+          )}
+        </div>
+      )
+    },
+  },
+
+  {
+    accessorKey: "lastUpdated",
+    header: ({ t }) => t("lastUpdated"),
+    cell: ({ row }) => {
+      const createdAtTimestamp = row.getValue("lastUpdated")
+      if (!createdAtTimestamp) return null; // Return null if lastUpdated doesn't exist
       const date = createdAtTimestamp instanceof Date ? createdAtTimestamp : new Date(createdAtTimestamp.toDate())
       return <span className="text-sm text-muted-foreground">{formatDistanceToNow(date, { addSuffix: true })}</span>
     },

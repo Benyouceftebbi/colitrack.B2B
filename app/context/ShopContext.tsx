@@ -75,20 +75,33 @@ console.log("mamam",shopDocs.size);
           getDocs(collection(shopRef, "SMScampaign")),
         ]);
 
-        // Process tracking data
         const trackingMap = {};
-        const trackingData = trackingDocs.docs.map((trackingDoc) => {
+        const smsData = [];
+        const trackingData=[]
+        // Process tracking and SMS data in a single loop
+        trackingDocs.docs.forEach((trackingDoc) => {
           const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id };
           trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null;
-          return trackingInfo;
+
+          // Find corresponding SMS documents
+          const relatedSmsDocs = smsDocs.docs.filter(smsDoc => smsDoc.data().trackingId === trackingInfo.id);
+          const messageTypes = relatedSmsDocs.map(smsDoc => smsDoc.data().type);
+
+          // Add messageTypes to trackingInfo
+          trackingInfo.messageTypes = messageTypes;
+          trackingInfo.phoneNumber = trackingInfo.data.contact_phone || trackingInfo.data.phone;
+          // Add trackingInfo to trackingData
+          trackingData.push(trackingInfo);
         });
 
         // Process SMS data
-        const smsData = smsDocs.docs.map((smsDoc) => ({
-          ...smsDoc.data(),
-          id: smsDoc.id,
-          lastStatus: trackingMap[smsDoc.data().trackingId] || null, // Match lastStatus
-        }));
+        smsDocs.docs.forEach((smsDoc) => {
+          smsData.push({
+            ...smsDoc.data(),
+            id: smsDoc.id,
+            lastStatus: trackingMap[smsDoc.data().trackingId] || null, // Match lastStatus
+          });
+        });
 
         // Process SMS campaigns
         const smsCampaignData = smsCampaignDocs.docs.map((smsDoc) => ({

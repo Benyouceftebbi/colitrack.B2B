@@ -142,7 +142,7 @@ export default function Dashboard() {
       result.push({
         month: monthName,
         totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.[yearMonth] || 0,
-        totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign?.[yearMonth] || 0,
+        totalSmsSentInCampaign: shopData.analytics?.totalSMSComapignByMonth?.[yearMonth] || 0,
       })
     }
 

@@ -68,6 +68,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   const [selectedRecipient, setSelectedRecipient] = React.useState<string | null>(null)
   const [selectedTrackingId, setSelectedTrackingId] = React.useState<string | null>(null)
   const { shopData, setShopData } = useShop()
+console.log("dd",data);
 
   // Custom filter function for messageTypes array
   const messageTypesFilterFn = React.useCallback((row: any, columnId: string, filterValue: any) => {

@@ -80,7 +80,7 @@ export function SMSHistory() {
         <h3 className="text-lg font-semibold glow">{t("recent-parcels") || "Recent Parcels"}</h3>
         {shopData.deliveryCompany === "NOEST Express" && <ExcelImportButton />}
       </div>
-      <DataTable columns={columns} data={sampleParcelData} />
+      <DataTable columns={columns} data={shopData.tracking} />
     </div>
   )
 }
