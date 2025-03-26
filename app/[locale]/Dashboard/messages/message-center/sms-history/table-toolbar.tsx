@@ -17,6 +17,7 @@ interface TableToolbarProps<TData> {
   table: Table<TData>
 }
 
+// Update the filter to work with parcel status and message types
 export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
   const t = useTranslations("messages.table")
   const isFiltered = table.getState().columnFilters.length > 0 || table.getState().globalFilter !== ""
@@ -28,7 +29,12 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
     table.getCoreRowModel().rows.forEach((row) => {
       const value = row.getValue(columnId)
       if (value !== undefined && value !== null) {
-        uniqueValues.add(value as string)
+        if (Array.isArray(value)) {
+          // For arrays like messageTypes
+          value.forEach((v) => uniqueValues.add(v as string))
+        } else {
+          uniqueValues.add(value as string)
+        }
       }
     })
 
@@ -38,13 +44,16 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
   // Get unique status values from the lastStatus column
   const statusValues = getUniqueValues("lastStatus")
 
+  // Get unique message types
+  const messageTypes = ["Real-Time Tracking", "Delivery Alert", "Pickup Notification"]
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       {/* Search */}
       <div className="relative flex-1 max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder={t("search-placeholder") || "Search messages..."}
+          placeholder={t("search-placeholder") || "Search parcels..."}
           value={table.getState().globalFilter ?? ""}
           onChange={(e) => table.setGlobalFilter(e.target.value)}
           className="pl-9 bg-background/50"
@@ -101,6 +110,28 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
                 </DropdownMenuCheckboxItem>
               )
             })}
+
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>{t("message-types") || "Message Types"}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            {messageTypes.map((type) => (
+              <DropdownMenuCheckboxItem
+                key={type}
+                checked={table
+                  .getState()
+                  .columnFilters.some((filter) => filter.id === "messageTypes" && filter.value === type)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    table.getColumn("messageTypes")?.setFilterValue(type)
+                  } else {
+                    table.getColumn("messageTypes")?.setFilterValue(undefined)
+                  }
+                }}
+              >
+                {type}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 

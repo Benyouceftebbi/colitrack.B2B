@@ -1,3 +1,5 @@
+"use client"
+
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import type { Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
@@ -14,7 +16,8 @@ export function TablePagination<TData>({ table }: TablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2">
       <div className="flex-1 text-sm text-muted-foreground">
-        {t("messages-found", { count: table.getFilteredRowModel().rows.length })}
+        {t("parcels-found", { count: table.getFilteredRowModel().rows.length }) ||
+          `${table.getFilteredRowModel().rows.length} parcels found`}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
@@ -82,3 +85,4 @@ export function TablePagination<TData>({ table }: TablePaginationProps<TData>) {
     </div>
   )
 }
+

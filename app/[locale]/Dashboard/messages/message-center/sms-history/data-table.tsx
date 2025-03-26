@@ -69,6 +69,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   const [selectedTrackingId, setSelectedTrackingId] = React.useState<string | null>(null)
   const { shopData, setShopData } = useShop()
 
+  // Custom filter function for messageTypes array
+  const messageTypesFilterFn = React.useCallback((row: any, columnId: string, filterValue: any) => {
+    const messageTypes = row.getValue(columnId) as string[] | undefined
+    return messageTypes ? messageTypes.includes(filterValue) : false
+  }, [])
+
   const table = useReactTable({
     data,
     columns: translatedColumns,
@@ -80,6 +86,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     onGlobalFilterChange: setGlobalFilter,
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
+    filterFns: {
+      messageTypesFilter: messageTypesFilterFn,
+    },
     state: {
       sorting,
       columnFilters,
