@@ -872,17 +872,21 @@
       "reminder-description": "Send a custom reminder message to the recipient about their parcel",
       "statusLabels": {
        
-        "returning-to-center":"Returning to Center",
-        "in-preparation":"In Preparation",
-       "en-route-to-region":"en route to Region",
-       "distribution-center":"distribution-center",
-       "ready-for-pickup":"Ready for Pickup",
-       "transfer":"Transfer",
-        "delivered": "Delivered",
+        "in-preparation": "In Preparation",
+        "transfer": "Transfer",
         "shipped": "Shipped",
+        "distribution-center": "Distribution Center",
+        "en-route-to-region": "En Route to Region",
+        "arrived-at-region": "Arrived at Region",
+        "ready-for-pickup": "Ready for Pickup",
+        "out-for-delivery": "Out for Delivery",
+        "delivered": "Delivered",
+        "alert": "Alert",
+        "delivery-attempt-failed": "Delivery Attempt Failed",
         "delivery-failed": "Delivery Failed",
-        "processing": "Processing",
-        "returned-to-center":"Returned to Center"
+        "returning-to-center": "Returning to Center",
+        "returned-to-center": "Returned to Center",
+        "exchange-failed": "Exchange Failed"
       },
       "pagination": {
         "parcels-found": "{count} parcels found",

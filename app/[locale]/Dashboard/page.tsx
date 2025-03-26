@@ -837,7 +837,7 @@ const percentageChangereturn =
             <CardDescription className="text-[10px] sm:text-xs md:text-sm">{t("track-message-status")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={shopData.sms?.slice(0, 10) || []} />
+            <DataTable columns={columns} data={shopData.tracking?.slice(0, 10) || []} />
           </CardContent>
         </Card>
       </div>

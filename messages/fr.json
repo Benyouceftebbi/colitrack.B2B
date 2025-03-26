@@ -881,17 +881,21 @@
 
     "reminder-description": "Envoyez un message de rappel personnalisé au destinataire à propos de son colis",
     "statusLabels": {
-      "returning-to-center": "Retour au centre",
       "in-preparation": "En préparation",
-      "en-route-to-region": "En route vers la région",
-      "distribution-center": "Centre de distribution",
-      "ready-for-pickup": "Prêt à être récupéré",
       "transfer": "Transfert",
-      "delivered": "Livré",
       "shipped": "Expédié",
-      "delivery-failed": "Échec de la livraison",
-      "processing": "En traitement",
-      "returned-to-center": "Retourné au centre"
+      "distribution-center": "Centre",
+      "en-route-to-region": "Vers Wilaya",
+       "arrived-at-region": "Reçu à Wilaya",
+      "ready-for-pickup": "En attente du client",
+      "out-for-delivery": "Sorti en livraison",
+      "delivered": "Livré",
+      "alert": "En alerte",
+      "delivery-attempt-failed": "Tentative échouée",
+      "delivery-failed": "Échec livraison",
+      "returning-to-center": "Retour vers centre",
+      "returned-to-center": "Retourné au centre",
+      "exchange-failed": "Échange échoué"
   },
   "pagination": {
       "parcels-found": "{count} colis trouvés",
