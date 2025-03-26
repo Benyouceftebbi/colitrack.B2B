@@ -766,6 +766,9 @@
   },
 
   "templates": {
+    "shipped": "Expédié",
+    "out-for-delivery": "En cours de livraison",
+    "ready-for-pickup": "Prêt à être récupéré",
     "section-title": "Modèles SMS",
     "preview-title": "Aperçu",
     
@@ -849,40 +852,81 @@
     "select-date": "Sélectionner une date"
   },
   "table": {
-    "search-placeholder": "Rechercher",
-    "filter": "Filtrer",
-    "reset": "Réinitialiser",
-    "recent-messages": "Messages récents",
-    "tracking": "Numéro de suivi",
-    "clear-search": "Effacer la recherche",
+    "recent-parcels": "Colis récents",
+    "tracking": "ID de suivi",
     "recipient": "Destinataire",
-    "template": "Modèle",
+    "location": "Emplacement",
+    "message-types": "Types de message",
     "status": "Statut",
     "sent": "Envoyé",
     "send-reminder": "Envoyer un rappel",
-    "reminder-tooltip": "Envoyer un SMS de rappel au destinataire. Coût : 15 jetons par message.",
-    "no-results": "Aucun résultat trouvé.",
+    "reminder-tooltip": "Envoyer un message de rappel personnalisé au destinataire",
     "error": "Erreur",
-    "enter-message": "Veuillez entrer un message.",
-    "select-recipient-tracking": "Veuillez sélectionner un destinataire et un numéro de suivi.",
+    "enter-message": "Veuillez entrer un message",
+    "select-recipient-tracking": "Veuillez sélectionner un destinataire et un ID de suivi",
     "reminder-sent": "Rappel envoyé",
-    "reminder-sent-description": "Votre rappel a été envoyé avec succès. 15 jetons ont été déduits.",
-    "failed-to-send": "Échec de l'envoi du SMS.",
-    "unknown-error": "Une erreur inconnue s'est produite.",
-    "error-sending-sms": "Erreur lors de l'envoi du SMS.",
-    "try-again-later": "Veuillez réessayer plus tard.",
-    "reminder-description": "Saisissez votre message de rappel ci-dessous. Cela coûtera 15 jetons. Tout contenu inapproprié ne sera pas envoyé et vous perdrez tout de même les jetons.",
+    "reminder-sent-description": "Votre message de rappel a été envoyé avec succès",
+    "failed-to-send": "Échec de l'envoi",
+    "unknown-error": "Une erreur inconnue s'est produite",
+    "error-sending-sms": "Erreur lors de l'envoi du SMS",
+    "try-again-later": "Veuillez réessayer plus tard",
+    "no-results": "Aucun résultat trouvé",
     "message": "Message",
     "cancel": "Annuler",
-    "pagination": {
-      "messages-found": "{count} messages trouvés",
+    "search-placeholder": "Rechercher des colis...",
+    "clear-search": "Effacer la recherche",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
+    "lastUpdated":"Dernière mise à jour",
+
+    "reminder-description": "Envoyez un message de rappel personnalisé au destinataire à propos de son colis",
+    "statusLabels": {
+      "returning-to-center": "Retour au centre",
+      "in-preparation": "En préparation",
+      "en-route-to-region": "En route vers la région",
+      "distribution-center": "Centre de distribution",
+      "ready-for-pickup": "Prêt à être récupéré",
+      "transfer": "Transfert",
+      "delivered": "Livré",
+      "shipped": "Expédié",
+      "delivery-failed": "Échec de la livraison",
+      "processing": "En traitement",
+      "returned-to-center": "Retourné au centre"
+  },
+  "pagination": {
+      "parcels-found": "{count} colis trouvés",
       "rows-per-page": "Lignes par page",
       "page-of": "Page {current} sur {total}",
       "go-to-first-page": "Aller à la première page",
       "go-to-previous-page": "Aller à la page précédente",
       "go-to-next-page": "Aller à la page suivante",
       "go-to-last-page": "Aller à la dernière page"
-    },
+  }
+  
+},
+"import": {
+    "import-tracking": "Importer des ID de suivi",
+    "import-description": "Téléchargez un fichier Excel contenant des ID de suivi à importer",
+    "error": "Erreur",
+    "success": "Succès",
+    "import-success-message": "ID de suivi importés avec succès",
+    "drop-file": "Déposez le fichier Excel ici...",
+    "drag-or-click": "Glissez-déposez un fichier Excel ici, ou cliquez pour sélectionner",
+    "supported-formats": "Formats pris en charge : .xlsx, .xls et .csv",
+    "select-tracking-column": "Sélectionnez la colonne contenant les ID de suivi",
+    "select-column": "Sélectionner une colonne",
+    "tracking-ids-found": "ID de suivi trouvés :",
+    "cancel": "Annuler",
+    "import": "Importer",
+    "importing": "Importation...",
+    "empty-file": "Le fichier semble être vide",
+    "parse-error": "Échec de l'analyse du fichier. Veuillez vous assurer qu'il s'agit d'un fichier Excel valide.",
+    "read-error": "Échec de la lecture du fichier",
+    "no-tracking-ids": "Aucun ID de suivi trouvé dans la colonne sélectionnée",
+    "import-success": "Importation réussie",
+    "import-error": "Échec de l'importation des ID de suivi"
+}
+,
     "statusLabels": {
       "in-preparation": "En préparation",
       "transfer": "Transfert",
@@ -900,42 +944,12 @@
       "returned-to-center": "Retourné au centre",
       "exchange-failed": "Échec de l'échange",
       "null": " "
-    },
-    "templates": {
-      "shipped": "Expédié",
-      "out-for-delivery": "En cours de livraison",
-      "ready-for-pickup": "Prêt à être récupéré"
     }
     
   },
-  "import": {
-    "tracking-ids-found": "Identifiants de suivi trouvés",
-    "import-tracking": "Importer les identifiants de suivi",
-    "import-description": "Téléchargez un fichier Excel contenant les identifiants de suivi à importer",
-    "drop-file": "Déposez le fichier Excel ici...",
-    "drag-or-click": "Glissez-déposez un fichier Excel ici, ou cliquez pour sélectionner",
-    "supported-formats": "Prend en charge les fichiers .xlsx, .xls et .csv",
-    "select-tracking-column": "Sélectionnez la colonne contenant les identifiants de suivi",
-    "select-column": "Sélectionnez une colonne",
-    "preview": "Aperçu",
-    "tracking-ids-preview": "Identifiants de suivi de la colonne sélectionnée :",
-    "empty": "vide",
-    "cancel": "Annuler",
-    "import": "Importer",
-    "importing": "Importation...",
-    "error": "Erreur",
-    "success": "Succès",
-    "import-success": "Importation réussie",
-    "import-success-message": "Les identifiants de suivi ont été importés avec succès",
-    "empty-file": "Le fichier semble être vide",
-    "parse-error": "Échec de l'analyse du fichier. Assurez-vous qu'il s'agit d'un fichier Excel valide.",
-    "read-error": "Échec de la lecture du fichier",
-    "no-tracking-ids": "Aucun identifiant de suivi trouvé dans la colonne sélectionnée",
-    "import-error": "Échec de l'importation des identifiants de suivi"
-  }
+ 
   
-  
-  },
+
   "sidebar": {
     "platform": "Plateforme",
     "nav": {

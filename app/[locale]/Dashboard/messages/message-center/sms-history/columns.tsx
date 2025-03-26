@@ -77,7 +77,7 @@ export const columns: ColumnDef<Message>[] = [
               </Badge>
             ))
           ) : (
-            <span className="text-sm text-muted-foreground">No messages</span>
+            <span className="text-sm text-muted-foreground">No messages sent yet</span>
           )}
         </div>
       )
