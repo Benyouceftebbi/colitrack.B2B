@@ -100,12 +100,16 @@ export const columns: ColumnDef<Message>[] = [
   },
   {
     accessorKey: "lastUpdated",
-    header: ({ t }) => t("lastUpdated"),
-    cell: ({ row }) => {
-      const createdAtTimestamp = row.getValue("lastUpdated")
-      if (!createdAtTimestamp) return null; // Return null if lastUpdated doesn't exist
-      const date = createdAtTimestamp instanceof Date ? createdAtTimestamp : new Date(createdAtTimestamp.toDate())
-      return <span className="text-sm text-muted-foreground">{formatDistanceToNow(date, { addSuffix: true })}</span>
+    header: ({t}) => t("lastUpdated"),
+    cell: ({ row,locale}) => {
+      const createdAtTimestamp = row.getValue("lastUpdated");
+      if (!createdAtTimestamp) return null;
+      const date = createdAtTimestamp instanceof Date ? createdAtTimestamp : new Date(createdAtTimestamp.toDate());
+      return (
+        <span className="text-sm text-muted-foreground">
+          {formatDistanceToNow(date, { addSuffix: true, locale:locale })}
+        </span>
+      );
     },
     enableSorting: true,
   },

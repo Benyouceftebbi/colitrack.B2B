@@ -32,7 +32,8 @@ import { Input } from "@/components/ui/input"
 import { useShop } from "@/app/context/ShopContext"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
+import { arDZ, enUS, fr } from "date-fns/locale"; // Use correct locales
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -47,8 +48,16 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     pageIndex: 0,
     pageSize: 10,
   })
-
+const lng=useLocale()
   const t = useTranslations("messages.table")
+  const localeMap: Record<string, Locale> = {
+    ar: arDZ, // Algerian Arabic (if you use Standard Arabic, use `ar`)
+    en: enUS,
+    fr: fr,
+  };
+
+  // Get the correct locale; default to English if not found
+  const locale = localeMap[lng] || enUS;
 
   const translatedColumns = React.useMemo(
     () =>
@@ -58,7 +67,8 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           typeof column.header === "function"
             ? (props: any) => column.header({ ...props, t })
             : t(column.header as string), // Translate static headers
-        cell: typeof column.cell === "function" ? (props: any) => column.cell({ ...props, t }) : column.cell,
+            cell: typeof column.cell === "function" ? (props: any) => column.cell({ ...props, t, locale: locale }) : column.cell,
+
       })),
     [columns, t],
   )
