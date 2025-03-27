@@ -17,6 +17,7 @@ type Message = {
   messageTypes: string[] // Array of message types sent for this parcel
   lastStatus: string
   createdAt: Date
+  deliveryType: string
 }
 
 export const columns: ColumnDef<Message>[] = [
@@ -56,7 +57,7 @@ export const columns: ColumnDef<Message>[] = [
   {
     accessorKey: "messageTypes",
     header: ({ t }) => t("message-types"),
-    cell: ({ row }) => {
+    cell: ({ row,t }) => {
       const messageTypes = row.getValue("messageTypes") as string[] | undefined
       return (
         <div className="flex flex-wrap gap-1">
@@ -73,7 +74,7 @@ export const columns: ColumnDef<Message>[] = [
                       //: "bg-amber-500/10 text-amber-500"
                 }
               >
-                {type}
+                {t(`sms.${type}`)}
               </Badge>
             ))
           ) : (
@@ -83,7 +84,20 @@ export const columns: ColumnDef<Message>[] = [
       )
     },
   },
-
+  {
+    accessorKey: "deliveryType",
+    header: ({ t }) => t("deliveryTypes.delivery"),
+    cell: ({ row, t }) => {
+      const deliveryType = row.getValue("deliveryType") as string;
+      const icon = deliveryType === "stopdesk" ? "🏢" : deliveryType === "domicile" ? "🏠" : "❓"; // Default icon for unknown types
+      return (
+        <span className="flex items-center">
+          <span className="mr-1">{icon}</span>
+          {t(`deliveryTypes.${deliveryType}`)}
+        </span>
+      );
+    },
+  },
   {
     accessorKey: "lastUpdated",
     header: ({ t }) => t("lastUpdated"),

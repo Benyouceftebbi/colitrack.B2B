@@ -90,7 +90,7 @@ console.log("mamam",shopDocs.size);
           // Add messageTypes to trackingInfo
           trackingInfo.messageTypes = messageTypes;
           trackingInfo.phoneNumber = trackingInfo.data.contact_phone || trackingInfo.data.phone;
-          // Add trackingInfo to trackingData
+          trackingInfo.deliveryType = (trackingInfo.data.stop_desk === 1 || trackingInfo.data.stopdesk_id != null) ? "stopdesk" : "domicile";
           trackingData.push(trackingInfo);
         });
 

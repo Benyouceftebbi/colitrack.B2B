@@ -899,6 +899,18 @@
       "go-to-previous-page": "الانتقال إلى الصفحة السابقة",
       "go-to-next-page": "الانتقال إلى الصفحة التالية",
       "go-to-last-page": "الانتقال إلى الصفحة الأخيرة"
+    },
+    "sms":{
+      
+      "shipped": "تم الشحن",
+      "out-for-delivery": "في طريقه للتسليم",
+      "ready-for-pickup": "جاهز للاستلام"
+    
+    },
+    "deliveryTypes": {
+        "delivery": "التوصيل",
+      "stopdesk": "مكتب التوقف",
+      "domicile": "منزل"
     }
   }
 ,

@@ -905,6 +905,18 @@
       "go-to-previous-page": "Aller à la page précédente",
       "go-to-next-page": "Aller à la page suivante",
       "go-to-last-page": "Aller à la dernière page"
+  },
+  "sms":{
+    
+    "shipped": "Expédié",
+    "out-for-delivery": "En cours de livraison",
+    "ready-for-pickup": "Prêt à être récupéré"
+  
+  },
+  "deliveryTypes": {
+     "delivery": "Livraison",
+    "stopdesk": "Stop Desk",
+    "domicile": "Domicile"
   }
   
 },

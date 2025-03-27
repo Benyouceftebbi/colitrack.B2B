@@ -897,7 +897,17 @@
         "go-to-next-page": "Go to next page",
         "go-to-last-page": "Go to last page"
         
-      }
+      },
+      "sms":{
+        "shipped": "Shipped",
+        "out-for-delivery": "Out for Delivery",
+        "ready-for-pickup": "Ready for Pickup"
+      },
+      "deliveryTypes": {
+         "delivery": "Delivery Information",
+    "stopdesk": "Stop Desk",
+    "domicile": "Home"
+  }
     },
     "import": {
       "import-tracking": "Import Tracking IDs",
