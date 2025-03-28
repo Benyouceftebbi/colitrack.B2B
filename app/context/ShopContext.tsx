@@ -13,6 +13,7 @@ import {
   } from '@/components/ui/sidebar'
   import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DateRange } from 'react-day-picker';
 interface ShopContextType {
  shopData: any; // Define the type based on your shop data structure
  loading: boolean;
@@ -20,6 +21,8 @@ interface ShopContextType {
  setShopData:any
  setShops:any
  shops:any
+ dateRange:DateRange | undefined
+ setDateRange:any
 }
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 export const ShopProvider: React.FC<{ userId: string;userEmail:string;children: ReactNode }> = ({ userId,userEmail, children }) => {
@@ -27,33 +30,25 @@ export const ShopProvider: React.FC<{ userId: string;userEmail:string;children: 
  const [shops,setShops]=useState<any>([])
  const [loading, setLoading] = useState<boolean>(true);
  const [error, setError] = useState<string | null>(null);
+ const [dateRange, setDateRange] = useState<DateRange | undefined>({
+  from: new Date(),
+  to: new Date(),
+})
 
- useEffect(() => {
-
-  
-const fetchShopData = async () => {
-
-  
+useEffect(() => {
+  const fetchShopData = async () => {
     if (!userEmail) {
-      console.log("hello how are you");
-      
+      console.log("No user email provided");
       setLoading(false);
       return;
     }
 
     try {
-   
-  
-      // Query Firestore for all shops where email matches userEmail
       const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail));
-
       const shopDocs = await getDocs(shopsQuery);
-      console.log("dasasdasd2222226655",userEmail);
-console.log("mamam",shopDocs.size);
 
       if (shopDocs.empty) {
-        console.log("dasasdasd");
-        
+        console.log("No shop data found");
         setError("No shop data found");
         setLoading(false);
         return;
@@ -63,34 +58,55 @@ console.log("mamam",shopDocs.size);
 
       for (const shopDoc of shopDocs.docs) {
         const shopData = { ...shopDoc.data(), id: shopDoc.id };
-
-
-        // Reference to shop document
         const shopRef = doc(db, "Shops", shopDoc.id);
+
+        // Convert dateRange to Firestore timestamps
+        const fromDate = dateRange?.from ? dateRange.from : null;
+        const toDate = dateRange?.to ? dateRange.to : null;
+
+        // Firestore query conditions for SMS and Tracking collections
+        const smsQuery = fromDate && toDate
+          ? query(
+              collection(shopRef, "SMS"),
+              where("createdAt", ">=", fromDate),
+              where("createdAt", "<=", toDate)
+            )
+          : collection(shopRef, "SMS");
+
+        const trackingQuery = fromDate && toDate
+          ? query(
+              collection(shopRef, "Tracking"),
+              where("lastUpdated", ">=", fromDate),
+              where("lastUpdated", "<=", toDate)
+            )
+          : collection(shopRef, "Tracking");
+
+        const smsCampaignQuery = collection(shopRef, "SMScampaign");
 
         // Fetch subcollections in parallel
         const [smsDocs, trackingDocs, smsCampaignDocs] = await Promise.all([
-          getDocs(collection(shopRef, "SMS")),
-          getDocs(collection(shopRef, "Tracking")),
-          getDocs(collection(shopRef, "SMScampaign")),
+          getDocs(smsQuery),
+          getDocs(trackingQuery),
+          getDocs(smsCampaignQuery),
         ]);
 
         const trackingMap = {};
         const smsData = [];
-        const trackingData=[]
-        // Process tracking and SMS data in a single loop
+        const trackingData = [];
+
+        // Process tracking data
         trackingDocs.docs.forEach((trackingDoc) => {
           const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id };
           trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null;
 
-          // Find corresponding SMS documents
+          // Find related SMS documents
           const relatedSmsDocs = smsDocs.docs.filter(smsDoc => smsDoc.data().trackingId === trackingInfo.id);
           const messageTypes = relatedSmsDocs.map(smsDoc => smsDoc.data().type);
 
-          // Add messageTypes to trackingInfo
           trackingInfo.messageTypes = messageTypes;
-          trackingInfo.phoneNumber = trackingInfo.data.contact_phone || trackingInfo.data.phone;
-          trackingInfo.deliveryType = (trackingInfo.data.stop_desk === 1 || trackingInfo.data.stopdesk_id != null) ? "stopdesk" : "domicile";
+          trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone;
+          trackingInfo.deliveryType = (trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null) ? "stopdesk" : "domicile";
+
           trackingData.push(trackingInfo);
         });
 
@@ -99,7 +115,7 @@ console.log("mamam",shopDocs.size);
           smsData.push({
             ...smsDoc.data(),
             id: smsDoc.id,
-            lastStatus: trackingMap[smsDoc.data().trackingId] || null, // Match lastStatus
+            lastStatus: trackingMap[smsDoc.data().trackingId] || null,
           });
         });
 
@@ -117,10 +133,10 @@ console.log("mamam",shopDocs.size);
         fetchedShops.push(shopData);
       }
 
-      // Set the first retrieved shop as the main shopData
       setShopData(fetchedShops[0] || null);
       setShops(fetchedShops);
     } catch (err) {
+      console.error("Error fetching shop data:", err);
       setError("Error fetching shop data");
     } finally {
       setLoading(false);
@@ -128,11 +144,10 @@ console.log("mamam",shopDocs.size);
   };
 
   fetchShopData();
-}, [userEmail])
-
+}, [userEmail, dateRange]);
  if(loading===false && shopData){
   return (
-   <ShopContext.Provider value={{ shopData, loading, error,setShopData,setShops,shops}}>
+   <ShopContext.Provider value={{ shopData, loading, error,setShopData,setShops,shops,dateRange,setDateRange}}>
      {children}
    </ShopContext.Provider>
  );

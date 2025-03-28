@@ -3,12 +3,14 @@
 import { useShop } from "@/app/context/ShopContext"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "@/i18n/routing"
-import { Settings, Info, Bell, MessageSquare, Truck, Package } from "lucide-react"
+import { Settings, Info, Bell, MessageSquare, Truck, Package, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
 import { useTranslations } from "next-intl"
+
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 
 interface MessageHeaderProps {
   token: string | null
@@ -17,12 +19,15 @@ interface MessageHeaderProps {
 
 export function MessageHeader({ token, senderId }: MessageHeaderProps) {
   const t = useTranslations("messages")
-  const { shopData } = useShop()
+  const { shopData,dateRange,setDateRange} = useShop()
   const router = useRouter()
   const currentDate = new Date();
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`;
   const deliveredCount = shopData?.tracking?.reduce((count, item) => 
     item.lastStatus === "delivered" ? count + 1 : count, 0);
+  const smsCount = shopData?.sms?.reduce((count, item) =>  count + 1 , 0);
+
+
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
       <div className="flex flex-col space-y-6">
@@ -66,6 +71,35 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+
+            {/* Date Range Picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="glass flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {dateRange.from.toLocaleDateString()} - {dateRange.to.toLocaleDateString()}
+                      </>
+                    ) : (
+                      dateRange.from.toLocaleDateString()
+                    )
+                  ) : (
+                    t("select-date-range")
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 glass" align="start">
+                <DateRangePicker
+                  date={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range)
+                    // You could add a function call here to update stats based on the new range
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
             <HoverCard>
               <HoverCardTrigger asChild>
                 <Badge
@@ -111,7 +145,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("messages-sent-today")}</p>
-                <p className="text-2xl font-bold text-primary"> {shopData?.analytics?.totalSMSSentToday || 0}</p>
+                <p className="text-2xl font-bold text-primary"> {smsCount || 0}</p>
               </div>
               <MessageSquare className="h-8 w-8 text-primary opacity-50" />
             </div>
