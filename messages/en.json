@@ -1030,5 +1030,64 @@
       "supportRequestResponse": "We'll get back to you as soon as possible.",
       "supportRequestError": "There was an error submitting your request. Please try again.",
       "submitRequest": "Submit Request"
+    },
+    "affiliate": {
+      "title": "Your Affiliate Dashboard",
+      "description": "Share your code and earn rewards for every new referral",
+      "yourCode": "Your Affiliate Code",
+      "welcome": "Welcome to the Affiliate Program!",
+      "generatePrompt": "Generate your unique affiliate code to start earning rewards for referrals.",
+      "generateButton": "Generate My Affiliate Code",
+      "levelBadge": "{level} Affiliate (Level {number})",
+      "commissionRate": "{rate}% Commission Rate",
+      "referralsCount": "{count} Referrals",
+      "level": "Level {number}",
+      "nextLevelProgress": "{remaining} more to Level {nextLevel}({commission}% commission)",
+      "maxLevelReached": "Congratulations! You've reached the maximum affiliate level.",
+      "totalEarnings": "Total Earnings",
+      "currentLevel": "Current Level: {level}",
+      "commissionRateLabel": "Commission Rate",
+      "requiredReferrals": "Required Referrals",
+      "yourRewards": "Your Rewards",
+      "nextLevel": "Next Level: {level}",
+      "unlockRewards": "Unlock These Rewards",
+      "howToEarnMore": "How to Earn More",
+      "earnTips": {
+        "1": "Share your affiliate code with friends and colleagues",
+        "2": "Post your code on social media with product recommendations",
+        "3": "Create content featuring your affiliate products"
+      },
+      "toast": {
+        "codeGenerated": "Affiliate code generated!",
+        "codeGeneratedDesc": "Your new code is {code}",
+        "copied": "Copied to clipboard",
+        "copiedDesc": "Affiliate code {code} copied!",
+        "shareCopied": "Share message copied",
+        "shareCopiedDesc": "Share message copied to clipboard. Paste it anywhere to share!"
+      },
+      "shareMessage": "Join using my affiliate code {code} and get a special discount!",
+      "levels": {
+        "bronze": "Bronze",
+        "silver": "Silver",
+        "gold": "Gold"
+      },
+      "rewards": {
+        "bronze": {
+          "1": "5% commission on all referrals",
+          "2": "Access to affiliate dashboard",
+          "3": "Monthly newsletter with tips"
+        },
+        "silver": {
+          "1": "10% commission on all referrals",
+          "2": "Priority support",
+          "3": "Exclusive promotional materials"
+        },
+        "gold": {
+          "1": "15% commission on all referrals",
+          "2": "Monthly bonus rewards",
+          "3": "Early access to new products",
+          "4": "Dedicated affiliate manager"
+        }
+      }
     }
 }

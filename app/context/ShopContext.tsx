@@ -30,10 +30,14 @@ export const ShopProvider: React.FC<{ userId: string;userEmail:string;children: 
  const [shops,setShops]=useState<any>([])
  const [loading, setLoading] = useState<boolean>(true);
  const [error, setError] = useState<string | null>(null);
- const [dateRange, setDateRange] = useState<DateRange | undefined>({
-  from: new Date(),
-  to: new Date(),
-})
+ const [dateRange, setDateRange] = useState<DateRange>(() => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return {
+    from: new Date(new Date().setHours(0, 0, 0, 0)),
+    to: new Date(tomorrow.setHours(23, 59, 59, 999)),
+  };
+});
 
 useEffect(() => {
   const fetchShopData = async () => {

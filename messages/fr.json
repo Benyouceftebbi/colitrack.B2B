@@ -1060,6 +1060,66 @@
     "supportRequestResponse": "Nous vous répondrons dès que possible.",
     "supportRequestError": "Une erreur s'est produite lors de l'envoi de votre demande. Veuillez réessayer.",
     "submitRequest": "Soumettre la demande"
+  },
+  "affiliate": {
+    "title": "Votre Tableau de Bord Affilié",
+    "description": "Partagez votre code et gagnez des récompenses pour chaque parrainage réussi",
+    "yourCode": "Votre Code d'Affiliation",
+    "welcome": "Bienvenue dans le Programme d'Affiliation !",
+    "generatePrompt": "Générez votre code d'affiliation unique pour commencer à gagner des récompenses.",
+    "generateButton": "Générer Mon Code d'Affiliation",
+    "levelBadge": "Affilié {level} (Niveau {number})",
+    "commissionRate": "Taux de Commission de {rate}%",
+    "referralsCount": "{count} Parrainages",
+    "level": "Niveau {number}",
+    "nextLevelProgress": "Encore {remaining} pour atteindre le Niveau {nextLevel} ({commission}% de commission)",
+    "maxLevelReached": "Félicitations ! Vous avez atteint le niveau d'affiliation maximum.",
+    "totalEarnings": "Gains Totaux",
+    "currentLevel": "Niveau Actuel : {level}",
+    "commissionRateLabel": "Taux de Commission",
+    "requiredReferrals": "Parrainages Requis",
+    "yourRewards": "Vos Récompenses",
+    "nextLevel": "Prochain Niveau : {level}",
+    "unlockRewards": "Débloquez Ces Récompenses",
+    "howToEarnMore": "Comment Gagner Plus",
+    "earnTips": {
+      "1": "Partagez votre code d'affiliation avec vos amis et collègues",
+      "2": "Publiez votre code sur les réseaux sociaux avec des recommandations de produits",
+      "3": "Créez du contenu mettant en avant vos produits affiliés"
+    },
+    "toast": {
+      "codeGenerated": "Code d'affiliation généré !",
+      "codeGeneratedDesc": "Votre nouveau code est {code}",
+      "copied": "Copié dans le presse-papiers",
+      "copiedDesc": "Code d'affiliation {code} copié !",
+      "shareCopied": "Message de partage copié",
+      "shareCopiedDesc": "Message copié dans le presse-papiers. Collez-le où vous voulez pour le partager !"
+    },
+    "shareMessage": "Inscrivez-vous avec mon code d'affiliation {code} et bénéficiez d'une réduction spéciale !",
+    "levels": {
+      "bronze": "Bronze",
+      "silver": "Argent",
+      "gold": "Or"
+    },
+    "rewards": {
+      "bronze": {
+        "1": "5% de commission sur tous les parrainages",
+        "2": "Accès au tableau de bord affilié",
+        "3": "Newsletter mensuelle avec des conseils"
+      },
+      "silver": {
+        "1": "10% de commission sur tous les parrainages",
+        "2": "Support prioritaire",
+        "3": "Matériel promotionnel exclusif"
+      },
+      "gold": {
+        "1": "15% de commission sur tous les parrainages",
+        "2": "Récompenses mensuelles bonus",
+        "3": "Accès anticipé aux nouveaux produits",
+        "4": "Gestionnaire affilié dédié"
+      }
+    }
   }
+
 
 }
