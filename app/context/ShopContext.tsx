@@ -48,7 +48,7 @@ useEffect(() => {
     }
 
 
-    
+
 
     try {
       const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail));
@@ -135,7 +135,7 @@ useEffect(() => {
         // Attach subcollections
         shopData.sms = smsData;
         shopData.tracking = trackingData;
-        shopData.smsCampaign = smsCampaignData;
+        shopData.smsCampaign =   smsCampaignData;
 
         fetchedShops.push(shopData);
       }
@@ -153,6 +153,8 @@ useEffect(() => {
   fetchShopData();
 }, [userEmail, dateRange]);
 useEffect(() => {
+
+
   if (!shopData) return;
 
   // Create unsubscribe function for the current shop
