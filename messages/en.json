@@ -485,6 +485,8 @@
   },
   
   "billing": {
+    "plan-custom": "Custom Plan",
+    "custom-price": "Custom Price",
     "per-month": "Per Month",
     "per-year": "Per Year",
     "billing-subscriptions": "Billing & Subscriptions",
@@ -507,7 +509,8 @@
     "plan-business": "Business",
     "one-time": "/One Time",
     "tokens-amount": "{amount} Tokens",
-    "enterprise-bonus": "+15% FREE Bonus Tokens",
+    "enterprise-bonus": "+5% FREE Bonus Tokens",
+    "free-senderID":"FREE Sender ID",
     "business-bonus": "+5% FREE Bonus Tokens",
     "custom-sender-id": "Custom Sender ID (Max 11 characters)",
     "improved-brand-recognition": "Improved Brand Recognition",

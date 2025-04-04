@@ -484,6 +484,8 @@
   "privacyLink": "سياسة الخصوصية"
   },
   "billing": {
+    "plan-custom": "خطة مخصصة",
+    "custom-price": "سعر مخصص",
     "billing-subscriptions": "الفوترة والاشتراكات",
     "overview": "نظرة عامة",
     "usage": "الاستخدام",

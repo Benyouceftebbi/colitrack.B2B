@@ -33,7 +33,9 @@ import { useShop } from "@/app/context/ShopContext"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useLocale, useTranslations } from "next-intl"
-import { arDZ, enUS, fr } from "date-fns/locale"; // Use correct locales
+import { arDZ, enUS, fr } from "date-fns/locale" // Use correct locales
+import { LoadingButton } from "@/components/ui/LoadingButton"
+import type { Locale } from "date-fns"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -48,16 +50,18 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     pageIndex: 0,
     pageSize: 10,
   })
-const lng=useLocale()
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  const lng = useLocale()
   const t = useTranslations("messages.table")
   const localeMap: Record<string, Locale> = {
     ar: arDZ, // Algerian Arabic (if you use Standard Arabic, use `ar`)
     en: enUS,
     fr: fr,
-  };
+  }
 
   // Get the correct locale; default to English if not found
-  const locale = localeMap[lng] || enUS;
+  const locale = localeMap[lng] || enUS
 
   const translatedColumns = React.useMemo(
     () =>
@@ -67,10 +71,12 @@ const lng=useLocale()
           typeof column.header === "function"
             ? (props: any) => column.header({ ...props, t })
             : t(column.header as string), // Translate static headers
-            cell: typeof column.cell === "function" ? (props: any) => column.cell({ ...props, t, locale: locale }) : column.cell,
-
+        cell:
+          typeof column.cell === "function"
+            ? (props: any) => column.cell({ ...props, t, locale: locale })
+            : column.cell,
       })),
-    [columns, t],
+    [columns, t, locale],
   )
 
   const [isModalOpen, setIsModalOpen] = React.useState(false)
@@ -78,7 +84,6 @@ const lng=useLocale()
   const [selectedRecipient, setSelectedRecipient] = React.useState<string | null>(null)
   const [selectedTrackingId, setSelectedTrackingId] = React.useState<string | null>(null)
   const { shopData, setShopData } = useShop()
-
 
   // Custom filter function for messageTypes array
   const messageTypesFilterFn = React.useCallback((row: any, columnId: string, filterValue: any) => {
@@ -115,6 +120,8 @@ const lng=useLocale()
   }
 
   const handleSubmitReminder = async (senderId: string, smsToken: string) => {
+    if (isSubmitting) return // Prevent multiple submissions
+
     if (!reminderMessage.trim()) {
       toast({
         title: t("error"),
@@ -132,6 +139,8 @@ const lng=useLocale()
       })
       return
     }
+
+    setIsSubmitting(true) // Disable the button
 
     try {
       const sendReminderSMS = httpsCallable(functions, "sendReminderSMS")
@@ -173,6 +182,11 @@ const lng=useLocale()
         description: t("try-again-later"),
         variant: "destructive",
       })
+    } finally {
+      // Re-enable the button after a short delay
+      setTimeout(() => {
+        setIsSubmitting(false)
+      }, 1000)
     }
   }
 
@@ -260,9 +274,12 @@ const lng=useLocale()
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               {t("cancel")}
             </Button>
-            <Button onClick={() => handleSubmitReminder(shopData.senderId, shopData.smsToken)}>
+            <LoadingButton
+              onClick={() => handleSubmitReminder(shopData.senderId, shopData.smsToken)}
+              loading={isSubmitting}
+            >
               {t("send-reminder")}
-            </Button>
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

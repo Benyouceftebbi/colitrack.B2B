@@ -26,7 +26,7 @@ const styles = {
 const plans = [
   {
     name: "plans.0.name", // Translated name
-    price: 10,
+    price: 10.99,
     tokens: 2400,
     bonus: null,
     tooltip: "plans.starter.tooltip", // Translated tooltip
@@ -40,8 +40,8 @@ const plans = [
   {
     name: "plans.enterprise.name",
     price: 100,
-    tokens: 24000,
-    bonus: 15,
+    tokens: 25200,
+    bonus: 5,
     tooltip: "plans.enterprise.tooltip",
     features: [
       "plans.enterprise.features.0",
@@ -58,7 +58,6 @@ const plans = [
     name: "plans.business.name",
     price: 80,
     tokens: 19200,
-    bonus: 5,
     tooltip: "plans.business.tooltip",
     features: [
       "plans.business.features.0",
