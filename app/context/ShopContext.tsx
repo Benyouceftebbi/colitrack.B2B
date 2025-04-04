@@ -47,6 +47,9 @@ useEffect(() => {
       return;
     }
 
+
+    
+
     try {
       const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail));
       const shopDocs = await getDocs(shopsQuery);
