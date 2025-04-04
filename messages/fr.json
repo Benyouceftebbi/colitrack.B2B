@@ -628,12 +628,18 @@
   "de": "Allemand"
 },
 "billing": {
-  
+  "Additional-charges": "Des frais supplémentaires peuvent s'appliquer, y compris les frais de transaction et de traitement des prestataires de paiement.",
+  "select-plan": "Choisir un plan",
+  "final-price": "Prix final",
+  "selected-plan": "Plan sélectionné",
+  "proceed-to-checkout": "Passer à la caisse",
     "per-month": "Par Mois",
     "per-year": "Par An",
     "plan-custom": "Plan personnalisé",
     "custom-price": "Prix personnalisé",
-  
+    "equivalent-to": "Équivalent à",
+    "token-cost": "Coût en jetons",
+    "popular": "Populaire",
   "billing-subscriptions": "Facturation et Abonnements",
   "overview": "Aperçu",
   "usage": "Utilisation",

@@ -31,7 +31,7 @@ export function PricingModal() {
       </Button>
 
       </DialogTrigger>
-      <DialogContent className="max-w-[1400px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[1100px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Choose Your Plan</DialogTitle>
           <DialogDescription>Select the plan that best fits your needs</DialogDescription>

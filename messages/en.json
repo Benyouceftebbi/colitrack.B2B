@@ -485,6 +485,14 @@
   },
   
   "billing": {
+    "Additional-charges": "Additional charges may apply, including transaction and processing fees from payment providers.",
+    "equivalent-to": "Equivalent to",
+    "token-cost": "Token Cost",
+    "popular": "Popular",
+    "select-plan": "Select Plan",
+    "final-price": "Final Price",
+    "selected-plan": "Selected Plan",
+    "proceed-to-checkout": "Proceed to Checkout",
     "plan-custom": "Custom Plan",
     "custom-price": "Custom Price",
     "per-month": "Per Month",

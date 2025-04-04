@@ -484,7 +484,15 @@
   "privacyLink": "سياسة الخصوصية"
   },
   "billing": {
+    "Additional-charges": "قد يتم تطبيق رسوم إضافية، بما في ذلك رسوم المعاملات والمعالجة من مزودي خدمات الدفع.",
+    "equivalent-to": "ما يعادل",
+    "token-cost": "تكلفة الرمز",
+    "select-plan": "اختر الخطة",
+  "final-price": "السعر النهائي",
+  "selected-plan": "الخطة المحددة",
+  "proceed-to-checkout": "المتابعة إلى الدفع",
     "plan-custom": "خطة مخصصة",
+    "popular": "شائع",
     "custom-price": "سعر مخصص",
     "billing-subscriptions": "الفوترة والاشتراكات",
     "overview": "نظرة عامة",
