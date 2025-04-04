@@ -628,6 +628,7 @@
   "de": "Allemand"
 },
 "billing": {
+  "free-senderID": "Identifiant d’expéditeur gratuit inclus",
   "Additional-charges": "Des frais supplémentaires peuvent s'appliquer, y compris les frais de transaction et de traitement des prestataires de paiement.",
   "select-plan": "Choisir un plan",
   "final-price": "Prix final",
