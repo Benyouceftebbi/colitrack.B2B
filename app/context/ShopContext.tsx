@@ -149,6 +149,75 @@ useEffect(() => {
 
   fetchShopData();
 }, [userEmail, dateRange]);
+useEffect(() => {
+  if (!shopData) return;
+
+  // Create unsubscribe function for the current shop
+  const unsubscribe = onSnapshot(
+    collection(db, 'Shops', shopData.id, 'SMScampaign'),
+    (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const newCampaign = {
+            id: change.doc.id,
+            ...change.doc.data()
+          };
+          
+          // Update shopData
+          setShopData(prevShopData => ({
+            ...prevShopData,
+            smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign]
+          }));
+
+          // Update shops array
+          setShops(prevShops => 
+            prevShops.map(shop => 
+              shop.id === shopData.id 
+                ? {
+                    ...shop,
+                    smsCampaign: [...(shop.smsCampaign || []), newCampaign]
+                  }
+                : shop
+            )
+          );
+        }
+        
+        if (change.type === 'modified') {
+          const updatedCampaign = {
+            id: change.doc.id,
+            ...change.doc.data()
+          };
+          
+          // Update shopData
+          setShopData(prevShopData => ({
+            ...prevShopData,
+            smsCampaign: prevShopData.smsCampaign.map(campaign =>
+              campaign.id === updatedCampaign.id ? updatedCampaign : campaign
+            )
+          }));
+
+          // Update shops array
+          setShops(prevShops => 
+            prevShops.map(shop => 
+              shop.id === shopData.id 
+                ? {
+                    ...shop,
+                    smsCampaign: shop.smsCampaign.map(campaign =>
+                      campaign.id === updatedCampaign.id ? updatedCampaign : campaign
+                    )
+                  }
+                : shop
+            )
+          );
+        }
+      });
+    }
+  );
+
+  // Cleanup function to unsubscribe
+  return () => unsubscribe();
+}, [shopData?.id]);
+
  if(loading===false && shopData){
   return (
    <ShopContext.Provider value={{ shopData, loading, error,setShopData,setShops,shops,dateRange,setDateRange}}>
