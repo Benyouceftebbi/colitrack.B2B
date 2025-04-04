@@ -211,7 +211,7 @@ export function PricingPlans({ className }: { className?: string }) {
         {t("final-price")}: <span className="text-primary">${calculateTaxedPrice(price)}</span>
       </div>
       <div className="text-xs mt-1 text-muted-foreground">
-       {t("Additional-charges")}
+        {t("Additional-charges")}
       </div>
     </div>
   )
@@ -238,7 +238,9 @@ export function PricingPlans({ className }: { className?: string }) {
                 >
                   <div className="flex justify-between items-start mb-1">
                     <div className="flex items-center gap-1">
-                      <span className="text-lg font-bold">${tier.price}</span>
+                      <span className="text-lg font-bold">
+                        ${tier.price} <span className="text-xs font-normal text-muted-foreground">+ VAT</span>
+                      </span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-primary/70 cursor-help" />
@@ -270,15 +272,20 @@ export function PricingPlans({ className }: { className?: string }) {
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-lg font-bold">{t("selected-plan")}</h3>
                 <div className="flex items-center gap-1">
-                  <span className="text-xl font-bold">${priceTiers[selectedTierIndex].price}</span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-primary/70 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-white border shadow-md text-black">
-                      <PriceTooltip price={priceTiers[selectedTierIndex].price} />
-                    </TooltipContent>
-                  </Tooltip>
+                  <span className="text-xl font-bold">
+                    ${priceTiers[selectedTierIndex].price}{" "}
+                    <span className="text-xs font-normal text-muted-foreground">+ VAT</span>
+                  </span>
+                  <span className="text-xs text-primary cursor-help ml-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="underline">Learn more</span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="bg-white border shadow-md text-black">
+                        <PriceTooltip price={priceTiers[selectedTierIndex].price} />
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
                 </div>
               </div>
 
@@ -314,7 +321,6 @@ export function PricingPlans({ className }: { className?: string }) {
                   </>
                 ) : (
                   <div className="flex items-center text-muted-foreground">
-                    <span className="text-sm">{t("no-sender-id")}</span>
                   </div>
                 )}
               </div>
