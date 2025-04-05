@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Command, CreditCard, Home, MessageSquare, Settings, Target, Brain } from "lucide-react"
+import { Command, CreditCard, Home, MessageSquare, Settings, Target, Brain,Squirrel } from "lucide-react"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
 import { NavUser } from "@/components/ui/navigation/nav-user"
@@ -59,6 +59,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Target,
         title: t("nav.retargeting"),
         isActive: pathname[1] === "retargeting",
+      },
+      {
+        url: "/dashboard/ai-order-retriver",
+        icon: Squirrel,
+        title: t("nav.ai-order-retriver"),
+        isActive: pathname[1] === "ai-order-retriver",
       },
       { url: "/dashboard/orders", icon: Brain, title: t("nav.ai-orders"), isActive: pathname[1] === "orders" },
     //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },

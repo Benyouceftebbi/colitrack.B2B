@@ -950,6 +950,7 @@
     "sidebar": {
       "platform": "Platform",
       "nav": {
+        "ai-order-retriver":"Ai Order Retriver",
         "dashboard": "Dashboard",
         "messages": "Messages",
         "retargeting": "Retargeting",

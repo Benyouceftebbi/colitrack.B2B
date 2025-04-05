@@ -207,12 +207,10 @@ export function PricingPlans({ className }: { className?: string }) {
   // Custom tooltip content for price information
   const PriceTooltip = ({ price }: { price: number }) => (
     <div className="p-1">
-      <div className="font-medium text-sm mb-1 text-black">
+      <div className="font-medium text-sm mb-1 text-black dark:text-white">
         {t("final-price")}: <span className="text-primary">${calculateTaxedPrice(price)}</span>
       </div>
-      <div className="text-xs mt-1 text-muted-foreground">
-        {t("Additional-charges")}
-      </div>
+      <div className="text-xs mt-1 text-muted-foreground">{t("Additional-charges")}</div>
     </div>
   )
 
@@ -221,7 +219,7 @@ export function PricingPlans({ className }: { className?: string }) {
       <div className={`py-2 ${className}`}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Price Tiers Selection */}
-          <div className="bg-white rounded-lg border shadow-md p-5 md:col-span-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 shadow-md p-5 md:col-span-2">
             <h2 className="text-xl font-bold mb-4">{t("select-plan")}</h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -231,8 +229,8 @@ export function PricingPlans({ className }: { className?: string }) {
                   className={cn(
                     "border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md",
                     selectedTierIndex === index
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300",
+                      ? "border-primary bg-primary/5 dark:bg-primary/10 shadow-sm"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
                   )}
                   onClick={() => setSelectedTierIndex(index)}
                 >
@@ -245,7 +243,10 @@ export function PricingPlans({ className }: { className?: string }) {
                         <TooltipTrigger asChild>
                           <Info className="h-3.5 w-3.5 text-primary/70 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="bg-white border shadow-md text-black">
+                        <TooltipContent
+                          side="top"
+                          className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
+                        >
                           <PriceTooltip price={tier.price} />
                         </TooltipContent>
                       </Tooltip>
@@ -268,7 +269,7 @@ export function PricingPlans({ className }: { className?: string }) {
             </div>
 
             {/* Selected Plan Details */}
-            <div className="bg-muted/30 rounded-lg p-4 mb-4">
+            <div className="bg-muted/30 dark:bg-gray-700/30 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-lg font-bold">{t("selected-plan")}</h3>
                 <div className="flex items-center gap-1">
@@ -281,7 +282,10 @@ export function PricingPlans({ className }: { className?: string }) {
                       <TooltipTrigger asChild>
                         <span className="underline">Learn more</span>
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="bg-white border shadow-md text-black">
+                      <TooltipContent
+                        side="top"
+                        className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
+                      >
                         <PriceTooltip price={priceTiers[selectedTierIndex].price} />
                       </TooltipContent>
                     </Tooltip>
@@ -320,8 +324,7 @@ export function PricingPlans({ className }: { className?: string }) {
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center text-muted-foreground">
-                  </div>
+                  <div className="flex items-center text-muted-foreground"></div>
                 )}
               </div>
             </div>
@@ -338,7 +341,7 @@ export function PricingPlans({ className }: { className?: string }) {
           </div>
 
           {/* Sender ID Plan */}
-          <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white h-full flex flex-col">
+          <Card className="bg-gradient-to-br from-blue-600 to-purple-700 dark:from-blue-800 dark:to-purple-900 text-white h-full flex flex-col">
             <CardHeader className="pb-2 pt-5 px-5">
               <CardTitle className="text-xl font-bold text-white flex items-center gap-1">
                 {t(`plan-${senderIdPlan.name}`)}
@@ -346,12 +349,15 @@ export function PricingPlans({ className }: { className?: string }) {
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-white/80 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-white border shadow-md text-black">
+                  <TooltipContent
+                    side="top"
+                    className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
+                  >
                     <div className="p-1">
-                      <div className="font-medium text-sm mb-1 text-black">
+                      <div className="font-medium text-sm mb-1 text-black dark:text-white">
                         {t("token-cost")}: <span className="text-primary">{senderIdPlan.pricet} Tokens</span>
                       </div>
-                      <div className="bg-muted/40 px-2 py-1 rounded text-xs font-mono text-black">
+                      <div className="bg-muted/40 dark:bg-gray-700/40 px-2 py-1 rounded text-xs font-mono text-black dark:text-white">
                         {t("equivalent-to")}: ${(senderIdPlan.pricet / 240).toFixed(2)}
                       </div>
                     </div>
@@ -381,7 +387,7 @@ export function PricingPlans({ className }: { className?: string }) {
                     value={senderID}
                     onChange={handleSenderIDChange}
                     maxLength={11}
-                    className="w-full bg-white/20 text-white placeholder-white/50 border-white/30 text-sm h-9"
+                    className="w-full bg-white/20 dark:bg-black/20 text-white placeholder-white/50 border-white/30 dark:border-white/20 text-sm h-9"
                   />
                   <p className="text-xs text-white/80 mt-1">
                     {t("characters-remaining", { count: 11 - senderID.length })}
@@ -390,7 +396,7 @@ export function PricingPlans({ className }: { className?: string }) {
               </div>
 
               <LoadingButton
-                className="w-full bg-white text-blue-600 hover:bg-white/90 h-10 text-sm font-medium mt-6"
+                className="w-full bg-white dark:bg-gray-200 text-blue-600 dark:text-blue-800 hover:bg-white/90 dark:hover:bg-gray-300 h-10 text-sm font-medium mt-6"
                 variant="secondary"
                 onClick={() => createCheckoutSession(senderIdPlan.id)}
                 loading={loadingStates[senderIdPlan.id] || false}
