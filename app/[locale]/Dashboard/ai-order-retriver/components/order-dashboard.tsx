@@ -49,13 +49,13 @@ export function OrderDashboard() {
   }
 
   const handleFacebookAuth = async () => {
-    // In a real app, this would initiate the Facebook OAuth flow
+    // In a real app, this would initiate the Meta OAuth flow
     setIsRetrieving(true)
 
     // Simulate authentication process
     toast({
-      title: "Connecting to Facebook",
-      description: "Authenticating with Facebook Business...",
+      title: "Connecting to Meta",
+      description: "Authenticating with Meta Business...",
     })
 
     // Simulate a delay for authentication
@@ -66,8 +66,8 @@ export function OrderDashboard() {
     setIsFacebookAuthOpen(false)
 
     toast({
-      title: "Facebook Connected",
-      description: "Successfully connected to Facebook. Auto-retrieve is now active.",
+      title: "Meta Connected",
+      description: "Successfully connected to Meta. Auto-retrieve is now active.",
     })
 
     // Simulate initial retrieval
@@ -125,7 +125,13 @@ export function OrderDashboard() {
 
   return (
     <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 space-y-4 md:space-y-6">
-      <DashboardHeader dateRange={dateRange} onDateRangeChange={setDateRange} />
+      <DashboardHeader
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        isFacebookConnected={isFacebookConnected}
+        showFacebookAuth={showFacebookAuth}
+        onDisconnect={() => setIsFacebookConnected(false)}
+      />
 
       <StatsCards orders={orders} dateRange={dateRange} />
 

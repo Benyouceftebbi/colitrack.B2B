@@ -444,7 +444,7 @@ export interface Commune {
         { id: 3505, namefr: "Boudouaou", namear: "بودواو" },
         { id: 3506, namefr: "Khemis El Khechna", namear: "خميس الخشنة" },
         { id: 3507, namefr: "Corso", namear: "قورصو" },
-        { id: 3508, namefr: "Tidjelabine", namear: "تيجلابين" },
+        { id: 3508, namefr: "Tidjelabine", namear: "تيج��ابين" },
         { id: 3509, namefr: "Isser", namear: "يسر" },
         { id: 3510, namefr: "Naciria", namear: "الناصرية" },
         { id: 3511, namefr: "Hammedi", namear: "حمادي" },

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, TruckIcon, HelpCircle, Facebook, RefreshCw } from "lucide-react"
+import { Download, TruckIcon, HelpCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LearnMoreDialog } from "./learn-more-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -30,16 +30,7 @@ export function TableActionButtons({
     <>
       <div className="flex flex-wrap gap-3">
         <div className="relative flex items-center">
-          {!isFacebookConnected ? (
-            <Button
-              onClick={showFacebookAuth}
-              variant="outline"
-              className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 w-full sm:w-auto"
-            >
-              <Facebook className="mr-2 h-4 w-4" />
-              Connect Facebook
-            </Button>
-          ) : (
+          {isFacebookConnected && (
             <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 flex items-center gap-1.5 py-1.5">
               <div className="h-2 w-2 rounded-full bg-green-500 dark:bg-green-400 animate-pulse"></div>
               {isRetrieving ? (

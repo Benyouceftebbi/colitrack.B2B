@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Facebook } from "lucide-react"
+import { MetaLogo } from "./meta-logo"
 
 interface FacebookAuthDialogProps {
   isOpen: boolean
@@ -22,15 +22,15 @@ export function FacebookAuthDialog({ isOpen, onClose, onAuthenticate }: Facebook
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center">Connect to Facebook</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-center">Connect to Meta</DialogTitle>
           <DialogDescription className="text-center">
-            Connect your Facebook account to enable automatic order retrieval
+            Connect your Meta account to enable automatic order retrieval
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center justify-center py-6 space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-full">
-            <Facebook className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-full">
+            <MetaLogo className="h-12 w-12 text-white" />
           </div>
 
           <div className="text-center space-y-2 max-w-sm">
@@ -52,8 +52,8 @@ export function FacebookAuthDialog({ isOpen, onClose, onAuthenticate }: Facebook
             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 gap-2"
             onClick={onAuthenticate}
           >
-            <Facebook className="h-4 w-4" />
-            Connect with Facebook
+            <MetaLogo className="h-4 w-4" />
+            Connect with Meta
           </Button>
         </DialogFooter>
       </DialogContent>
