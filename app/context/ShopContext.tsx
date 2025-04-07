@@ -152,12 +152,10 @@ useEffect(() => {
 
   fetchShopData();
 }, [userEmail, dateRange]);
+
 useEffect(() => {
-
-
   if (!shopData) return;
 
-  // Create unsubscribe function for the current shop
   const unsubscribe = onSnapshot(
     collection(db, 'Shops', shopData.id, 'SMScampaign'),
     (snapshot) => {
@@ -168,22 +166,34 @@ useEffect(() => {
             ...change.doc.data()
           };
           
-          // Update shopData
-          setShopData(prevShopData => ({
-            ...prevShopData,
-            smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign]
-          }));
+          // Update shopData only if campaign doesn't already exist
+          setShopData(prevShopData => {
+            const campaignExists = prevShopData.smsCampaign?.some(
+              campaign => campaign.id === newCampaign.id
+            );
+            if (campaignExists) return prevShopData;
+            
+            return {
+              ...prevShopData,
+              smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign]
+            };
+          });
 
-          // Update shops array
+          // Update shops array only if campaign doesn't already exist
           setShops(prevShops => 
-            prevShops.map(shop => 
-              shop.id === shopData.id 
-                ? {
-                    ...shop,
-                    smsCampaign: [...(shop.smsCampaign || []), newCampaign]
-                  }
-                : shop
-            )
+            prevShops.map(shop => {
+              if (shop.id !== shopData.id) return shop;
+              
+              const campaignExists = shop.smsCampaign?.some(
+                campaign => campaign.id === newCampaign.id
+              );
+              if (campaignExists) return shop;
+              
+              return {
+                ...shop,
+                smsCampaign: [...(shop.smsCampaign || []), newCampaign]
+              };
+            })
           );
         }
         
@@ -215,11 +225,36 @@ useEffect(() => {
             )
           );
         }
+
+        if (change.type === 'removed') {
+          const removedCampaignId = change.doc.id;
+          
+          // Update shopData
+          setShopData(prevShopData => ({
+            ...prevShopData,
+            smsCampaign: prevShopData.smsCampaign.filter(
+              campaign => campaign.id !== removedCampaignId
+            )
+          }));
+
+          // Update shops array
+          setShops(prevShops => 
+            prevShops.map(shop => 
+              shop.id === shopData.id 
+                ? {
+                    ...shop,
+                    smsCampaign: shop.smsCampaign.filter(
+                      campaign => campaign.id !== removedCampaignId
+                    )
+                  }
+                : shop
+            )
+          );
+        }
       });
     }
   );
 
-  // Cleanup function to unsubscribe
   return () => unsubscribe();
 }, [shopData?.id]);
 

@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/hooks/use-toast"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
+import { useShop } from "@/app/context/ShopContext"
 
 // Custom scrollable content component
 const ScrollableContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -64,6 +67,7 @@ export function AffiliateDialog({
 }) {
   const  t  = useTranslations('affiliate')
   const [copied, setCopied] = React.useState(false)
+  const {shopData,setShopData}=useShop()
 
   // State to manage affiliate data
   const [affiliateData, setAffiliateData] = React.useState<{
@@ -71,42 +75,45 @@ export function AffiliateDialog({
     referrals: number
     earnings: number
   }>({
-    code: null,
-    referrals: 0,
-    earnings: 0,
+    code: shopData.affiliateCode || null,
+    referrals: shopData.referrals ||0,
+    earnings: shopData.earnings || 0,
   })
 
   // Check if code has been generated
   const hasGeneratedCode = affiliateData.code !== null
 
   // Function to generate a random affiliate code
-  const generateAffiliateCode = () => {
-    const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // Removed similar looking characters
-    let result = ""
-
-    // Generate a 2-letter prefix
-    for (let i = 0; i < 2; i++) {
-      result += characters.charAt(Math.floor(Math.random() * 26)) // Only letters for prefix
+  const generateAffiliateCode = async () => {
+    try {
+      const promocode = httpsCallable(functions, "createPromotionCode");
+      const { data } = await promocode({ shopId: shopData.id });
+  
+      if (data.status === "success" && data.promotionCode) {
+        setAffiliateData((prev) => ({
+          ...prev,
+          code: data.promotionCode.code,
+          referrals: 0,
+          earnings: 0,
+        }));
+  
+        toast({
+          title: t("toast.codeGenerated"),
+          description: t("toast.codeGeneratedDesc", { code: data.promotionCode.code }),
+          status: "success",
+        });
+      } else {
+        throw new Error("Failed to generate promotion code");
+      }
+    } catch (error) {
+      console.error("Error generating affiliate code:", error);
+      toast({
+        title: t("toast.error"),
+        description: t("toast.codeGenerationFailed"),
+        status: "error",
+      });
     }
-
-    // Add a separator
-    result += "-"
-
-    // Generate a 4-character alphanumeric code
-    for (let i = 0; i < 4; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length))
-    }
-
-    setAffiliateData((prev) => ({
-      ...prev,
-      code: result,
-    }))
-
-    toast({
-      title: t("toast.codeGenerated"),
-      description: t("toast.codeGeneratedDesc", { code: result }),
-    })
-  }
+  };
 
   // Use our state instead of the static data
   const affiliate = {
@@ -167,7 +174,13 @@ export function AffiliateDialog({
       description: t("toast.shareCopiedDesc"),
     })
   }
-
+  React.useEffect(() => {
+    setAffiliateData({
+      code: shopData.affiliateCode || null,
+      referrals: shopData.referrals || 0,
+      earnings: shopData.earnings || 0,
+    })
+  }, [shopData.id])
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-hidden flex flex-col">

@@ -25,50 +25,50 @@ const calculateTaxedPrice = (price: number) => {
 // Define the price tiers with token amounts based on $10 = 2,400 tokens
 const priceTiers = [
   {
-    id: "price_tier_1",
+    id: "price_1RBKk5DIpjCcuDeHpQhOI8gB",
     price: 10,
     tokens: "2,400", // 10/10 * 2,400 = 2,400
     hasSenderId: false,
   },
   {
-    id: "price_tier_2",
+    id: "price_1RBKkfDIpjCcuDeHby0rkBPL",
     price: 20,
     tokens: "4,800", // 20/10 * 2,400 = 4,800
     hasSenderId: false,
   },
   {
-    id: "price_tier_3",
+    id: "price_1RBKlCDIpjCcuDeHx5EDlppd",
     price: 50,
     tokens: "12,000", // 50/10 * 2,400 = 12,000
     hasSenderId: false,
   },
   {
-    id: "price_tier_4",
+    id: "price_1RBKlXDIpjCcuDeHZJVZG89v",
     price: 80,
     tokens: "19,200", // 80/10 * 2,400 = 19,200
     hasSenderId: false,
   },
   {
-    id: "price_tier_5",
+    id: "price_1RBKlpDIpjCcuDeH9zOCEJg9",
     price: 100,
     tokens: "24,000", // 100/10 * 2,400 = 24,000
     hasSenderId: true,
     popular: true,
   },
   {
-    id: "price_tier_6",
+    id: "price_1RBKm9DIpjCcuDeHEo0V59o5",
     price: 150,
     tokens: "36,000", // 150/10 * 2,400 = 36,000
     hasSenderId: true,
   },
   {
-    id: "price_tier_7",
+    id: "price_1RBKmNDIpjCcuDeHmZidIG6t",
     price: 200,
     tokens: "48,000", // 200/10 * 2,400 = 48,000
     hasSenderId: true,
   },
   {
-    id: "price_tier_8",
+    id: "price_1RBKmeDIpjCcuDeHwO4FQA4N",
     price: 300,
     tokens: "72,000", // 300/10 * 2,400 = 72,000
     hasSenderId: true,
@@ -145,6 +145,7 @@ export function PricingPlans({ className }: { className?: string }) {
       // Handle price tier checkout
       const selectedTier = priceTiers[selectedTierIndex]
 
+
       // Validate sender ID if needed
       if (selectedTier.hasSenderId && !customSenderID.trim()) {
         toast({
@@ -158,41 +159,28 @@ export function PricingPlans({ className }: { className?: string }) {
       setLoadingStates((prev) => ({ ...prev, [id]: true }))
 
       try {
-        const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions")
+        const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions");
         const docRef = await addDoc(checkoutSessionRef, {
-          mode: "payment",
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `${t("plan")} $${selectedTier.price}`,
-              description: selectedTier.hasSenderId
-                ? `${t("tokens-amount", { amount: selectedTier.tokens })} ${t("with-sender-id")}: ${customSenderID}`
-                : t("tokens-amount", { amount: selectedTier.tokens }),
-            },
-            unit_amount: Math.round(selectedTier.price * 100), // Convert to cents
-          },
+          mode:'payment',
+          price: selectedTier.id,
           success_url: window.location.href,
           cancel_url: window.location.href,
           allow_promotion_codes: true,
-          client_reference_id: `${shopData.id}-tier-${selectedTier.id}`,
-          metadata: selectedTier.hasSenderId ? { senderId: customSenderID } : undefined,
-        })
+          client_reference_id: `${shopData.id}-${selectedTier.id}${customSenderID ? `-${customSenderID}` : ''}`, 
+        });
 
+    
         onSnapshot(docRef, (snap) => {
-          const { error, url } = snap.data() || {}
+          const { error, url } = snap.data() || {};
           if (error) {
-            toast({
-              title: "error",
-              description: error.message,
-              variant: "destructive",
-            })
-            setLoadingStates((prev) => ({ ...prev, [id]: false }))
+            alert(`An error occurred: ${error.message}`);
+            setLoadingStates(prev => ({ ...prev, [id]: false }))
           }
           if (url) {
-            window.location.assign(url)
-            setLoadingStates((prev) => ({ ...prev, [id]: false }))
+            window.location.assign(url);
+            setLoadingStates(prev => ({ ...prev, [id]: false }))
           }
-        })
+        });
       } catch (error) {
         toast({
           title: "error",
