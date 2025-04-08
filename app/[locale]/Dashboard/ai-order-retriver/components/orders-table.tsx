@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Eye, Edit2, Save, X, Facebook, Instagram } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Order } from "../data/sample-orders"
-import { parseISO, isWithinInterval, format } from "date-fns"
+import { parseISO, isWithinInterval } from "date-fns"
 import { wilayas } from "../data/algeria-regions"
 
 interface OrdersTableProps {
@@ -231,11 +231,10 @@ export function OrdersTable({
             <TableHead>Name</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Articles</TableHead>
-            <TableHead>Delivery Price</TableHead>
             <TableHead>Wilaya</TableHead>
             <TableHead>Commune</TableHead>
             <TableHead>Delivery Type</TableHead>
-            <TableHead>Message Time</TableHead>
+            <TableHead>Delivery Price</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Additional Info</TableHead>
             <TableHead>Confidence</TableHead>
@@ -247,7 +246,7 @@ export function OrdersTable({
         <TableBody>
           {filteredOrders.length === 0 ? (
             <TableRow className="dark:border-gray-700">
-              <TableCell colSpan={15} className="h-24 text-center dark:text-gray-400">
+              <TableCell colSpan={14} className="h-24 text-center dark:text-gray-400">
                 No orders found in the selected date range.
               </TableCell>
             </TableRow>
@@ -296,18 +295,6 @@ export function OrdersTable({
                       />
                     ) : (
                       formatArticles(order)
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingRow === order.id ? (
-                      <Input
-                        type="number"
-                        value={editValues.deliveryPrice || ""}
-                        onChange={(e) => handleEditChange("deliveryPrice", e.target.value)}
-                        className="h-8 w-24 dark:bg-slate-700/70 dark:border-gray-700"
-                      />
-                    ) : (
-                      `${(order.orderData.delivery_cost.value / 100).toLocaleString()} DA`
                     )}
                   </TableCell>
                   <TableCell>
@@ -373,7 +360,18 @@ export function OrdersTable({
                       "Stop desk"
                     )}
                   </TableCell>
-                  <TableCell>{format(parseISO(order.orderData.message_time.value), "MMM dd, HH:mm")}</TableCell>
+                  <TableCell>
+                    {editingRow === order.id ? (
+                      <Input
+                        type="number"
+                        value={editValues.deliveryPrice || ""}
+                        onChange={(e) => handleEditChange("deliveryPrice", e.target.value)}
+                        className="h-8 w-24 dark:bg-slate-700/70 dark:border-gray-700"
+                      />
+                    ) : (
+                      `${(order.orderData.delivery_cost.value / 100).toLocaleString()} DA`
+                    )}
+                  </TableCell>
                   <TableCell>
                     {editingRow === order.id ? (
                       <Input

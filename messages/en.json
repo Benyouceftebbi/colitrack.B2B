@@ -485,6 +485,7 @@
   },
   
   "billing": {
+    "already-have-sender-id": "You already have a sender ID",
     "Additional-charges": "Additional charges may apply, including transaction and processing fees from payment providers.",
     "equivalent-to": "Equivalent to",
     "token-cost": "Token Cost",
@@ -644,7 +645,7 @@
     "next": "Next",
     "sendCampaign": "Send Campaign",
     "sendCampaignQuestion": "Send Campaign?",
-    "sendCampaignDescription": "This action will send {messageCount} message{messageCount !== 1 ? 's' : ''} to {recipients} recipients ({group}).\n\nTotal Messages: {totalMessages}\nTotal Cost: {totalCost} Tkn ({costPerMessage} Tkn per message)",
+    "sendCampaignDescription": "This action will send {messageCount} message to {recipients} recipients ({group}). ,\nTotal Messages: {totalMessages}\nTotal Cost: {totalCost} Tkn ({costPerMessage} Tkn per message)",
     "cancel": "Cancel",
     "sending": "Sending...",
     "messageHistory": "Message History",

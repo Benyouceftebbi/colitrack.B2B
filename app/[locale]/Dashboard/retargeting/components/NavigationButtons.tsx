@@ -57,12 +57,13 @@ export function NavigationButtons({
             <AlertDialogHeader>
               <AlertDialogTitle>{t("sendCampaignQuestion")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {t("sendCampaignDescription", {
-                  messageCount: campaign.messageCount,
+              {t("sendCampaignDescription", {
+                  messageCount: '1',
                   recipients: campaign.totalRecipients,
-                  totalMessages: campaign.messageCount * campaign.totalRecipients,
-                  totalCost: campaign.totalCost.toLocaleString(),
-                  costPerMessage: campaign.effectiveCharLimit,
+                  group: campaign.groupName || "All Contacts", // Add the missing group parameter
+                  totalMessages: campaign.totalRecipients,
+                  totalCost: campaign.messageCount * campaign.totalRecipients * 10,
+                  costPerMessage: campaign.messageCount * 10,
                 })}
                 {campaign.hasArabic && (
                   <p className="mt-2 text-amber-600 font-medium">

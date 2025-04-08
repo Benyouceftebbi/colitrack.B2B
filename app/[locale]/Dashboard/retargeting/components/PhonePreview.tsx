@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Battery, Signal, Wifi, ChevronLeft } from "lucide-react"
-import { containsArabicCharacters, splitMessageIntoChunks } from "../utils/message"
+import { containsArabicCharacters } from "../utils/message"
 
 type PhonePreviewProps = {
   messageTemplate: string
@@ -12,8 +12,6 @@ type PhonePreviewProps = {
 
 export function PhonePreview({ messageTemplate, senderId, onClose }: PhonePreviewProps) {
   const hasArabic = containsArabicCharacters(messageTemplate)
-  const effectiveLimit = hasArabic ? 70 : 110
-  const messageChunks = splitMessageIntoChunks(messageTemplate, effectiveLimit)
 
   return (
     <AnimatePresence>
@@ -36,7 +34,7 @@ export function PhonePreview({ messageTemplate, senderId, onClose }: PhonePrevie
             <div className="w-full h-full bg-gray-100 dark:bg-gray-900 rounded-[1.8rem] overflow-hidden">
               <StatusBar />
               <MessageHeader senderId={senderId} />
-              <MessageContent messageChunks={messageChunks} hasArabic={hasArabic} />
+              <MessageContent message={messageTemplate} hasArabic={hasArabic} />
             </div>
           </div>
         </motion.div>
@@ -74,33 +72,20 @@ function MessageHeader({ senderId }: { senderId: string }) {
   )
 }
 
-function MessageContent({ messageChunks, hasArabic }: { messageChunks: string[]; hasArabic: boolean }) {
+function MessageContent({ message, hasArabic }: { message: string; hasArabic: boolean }) {
   return (
     <div className="h-[calc(100%-90px)] overflow-y-auto px-3 py-2">
       <div className="text-center mb-4">
         <div className="text-xs text-gray-500">Today 11:24</div>
       </div>
 
-      {messageChunks.map((chunk, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.3 }}
-          className="flex justify-start mb-4"
-        >
-          <div className="bg-gray-200 dark:bg-gray-700 rounded-lg py-2 px-3 max-w-[80%]">
-            <p className="text-sm break-words" dir={hasArabic ? "rtl" : "ltr"}>
-              {chunk}
-            </p>
-            {messageChunks.length > 1 && (
-              <p className="text-[10px] text-gray-500 mt-1 text-right">
-                {index + 1}/{messageChunks.length}
-              </p>
-            )}
-          </div>
-        </motion.div>
-      ))}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start mb-4">
+        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg py-2 px-3 max-w-[80%]">
+          <p className="text-sm break-words" dir={hasArabic ? "rtl" : "ltr"}>
+            {message}
+          </p>
+        </div>
+      </motion.div>
     </div>
   )
 }

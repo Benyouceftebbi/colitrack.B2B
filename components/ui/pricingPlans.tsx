@@ -145,9 +145,8 @@ export function PricingPlans({ className }: { className?: string }) {
       // Handle price tier checkout
       const selectedTier = priceTiers[selectedTierIndex]
 
-
       // Validate sender ID if needed
-      if (selectedTier.hasSenderId && !customSenderID.trim()) {
+      if (selectedTier.hasSenderId && !shopData.senderId && !customSenderID.trim()) {
         toast({
           title: "error",
           description: t("sender-id-required"),
@@ -159,28 +158,27 @@ export function PricingPlans({ className }: { className?: string }) {
       setLoadingStates((prev) => ({ ...prev, [id]: true }))
 
       try {
-        const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions");
+        const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions")
         const docRef = await addDoc(checkoutSessionRef, {
-          mode:'payment',
+          mode: "payment",
           price: selectedTier.id,
           success_url: window.location.href,
           cancel_url: window.location.href,
           allow_promotion_codes: true,
-          client_reference_id: `${shopData.id}-${selectedTier.id}${customSenderID ? `-${customSenderID}` : ''}`, 
-        });
+          client_reference_id: `${shopData.id}-${selectedTier.id}${customSenderID ? `-${customSenderID}` : ""}`,
+        })
 
-    
         onSnapshot(docRef, (snap) => {
-          const { error, url } = snap.data() || {};
+          const { error, url } = snap.data() || {}
           if (error) {
-            alert(`An error occurred: ${error.message}`);
-            setLoadingStates(prev => ({ ...prev, [id]: false }))
+            alert(`An error occurred: ${error.message}`)
+            setLoadingStates((prev) => ({ ...prev, [id]: false }))
           }
           if (url) {
-            window.location.assign(url);
-            setLoadingStates(prev => ({ ...prev, [id]: false }))
+            window.location.assign(url)
+            setLoadingStates((prev) => ({ ...prev, [id]: false }))
           }
-        });
+        })
       } catch (error) {
         toast({
           title: "error",
@@ -296,20 +294,28 @@ export function PricingPlans({ className }: { className?: string }) {
                       <span className="text-sm">{t("free-senderID")}</span>
                     </div>
 
-                    <div className="mt-3">
-                      <label className="text-xs font-medium mb-1 block">{t("enter-sender-id")}</label>
-                      <Input
-                        type="text"
-                        placeholder={t("enter-sender-id")}
-                        value={customSenderID}
-                        onChange={handleCustomSenderIDChange}
-                        maxLength={11}
-                        className="w-full text-sm h-9"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t("characters-remaining", { count: 11 - customSenderID.length })}
-                      </p>
-                    </div>
+                    {!shopData.senderId ? (
+                      <div className="mt-3">
+                        <label className="text-xs font-medium mb-1 block">{t("enter-sender-id")}</label>
+                        <Input
+                          type="text"
+                          placeholder={t("enter-sender-id")}
+                          value={customSenderID}
+                          onChange={handleCustomSenderIDChange}
+                          maxLength={11}
+                          className="w-full text-sm h-9"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t("characters-remaining", { count: 11 - customSenderID.length })}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium">
+                          {t("already-have-sender-id")}: {shopData.senderId}
+                        </p>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="flex items-center text-muted-foreground"></div>
@@ -322,7 +328,7 @@ export function PricingPlans({ className }: { className?: string }) {
               variant="default"
               onClick={() => createCheckoutSession("price_tier")}
               loading={loadingStates["price_tier"] || false}
-              disabled={priceTiers[selectedTierIndex].hasSenderId && !customSenderID.trim()}
+              disabled={priceTiers[selectedTierIndex].hasSenderId && !shopData.senderId && !customSenderID.trim()}
             >
               <span>{t("proceed-to-checkout")}</span>
             </LoadingButton>
@@ -367,20 +373,28 @@ export function PricingPlans({ className }: { className?: string }) {
                   ))}
                 </ul>
 
-                <div className="mt-4">
-                  <label className="text-xs font-medium mb-1 block text-white/90">{t("enter-sender-id")}</label>
-                  <Input
-                    type="text"
-                    placeholder={t("enter-sender-id")}
-                    value={senderID}
-                    onChange={handleSenderIDChange}
-                    maxLength={11}
-                    className="w-full bg-white/20 dark:bg-black/20 text-white placeholder-white/50 border-white/30 dark:border-white/20 text-sm h-9"
-                  />
-                  <p className="text-xs text-white/80 mt-1">
-                    {t("characters-remaining", { count: 11 - senderID.length })}
-                  </p>
-                </div>
+                {!shopData.senderId ? (
+                  <div className="mt-4">
+                    <label className="text-xs font-medium mb-1 block text-white/90">{t("enter-sender-id")}</label>
+                    <Input
+                      type="text"
+                      placeholder={t("enter-sender-id")}
+                      value={senderID}
+                      onChange={handleSenderIDChange}
+                      maxLength={11}
+                      className="w-full bg-white/20 dark:bg-black/20 text-white placeholder-white/50 border-white/30 dark:border-white/20 text-sm h-9"
+                    />
+                    <p className="text-xs text-white/80 mt-1">
+                      {t("characters-remaining", { count: 11 - senderID.length })}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <p className="text-sm text-white/90 font-medium">
+                      {t("already-have-sender-id")}: {shopData.senderId}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <LoadingButton
@@ -399,4 +413,3 @@ export function PricingPlans({ className }: { className?: string }) {
     </TooltipProvider>
   )
 }
-

@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
+import { LoadingButton } from "@/components/ui/LoadingButton"
 
 // Custom scrollable content component
 const ScrollableContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -210,9 +211,9 @@ export function AffiliateDialog({
             <div className="rounded-lg border bg-muted/50 p-6 text-center space-y-4">
               <div className="text-lg font-medium">{t("welcome")}</div>
               <p className="text-muted-foreground">{t("generatePrompt")}</p>
-              <Button onClick={generateAffiliateCode} className="mt-2">
+              <LoadingButton onClick={generateAffiliateCode} className="mt-2">
                 {t("generateButton")}
-              </Button>
+              </LoadingButton>
             </div>
           )}
 

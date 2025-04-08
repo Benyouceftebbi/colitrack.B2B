@@ -557,7 +557,7 @@
     "next": "Suivant",
     "sendCampaign": "Envoyer la campagne",
     "sendCampaignQuestion": "Envoyer la campagne ?",
-    "sendCampaignDescription": "Cette action enverra {messageCount} message{messageCount !== 1 ? 's' : ''} à {recipients} destinataires ({group}).\n\nTotal des messages : {totalMessages}\nCoût total : {totalCost} Tkn ({costPerMessage} Tkn par message)",
+    "sendCampaignDescription": "Cette action enverra {messageCount} message(s) à {recipients} destinataire(s) ({group}).\nMessages totaux : {totalMessages}\nCoût total : {totalCost} Tkn ({costPerMessage} Tkn par message)",
     "cancel": "Annuler",
     "sending": "Envoi en cours...",
     "messageHistory": "Historique des messages",
@@ -629,6 +629,7 @@
   "de": "Allemand"
 },
 "billing": {
+  "already-have-sender-id": "Vous avez déjà un identifiant d'expéditeur",
   "free-senderID": "Identifiant d’expéditeur gratuit inclus",
   "Additional-charges": "Des frais supplémentaires peuvent s'appliquer, y compris les frais de transaction et de traitement des prestataires de paiement.",
   "select-plan": "Choisir un plan",

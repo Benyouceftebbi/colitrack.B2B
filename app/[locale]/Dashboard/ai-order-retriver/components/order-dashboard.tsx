@@ -35,9 +35,92 @@ export function OrderDashboard() {
     setIsViewModalOpen(true)
   }
 
+  // Update the handleEditOrder function to actually update the orders array
   const handleEditOrder = (order: Order, field: string, value: any) => {
-    // In a real app, this would update the order in your database
-    console.log(`Updating order ${order.id}, setting ${field} to ${value}`)
+    // Create a deep copy of the orders array
+    const updatedOrders = orders.map((o) => {
+      if (o.id === order.id) {
+        // Create a deep copy of the order we want to update
+        const updatedOrder = { ...o }
+
+        // Update the appropriate field based on the field parameter
+        switch (field) {
+          case "clientName":
+            updatedOrder.orderData.client_name.value = value
+            break
+          case "phoneNumber":
+            updatedOrder.orderData.phone_number.value = value
+            break
+          case "articleName":
+            if (updatedOrder.orderData.articles[0]) {
+              updatedOrder.orderData.articles[0].name.value = value
+            }
+            break
+          case "articleSize":
+            if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].sizes[0]) {
+              updatedOrder.orderData.articles[0].sizes[0].value = value
+            }
+            break
+          case "articleColor":
+            if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].colors[0]) {
+              updatedOrder.orderData.articles[0].colors[0].value = value
+            }
+            break
+          case "price":
+          case "articlePrice":
+            if (updatedOrder.orderData.articles[0]) {
+              updatedOrder.orderData.articles[0].total_article_price.value = value * 100
+              // Also update the total price
+              updatedOrder.orderData.total_price.value =
+                updatedOrder.orderData.articles[0].total_article_price.value +
+                updatedOrder.orderData.delivery_cost.value
+            }
+            break
+          case "deliveryPrice":
+          case "deliveryCost":
+            updatedOrder.orderData.delivery_cost.value = value * 100
+            // Also update the total price
+            updatedOrder.orderData.total_price.value =
+              (updatedOrder.orderData.articles[0]?.total_article_price.value || 0) +
+              updatedOrder.orderData.delivery_cost.value
+            break
+          case "address":
+            updatedOrder.orderData.address.value = value
+            break
+          case "wilaya":
+            updatedOrder.orderData.wilaya.name_fr.value = value
+            break
+          case "commune":
+            updatedOrder.orderData.commune.name_fr.value = value
+            break
+          case "deliveryType":
+            updatedOrder.orderData.delivery_type.value = value
+            break
+          case "additionalInfo":
+            if (!updatedOrder.orderData.additional_information) {
+              updatedOrder.orderData.additional_information = {
+                confidence: 0.8,
+                description: value,
+                value: value,
+              }
+            } else {
+              updatedOrder.orderData.additional_information.value = value
+              updatedOrder.orderData.additional_information.description = value
+            }
+            break
+          default:
+            console.warn(`Unknown field: ${field}`)
+        }
+
+        return updatedOrder
+      }
+      return o
+    })
+
+    // Update the orders state
+    setOrders(updatedOrders)
+
+    // Show toast notification
     toast({
       title: "Order Updated",
       description: `Order #${order.id} has been updated.`,
@@ -174,6 +257,7 @@ export function OrderDashboard() {
           isOpen={isViewModalOpen}
           onClose={() => setIsViewModalOpen(false)}
           readOnly={isViewingFromHistory}
+          onEditOrder={handleEditOrder}
         />
       )}
 

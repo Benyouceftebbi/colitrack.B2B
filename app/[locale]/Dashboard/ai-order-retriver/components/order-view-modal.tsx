@@ -32,14 +32,17 @@ import type { Order } from "../data/sample-orders"
 import { wilayas } from "../data/algeria-regions"
 import { MetaLogo } from "./meta-logo"
 
+// Add onEditOrder to the props interface
 interface OrderViewModalProps {
   order: Order
   isOpen: boolean
   onClose: () => void
   readOnly?: boolean
+  onEditOrder?: (order: Order, field: string, value: any) => void
 }
 
-export function OrderViewModal({ order, isOpen, onClose, readOnly = false }: OrderViewModalProps) {
+// Update the function signature to include the new prop
+export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEditOrder }: OrderViewModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValues, setEditValues] = useState({
     clientName: order?.orderData.client_name.value || "",
@@ -118,9 +121,31 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false }: Ord
   }
 
   const saveChanges = () => {
-    // Here you would implement the logic to save the changes to your backend
-    console.log("Saving changes:", editValues)
-    // For now, we'll just exit edit mode
+    // Get the original order values to compare with edited values
+    const originalValues = {
+      clientName: order.orderData.client_name.value,
+      phoneNumber: order.orderData.phone_number.value,
+      articleName: order.orderData.articles[0]?.name.value || "",
+      articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
+      articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
+      articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+      address: order.orderData.address.value,
+      wilaya: order.orderData.wilaya.name_fr.value,
+      commune: order.orderData.commune.name_fr.value,
+      deliveryType: order.orderData.delivery_type.value,
+      deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
+      additionalInfo: order.orderData.additional_information?.value || "",
+    }
+
+    // Check each field for changes and update if needed
+    Object.keys(editValues).forEach((field) => {
+      if (editValues[field] !== originalValues[field]) {
+        // Call the parent's onEditOrder function to update the order
+        onEditOrder(order, field, editValues[field])
+      }
+    })
+
+    // Exit edit mode
     setIsEditing(false)
     setAvailableCommunes([])
   }
