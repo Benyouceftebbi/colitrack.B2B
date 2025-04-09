@@ -186,6 +186,8 @@ export function useRetargetingCampaign() {
     setExcelData(null)
     setTotalRecipients(0)
     setCurrentStep(0)
+    setAudienceSource('')
+    setProcessedData([])
   }
 
   return {
