@@ -61,7 +61,7 @@ export default function Component() {
     } else {
       setShippingProviders([])
     }
-  }, [shopData]) // Update shippingProviders when shopData changes
+  }, [shopData.id]) // Update shippingProviders when shopData changes
   useEffect(() => {
     // Only detect the initial preference, don't modify the DOM
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches

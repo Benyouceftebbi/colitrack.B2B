@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { useTranslations } from "next-intl"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
+import { LoadingButton } from "@/components/ui/LoadingButton"
 
 interface FormData {
   apiToken: string
@@ -79,7 +80,7 @@ export function Steps({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors,isSubmitting },
   } = useForm<FormData>()
 
   const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
@@ -576,9 +577,9 @@ Best regards,
                       <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
                     </Button>
                   ) : (
-                    <Button type="submit" className="bg-primary hover:bg-primary/90 text-sm md:text-lg">
+                    <LoadingButton loading={isSubmitting} type="submit" className="bg-primary hover:bg-primary/90 text-sm md:text-lg">
                       {t("finish-setup")}
-                    </Button>
+                    </LoadingButton>
                   )}
                 </div>
               </div>

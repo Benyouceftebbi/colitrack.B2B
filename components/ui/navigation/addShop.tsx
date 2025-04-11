@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useShop } from "@/app/context/ShopContext"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
+import { LoadingButton } from "../LoadingButton"
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -44,7 +45,9 @@ export function AddShopModal() {
   const t = useTranslations("navigation")
   const [open, setOpen] = React.useState(false)
   const { shops, setShops, setShopData,shopData } = useShop()
-
+  const {
+    formState: { errors,isSubmitting },
+  } = useForm<FormData>()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -202,7 +205,7 @@ export function AddShopModal() {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 {t("cancel")}
               </Button>
-              <Button type="submit">{t("addShop")}</Button>
+              <LoadingButton loading={isSubmitting} type="submit">{t("addShop")}</LoadingButton>
             </DialogFooter>
           </form>
         </Form>
