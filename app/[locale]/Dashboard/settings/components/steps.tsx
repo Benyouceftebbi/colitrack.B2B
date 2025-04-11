@@ -159,6 +159,7 @@ export function Steps({
         apiToken: submissionData.apiToken || null,
         apiKey: submissionData.apiId || submissionData.apiKey,
         lng: submissionData.lng,
+        shopId:shopData.id
       })
       setShopData(prev => ({
         ...prev,
