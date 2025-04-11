@@ -101,18 +101,33 @@ export const columns: ColumnDef<Message>[] = [
   {
     accessorKey: "lastUpdated",
     header: ({t}) => t("lastUpdated"),
-    cell: ({ row,locale}) => {
+    cell: ({ row, locale }) => {
       const createdAtTimestamp = row.getValue("lastUpdated");
       if (!createdAtTimestamp) return null;
-      const date = createdAtTimestamp instanceof Date ? createdAtTimestamp : new Date(createdAtTimestamp.toDate());
+      
+      // Handle both Date objects and Firestore Timestamps
+      let date;
+      if (createdAtTimestamp instanceof Date) {
+        date = createdAtTimestamp;
+      } else if (createdAtTimestamp?.toDate) {
+        // Handle Firestore Timestamp
+        date = createdAtTimestamp.toDate();
+      } else if (typeof createdAtTimestamp === 'string') {
+        // Handle string dates
+        date = new Date(createdAtTimestamp);
+      } else {
+        console.warn('Invalid date format:', createdAtTimestamp);
+        return null;
+      }
+      
       return (
         <span className="text-sm text-muted-foreground">
-          {formatDistanceToNow(date, { addSuffix: true, locale:locale })}
+          {formatDistanceToNow(date, { addSuffix: true, locale: locale })}
         </span>
       );
     },
     enableSorting: true,
-  },
+},
   {
     id: "sendReminder",
     header: ({ t }) => (

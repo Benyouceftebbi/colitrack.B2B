@@ -17,6 +17,8 @@ import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { toast } from "@/hooks/use-toast"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 interface ExcelImportModalProps {
   isOpen: boolean
@@ -185,13 +187,37 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
       // Here you would typically send these tracking IDs to your backend
       // For now, we'll just simulate success
 
-      toast({
-        title: t("import-success") || "Import Successful",
-        description: `${trackingIds.length} tracking IDs imported successfully`,
+      const importTracking = httpsCallable(functions, "fetchAndStoreNoestTrackingData")
+      const response = await importTracking({
+        trackingIds:importedData,
+        shopId: shopData.id,
+        apiToken: shopData.apiKey,
+        userGuid: shopData.apiToken
       })
 
-      setImportStatus("success")
+      // Handle the response
+      const result = response.data as { success: boolean; trackings: any[]; sms: any[] }
 
+      if (result.success) {
+        // Update shop data with new trackings and SMS
+        const parsedTrackings = result.trackings.map((t) => ({
+          ...t,
+          lastUpdated: t.lastUpdated ? new Date() : null,
+        }));
+        
+        setShopData(prevData => ({
+          ...prevData,
+          tracking: [...(prevData.tracking || []), ...parsedTrackings],
+          sms: [...(prevData.sms || []), ...result.sms]
+        }))
+
+        toast({
+          title: t("import-success") || "Import Successful",
+          description: `${trackingIds.length} tracking IDs imported successfully`,
+        })
+
+        setImportStatus("success")
+      }
       // Close the modal after a short delay
       setTimeout(() => {
         onClose()
