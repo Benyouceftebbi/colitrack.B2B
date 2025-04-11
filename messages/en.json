@@ -717,6 +717,7 @@
 },
 
 "messages": {
+ 
   "messages": "Messages",
 "messages-description": "📦✨ Discover the Messages feature for shipping companies! 🚀 📲 Try it now and keep your clients informed effortlessly! 🔥🇩🇿",
 
@@ -923,6 +924,8 @@
   }
     },
     "import": {
+      "tracking-column-detected": "Tracking column detected in the imported file",
+      "prestation-column-detected": "Prestation column detected in the imported file",
       "import-tracking": "Import Tracking IDs",
       "import-description": "Upload an Excel file containing tracking IDs to import",
       "error": "Error",

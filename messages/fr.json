@@ -721,6 +721,7 @@
 }
 ,
 "messages": {
+  
   "messages":"Messages",
   "messages-description":"📦✨ Découvrez la fonctionnalité Messages pour les sociétés de livraison ! 🚀  📲 Essayez-le maintenant et informez vos clients sans effort ! 🔥🇩🇿",
 
@@ -931,6 +932,8 @@
   
 },
 "import": {
+  "tracking-column-detected": "Colonne de suivi détectée dans le fichier importé",
+  "prestation-column-detected": "Colonne de prestation détectée dans le fichier importé",
     "import-tracking": "Importer des ID de suivi",
     "import-description": "Téléchargez un fichier Excel contenant des ID de suivi à importer",
     "error": "Erreur",

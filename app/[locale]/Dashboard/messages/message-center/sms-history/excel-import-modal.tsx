@@ -12,8 +12,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 import { FileSpreadsheet, Upload, X, AlertCircle, CheckCircle2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
@@ -82,14 +80,32 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
         setImportStatus("idle")
         setErrorMessage("")
 
-        // Auto-select column if it contains "track" in the name
-        const trackingColumn = headers.find((header) => header.toLowerCase().includes("track"))
+        // Auto-detect "Tracking" column
+        const trackingColumn = headers.find(
+          (header) => header.toLowerCase().includes("track") || header.toLowerCase() === "tracking",
+        )
+
+        // Check if "Type de préstation" column exists
+        const prestationColumn = headers.find(
+          (header) =>
+            header.toLowerCase() === "type de préstation" ||
+            header.toLowerCase().includes("prestation") ||
+            header.toLowerCase().includes("préstation"),
+        )
+
         if (trackingColumn) {
           setSelectedColumn(trackingColumn)
           updateTrackingCount(parsedData, trackingColumn)
-        } else if (headers.length > 0) {
-          setSelectedColumn(headers[0])
-          updateTrackingCount(parsedData, headers[0])
+          console.log("Detected tracking column:", trackingColumn)
+
+          if (prestationColumn) {
+            console.log("Detected prestation column:", prestationColumn)
+          } else {
+            console.log("No 'Type de préstation' column detected")
+          }
+        } else {
+          setErrorMessage(t("no-tracking-column") || "No tracking column detected in the file")
+          setImportStatus("error")
         }
       } catch (error) {
         console.error("Error parsing Excel file:", error)
@@ -122,7 +138,7 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
   // Handle import
   const handleImport = async () => {
     if (!file || !selectedColumn) {
-      setErrorMessage(t("select-column") || "Please select a column containing tracking IDs")
+      setErrorMessage(t("select-column") || "No tracking column detected in the file")
       setImportStatus("error")
       return
     }
@@ -130,6 +146,14 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
     setImportStatus("loading")
 
     try {
+      // Find the prestation column if it exists
+      const prestationColumn = columns.find(
+        (header) =>
+          header.toLowerCase() === "type de préstation" ||
+          header.toLowerCase().includes("prestation") ||
+          header.toLowerCase().includes("préstation"),
+      )
+
       // Extract tracking IDs from the selected column
       const trackingIds = jsonData
         .map((row) => row[selectedColumn])
@@ -141,7 +165,22 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
         return
       }
 
-      console.log("Imported tracking IDs:", trackingIds)
+      // Create a more detailed data structure with both tracking and prestation type if available
+      const importedData = jsonData
+        .map((row) => {
+          const entry = {
+            tracking: row[selectedColumn],
+            prestationType: prestationColumn ? row[prestationColumn] : undefined,
+          }
+          return entry
+        })
+        .filter((entry) => entry.tracking !== undefined && entry.tracking !== null && entry.tracking !== "")
+
+      console.log("Imported data:", importedData)
+      console.log(`Found ${trackingIds.length} tracking IDs`)
+      if (prestationColumn) {
+        console.log(`With 'Type de préstation' column: ${prestationColumn}`)
+      }
 
       // Here you would typically send these tracking IDs to your backend
       // For now, we'll just simulate success
@@ -255,34 +294,40 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
               </Button>
             </div>
 
-            {columns.length > 0 && (
+            {columns.length > 0 && selectedColumn && (
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="column-select">
-                    {t("select-tracking-column") || "Select column containing tracking IDs"}
-                  </Label>
-                  <Select value={selectedColumn} onValueChange={handleColumnChange}>
-                    <SelectTrigger id="column-select">
-                      <SelectValue placeholder={t("select-column") || "Select a column"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {columns.map((column) => (
-                        <SelectItem key={column} value={column}>
-                          {column}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedColumn && (
-                  <div className="bg-muted/50 p-3 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t("tracking-ids-found") || "Tracking IDs found:"}</span>
-                      <span className="text-sm font-bold">{trackingCount}</span>
-                    </div>
+                <div className="bg-muted/50 p-3 rounded-md">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {t("tracking-column-detected") || "Tracking column detected:"}
+                    </span>
+                    <span className="text-sm font-bold">{selectedColumn}</span>
                   </div>
-                )}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm font-medium">{t("tracking-ids-found") || "Tracking IDs found:"}</span>
+                    <span className="text-sm font-bold">{trackingCount}</span>
+                  </div>
+                  {columns.find(
+                    (col) =>
+                      col.toLowerCase() === "type de préstation" ||
+                      col.toLowerCase().includes("prestation") ||
+                      col.toLowerCase().includes("préstation"),
+                  ) && (
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium">
+                        {t("prestation-column-detected") || "Type de préstation column detected:"}
+                      </span>
+                      <span className="text-sm font-bold">
+                        {columns.find(
+                          (col) =>
+                            col.toLowerCase() === "type de préstation" ||
+                            col.toLowerCase().includes("prestation") ||
+                            col.toLowerCase().includes("préstation"),
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </>
@@ -335,4 +380,3 @@ export function ExcelImportModal({ isOpen, onClose }: ExcelImportModalProps) {
     </Dialog>
   )
 }
-
