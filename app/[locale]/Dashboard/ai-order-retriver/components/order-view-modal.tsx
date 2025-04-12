@@ -19,6 +19,7 @@ import {
   Info,
   MessageSquare,
   Instagram,
+  AlertTriangle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -29,8 +30,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import type { Order } from "../data/sample-orders"
-import { wilayas } from "../data/algeria-regions"
+// Replace the import line at the top that includes algeria-regions
+import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
 import { MetaLogo } from "./meta-logo"
+
+// Add the tooltip imports
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
+// Add a function to validate wilaya and commune after the imports but before the component
+function validateRegionData(order: Order) {
+  const wilayaName = order.orderData.wilaya.name_fr.value
+  const communeName = order.orderData.commune.name_fr.value
+
+  // Check if wilaya exists
+  const allWilayas = getAllWilayas()
+  const wilayaExists = allWilayas.some((wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName))
+
+  // Check if commune exists
+  let communeExists = false
+  if (wilayaExists) {
+    const communes = getCommunesByWilayaName(wilayaName)
+    communeExists = communes.some(
+      (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
+    )
+  }
+
+  return {
+    wilayaValid: wilayaExists,
+    communeValid: communeExists,
+  }
+}
 
 // Add onEditOrder to the props interface
 interface OrderViewModalProps {
@@ -58,25 +87,37 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     deliveryCost: order?.orderData.delivery_cost.value / 100 || 0,
     additionalInfo: order?.orderData.additional_information?.value || "",
   })
-  const [availableCommunes, setAvailableCommunes] = useState<{ id: number; namefr: string; namear: string }[]>([])
+  const [availableCommunes, setAvailableCommunes] = useState([])
 
-  // Update available communes when wilaya changes
+  // Then replace the useEffect that's causing the error
   useEffect(() => {
     if (isEditing && editValues.wilaya) {
-      const selectedWilaya = wilayas.find((w) => w.namefr === editValues.wilaya || w.namear === editValues.wilaya)
-      if (selectedWilaya) {
-        setAvailableCommunes(selectedWilaya.communes)
+      // Get communes for this wilaya using the normalized string comparison
+      const communes = getCommunesByWilayaName(editValues.wilaya)
 
-        // Reset commune if the current one is not in the new wilaya
-        const communeExists = selectedWilaya.communes.some(
-          (c) => c.namefr === editValues.commune || c.namear === editValues.commune,
-        )
-        if (!communeExists && selectedWilaya.communes.length > 0) {
+      if (communes.length > 0) {
+        // Create the available communes list with normalized values for matching
+        const communesList = communes.map((commune) => ({
+          id: commune.id,
+          namefr: commune.commune_name_ascii,
+          namear: commune.commune_name,
+          normalizedName: normalizeString(commune.commune_name_ascii),
+        }))
+
+        setAvailableCommunes(communesList)
+
+        // Check if the current commune exists in the new wilaya using normalized comparison
+        const normalizedCurrentCommune = normalizeString(editValues.commune)
+        const communeExists = communesList.some((commune) => commune.normalizedName === normalizedCurrentCommune)
+
+        if (!communeExists && communesList.length > 0) {
           setEditValues((prev) => ({
             ...prev,
-            commune: selectedWilaya.communes[0].namefr,
+            commune: communesList[0].namefr,
           }))
         }
+      } else {
+        setAvailableCommunes([])
       }
     }
   }, [isEditing, editValues.wilaya])
@@ -90,28 +131,83 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }))
   }
 
+  // Update the startEditing function to handle accented characters
   const startEditing = () => {
+    // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
-    const selectedWilaya = wilayas.find((w) => w.namefr === wilayaName || w.namear === wilayaName)
+    const communeName = order.orderData.commune.name_fr.value
 
-    if (selectedWilaya) {
-      setAvailableCommunes(selectedWilaya.communes)
+    console.log("Starting edit with wilaya:", wilayaName)
+    console.log("Starting edit with commune:", communeName)
+
+    // Find the exact wilaya in the list to ensure we have the correct format
+    const allWilayas = getAllWilayas()
+    const matchingWilaya = allWilayas.find(
+      (wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName),
+    )
+
+    // Use the exact wilaya name from the list if found
+    const exactWilayaName = matchingWilaya ? matchingWilaya.name_ascii : wilayaName
+
+    // Get communes for this wilaya
+    const communes = getCommunesByWilayaName(exactWilayaName)
+    console.log("Found communes:", communes.length)
+
+    if (communes.length > 0) {
+      // Find the matching commune to get the exact name format
+      const matchingCommune = communes.find(
+        (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
+      )
+
+      // Use the exact commune name from the list if found
+      const exactCommuneName = matchingCommune ? matchingCommune.commune_name_ascii : communeName
+
+      // Create the available communes list
+      setAvailableCommunes(
+        communes.map((commune) => ({
+          id: commune.id,
+          namefr: commune.commune_name_ascii,
+          namear: commune.commune_name,
+          normalizedName: normalizeString(commune.commune_name_ascii),
+        })),
+      )
+
+      // Set the initial values with the exact names
+      const initialValues = {
+        clientName: order.orderData.client_name.value,
+        phoneNumber: order.orderData.phone_number.value,
+        articleName: order.orderData.articles[0]?.name.value || "",
+        articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
+        articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
+        articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+        address: order.orderData.address.value,
+        wilaya: exactWilayaName,
+        commune: exactCommuneName,
+        deliveryType: order.orderData.delivery_type.value,
+        deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
+        additionalInfo: order.orderData.additional_information?.value || "",
+      }
+
+      console.log("Initial edit values:", initialValues)
+      setEditValues(initialValues)
+    } else {
+      // If no communes found, use the original values
+      setEditValues({
+        clientName: order.orderData.client_name.value,
+        phoneNumber: order.orderData.phone_number.value,
+        articleName: order.orderData.articles[0]?.name.value || "",
+        articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
+        articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
+        articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+        address: order.orderData.address.value,
+        wilaya: wilayaName,
+        commune: communeName,
+        deliveryType: order.orderData.delivery_type.value,
+        deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
+        additionalInfo: order.orderData.additional_information?.value || "",
+      })
     }
 
-    setEditValues({
-      clientName: order.orderData.client_name.value,
-      phoneNumber: order.orderData.phone_number.value,
-      articleName: order.orderData.articles[0]?.name.value || "",
-      articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
-      articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
-      articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-      address: order.orderData.address.value,
-      wilaya: order.orderData.wilaya.name_fr.value,
-      commune: order.orderData.commune.name_fr.value,
-      deliveryType: order.orderData.delivery_type.value,
-      deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
-      additionalInfo: order.orderData.additional_information?.value || "",
-    })
     setIsEditing(true)
   }
 
@@ -120,6 +216,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     setAvailableCommunes([])
   }
 
+  // Also update the saveChanges function to use normalizeString instead of compareNormalizedStrings
   const saveChanges = () => {
     // Get the original order values to compare with edited values
     const originalValues = {
@@ -139,8 +236,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
     // Check each field for changes and update if needed
     Object.keys(editValues).forEach((field) => {
-      if (editValues[field] !== originalValues[field]) {
-        // Call the parent's onEditOrder function to update the order
+      // For wilaya and commune, use normalized comparison
+      if (field === "wilaya" || field === "commune") {
+        if (normalizeString(editValues[field]) !== normalizeString(originalValues[field])) {
+          onEditOrder(order, field, editValues[field])
+        }
+      } else if (editValues[field] !== originalValues[field]) {
+        // For other fields, use regular comparison
         onEditOrder(order, field, editValues[field])
       }
     })
@@ -475,7 +577,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           onValueChange={(value) => handleEditChange("deliveryType", value)}
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue />
+                            <SelectValue placeholder="Select type">
+                              {editValues.deliveryType === "home"
+                                ? "À domicile"
+                                : editValues.deliveryType === "stopdesk"
+                                  ? "Stop desk"
+                                  : ""}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="home">À domicile</SelectItem>
@@ -535,20 +643,43 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       {isEditing ? (
                         <Select value={editValues.wilaya} onValueChange={(value) => handleEditChange("wilaya", value)}>
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select wilaya" />
+                            <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
-                            {wilayas.map((wilaya) => (
-                              <SelectItem key={wilaya.id} value={wilaya.namefr}>
-                                {wilaya.namefr} ({wilaya.namear})
-                              </SelectItem>
-                            ))}
+                            {getAllWilayas().map((wilaya) => {
+                              // Check if this wilaya matches the current value using normalized comparison
+                              const isSelected =
+                                normalizeString(wilaya.name_ascii) === normalizeString(editValues.wilaya)
+                              return (
+                                <SelectItem
+                                  key={wilaya.code}
+                                  value={wilaya.name_ascii}
+                                  className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                                >
+                                  {wilaya.name_ascii} ({wilaya.name}){isSelected && " ✓"}
+                                </SelectItem>
+                              )
+                            })}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium dark:text-gray-200">
-                          {order.orderData.wilaya.name_fr.value} ({order.orderData.wilaya.name_ar.value})
-                        </p>
+                        <div className="flex items-center gap-1">
+                          <p className="font-medium dark:text-gray-200">
+                            {order.orderData.wilaya.name_fr.value} ({order.orderData.wilaya.name_ar.value})
+                          </p>
+                          {!validateRegionData(order).wilayaValid && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Wilaya not found in database</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       )}
                     </div>
 
@@ -561,20 +692,43 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           disabled={!editValues.wilaya || availableCommunes.length === 0}
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select commune" />
+                            <SelectValue placeholder="Select commune">{editValues.commune}</SelectValue>
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
-                            {availableCommunes.map((commune) => (
-                              <SelectItem key={commune.id} value={commune.namefr}>
-                                {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
-                              </SelectItem>
-                            ))}
+                            {availableCommunes.map((commune) => {
+                              // Check if this commune matches the current value using normalized comparison
+                              const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                              return (
+                                <SelectItem
+                                  key={commune.id}
+                                  value={commune.namefr}
+                                  className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                                >
+                                  {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                                  {isSelected && " ✓"}
+                                </SelectItem>
+                              )
+                            })}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium dark:text-gray-200">
-                          {order.orderData.commune.name_fr.value} ({order.orderData.commune.name_ar.value})
-                        </p>
+                        <div className="flex items-center gap-1">
+                          <p className="font-medium dark:text-gray-200">
+                            {order.orderData.commune.name_fr.value} ({order.orderData.commune.name_ar.value})
+                          </p>
+                          {!validateRegionData(order).communeValid && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Commune not found in database</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -669,4 +823,3 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     </Dialog>
   )
 }
-

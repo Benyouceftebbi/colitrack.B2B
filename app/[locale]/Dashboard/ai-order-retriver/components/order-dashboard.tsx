@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { orders as initialOrders, type Order } from "../data/sample-orders"
 import { Button } from "@/components/ui/button"
 import { History } from "lucide-react"
+import { validateRegionData } from "./validation-utils" // We'll create this utility file
 
 export function OrderDashboard() {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
@@ -182,9 +183,34 @@ export function OrderDashboard() {
       return
     }
 
-    // Update the status of ALL selected orders to "confirmed"
+    // Filter selected orders to find those with valid and invalid data
+    const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
+    const validOrders: Order[] = []
+    const invalidOrders: { order: Order; issues: string[] }[] = []
+
+    // Check each selected order for validity
+    selectedOrders.forEach((order) => {
+      const validation = validateRegionData(order)
+      const issues: string[] = []
+
+      if (!validation.wilayaValid) {
+        issues.push("Invalid wilaya")
+      }
+
+      if (!validation.communeValid) {
+        issues.push("Invalid commune")
+      }
+
+      if (issues.length === 0) {
+        validOrders.push(order)
+      } else {
+        invalidOrders.push({ order, issues })
+      }
+    })
+
+    // Update the status of ONLY valid orders to "confirmed"
     const updatedOrders = orders.map((order) => {
-      if (selectedRows.includes(order.id)) {
+      if (validOrders.some((validOrder) => validOrder.id === order.id)) {
         return { ...order, status: "confirmed" }
       }
       return order
@@ -192,11 +218,23 @@ export function OrderDashboard() {
 
     setOrders(updatedOrders)
 
-    // In a real app, this would export selected orders to your shipping provider
-    toast({
-      title: "Exporting to Shipping Provider",
-      description: `Exported ${selectedRows.length} orders to shipping provider. Status changed to confirmed.`,
-    })
+    // Show appropriate toast messages
+    if (validOrders.length > 0) {
+      toast({
+        title: "Exporting to Shipping Provider",
+        description: `Exported ${validOrders.length} orders to shipping provider. Status changed to confirmed.`,
+      })
+    }
+
+    if (invalidOrders.length > 0) {
+      const orderIds = invalidOrders.map((item) => `#${item.order.id}`).join(", ")
+
+      toast({
+        title: "Some Orders Could Not Be Exported",
+        description: `${invalidOrders.length} orders have missing or invalid region data: ${orderIds}. Please fix these issues before exporting.`,
+        variant: "destructive",
+      })
+    }
 
     // Clear selection after export
     setSelectedRows([])
@@ -204,6 +242,22 @@ export function OrderDashboard() {
 
   const toggleHistorySheet = () => {
     setIsHistorySheetOpen(!isHistorySheetOpen)
+  }
+
+  // Function to check if selected orders have any validation issues
+  const getSelectedOrdersValidationStatus = () => {
+    if (selectedRows.length === 0) return { valid: true, invalidCount: 0 }
+
+    const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
+    const invalidCount = selectedOrders.filter((order) => {
+      const validation = validateRegionData(order)
+      return !validation.wilayaValid || !validation.communeValid
+    }).length
+
+    return {
+      valid: invalidCount === 0,
+      invalidCount,
+    }
   }
 
   return (
@@ -227,6 +281,7 @@ export function OrderDashboard() {
             isRetrieving={isRetrieving}
             isFacebookConnected={isFacebookConnected}
             showFacebookAuth={showFacebookAuth}
+            validationStatus={getSelectedOrdersValidationStatus()}
           />
 
           <Button
@@ -279,4 +334,3 @@ export function OrderDashboard() {
     </div>
   )
 }
-

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, TruckIcon, HelpCircle, RefreshCw } from "lucide-react"
+import { Download, TruckIcon, HelpCircle, RefreshCw, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LearnMoreDialog } from "./learn-more-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -14,6 +14,7 @@ interface TableActionButtonsProps {
   isRetrieving: boolean
   isFacebookConnected: boolean
   showFacebookAuth: () => void
+  validationStatus?: { valid: boolean; invalidCount: number }
 }
 
 export function TableActionButtons({
@@ -23,8 +24,11 @@ export function TableActionButtons({
   isRetrieving,
   isFacebookConnected,
   showFacebookAuth,
+  validationStatus = { valid: true, invalidCount: 0 },
 }: TableActionButtonsProps) {
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false)
+
+  const hasInvalidOrders = !validationStatus.valid && validationStatus.invalidCount > 0
 
   return (
     <>
@@ -70,23 +74,53 @@ export function TableActionButtons({
           Excel Export
         </Button>
 
-        <Button
-          onClick={onShippingExport}
-          variant={selectedCount > 0 ? "default" : "outline"}
-          className={`w-full sm:w-auto ${selectedCount > 0 ? "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white" : ""}`}
-        >
-          <TruckIcon className="mr-2 h-4 w-4" />
-          Export to Shipping Provider
-          {selectedCount > 0 && (
-            <span className="ml-2 bg-white dark:bg-gray-200 text-green-600 dark:text-green-700 rounded-full px-2 py-0.5 text-xs font-bold">
-              {selectedCount}
-            </span>
-          )}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  onClick={onShippingExport}
+                  variant={selectedCount > 0 ? "default" : "outline"}
+                  className={`w-full sm:w-auto ${
+                    selectedCount > 0
+                      ? hasInvalidOrders
+                        ? "bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 dark:text-white"
+                        : "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white"
+                      : ""
+                  }`}
+                >
+                  <TruckIcon className="mr-2 h-4 w-4" />
+                  Export to Shipping Provider
+                  {selectedCount > 0 && (
+                    <>
+                      <span
+                        className={`ml-2 ${
+                          hasInvalidOrders
+                            ? "bg-white dark:bg-gray-200 text-amber-600 dark:text-amber-700"
+                            : "bg-white dark:bg-gray-200 text-green-600 dark:text-green-700"
+                        } rounded-full px-2 py-0.5 text-xs font-bold`}
+                      >
+                        {selectedCount}
+                      </span>
+                      {hasInvalidOrders && <AlertTriangle className="ml-1 h-4 w-4 text-white dark:text-gray-200" />}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {hasInvalidOrders && (
+              <TooltipContent className="max-w-xs">
+                <p>
+                  {validationStatus.invalidCount} of {selectedCount} selected orders have invalid region data and cannot
+                  be exported. These orders will be skipped.
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <LearnMoreDialog isOpen={isLearnMoreOpen} onClose={() => setIsLearnMoreOpen(false)} />
     </>
   )
 }
-

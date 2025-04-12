@@ -6,11 +6,15 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Edit2, Save, X, Facebook, Instagram } from "lucide-react"
+import { Eye, Edit2, Save, X, Facebook, Instagram, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Order } from "../data/sample-orders"
 import { parseISO, isWithinInterval } from "date-fns"
-import { wilayas } from "../data/algeria-regions"
+import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
+
+// Add these imports for the tooltip
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { validateRegionData } from "./validation-utils"
 
 interface OrdersTableProps {
   orders: Order[]
@@ -34,7 +38,10 @@ export function OrdersTable({
 }: OrdersTableProps) {
   const [editingRow, setEditingRow] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, any>>({})
-  const [availableCommunes, setAvailableCommunes] = useState<{ id: number; namefr: string; namear: string }[]>([])
+
+  const [availableCommunes, setAvailableCommunes] = useState<
+    { id: number; namefr: string; namear: string; normalizedName?: string }[]
+  >([])
 
   // Filter orders based on date range and exclude confirmed orders from the main table
   const filteredOrders = orders.filter((order) => {
@@ -47,23 +54,35 @@ export function OrdersTable({
     ) // Exclude confirmed orders
   })
 
-  // Update available communes when wilaya changes
+  // Fix the commune property in the availableCommunes array
   useEffect(() => {
     if (editingRow && editValues.wilaya) {
-      const selectedWilaya = wilayas.find((w) => w.namefr === editValues.wilaya || w.namear === editValues.wilaya)
-      if (selectedWilaya) {
-        setAvailableCommunes(selectedWilaya.communes)
+      // Get communes for this wilaya using the normalized string comparison
+      const communes = getCommunesByWilayaName(editValues.wilaya)
 
-        // Reset commune if the current one is not in the new wilaya
-        const communeExists = selectedWilaya.communes.some(
-          (c) => c.namefr === editValues.commune || c.namear === editValues.commune,
-        )
-        if (!communeExists && selectedWilaya.communes.length > 0) {
+      if (communes.length > 0) {
+        // Create the available communes list with normalized values for matching
+        const communesList = communes.map((commune) => ({
+          id: commune.id,
+          namefr: commune.commune_name_ascii,
+          namear: commune.commune_name,
+          normalizedName: normalizeString(commune.commune_name_ascii),
+        }))
+
+        setAvailableCommunes(communesList)
+
+        // Check if the current commune exists in the new wilaya using normalized comparison
+        const normalizedCurrentCommune = normalizeString(editValues.commune)
+        const communeExists = communesList.some((commune) => commune.normalizedName === normalizedCurrentCommune)
+
+        if (!communeExists && communesList.length > 0) {
           setEditValues((prev) => ({
             ...prev,
-            commune: selectedWilaya.communes[0].namefr,
+            commune: communesList[0].namefr,
           }))
         }
+      } else {
+        setAvailableCommunes([])
       }
     }
   }, [editingRow, editValues.wilaya])
@@ -78,27 +97,72 @@ export function OrdersTable({
     setSelectedRows(selectedRows.length === filteredOrders.length ? [] : filteredOrders.map((order) => order.id))
   }
 
+  // Fix the startEditing function to ensure proper initial values
   const startEditing = (order: Order) => {
+    // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
-    const selectedWilaya = wilayas.find((w) => w.namefr === wilayaName || w.namear === wilayaName)
+    const communeName = order.orderData.commune.name_fr.value
 
-    if (selectedWilaya) {
-      setAvailableCommunes(selectedWilaya.communes)
+    // Find the exact wilaya in the list to ensure we have the correct format
+    const allWilayas = getAllWilayas()
+    const matchingWilaya = allWilayas.find(
+      (wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName),
+    )
+
+    // Use the exact wilaya name from the list if found
+    const exactWilayaName = matchingWilaya ? matchingWilaya.name_ascii : wilayaName
+
+    // Get communes for this wilaya
+    const communes = getCommunesByWilayaName(exactWilayaName)
+
+    if (communes.length > 0) {
+      // Find the matching commune to get the exact name format
+      const matchingCommune = communes.find(
+        (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
+      )
+
+      // Use the exact commune name from the list if found
+      const exactCommuneName = matchingCommune ? matchingCommune.commune_name_ascii : communeName
+
+      // Create the available communes list
+      setAvailableCommunes(
+        communes.map((commune) => ({
+          id: commune.id,
+          namefr: commune.commune_name_ascii,
+          namear: commune.commune_name,
+          normalizedName: normalizeString(commune.commune_name_ascii),
+        })),
+      )
+
+      setEditingRow(order.id)
+      setEditValues({
+        clientName: order.orderData.client_name.value,
+        phoneNumber: order.orderData.phone_number.value,
+        articleName: order.orderData.articles[0]?.name.value || "",
+        price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+        deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+        address: order.orderData.address.value,
+        wilaya: exactWilayaName,
+        commune: exactCommuneName,
+        deliveryType: order.orderData.delivery_type.value,
+        additionalInfo: order.orderData.additional_information?.value || "",
+      })
+    } else {
+      // If no communes found, use the original values
+      setEditingRow(order.id)
+      setEditValues({
+        clientName: order.orderData.client_name.value,
+        phoneNumber: order.orderData.phone_number.value,
+        articleName: order.orderData.articles[0]?.name.value || "",
+        price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+        deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+        address: order.orderData.address.value,
+        wilaya: wilayaName,
+        commune: communeName,
+        deliveryType: order.orderData.delivery_type.value,
+        additionalInfo: order.orderData.additional_information?.value || "",
+      })
     }
-
-    setEditingRow(order.id)
-    setEditValues({
-      clientName: order.orderData.client_name.value,
-      phoneNumber: order.orderData.phone_number.value,
-      articleName: order.orderData.articles[0]?.name.value || "",
-      price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-      deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
-      address: order.orderData.address.value,
-      wilaya: order.orderData.wilaya.name_fr.value,
-      commune: order.orderData.commune.name_fr.value,
-      deliveryType: order.orderData.delivery_type.value,
-      additionalInfo: order.orderData.additional_information?.value || "",
-    })
   }
 
   const cancelEditing = () => {
@@ -111,7 +175,13 @@ export function OrdersTable({
     // Update all edited fields
     Object.keys(editValues).forEach((field) => {
       const originalValue = getOriginalValue(order, field)
-      if (editValues[field] !== originalValue) {
+
+      // For wilaya and commune, use normalized comparison
+      if (field === "wilaya" || field === "commune") {
+        if (normalizeString(editValues[field]) !== normalizeString(originalValue)) {
+          onEditOrder(order, field, editValues[field])
+        }
+      } else if (editValues[field] !== originalValue) {
         onEditOrder(order, field, editValues[field])
       }
     })
@@ -216,6 +286,12 @@ export function OrdersTable({
     return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
   }
 
+  // Check if an order has any validation issues
+  const hasValidationIssues = (order: Order) => {
+    const validation = validateRegionData(order)
+    return !validation.wilayaValid || !validation.communeValid
+  }
+
   return (
     <div className="rounded-md border dark:border-gray-700 overflow-x-auto">
       <Table>
@@ -254,9 +330,13 @@ export function OrdersTable({
             filteredOrders.map((order) => {
               const confidenceRate = calculateConfidenceRate(order)
               const confidenceBadgeColor = getConfidenceBadgeColor(confidenceRate)
+              const hasIssues = hasValidationIssues(order)
 
               return (
-                <TableRow key={order.id} className="dark:border-gray-700">
+                <TableRow
+                  key={order.id}
+                  className={`dark:border-gray-700 ${hasIssues ? "bg-amber-50/50 dark:bg-amber-900/10" : ""}`}
+                >
                   <TableCell>
                     <Checkbox
                       checked={selectedRows.includes(order.id)}
@@ -304,18 +384,40 @@ export function OrdersTable({
                         onValueChange={(value) => handleEditChange("wilaya", value)}
                       >
                         <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-                          <SelectValue placeholder="Select wilaya" />
+                          <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
-                          {wilayas.map((wilaya) => (
-                            <SelectItem key={wilaya.id} value={wilaya.namefr}>
-                              {wilaya.namefr} ({wilaya.namear})
-                            </SelectItem>
-                          ))}
+                          {getAllWilayas().map((wilaya) => {
+                            // Check if this wilaya matches the current value using normalized comparison
+                            const isSelected = normalizeString(wilaya.name_ascii) === normalizeString(editValues.wilaya)
+                            return (
+                              <SelectItem
+                                key={wilaya.code}
+                                value={wilaya.name_ascii}
+                                className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                              >
+                                {wilaya.name_ascii} ({wilaya.name}){isSelected && " ✓"}
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                     ) : (
-                      order.orderData.wilaya.name_fr.value
+                      <div className="flex items-center gap-1">
+                        {order.orderData.wilaya.name_fr.value}
+                        {!validateRegionData(order).wilayaValid && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Wilaya not found in database. This order cannot be exported.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell>
@@ -326,18 +428,41 @@ export function OrdersTable({
                         disabled={!editValues.wilaya || availableCommunes.length === 0}
                       >
                         <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-                          <SelectValue placeholder="Select commune" />
+                          <SelectValue placeholder="Select commune">{editValues.commune}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
-                          {availableCommunes.map((commune) => (
-                            <SelectItem key={commune.id} value={commune.namefr}>
-                              {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
-                            </SelectItem>
-                          ))}
+                          {availableCommunes.map((commune) => {
+                            // Check if this commune matches the current value using normalized comparison
+                            const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                            return (
+                              <SelectItem
+                                key={commune.id}
+                                value={commune.namefr}
+                                className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                              >
+                                {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                                {isSelected && " ✓"}
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                     ) : (
-                      order.orderData.commune.name_fr.value
+                      <div className="flex items-center gap-1">
+                        {order.orderData.commune.name_fr.value}
+                        {!validateRegionData(order).communeValid && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Commune not found in database. This order cannot be exported.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell>
@@ -456,4 +581,3 @@ export function OrdersTable({
     </div>
   )
 }
-
