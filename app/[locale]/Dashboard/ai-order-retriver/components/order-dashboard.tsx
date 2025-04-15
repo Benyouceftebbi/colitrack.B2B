@@ -23,6 +23,9 @@ const FacebookAuthDialog = lazy(() =>
 // Create a context for orders data to avoid prop drilling
 import { createContext, useContext } from "react"
 
+// Create the import for Yalidin centers
+import { getYalidinCenterById } from "../data/yalidin-centers"
+
 // Create a context for orders data
 type OrdersContextType = {
   orders: Order[]
@@ -75,6 +78,7 @@ export function OrderDashboard() {
     setIsViewModalOpen(true)
   }, [])
 
+  // Update the handleEditOrder function to handle stop desk information
   const handleEditOrder = useCallback(
     (order: Order, field: string, value: any) => {
       setOrders((currentOrders) => {
@@ -149,6 +153,27 @@ export function OrderDashboard() {
                 updatedOrder.orderData.additional_information.description = value
               }
               break
+            // Existing cases...
+            case "stopDeskId":
+              // If stop desk ID is provided, get the center information
+              if (value) {
+                const center = getYalidinCenterById(value)
+                if (center) {
+                  updatedOrder.orderData.stop_desk = {
+                    id: value,
+                    name: center.name,
+                  }
+                } else {
+                  updatedOrder.orderData.stop_desk = {
+                    id: value,
+                    name: "Unknown Stop Desk",
+                  }
+                }
+              } else {
+                // If no stop desk ID is provided, remove the stop desk information
+                updatedOrder.orderData.stop_desk = undefined
+              }
+              break
             default:
               console.warn(`Unknown field: ${field}`)
           }
@@ -211,6 +236,7 @@ export function OrderDashboard() {
     })
   }, [toast])
 
+  // Update the handleShippingExport function to include stop desk information in the logs
   const handleShippingExport = useCallback(async () => {
     if (selectedRows.length === 0) {
       toast({
@@ -239,9 +265,16 @@ export function OrderDashboard() {
 
       // Check for issues in the selected orders
       const invalidOrders = selectedOrders.filter((order) => {
-        const validation = validateRegionData(order)
-        // Make sure to check all validation criteria
-        return !validation.wilayaValid || !validation.communeValid || !validation.deliveryTypeValid
+        const validation = validateRegionData(order, {
+          deliveryCompany: "Yalidin Express", // Pass the delivery company to the validation function
+        })
+        // Make sure to check all validation criteria including stop desk
+        return (
+          !validation.wilayaValid ||
+          !validation.communeValid ||
+          !validation.deliveryTypeValid ||
+          !validation.stopDeskValid
+        )
       })
 
       const validOrders = selectedOrders.filter((order) => !invalidOrders.includes(order))
@@ -276,6 +309,14 @@ export function OrderDashboard() {
         deliveryType: order.orderData.delivery_type.value,
         totalPrice: order.orderData.total_price.value / 100,
         status: "confirmed", // New status after export
+        // Include stop desk information if applicable
+        stopDesk:
+          order.orderData.delivery_type.value === "stopdesk"
+            ? {
+                id: order.orderData.stop_desk?.id,
+                name: order.orderData.stop_desk?.name,
+              }
+            : undefined,
       }))
 
       const failedOrdersLog = invalidOrders.map((order) => {
@@ -293,6 +334,14 @@ export function OrderDashboard() {
             communeValid: validation.communeValid,
             deliveryTypeValid: validation.deliveryTypeValid,
           },
+          // Include stop desk information if applicable
+          stopDesk:
+            order.orderData.delivery_type.value === "stopdesk"
+              ? {
+                  id: order.orderData.stop_desk?.id,
+                  name: order.orderData.stop_desk?.name,
+                }
+              : undefined,
         }
       })
 

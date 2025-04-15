@@ -22,7 +22,10 @@ interface TableActionButtonsProps {
   validationStatus?: { valid: boolean; invalidCount: number }
 }
 
-// Memoize the tooltip content to prevent unnecessary re-renders
+// Update the validation tooltip content to include stop desk validation
+
+// Find the ValidationTooltipContent component and update it to include stop desk validation:
+
 const ValidationTooltipContent = memo(function ValidationTooltipContent({
   invalidCount,
   selectedCount,
@@ -38,6 +41,7 @@ const ValidationTooltipContent = memo(function ValidationTooltipContent({
       <ul className="mt-1 list-disc list-inside text-sm">
         <li>Missing or invalid region data</li>
         <li>Invalid delivery type for the selected commune</li>
+        <li>Missing stop desk selection for Yalidin Express</li>
       </ul>
       <p className="mt-1 text-sm">
         {invalidCount === selectedCount

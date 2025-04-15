@@ -22,7 +22,7 @@ interface OrderHistorySheetProps {
   onViewOrder: (order: Order) => void
 }
 
-// Memoize the OrderRow component to prevent re-rendering all rows
+// Update the OrderRow component to include stop desk information
 const OrderRow = memo(function OrderRow({
   order,
   onViewOrder,
@@ -49,6 +49,16 @@ const OrderRow = memo(function OrderRow({
         <div className="max-w-[150px] truncate" title={order.orderData.articles[0]?.name.value || ""}>
           {order.orderData.articles[0]?.name.value || "-"}
         </div>
+      </TableCell>
+      {/* Add stop desk information */}
+      <TableCell>
+        {order.orderData.delivery_type.value === "stopdesk" && order.orderData.stop_desk?.name ? (
+          <div className="max-w-[150px] truncate" title={order.orderData.stop_desk.name}>
+            {order.orderData.stop_desk.name}
+          </div>
+        ) : (
+          "-"
+        )}
       </TableCell>
       <TableCell className="text-right">
         <Button
@@ -172,7 +182,6 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
     setIsCalendarOpen((prev) => !prev)
   }, [])
 
-  // Memoize the empty state component
   const EmptyState = useMemo(
     () => (
       <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/50 rounded-lg border dark:border-gray-700">
@@ -189,7 +198,6 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
     [clearFilters],
   )
 
-  // Memoize the table component
   const OrdersTable = useMemo(
     () => (
       <div className="overflow-x-auto border rounded-md dark:border-gray-700">
@@ -201,6 +209,7 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
               <TableHead>Date</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Article</TableHead>
+              <TableHead>Stop Desk</TableHead>
               <TableHead className="text-right">View</TableHead>
             </TableRow>
           </TableHeader>
@@ -216,9 +225,7 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
   )
 
   // Don't render anything if not open to improve performance
-  if (!isOpen) return null
-
-  return (
+  return isOpen ? (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto">
         <SheetHeader className="flex flex-row items-center justify-between">
@@ -303,5 +310,5 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
         </div>
       </SheetContent>
     </Sheet>
-  )
+  ) : null
 })

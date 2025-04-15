@@ -5,9 +5,10 @@ import { isDeliveryTypeValid } from "../data/shipping-availability"
 /**
  * Validates the region data (wilaya and commune) of an order
  * @param order The order to validate
- * @returns Object with validation results for wilaya, commune, and delivery type
+ * @param shopData Optional shop data to check for Yalidin Express
+ * @returns Object with validation results for wilaya, commune, delivery type, and stop desk
  */
-export function validateRegionData(order: Order) {
+export function validateRegionData(order: Order, shopData?: any) {
   const wilayaName = order.orderData.wilaya.name_fr.value
   const communeName = order.orderData.commune.name_fr.value
   const deliveryType = order.orderData.delivery_type.value
@@ -28,36 +29,46 @@ export function validateRegionData(order: Order) {
   // Check if delivery type is valid for the commune
   const isDeliveryValid = isDeliveryTypeValid(communeName, deliveryType)
 
+  // Check if stop desk center is required and selected
+  let stopDeskValid = true
+  if (deliveryType === "stopdesk" && shopData?.deliveryCompany === "Yalidin Express") {
+    // Check if a stop desk ID is selected
+    stopDeskValid = !!order.orderData.stop_desk?.id
+  }
+
   return {
     wilayaValid: wilayaExists,
     communeValid: communeExists,
     deliveryTypeValid: isDeliveryValid,
+    stopDeskValid: stopDeskValid,
   }
 }
 
 /**
  * Checks if an order has valid region data
  * @param order The order to check
+ * @param shopData Optional shop data to check for Yalidin Express
  * @returns True if the order has valid region data, false otherwise
  */
-export function hasValidRegionData(order: Order): boolean {
-  const validation = validateRegionData(order)
-  return validation.wilayaValid && validation.communeValid && validation.deliveryTypeValid
+export function hasValidRegionData(order: Order, shopData?: any): boolean {
+  const validation = validateRegionData(order, shopData)
+  return validation.wilayaValid && validation.communeValid && validation.deliveryTypeValid && validation.stopDeskValid
 }
 
 /**
  * Asynchronously checks all orders for validation issues
  * @param orders Array of orders to check
+ * @param shopData Optional shop data to check for Yalidin Express
  * @returns Promise that resolves to an object with valid and invalid orders
  */
-export async function checkOrdersForIssues(orders: Order[]) {
+export async function checkOrdersForIssues(orders: Order[], shopData?: any) {
   console.log("Checking orders for issues:", orders)
 
   const validOrders: Order[] = []
   const invalidOrders: { order: Order; issues: string[] }[] = []
 
   for (const order of orders) {
-    const validation = validateRegionData(order)
+    const validation = validateRegionData(order, shopData)
     const issues: string[] = []
 
     if (!validation.wilayaValid) {
@@ -70,6 +81,11 @@ export async function checkOrdersForIssues(orders: Order[]) {
 
     if (!validation.deliveryTypeValid) {
       issues.push("Invalid delivery type for this commune")
+    }
+
+    // Check for Yalidin Express stop desk validation
+    if (!validation.stopDeskValid) {
+      issues.push("Missing stop desk selection for Yalidin Express")
     }
 
     // Simulate checking with shipping provider API

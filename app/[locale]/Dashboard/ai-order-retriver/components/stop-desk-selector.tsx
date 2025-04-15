@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getYalidineCentersByCommune, type YalidineCenter } from "../data/yalidine-centers"
+import { getYalidineCentersByCommune, type YalidineCenter } from "../data/yalidin-centers"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 

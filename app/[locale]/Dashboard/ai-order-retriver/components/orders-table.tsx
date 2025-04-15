@@ -14,6 +14,9 @@ import { isStopDeskAvailable } from "../data/shipping-availability"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { validateRegionData } from "./validation-utils"
 import { useOrders } from "./order-dashboard"
+// Add the import for Yalidin centers
+import { getYalidinCentersForCommune } from "../data/yalidin-centers"
+import { useShop } from "@/app/context/ShopContext"
 
 interface OrdersTableProps {
   orders: Order[]
@@ -30,6 +33,7 @@ const TableRowMemo = memo(function TableRowComponent({
   editingRow,
   editValues,
   availableCommunes,
+  availableStopDesks, // Add this prop
   handleEditChange,
   saveEditing,
   cancelEditing,
@@ -42,6 +46,7 @@ const TableRowMemo = memo(function TableRowComponent({
   editingRow: string | null
   editValues: Record<string, any>
   availableCommunes: { id: number; namefr: string; namear: string; normalizedName?: string }[]
+  availableStopDesks: any[] // Add this prop type
   handleEditChange: (field: string, value: any) => void
   saveEditing: (order: Order) => void
   cancelEditing: () => void
@@ -120,6 +125,22 @@ const TableRowMemo = memo(function TableRowComponent({
     })
   }, [order.orderData.articles])
 
+  const { shopData } = useShop()
+
+  // Check if Yalidin Express is the delivery company
+  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
+
+  // Remove the local availableStopDesks state since it's now passed as a prop
+  // const [availableStopDesks, setAvailableStopDesks] = useState([])
+
+  // Add this useEffect inside the TableRowMemo component, right after the isYalidinExpress constant
+  // useEffect(() => {
+  //   if (editingRow === order.id && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
+  //     const stopDesks = getYalidinCentersForCommune(editValues.commune)
+  //     setAvailableStopDesks(stopDesks)
+  //   }
+  // }, [editingRow, order.id, editValues.commune, editValues.deliveryType, isYalidinExpress])
+
   return (
     <TableRow
       key={order.id}
@@ -176,19 +197,21 @@ const TableRowMemo = memo(function TableRowComponent({
               <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
-              {getAllWilayas().map((wilaya) => {
-                // Check if this wilaya matches the current value using normalized comparison
-                const isSelected = normalizeString(wilaya.name_ascii) === normalizeString(editValues.wilaya)
-                return (
-                  <SelectItem
-                    key={wilaya.code}
-                    value={wilaya.name_ascii}
-                    className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
-                  >
-                    {wilaya.name_ascii} ({wilaya.name}){isSelected && " ✓"}
-                  </SelectItem>
-                )
-              })}
+              {getAllWilayas()
+                .sort((a, b) => a.name_ascii.localeCompare(b.name_ascii)) // Sort alphabetically
+                .map((wilaya) => {
+                  // Check if this wilaya matches the current value using normalized comparison
+                  const isSelected = normalizeString(wilaya.name_ascii) === normalizeString(editValues.wilaya)
+                  return (
+                    <SelectItem
+                      key={wilaya.code}
+                      value={wilaya.name_ascii}
+                      className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                    >
+                      {wilaya.name_ascii} ({wilaya.name}){isSelected && " ✓"}
+                    </SelectItem>
+                  )
+                })}
             </SelectContent>
           </Select>
         ) : (
@@ -220,27 +243,33 @@ const TableRowMemo = memo(function TableRowComponent({
               <SelectValue placeholder="Select commune">{editValues.commune}</SelectValue>
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
-              {availableCommunes.map((commune) => {
-                // Check if this commune matches the current value using normalized comparison
-                const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
-                const hasStopDesk = isStopDeskAvailable(commune.namefr)
+              {availableCommunes
+                .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
+                .map((commune) => {
+                  // Check if this commune matches the current value using normalized comparison
+                  const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                  const hasStopDesk = isStopDeskAvailable(commune.namefr)
 
-                return (
-                  <SelectItem
-                    key={commune.id}
-                    value={commune.namefr}
-                    className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span>
-                        {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
-                        {isSelected && " ✓"}
-                      </span>
-                      {!hasStopDesk && <span className="text-amber-500 text-xs ml-2">No Stop Desk</span>}
-                    </div>
-                  </SelectItem>
-                )
-              })}
+                  return (
+                    <SelectItem
+                      key={commune.id}
+                      value={commune.namefr}
+                      className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span>
+                          {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                          {isSelected && " ✓"}
+                        </span>
+                        {!hasStopDesk && (
+                          <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                            No Stop Desk
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  )
+                })}
             </SelectContent>
           </Select>
         ) : (
@@ -296,6 +325,61 @@ const TableRowMemo = memo(function TableRowComponent({
           </div>
         )}
       </TableCell>
+      {/* Add this after the delivery type cell */}
+      {editingRow === order.id && editValues.deliveryType === "stopdesk" && isYalidinExpress ? (
+        <TableCell>
+          <Select
+            value={editValues.stopDeskId || "no_selection"}
+            onValueChange={(value) => handleEditChange("stopDeskId", value === "no_selection" ? "" : value)}
+          >
+            <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
+              <SelectValue placeholder="Select stop desk" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableStopDesks.length === 0 ? (
+                <SelectItem value="no_selection">
+                  <span className="text-amber-500 font-medium">No Stop Desks Available</span>
+                </SelectItem>
+              ) : (
+                <>
+                  <SelectItem value="no_selection">Select a stop desk</SelectItem>
+                  {availableStopDesks
+                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
+                    .map((desk) => (
+                      <SelectItem key={desk.center_id} value={desk.center_id.toString()}>
+                        {desk.name}
+                      </SelectItem>
+                    ))}
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        </TableCell>
+      ) : (
+        <TableCell>
+          {order.orderData.delivery_type.value === "stopdesk" && isYalidinExpress ? (
+            <div className="flex items-center gap-1">
+              {order.orderData.stop_desk?.name || "Not selected"}
+              {order.orderData.delivery_type.value === "stopdesk" &&
+                isYalidinExpress &&
+                !order.orderData.stop_desk?.id && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Stop desk selection is required for Yalidin Express. This order cannot be exported.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+            </div>
+          ) : (
+            "-"
+          )}
+        </TableCell>
+      )}
       {/* Add a new cell for Stop Desk Center */}
       <TableCell>
         {editingRow === order.id ? (
@@ -385,14 +469,37 @@ const TableRowMemo = memo(function TableRowComponent({
   )
 })
 
-// Memoize the entire OrdersTable component
+// Update the OrdersTable component to include stop desk selection
 export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, dateRange }: OrdersTableProps) {
   const { selectedRows, setSelectedRows, handleEditOrder } = useOrders()
+  const { shopData } = useShop()
   const [editingRow, setEditingRow] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, any>>({})
   const [availableCommunes, setAvailableCommunes] = useState<
     { id: number; namefr: string; namear: string; normalizedName?: string }[]
   >([])
+  const [availableStopDesks, setAvailableStopDesks] = useState([])
+
+  // Check if Yalidin Express is the delivery company
+  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
+
+  // Update available stop desks when commune changes
+  useEffect(() => {
+    if (editingRow && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
+      const stopDesks = getYalidinCentersForCommune(editValues.commune)
+      setAvailableStopDesks(stopDesks)
+
+      // If there's only one stop desk, select it automatically
+      if (stopDesks.length === 1 && !editValues.stopDeskId) {
+        setEditValues((prev) => ({
+          ...prev,
+          stopDeskId: stopDesks[0].center_id.toString(),
+        }))
+      }
+    } else {
+      setAvailableStopDesks([])
+    }
+  }, [editingRow, editValues.commune, editValues.deliveryType, isYalidinExpress])
 
   // Fix the commune property in the availableCommunes array
   useEffect(() => {
@@ -456,85 +563,105 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     setSelectedRows(selectedRows.length === orders.length ? [] : orders.map((order) => order.id))
   }, [selectedRows, orders, setSelectedRows])
 
-  // Fix the startEditing function to ensure proper initial values
-  const startEditing = useCallback((order: Order) => {
-    // Get the exact wilaya name as it appears in the data
-    const wilayaName = order.orderData.wilaya.name_fr.value
-    const communeName = order.orderData.commune.name_fr.value
+  // Update the startEditing function to include stop desk information
+  const startEditing = useCallback(
+    (order: Order) => {
+      // Get the exact wilaya name as it appears in the data
+      const wilayaName = order.orderData.wilaya.name_fr.value
+      const communeName = order.orderData.commune.name_fr.value
 
-    // Find the exact wilaya in the list to ensure we have the correct format
-    const allWilayas = getAllWilayas()
-    const matchingWilaya = allWilayas.find(
-      (wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName),
-    )
-
-    // Use the exact wilaya name from the list if found
-    const exactWilayaName = matchingWilaya ? matchingWilaya.name_ascii : wilayaName
-
-    // Get communes for this wilaya
-    const communes = getCommunesByWilayaName(exactWilayaName)
-
-    if (communes.length > 0) {
-      // Find the matching commune to get the exact name format
-      const matchingCommune = communes.find(
-        (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
+      // Find the exact wilaya in the list to ensure we have the correct format
+      const allWilayas = getAllWilayas()
+      const matchingWilaya = allWilayas.find(
+        (wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName),
       )
 
-      // Use the exact commune name from the list if found
-      const exactCommuneName = matchingCommune ? matchingCommune.commune_name_ascii : communeName
+      // Use the exact wilaya name from the list if found
+      const exactWilayaName = matchingWilaya ? matchingWilaya.name_ascii : wilayaName
 
-      // Create the available communes list
-      setAvailableCommunes(
-        communes.map((commune) => ({
-          id: commune.id,
-          namefr: commune.commune_name_ascii,
-          namear: commune.commune_name,
-          normalizedName: normalizeString(commune.commune_name_ascii),
-        })),
-      )
+      // Get communes for this wilaya
+      const communes = getCommunesByWilayaName(exactWilayaName)
 
-      const editValuesWithoutCenter = {
-        clientName: order.orderData.client_name.value,
-        phoneNumber: order.orderData.phone_number.value,
-        articleName: order.orderData.articles[0]?.name.value || "",
-        price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-        deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
-        address: order.orderData.address.value,
-        wilaya: exactWilayaName,
-        commune: exactCommuneName,
-        deliveryType: order.orderData.delivery_type.value,
-        additionalInfo: order.orderData.additional_information?.value || "",
+      if (communes.length > 0) {
+        // Find the matching commune to get the exact name format
+        const matchingCommune = communes.find(
+          (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
+        )
+
+        // Use the exact commune name from the list if found
+        const exactCommuneName = matchingCommune ? matchingCommune.commune_name_ascii : communeName
+
+        // Create the available communes list
+        setAvailableCommunes(
+          communes.map((commune) => ({
+            id: commune.id,
+            namefr: commune.commune_name_ascii,
+            namear: commune.commune_name,
+            normalizedName: normalizeString(commune.commune_name_ascii),
+          })),
+        )
+
+        // Add stop desk information
+        const stopDeskId = order.orderData.stop_desk?.id || ""
+
+        // Update editValues with stop desk information
+        const updatedEditValues = {
+          clientName: order.orderData.client_name.value,
+          phoneNumber: order.orderData.phone_number.value,
+          articleName: order.orderData.articles[0]?.name.value || "",
+          price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+          deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+          address: order.orderData.address.value,
+          wilaya: exactWilayaName,
+          commune: exactCommuneName,
+          deliveryType: order.orderData.delivery_type.value,
+          additionalInfo: order.orderData.additional_information?.value || "",
+          stopDeskId: stopDeskId,
+        }
+
+        setEditingRow(order.id)
+        setEditValues(updatedEditValues)
+
+        // If delivery type is stopdesk and Yalidin Express is the delivery company,
+        // load available stop desks
+        if (order.orderData.delivery_type.value === "stopdesk" && isYalidinExpress) {
+          const stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
+          setAvailableStopDesks(stopDesks)
+        }
+      } else {
+        // If no communes found, use the original values
+        // Add stop desk information
+        const stopDeskId = order.orderData.stop_desk?.id || ""
+
+        const editValuesWithoutCenter = {
+          clientName: order.orderData.client_name.value,
+          phoneNumber: order.orderData.phone_number.value,
+          articleName: order.orderData.articles[0]?.name.value || "",
+          price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+          deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+          address: order.orderData.address.value,
+          wilaya: wilayaName,
+          commune: communeName,
+          deliveryType: order.orderData.delivery_type.value,
+          additionalInfo: order.orderData.additional_information?.value || "",
+          stopDeskId: stopDeskId,
+        }
+
+        setEditingRow(order.id)
+        setEditValues(editValuesWithoutCenter)
       }
-
-      setEditingRow(order.id)
-      setEditValues(editValuesWithoutCenter)
-    } else {
-      // If no communes found, use the original values
-      const editValuesWithoutCenter = {
-        clientName: order.orderData.client_name.value,
-        phoneNumber: order.orderData.phone_number.value,
-        articleName: order.orderData.articles[0]?.name.value || "",
-        price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-        deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
-        address: order.orderData.address.value,
-        wilaya: wilayaName,
-        commune: communeName,
-        deliveryType: order.orderData.delivery_type.value,
-        additionalInfo: order.orderData.additional_information?.value || "",
-      }
-
-      setEditingRow(order.id)
-      setEditValues(editValuesWithoutCenter)
-    }
-  }, [])
+    },
+    [isYalidinExpress],
+  )
 
   const cancelEditing = useCallback(() => {
     setEditingRow(null)
     setEditValues({})
     setAvailableCommunes([])
+    setAvailableStopDesks([])
   }, [])
 
-  // Update the getOriginalValue function to remove stop desk center
+  // Update the getOriginalValue function to include stop desk information
   const getOriginalValue = useCallback((order: Order, field: string) => {
     switch (field) {
       case "clientName":
@@ -557,6 +684,9 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         return order.orderData.delivery_type.value
       case "additionalInfo":
         return order.orderData.additional_information?.value || ""
+      // Existing cases...
+      case "stopDeskId":
+        return order.orderData.stop_desk?.id || ""
       default:
         return ""
     }
@@ -574,7 +704,13 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
           if (normalizeString(editValues[field]) !== normalizeString(originalValue)) {
             handleEditOrder(order, field, editValues[field])
           }
+        } else if (field === "stopDeskId") {
+          // Handle stop desk ID separately
+          if (editValues[field] !== (order.orderData.stop_desk?.id || "")) {
+            handleEditOrder(order, field, editValues[field])
+          }
         } else if (editValues[field] !== originalValue) {
+          // For other fields, use regular comparison
           handleEditOrder(order, field, editValues[field])
         }
       })
@@ -582,6 +718,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       setEditingRow(null)
       setEditValues({})
       setAvailableCommunes([])
+      setAvailableStopDesks([])
     },
     [editValues, handleEditOrder, getOriginalValue],
   )
@@ -620,6 +757,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
             <TableHead>Wilaya</TableHead>
             <TableHead>Commune</TableHead>
             <TableHead>Delivery Type</TableHead>
+            <TableHead>Stop Desk</TableHead>
             <TableHead>Delivery Price</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Additional Info</TableHead>
@@ -644,6 +782,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
                 editingRow={editingRow}
                 editValues={editValues}
                 availableCommunes={availableCommunes}
+                availableStopDesks={availableStopDesks} // Add this prop
                 handleEditChange={handleEditChange}
                 saveEditing={saveEditing}
                 cancelEditing={cancelEditing}

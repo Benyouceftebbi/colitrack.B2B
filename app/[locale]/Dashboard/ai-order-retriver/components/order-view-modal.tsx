@@ -6,7 +6,6 @@ import {
   User,
   Package,
   Truck,
-  Calendar,
   Save,
   X,
   Edit2,
@@ -15,7 +14,6 @@ import {
   AlertCircle,
   ShoppingBag,
   Home,
-  Info,
   MessageSquare,
   Instagram,
   AlertTriangle,
@@ -31,7 +29,10 @@ import { cn } from "@/lib/utils"
 import type { Order } from "../data/sample-orders"
 import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
 import { MetaLogo } from "./meta-logo"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
+// Add the import for Yalidin centers
+import { getYalidinCentersForCommune } from "../data/yalidin-centers"
+import { useShop } from "@/app/context/ShopContext"
 
 // Add a function to validate wilaya and commune after the imports but before the component
 function validateRegionData(order: Order) {
@@ -111,7 +112,9 @@ interface OrderViewModalProps {
   onEditOrder?: (order: Order, field: string, value: any) => void
 }
 
+// Update the OrderViewModal component to include stop desk selection
 export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEditOrder }: OrderViewModalProps) {
+  const { shopData } = useShop()
   const [isEditing, setIsEditing] = useState(false)
   const [editValues, setEditValues] = useState({
     clientName: order?.orderData.client_name.value || "",
@@ -126,13 +129,36 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     deliveryType: order?.orderData.delivery_type.value || "",
     deliveryCost: order?.orderData.delivery_cost.value / 100 || 0,
     additionalInfo: order?.orderData.additional_information?.value || "",
+    stopDeskId: order?.orderData.stop_desk?.id || "",
   })
   const [availableCommunes, setAvailableCommunes] = useState([])
+  const [availableStopDesks, setAvailableStopDesks] = useState([])
 
-  // Update available communes when wilaya changes
+  // Check if Yalidin Express is the delivery company
+  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
+
+  // Update available stop desks when commune changes
+  useEffect(() => {
+    if (isEditing && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
+      const stopDesks = getYalidinCentersForCommune(editValues.commune)
+      setAvailableStopDesks(stopDesks)
+
+      // If there's only one stop desk, select it automatically
+      if (stopDesks.length === 1 && !editValues.stopDeskId) {
+        setEditValues((prev) => ({
+          ...prev,
+          stopDeskId: stopDesks[0].center_id.toString(),
+        }))
+      }
+    } else {
+      setAvailableStopDesks([])
+    }
+  }, [isEditing, editValues.commune, editValues.deliveryType, isYalidinExpress])
+
+  // Add this useEffect to update available communes when wilaya changes
   useEffect(() => {
     if (isEditing && editValues.wilaya) {
-      // Get communes for this wilaya using the normalized string comparison
+      // Get communes for this wilaya
       const communes = getCommunesByWilayaName(editValues.wilaya)
 
       if (communes.length > 0) {
@@ -146,11 +172,8 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
         setAvailableCommunes(communesList)
 
-        // Check if the current commune exists in the new wilaya using normalized comparison
-        const normalizedCurrentCommune = normalizeString(editValues.commune)
-        const communeExists = communesList.some((commune) => commune.normalizedName === normalizedCurrentCommune)
-
-        if (!communeExists && communesList.length > 0) {
+        // If there are communes available but none is selected, select the first one
+        if (!editValues.commune && communesList.length > 0) {
           setEditValues((prev) => ({
             ...prev,
             commune: communesList[0].namefr,
@@ -222,7 +245,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }))
   }, [])
 
-  // Update the startEditing function to handle accented characters
+  // Add to the startEditing function to include stop desk information
   const startEditing = useCallback(() => {
     // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
@@ -273,6 +296,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         deliveryType: order.orderData.delivery_type.value,
         deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
         additionalInfo: order.orderData.additional_information?.value || "",
+        stopDeskId: order.orderData.stop_desk?.id || "",
       }
 
       setEditValues(initialValues)
@@ -291,11 +315,28 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         deliveryType: order.orderData.delivery_type.value,
         deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
         additionalInfo: order.orderData.additional_information?.value || "",
+        stopDeskId: order.orderData.stop_desk?.id || "",
       })
     }
 
+    // Add stop desk information
+    const stopDeskId = order.orderData.stop_desk?.id || ""
+
+    // Update editValues with stop desk information
+    setEditValues((prev) => ({
+      ...prev,
+      stopDeskId,
+    }))
+
+    // If delivery type is stopdesk and Yalidin Express is the delivery company,
+    // load available stop desks
+    if (order.orderData.delivery_type.value === "stopdesk" && shopData?.deliveryCompany === "Yalidin Express") {
+      const stopDesks = getYalidinCentersForCommune(order.orderData.commune.name_fr.value)
+      setAvailableStopDesks(stopDesks)
+    }
+
     setIsEditing(true)
-  }, [order])
+  }, [order, shopData])
 
   const cancelEditing = useCallback(() => {
     setIsEditing(false)
@@ -335,9 +376,15 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       }
     })
 
+    // Check if stop desk information has changed
+    if (editValues.stopDeskId !== (order.orderData.stop_desk?.id || "")) {
+      onEditOrder(order, "stopDeskId", editValues.stopDeskId)
+    }
+
     // Exit edit mode
     setIsEditing(false)
     setAvailableCommunes([])
+    setAvailableStopDesks([])
   }, [editValues, order, onEditOrder])
 
   // Memoize the conversation section
@@ -366,6 +413,16 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       </Card>
     )
   }, [order.conversation])
+
+  // Function to check if stop desk is available for a commune
+  const isStopDeskAvailable = useCallback(
+    (communeName: string) => {
+      if (!isYalidinExpress) return true // If not Yalidin Express, stop desks are always "available"
+      const stopDesks = getYalidinCentersForCommune(communeName)
+      return stopDesks.length > 0
+    },
+    [isYalidinExpress],
+  )
 
   // Don't render if not open to improve performance
   if (!isOpen) return null
@@ -648,11 +705,16 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
                             <SelectValue placeholder="Select type">
-                              {editValues.deliveryType === "home" ? "À domicile" : ""}
+                              {editValues.deliveryType === "home"
+                                ? "À domicile"
+                                : editValues.deliveryType === "stopdesk"
+                                  ? "Point de relais"
+                                  : ""}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="home">À domicile</SelectItem>
+                            <SelectItem value="stopdesk">Point de relais</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
@@ -662,6 +724,11 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                               <Home className="h-4 w-4 mr-1 text-indigo-600 dark:text-indigo-400" />
                               <span className="font-medium dark:text-gray-200">À domicile</span>
                             </>
+                          ) : order.orderData.delivery_type.value === "stopdesk" ? (
+                            <>
+                              <Home className="h-4 w-4 mr-1 text-indigo-600 dark:text-indigo-400" />
+                              <span className="font-medium dark:text-gray-200">Point de relais</span>
+                            </>
                           ) : (
                             <></>
                           )}
@@ -669,78 +736,96 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       )}
                     </div>
 
-                    {order.orderData.delivery_date && (
+                    {editValues.deliveryType === "stopdesk" && isYalidinExpress && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Expected Delivery</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Stop Desk</p>
                         {isEditing ? (
-                          <Input
-                            value={order.orderData.delivery_date.value}
-                            onChange={(e) => handleEditChange("deliveryDate", e.target.value)}
-                            className="h-8 dark:bg-slate-700/70 dark:border-gray-700"
-                          />
+                          <Select
+                            value={editValues.stopDeskId || "no_selection"}
+                            onValueChange={(value) =>
+                              handleEditChange("stopDeskId", value === "no_selection" ? "" : value)
+                            }
+                            disabled={availableStopDesks.length === 0}
+                          >
+                            <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
+                              <SelectValue placeholder="Select stop desk" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableStopDesks.length === 0 ? (
+                                <SelectItem value="no_selection">
+                                  <span className="text-amber-500 font-medium">No Stop Desks Available</span>
+                                </SelectItem>
+                              ) : (
+                                <>
+                                  <SelectItem value="no_selection">Select a stop desk</SelectItem>
+                                  {availableStopDesks
+                                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
+                                    .map((desk) => (
+                                      <SelectItem key={desk.center_id} value={desk.center_id.toString()}>
+                                        {desk.name}
+                                      </SelectItem>
+                                    ))}
+                                </>
+                              )}
+                            </SelectContent>
+                          </Select>
                         ) : (
-                          <p className="font-medium dark:text-gray-200 flex items-center">
-                            <Calendar className="h-4 w-4 mr-1 text-indigo-600 dark:text-indigo-400" />
-                            {order.orderData.delivery_date.value}
+                          <p className="font-medium dark:text-gray-200">
+                            {order.orderData.stop_desk?.name || "Not selected"}
                           </p>
                         )}
                       </div>
                     )}
+                  </div>
 
-                    <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
-                      {isEditing ? (
-                        <Input
-                          value={editValues.address}
-                          onChange={(e) => handleEditChange("address", e.target.value)}
-                          className="h-8 dark:bg-slate-700/70 dark:border-gray-700"
-                        />
-                      ) : (
-                        <p className="font-medium dark:text-gray-200">{order.orderData.address.value}</p>
-                      )}
-                    </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                    {isEditing ? (
+                      <Input
+                        value={editValues.address}
+                        onChange={(e) => handleEditChange("address", e.target.value)}
+                        className="h-8 dark:bg-slate-700/70 dark:border-gray-700"
+                      />
+                    ) : (
+                      <p className="font-medium dark:text-gray-200">{order.orderData.address.value}</p>
+                    )}
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="text-sm text-gray-500 dark:text-gray-400">Wilaya</p>
                       {isEditing ? (
-                        <Select value={editValues.wilaya} onValueChange={(value) => handleEditChange("wilaya", value)}>
+                        <Select
+                          value={editValues.wilaya}
+                          onValueChange={(value) => {
+                            handleEditChange("wilaya", value)
+                            setAvailableCommunes([])
+                            setEditValues((prev) => ({ ...prev, commune: "" }))
+                          }}
+                        >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
                             <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="max-h-[200px]">
-                            {getAllWilayas().map((wilaya) => {
-                              // Check if this wilaya matches the current value using normalized comparison
-                              const isSelected =
-                                normalizeString(wilaya.name_ascii) === normalizeString(editValues.wilaya)
-                              return (
+                          <SelectContent>
+                            {getAllWilayas()
+                              .sort((a, b) => a.name_ascii.localeCompare(b.name_ascii)) // Sort alphabetically
+                              .map((wilaya) => (
                                 <SelectItem
-                                  key={wilaya.code}
+                                  key={wilaya.code} // Make sure this key is unique
                                   value={wilaya.name_ascii}
-                                  className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
                                 >
-                                  {wilaya.name_ascii} ({wilaya.name}){isSelected && " ✓"}
+                                  {wilaya.name_ascii}
                                 </SelectItem>
-                              )
-                            })}
+                              ))}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="flex items-center gap-1">
-                          <p className="font-medium dark:text-gray-200">
-                            {order.orderData.wilaya.name_fr.value} ({order.orderData.wilaya.name_ar.value})
-                          </p>
-                          {!validation.wilayaValid && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Wilaya not found in database</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
+                        <p className="font-medium dark:text-gray-200">{order.orderData.wilaya.name_fr.value}</p>
+                      )}
+                      {!validation.wilayaValid && (
+                        <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                          Invalid wilaya
                         </div>
                       )}
                     </div>
@@ -749,80 +834,68 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       <p className="text-sm text-gray-500 dark:text-gray-400">Commune</p>
                       {isEditing ? (
                         <Select
-                          value={editValues.commune}
+                          value={editValues.commune || "placeholder-value"}
                           onValueChange={(value) => handleEditChange("commune", value)}
-                          disabled={!editValues.wilaya || availableCommunes.length === 0}
+                          disabled={!editValues.wilaya}
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select commune">{editValues.commune}</SelectValue>
+                            <SelectValue placeholder="Select commune">
+                              {editValues.commune ? editValues.commune : "Select wilaya first"}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="max-h-[200px]">
-                            {availableCommunes.map((commune) => {
-                              // Check if this commune matches the current value using normalized comparison
-                              const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
-                              return (
-                                <SelectItem
-                                  key={commune.id}
-                                  value={commune.namefr}
-                                  className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
-                                >
-                                  {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
-                                  {isSelected && " ✓"}
-                                </SelectItem>
-                              )
-                            })}
+                          <SelectContent>
+                            {availableCommunes.length > 0 ? (
+                              availableCommunes
+                                .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
+                                .map((commune) => (
+                                  <SelectItem key={commune.id} value={commune.namefr || "placeholder-value"}>
+                                    {commune.namefr}
+                                    {!isStopDeskAvailable(commune.namefr) && (
+                                      <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                                        No Stop Desk
+                                      </span>
+                                    )}
+                                  </SelectItem>
+                                ))
+                            ) : (
+                              <SelectItem value="placeholder-value" disabled>
+                                {editValues.wilaya ? "No communes found" : "Select wilaya first"}
+                              </SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       ) : (
-                        <div className="flex items-center gap-1">
-                          <p className="font-medium dark:text-gray-200">
-                            {order.orderData.commune.name_fr.value} ({order.orderData.commune.name_ar.value})
-                          </p>
-                          {!validation.communeValid && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Commune not found in database</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
+                        <p className="font-medium dark:text-gray-200">{order.orderData.commune.name_fr.value}</p>
+                      )}
+                      {!validation.communeValid && (
+                        <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                          Invalid commune
                         </div>
                       )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
 
-              {/* Additional Information */}
-              <Card className="overflow-hidden border dark:border-gray-700">
-                <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
-                  <CardTitle className="text-base font-medium flex items-center">
-                    <Info className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                    Additional Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  {isEditing ? (
-                    <Input
-                      value={editValues.additionalInfo}
-                      onChange={(e) => handleEditChange("additionalInfo", e.target.value)}
-                      className="dark:bg-slate-700/70 dark:border-gray-700"
-                    />
-                  ) : (
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {order.orderData.additional_information?.value || "No additional information"}
-                    </p>
-                  )}
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Additional Information</p>
+                    {isEditing ? (
+                      <Input
+                        value={editValues.additionalInfo}
+                        onChange={(e) => handleEditChange("additionalInfo", e.target.value)}
+                        className="h-8 dark:bg-slate-700/70 dark:border-gray-700"
+                      />
+                    ) : (
+                      <p className="font-medium dark:text-gray-200">
+                        {order.orderData.additional_information?.value || "-"}
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Right column: Conversation */}
-            <div className="col-span-1 space-y-4">{ConversationSection}</div>
+            {/* Right column: Conversation History */}
+            <div className="col-span-1 lg:col-span-1">{ConversationSection}</div>
           </div>
         </div>
       </DialogContent>

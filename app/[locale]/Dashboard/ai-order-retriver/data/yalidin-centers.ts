@@ -1,9 +1,4 @@
-/**
- * This file contains the Yalidine Express centers data structure
- * Each commune can have multiple stop desk centers
- */
-
- export interface YalidineCenter {
+interface YalidinCenter {
     center_id: number
     name: string
     address: string
@@ -14,7 +9,7 @@
     wilaya_name: string
   }
   
-  export interface YalidineCommune {
+  interface YalidinCommune {
     id: number
     commune_name_ascii: string
     commune_name: string
@@ -23,12 +18,11 @@
     wilaya_code: string
     wilaya_name_ascii: string
     wilaya_name: string
-    centers: YalidineCenter[]
+    centers: YalidinCenter[]
   }
   
-  // Sample data for Yalidine Express centers
-  // In a real application, this would be fetched from an API
-  export const yalidineCommunes: Record<string, YalidineCommune> = {
+  // Sample data for Yalidin Express centers
+  export const yalidinCenters: Record<string, YalidinCommune> = {
     "1": {
       "id": 1,
       "commune_name_ascii": "Adrar",
@@ -302,7 +296,18 @@
       "wilaya_code": "49",
       "wilaya_name_ascii": "Timimoun",
       "wilaya_name": "تيميمون",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 490901,
+          "name": "Agence de Timimoun [Yalidine]",
+          "address": "Rue Mohamed El Hashemi",
+          "gps": "29.25928043831401,0.23095582639144044",
+          "commune_id": 4909,
+          "commune_name": "Timimoun",
+          "wilaya_id": 49,
+          "wilaya_name": "Timimoun"
+        }
+      ]
     },
     "25": {
       "id": 25,
@@ -3018,7 +3023,18 @@
       "wilaya_code": "51",
       "wilaya_name_ascii": "Ouled Djellal",
       "wilaya_name": "أولاد جلال",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 512601,
+          "name": "Agence de Ouled Djellal [Yalidine]\t",
+          "address": "Rue Gasmi Ibrahim (En Face Ecole Mazen School)",
+          "gps": "34.43692622498558,5.069068600603627",
+          "commune_id": 5126,
+          "commune_name": "Ouled Djellal",
+          "wilaya_id": 51,
+          "wilaya_name": "Ouled Djellal"
+        }
+      ]
     },
     "256": {
       "id": 256,
@@ -4249,7 +4265,18 @@
       "wilaya_code": "53",
       "wilaya_name_ascii": "In Salah",
       "wilaya_name": "عين صالح",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 530801,
+          "name": "Agence de In Salah [Yalidine]\t",
+          "address": "Centre ville (à coté de la poste et la maison de jeune)",
+          "gps": "27.1977485821485,2.4788359630505163",
+          "commune_id": 5308,
+          "commune_name": "In Salah",
+          "wilaya_id": 53,
+          "wilaya_name": "In Salah"
+        }
+      ]
     },
     "358": {
       "id": 358,
@@ -6653,6 +6680,16 @@
           "commune_name": "Bab El Oued",
           "wilaya_id": 16,
           "wilaya_name": "Alger"
+        },
+        {
+          "center_id": 390101,
+          "name": "Agence de El Oued [Yalidine]",
+          "address": "Cite El Moudjahidine (en face Pharmacie Daghoum)",
+          "gps": "33.35200172931514,6.853196485244896",
+          "commune_id": 3901,
+          "commune_name": "El Oued",
+          "wilaya_id": 39,
+          "wilaya_name": "El Oued"
         }
       ]
     },
@@ -7522,18 +7559,7 @@
       "wilaya_code": "17",
       "wilaya_name_ascii": "Djelfa",
       "wilaya_name": "الجلفة",
-      "centers": [
-        {
-          "center_id": 170501,
-          "name": "Agence de Aïn Oussara [Yalidine]",
-          "address": "Cité Mohamed Boudiaf (rue en face la BNA, à coté de douche Rebhi)",
-          "gps": "35.44999644877334, 2.9044317099914543",
-          "commune_id": 1705,
-          "commune_name": "Aïn Oussara",
-          "wilaya_id": 17,
-          "wilaya_name": "Djelfa"
-        }
-      ]
+      "centers": []
     },
     "616": {
       "id": 616,
@@ -7643,6 +7669,8 @@
           "wilaya_id": 17,
           "wilaya_name": "Djelfa"
         }
+  
+  
       ]
     },
     "625": {
@@ -7709,7 +7737,18 @@
       "wilaya_code": "17",
       "wilaya_name_ascii": "Djelfa",
       "wilaya_name": "الجلفة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 170501,
+          "name": "Agence de Aïn Oussara [Yalidine]",
+          "address": "Cité Mohamed Boudiaf (rue en face la BNA, à coté de douche Rebhi)",
+          "gps": "35.44999644877334, 2.9044317099914543",
+          "commune_id": 1705,
+          "commune_name": "Aïn Oussara",
+          "wilaya_id": 17,
+          "wilaya_name": "Djelfa"
+        }
+      ]
     },
     "631": {
       "id": 631,
@@ -11354,7 +11393,28 @@
       "wilaya_code": "26",
       "wilaya_name_ascii": "Médéa",
       "wilaya_name": "المدية",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 263301,
+          "name": "Agence de Médéa [El Koutab] [Yalidine]",
+          "address": "Hai El Koutab Médéa (En face boutique Dyelna Shop)",
+          "gps": "36.275393392468935, 2.7702085400567786",
+          "commune_id": 2633,
+          "commune_name": "Médéa",
+          "wilaya_id": 26,
+          "wilaya_name": "Médéa"
+        },
+        {
+          "center_id": 263302,
+          "name": "Agence de Médéa [Pole Urbain] [Guepex]",
+          "address": "Cité 80 Logs LSP Pole Urbain (à coté de la station de service Benhafri)",
+          "gps": "36.267663838556054, 2.7906953509033734",
+          "commune_id": 2633,
+          "commune_name": "Médéa",
+          "wilaya_id": 26,
+          "wilaya_name": "Médéa"
+        }
+      ]
     },
     "932": {
       "id": 932,
@@ -11640,7 +11700,18 @@
       "wilaya_code": "26",
       "wilaya_name_ascii": "Médéa",
       "wilaya_name": "المدية",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 265901,
+          "name": "Agence Tablat [Yalidine]",
+          "address": "rue nationale N 08",
+          "gps": "36.40665669612093, 3.3224722",
+          "commune_id": 2659,
+          "commune_name": "Tablat",
+          "wilaya_id": 26,
+          "wilaya_name": "Médéa"
+        }
+      ]
     },
     "958": {
       "id": 958,
@@ -11882,7 +11953,28 @@
       "wilaya_code": "27",
       "wilaya_name_ascii": "Mostaganem",
       "wilaya_name": "مستغانم",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 271801,
+          "name": "Salamandre [Yalidine]",
+          "address": "Salamandre (Rond Point De La Douane)",
+          "gps": "35.9213552114013,0.07318708477898198",
+          "commune_id": 2718,
+          "commune_name": "Mostaganem",
+          "wilaya_id": 27,
+          "wilaya_name": "Mostaganem"
+        },
+        {
+          "center_id": 271802,
+          "name": "Kharouba [Guepex]",
+          "address": "Cité 144 logement",
+          "gps": "35.96974548538955, 0.10728168375911737",
+          "commune_id": 2718,
+          "commune_name": "Mostaganem",
+          "wilaya_id": 27,
+          "wilaya_name": "Mostaganem"
+        }
+      ]
     },
     "980": {
       "id": 980,
@@ -12157,7 +12249,18 @@
       "wilaya_code": "28",
       "wilaya_name_ascii": "M'Sila",
       "wilaya_name": "المسيلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 281001,
+          "name": "Agence de Berhoum Guepex",
+          "address": "محل رقم 03 مجموعة ملكية 333 قسم 02 حي زيغود يوسف بلدية برهوم",
+          "gps": "35.65709385298696,5.030348826732219",
+          "commune_id": 2810,
+          "commune_name": "Berhoum",
+          "wilaya_id": 28,
+          "wilaya_name": "M'Sila"
+        }
+      ]
     },
     "1005": {
       "id": 1005,
@@ -12179,7 +12282,18 @@
       "wilaya_code": "28",
       "wilaya_name_ascii": "M'Sila",
       "wilaya_name": "المسيلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 281201,
+          "name": "Agence de Bou Saâda Yalidine",
+          "address": "Cite 20 Aout 636/N°05 A",
+          "gps": "35.22031324045397,4.178352103974209",
+          "commune_id": 2812,
+          "commune_name": "Bou Saâda",
+          "wilaya_id": 28,
+          "wilaya_name": "M'Sila"
+        }
+      ]
     },
     "1007": {
       "id": 1007,
@@ -12366,7 +12480,18 @@
       "wilaya_code": "28",
       "wilaya_name_ascii": "M'Sila",
       "wilaya_name": "المسيلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 282802,
+          "name": "Agence Salem Shopping Mall Yalidine",
+          "address": "Salem Shopping Mall, centre commercial (en face la daïra)",
+          "gps": "35.711826195939764,4.533467813415232",
+          "commune_id": 2828,
+          "commune_name": "M'Sila",
+          "wilaya_id": 28,
+          "wilaya_name": "M'Sila"
+        }
+      ]
     },
     "1024": {
       "id": 1024,
@@ -12476,7 +12601,18 @@
       "wilaya_code": "28",
       "wilaya_name_ascii": "M'Sila",
       "wilaya_name": "المسيلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 283901,
+          "name": "Agence Sidi Aîssa Guepex",
+          "address": "بلدية سيدي عيسى E03 محل 07 حي الوئام المدني مجموعة ملكية 05 قسم 46 عمارة",
+          "gps": "35.872334331109606,3.7830036541912944",
+          "commune_id": 2839,
+          "commune_name": "Sidi Aïssa",
+          "wilaya_id": 28,
+          "wilaya_name": "M'Sila"
+        }
+      ]
     },
     "1034": {
       "id": 1034,
@@ -12642,7 +12778,7 @@
       "wilaya_name_ascii": "Mascara",
       "wilaya_name": "معسكر",
       "centers": [
-       
+        
       ]
     },
     "1049": {
@@ -12874,7 +13010,18 @@
       "wilaya_code": "29",
       "wilaya_name_ascii": "Mascara",
       "wilaya_name": "معسكر",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 292801,
+          "name": "Agence de Mascara [Yalidine]",
+          "address": "Rue Hamdani Adda  Rue Khasibiya No. 9, Magasin 1 Et 2",
+          "gps": "35.388937086543486,0.12859032938468315",
+          "commune_id": 2928,
+          "commune_name": "Mascara",
+          "wilaya_id": 29,
+          "wilaya_name": "Mascara"
+        }
+      ]
     },
     "1070": {
       "id": 1070,
@@ -13171,7 +13318,18 @@
       "wilaya_code": "30",
       "wilaya_name_ascii": "Ouargla",
       "wilaya_name": "ورقلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 300801,
+          "name": "Agence de Hassi Messaoud [Yalidine]",
+          "address": "Derrière la CNAS, à coté de la clinique Ibn Sina",
+          "gps": "31.688989360431812, 6.068568678310962",
+          "commune_id": 3008,
+          "commune_name": "Hassi Messaoud",
+          "wilaya_id": 30,
+          "wilaya_name": "Ouargla"
+        }
+      ]
     },
     "1097": {
       "id": 1097,
@@ -13226,7 +13384,28 @@
       "wilaya_code": "30",
       "wilaya_name_ascii": "Ouargla",
       "wilaya_name": "ورقلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 301301,
+          "name": "Agence de Ouargla (Dar el moualim)[Guepex]",
+          "address": "Rue Lahreche Bachir (en face Dr. Abdelkader Beddiaf et la pharmacie Hakoum)",
+          "gps": "31.945900615685254,5.315087870212104",
+          "commune_id": 3013,
+          "commune_name": "Ouargla",
+          "wilaya_id": 30,
+          "wilaya_name": "Ouargla"
+        },
+        {
+          "center_id": 301302,
+          "name": "Agence de Ouargla (Chetti el wekal) [Yalidine]",
+          "address": "Ave 1er novembre 1954, El Mkhadma, (Arrêt de tram Chatte El Wakla)",
+          "gps": "31.942699293799976,5.312770721210608",
+          "commune_id": 3013,
+          "commune_name": "Ouargla",
+          "wilaya_id": 30,
+          "wilaya_name": "Ouargla"
+        }
+      ]
     },
     "1102": {
       "id": 1102,
@@ -13303,7 +13482,18 @@
       "wilaya_code": "55",
       "wilaya_name_ascii": "Touggourt",
       "wilaya_name": "تقرت",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 552001,
+          "name": "Agence de Touggourt [Yalidine]",
+          "address": "Cite Rimal 01 (A Cote De La Pharmacie Harkati Route Nationale N°03)",
+          "gps": "33.10026087453198,6.052441603706706",
+          "commune_id": 5520,
+          "commune_name": "Touggourt",
+          "wilaya_id": 55,
+          "wilaya_name": "Touggourt"
+        }
+      ]
     },
     "1109": {
       "id": 1109,
@@ -13358,7 +13548,18 @@
       "wilaya_code": "31",
       "wilaya_name_ascii": "Oran",
       "wilaya_name": "وهران",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 310601,
+          "name": "Agence de Arzew [Guepex]",
+          "address": " 17 Lotissement N 66 Plan Lot 167",
+          "gps": "35.84733672313886,-0.31784657704458",
+          "commune_id": 3106,
+          "commune_name": "Arzew",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        }
+      ]
     },
     "1114": {
       "id": 1114,
@@ -13391,7 +13592,28 @@
       "wilaya_code": "31",
       "wilaya_name_ascii": "Oran",
       "wilaya_name": "وهران",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 310301,
+          "name": "El Morchid [Yalidine]",
+          "address": "Cooperative Immobiliere Dar El Amel N°68",
+          "gps": "35.710492588656976,-0.5869307488573879",
+          "commune_id": 3103,
+          "commune_name": "Bir El Djir",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        },
+        {
+          "center_id": 310302,
+          "name": "Agence Fernand Ville [Yalidine]",
+          "address": "65 Rue 1er Novembre Hai Khemisti ,part 4 (Mosquée el kods)",
+          "gps": "35.730398307760176, -0.5790437244693557",
+          "commune_id": 3103,
+          "commune_name": "Bir El Djir",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        }
+      ]
     },
     "1117": {
       "id": 1117,
@@ -13556,7 +13778,48 @@
       "wilaya_code": "31",
       "wilaya_name_ascii": "Oran",
       "wilaya_name": "وهران",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 310101,
+          "name": "Saint Hubert [Yalidine]",
+          "address": "Rue de l'ANP Projet rue 153 GV 50-89 part 2 et 3 (Entre CPA ET CASNOS)",
+          "gps": "35.67576049674193, -0.6399573752101966",
+          "commune_id": 3101,
+          "commune_name": "Oran",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        },
+        {
+          "center_id": 310102,
+          "name": "Cité Djamel [Guepex]",
+          "address": "Rond-point cité Djamel (en allant vers Hai Sabah)",
+          "gps": "35.69672884038709, -0.6024611501953713",
+          "commune_id": 3101,
+          "commune_name": "Oran",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        },
+        {
+          "center_id": 310103,
+          "name": "Agence de Gambetta [Zimou-Express]",
+          "address": "54 avenue d'arcole, Bouguerri Khelifa, Gambetta",
+          "gps": "35.70584160555386, -0.6116408828756563",
+          "commune_id": 3101,
+          "commune_name": "Oran",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        },
+        {
+          "center_id": 310104,
+          "name": "Agence Canastel [speedmail]",
+          "address": "25, Rue Akid Lotfi Local N° 02",
+          "gps": "35.7453859649244,-0.5692101104496627",
+          "commune_id": 3101,
+          "commune_name": "Oran",
+          "wilaya_id": 31,
+          "wilaya_name": "Oran"
+        }
+      ]
     },
     "1132": {
       "id": 1132,
@@ -13699,7 +13962,18 @@
       "wilaya_code": "32",
       "wilaya_name_ascii": "El Bayadh",
       "wilaya_name": "البيض",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 320101,
+          "name": "Agence de El Bayadh [Yalidine]",
+          "address": "Rue Mohamed Touil (A Cote Auberge Hanna)",
+          "gps": "33.68182465412115,1.0147081430506253",
+          "commune_id": 3201,
+          "commune_name": "El Bayadh",
+          "wilaya_id": 32,
+          "wilaya_name": "El Bayadh"
+        }
+      ]
     },
     "1145": {
       "id": 1145,
@@ -13886,7 +14160,18 @@
       "wilaya_code": "56",
       "wilaya_name_ascii": "Djanet",
       "wilaya_name": "جانت",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 560201,
+          "name": "Agence de Djanet [Guepex]",
+          "address": "Tin Khatma",
+          "gps": "24.55986182082406, 9.481856717098914",
+          "commune_id": 5602,
+          "commune_name": "Djanet",
+          "wilaya_id": 56,
+          "wilaya_name": "Djanet"
+        }
+      ]
     },
     "1162": {
       "id": 1162,
@@ -13897,7 +14182,18 @@
       "wilaya_code": "33",
       "wilaya_name_ascii": "Illizi",
       "wilaya_name": "إليزي",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 330101,
+          "name": "Agence de Illizi [Guepex]",
+          "address": "Chemin Ain El Kours Cite Salam",
+          "gps": "26.506170413905355,8.489622372352972",
+          "commune_id": 3301,
+          "commune_name": "Illizi",
+          "wilaya_id": 33,
+          "wilaya_name": "Illizi"
+        }
+      ]
     },
     "1163": {
       "id": 1163,
@@ -13908,7 +14204,18 @@
       "wilaya_code": "33",
       "wilaya_name_ascii": "Illizi",
       "wilaya_name": "إليزي",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 330601,
+          "name": "Agence In Amenas Geupex",
+          "address": "القسم 12 مجموعة ملكية 56-342 مسكن بلدية ان اميناس",
+          "gps": "28.050180003262113,9.578835500000002",
+          "commune_id": 3306,
+          "commune_name": "In Amenas",
+          "wilaya_id": 33,
+          "wilaya_name": "Illizi"
+        }
+      ]
     },
     "1164": {
       "id": 1164,
@@ -13941,7 +14248,28 @@
       "wilaya_code": "34",
       "wilaya_name_ascii": "Bordj Bou Arreridj",
       "wilaya_name": "برج بوعريريج",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 340601,
+          "name": "Agence de El Djebasse [Yalidine]",
+          "address": "cite 1er novembre 1954, 90 logements numéro 42",
+          "gps": "36.07358095544724, 4.769126075519668",
+          "commune_id": 3406,
+          "commune_name": "Bordj Bou Arreridj",
+          "wilaya_id": 34,
+          "wilaya_name": "Bordj Bou Arreridj"
+        },
+        {
+          "center_id": 340602,
+          "name": "Agence Cité Soualem [Guepex]",
+          "address": "Cité 01 novembre, rue de Sétif",
+          "gps": "36.06221859090565, 4.774595953993218",
+          "commune_id": 3406,
+          "commune_name": "Bordj Bou Arreridj",
+          "wilaya_id": 34,
+          "wilaya_name": "Bordj Bou Arreridj"
+        }
+      ]
     },
     "1167": {
       "id": 1167,
@@ -14348,7 +14676,18 @@
       "wilaya_code": "35",
       "wilaya_name_ascii": "Boumerdès",
       "wilaya_name": "بومرداس",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 350501,
+          "name": "Agence de Bordj Menaiel [Guepex]",
+          "address": "Rue Bouira Boualem, Section 02 Magasin 02",
+          "gps": "36.73815152136307,3.7220183039667347",
+          "commune_id": 3505,
+          "commune_name": "Bordj Menaiel",
+          "wilaya_id": 35,
+          "wilaya_name": "Boumerdès"
+        }
+      ]
     },
     "1204": {
       "id": 1204,
@@ -14381,7 +14720,18 @@
       "wilaya_code": "35",
       "wilaya_name_ascii": "Boumerdès",
       "wilaya_name": "بومرداس",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 350101,
+          "name": "Agence de Boumerdes [Yalidine]",
+          "address": "Cité Foés bâtiment B local N°04 ",
+          "gps": "36.75100407593048,3.457471537963522",
+          "commune_id": 3501,
+          "commune_name": "Boumerdes",
+          "wilaya_id": 35,
+          "wilaya_name": "Boumerdès"
+        }
+      ]
     },
     "1207": {
       "id": 1207,
@@ -14744,7 +15094,18 @@
       "wilaya_code": "36",
       "wilaya_name_ascii": "El Tarf",
       "wilaya_name": "الطارف",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 361301,
+          "name": "Agence Dréan El Tarf [Yalidine]",
+          "address": "Rue lmzaouda al-arbi el dréan",
+          "gps": "36.684014174423325,7.748788786509849",
+          "commune_id": 3613,
+          "commune_name": "Dréan",
+          "wilaya_id": 36,
+          "wilaya_name": "El Tarf"
+        }
+      ]
     },
     "1240": {
       "id": 1240,
@@ -14821,7 +15182,18 @@
       "wilaya_code": "36",
       "wilaya_name_ascii": "El Tarf",
       "wilaya_name": "الطارف",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 361701,
+          "name": "Agence de El Tarf [Yalidine]",
+          "address": "Rue N°44 Cite Les Vergers",
+          "gps": "36.7670884594558,8.308140442356349",
+          "commune_id": 3617,
+          "commune_name": "El Tarf",
+          "wilaya_id": 36,
+          "wilaya_name": "El Tarf"
+        }
+      ]
     },
     "1247": {
       "id": 1247,
@@ -14920,7 +15292,18 @@
       "wilaya_code": "37",
       "wilaya_name_ascii": "Tindouf",
       "wilaya_name": "تندوف",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 370201,
+          "name": "Agence de Tindouf [Yalidine]",
+          "address": "Cites Moussani (A Cote De La Radio)",
+          "gps": "27.66861750577877,-8.142957799721954",
+          "commune_id": 3702,
+          "commune_name": "Tindouf",
+          "wilaya_id": 37,
+          "wilaya_name": "Tindouf"
+        }
+      ]
     },
     "1256": {
       "id": 1256,
@@ -15151,7 +15534,18 @@
       "wilaya_code": "38",
       "wilaya_name_ascii": "Tissemsilt",
       "wilaya_name": "تيسمسيلت",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 382101,
+          "name": "Agence de Tissemsilt [Yalidine]",
+          "address": "Rue Bouis Ali Num 33  B Section 067 Groupe De Propriete 048",
+          "gps": "35.60941808703387,1.8098678288304073",
+          "commune_id": 3821,
+          "commune_name": "Tissemsilt",
+          "wilaya_id": 38,
+          "wilaya_name": "Tissemsilt"
+        }
+      ]
     },
     "1277": {
       "id": 1277,
@@ -15206,7 +15600,18 @@
       "wilaya_code": "57",
       "wilaya_name_ascii": "El Meghaier",
       "wilaya_name": "المغير",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 572801,
+          "name": "Agence de Djamaa [Guepex]",
+          "address": "Cite Essalam (A Cote Du Clinique Douaa)",
+          "gps": "33.53384327436235,5.983139975719593",
+          "commune_id": 5728,
+          "commune_name": "Djamaa",
+          "wilaya_id": 57,
+          "wilaya_name": "El M'Ghair"
+        }
+      ]
     },
     "1282": {
       "id": 1282,
@@ -15239,7 +15644,18 @@
       "wilaya_code": "57",
       "wilaya_name_ascii": "El Meghaier",
       "wilaya_name": "المغير",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 572701,
+          "name": "Agence de El M'Ghair [Yalidine]",
+          "address": "Lotissement 360 Logements Nouvelle Zone Urbaine",
+          "gps": "33.95575864498291,5.908902723517538",
+          "commune_id": 5727,
+          "commune_name": "El M'Ghair",
+          "wilaya_id": 57,
+          "wilaya_name": "El M'Ghair"
+        }
+      ]
     },
     "1285": {
       "id": 1285,
@@ -15635,7 +16051,28 @@
       "wilaya_code": "40",
       "wilaya_name_ascii": "Khenchela",
       "wilaya_name": "خنشلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 401301,
+          "name": "Centre de tri Khenchela [Yalidine]",
+          "address": "Cite Du 1Er Novembre Route Des Poids Lourds (En Face Sonelgaz)",
+          "gps": "35.43063810424386,7.1375864753864935",
+          "commune_id": 4013,
+          "commune_name": "Khenchela",
+          "wilaya_id": 40,
+          "wilaya_name": "Khenchela"
+        },
+        {
+          "center_id": 401302,
+          "name": "Agence route de Meskiana [Yalidine]",
+          "address": "Route de Meskiana N°30 lot 66 Khenchela",
+          "gps": "35.43154087131633,7.150444186509847",
+          "commune_id": 4013,
+          "commune_name": "Khenchela",
+          "wilaya_id": 40,
+          "wilaya_name": "Khenchela"
+        }
+      ]
     },
     "1321": {
       "id": 1321,
@@ -15954,7 +16391,18 @@
       "wilaya_code": "41",
       "wilaya_name_ascii": "Souk Ahras",
       "wilaya_name": "سوق أهراس",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 410101,
+          "name": "Agence de Souk Ahras [Yalidine]",
+          "address": "Cité El Louz Lot 64 (les amandiers)",
+          "gps": "36.27400574751086, 7.954879870917144",
+          "commune_id": 4101,
+          "commune_name": "Souk Ahras",
+          "wilaya_id": 41,
+          "wilaya_name": "Souk Ahras"
+        }
+      ]
     },
     "1350": {
       "id": 1350,
@@ -16053,7 +16501,19 @@
       "wilaya_code": "42",
       "wilaya_name_ascii": "Tipaza",
       "wilaya_name": "تيبازة",
-      "centers": []
+      "centers": [
+        
+    {
+      "center_id": 423501,
+      "name": "agence De Kolea [GUEPEX]",
+      "address": "N 03 Rue Mohamed addam",
+      "gps": "36.63996315472693,2.7694844",
+      "commune_id": 4235,
+      "commune_name": "Koléa",
+      "wilaya_id": 42,
+      "wilaya_name": "Tipaza"
+    }
+      ]
     },
     "1359": {
       "id": 1359,
@@ -16119,7 +16579,18 @@
       "wilaya_code": "42",
       "wilaya_name_ascii": "Tipaza",
       "wilaya_name": "تيبازة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 422201,
+          "name": "Agence Cherchell [Guepex]",
+          "address": "N°05 Rue MELHANI ABDERRAHMAN ",
+          "gps": "36.60585555938602,2.1906684576712783",
+          "commune_id": 4222,
+          "commune_name": "Cherchell",
+          "wilaya_id": 42,
+          "wilaya_name": "Tipaza"
+        }
+      ]
     },
     "1365": {
       "id": 1365,
@@ -16174,7 +16645,18 @@
       "wilaya_code": "42",
       "wilaya_name_ascii": "Tipaza",
       "wilaya_name": "تيبازة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 421201,
+          "name": "Agence Hadjout [EasyAndspeed]",
+          "address": "Rue de stade RDC Hadjout, Tipaza",
+          "gps": "36.516211255024885,2.4099873153425557",
+          "commune_id": 4212,
+          "commune_name": "Hadjout",
+          "wilaya_id": 42,
+          "wilaya_name": "Tipaza"
+        }
+      ]
     },
     "1370": {
       "id": 1370,
@@ -16317,7 +16799,18 @@
       "wilaya_code": "42",
       "wilaya_name_ascii": "Tipaza",
       "wilaya_name": "تيبازة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 420101,
+          "name": "Agence de Tipaza [Yalidine]",
+          "address": "24 cite M'hamed Bougara (El Garari)",
+          "gps": "36.5878925852878,2.439693415722701",
+          "commune_id": 4201,
+          "commune_name": "Tipaza",
+          "wilaya_id": 42,
+          "wilaya_name": "Tipaza"
+        }
+      ]
     },
     "1383": {
       "id": 1383,
@@ -16405,7 +16898,18 @@
       "wilaya_code": "43",
       "wilaya_name_ascii": "Mila",
       "wilaya_name": "ميلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 430801,
+          "name": "Agence de Chelghoum Laid [Yalidine]",
+          "address": "Rue 01 Novembre, A Côté D'Hôtel El Rhumel",
+          "gps": "36.1590068466165,6.160283164642531",
+          "commune_id": 4308,
+          "commune_name": "Chelghoum Laid",
+          "wilaya_id": 43,
+          "wilaya_name": "Mila"
+        }
+      ]
     },
     "1391": {
       "id": 1391,
@@ -16493,7 +16997,18 @@
       "wilaya_code": "43",
       "wilaya_name_ascii": "Mila",
       "wilaya_name": "ميلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 431601,
+          "name": "Agence de Mila [Yalidine]",
+          "address": "Rue De Zerghia (A Coté Du Point De Vente Iris Et Gam Assurance)",
+          "gps": "36.45296552261307,6.2564604692148205",
+          "commune_id": 4316,
+          "commune_name": "Mila",
+          "wilaya_id": 43,
+          "wilaya_name": "Mila"
+        }
+      ]
     },
     "1399": {
       "id": 1399,
@@ -16702,7 +17217,18 @@
       "wilaya_code": "44",
       "wilaya_name_ascii": "Aïn Defla",
       "wilaya_name": "عين الدفلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 440101,
+          "name": "Agence de Aïn Defla [Guepex]",
+          "address": "Cite Khyat Mohammed (L’Arret De La Zone Industrielle En Face La Pompe d'essence)",
+          "gps": "36.25140783716136,1.9415038000000007",
+          "commune_id": 4401,
+          "commune_name": "Aïn Defla",
+          "wilaya_id": 44,
+          "wilaya_name": "Aïn Defla"
+        }
+      ]
     },
     "1418": {
       "id": 1418,
@@ -16955,7 +17481,18 @@
       "wilaya_code": "44",
       "wilaya_name_ascii": "Aïn Defla",
       "wilaya_name": "عين الدفلة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 442601,
+          "name": "Agence de Khemis Miliana [Guepex]",
+          "address": "Le Cote Ouest Du Quartier La Cadette Route Nationale",
+          "gps": "36.26046455568064,2.202986246810656",
+          "commune_id": 4426,
+          "commune_name": "Khemis Miliana",
+          "wilaya_id": 44,
+          "wilaya_name": "Aïn Defla"
+        }
+      ]
     },
     "1441": {
       "id": 1441,
@@ -17153,7 +17690,18 @@
       "wilaya_code": "45",
       "wilaya_name_ascii": "Naâma",
       "wilaya_name": "النعامة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 450201,
+          "name": "Agence de Mecheria [Guepex]",
+          "address": "Rue Abdellaoui Mohammed Cité Iben Badis  (Connue Hadj Taleb, Près De Pharmacie Abbad Amina Et École Primaire)",
+          "gps": "33.54236058678445,-0.28489289145698227",
+          "commune_id": 4502,
+          "commune_name": "Mecheria",
+          "wilaya_id": 45,
+          "wilaya_name": "Naâma"
+        }
+      ]
     },
     "1459": {
       "id": 1459,
@@ -17241,7 +17789,18 @@
       "wilaya_code": "46",
       "wilaya_name_ascii": "Aïn Témouchent",
       "wilaya_name": "عين تيموشنت",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 460401,
+          "name": "Agence de Aïn Témouchent [Yalidine]",
+          "address": "Sonne n5/ n 605/ d 228 logements, Hai Zitoun (à coté de la nouvelle agence de transport)",
+          "gps": "35.31160813323017, -1.1468406674238103",
+          "commune_id": 4604,
+          "commune_name": "Aïn Témouchent",
+          "wilaya_id": 46,
+          "wilaya_name": "Aïn Témouchent"
+        }
+      ]
     },
     "1467": {
       "id": 1467,
@@ -17274,7 +17833,18 @@
       "wilaya_code": "46",
       "wilaya_name_ascii": "Aïn Témouchent",
       "wilaya_name": "عين تيموشنت",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 460701,
+          "name": "Agence de Beni Saf [Guepex]",
+          "address": "Cité Sohbi, zone urbaine (en face de la pompe d'essence)",
+          "gps": "35.30573507836949, -1.3524657019668493",
+          "commune_id": 4607,
+          "commune_name": "Beni Saf",
+          "wilaya_id": 46,
+          "wilaya_name": "Aïn Témouchent"
+        }
+      ]
     },
     "1470": {
       "id": 1470,
@@ -17560,7 +18130,18 @@
       "wilaya_code": "58",
       "wilaya_name_ascii": "El Menia",
       "wilaya_name": "المنيعة",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 580601,
+          "name": "Agence de El Menia [Yalidine]",
+          "address": "Route Unite Africaine",
+          "gps": "30.578857742061352,2.8802528030169148",
+          "commune_id": 5806,
+          "commune_name": "El Menia",
+          "wilaya_id": 58,
+          "wilaya_name": "El Menia"
+        }
+      ]
     },
     "1496": {
       "id": 1496,
@@ -17571,7 +18152,28 @@
       "wilaya_code": "47",
       "wilaya_name_ascii": "Ghardaïa",
       "wilaya_name": "غرداية",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 470701,
+          "name": "Agence de Ghardaïa [Guepex]",
+          "address": "Cité Djamel Bouhraoua (en face palais des expositions)",
+          "gps": "32.51422379314845, 3.680928631621788",
+          "commune_id": 4707,
+          "commune_name": "Ghardaïa",
+          "wilaya_id": 47,
+          "wilaya_name": "Ghardaïa"
+        },
+        {
+          "center_id": 470702,
+          "name": "Agence de Bouhraoua [Yalidine]",
+          "address": "Bouhraoua (en face centre d'exposition)",
+          "gps": "32.518556971150865, 3.6696240790628734",
+          "commune_id": 4707,
+          "commune_name": "Ghardaïa",
+          "wilaya_id": 47,
+          "wilaya_name": "Ghardaïa"
+        }
+      ]
     },
     "1497": {
       "id": 1497,
@@ -17978,7 +18580,18 @@
       "wilaya_code": "48",
       "wilaya_name_ascii": "Relizane",
       "wilaya_name": "غليزان",
-      "centers": []
+      "centers": [
+        {
+          "center_id": 483001,
+          "name": "Agence de Relizane [Yalidine]",
+          "address": "Boulevard 69 Zaghloul (en face la banque d'Algérie)",
+          "gps": "35.74256254570214,0.5546923698242852",
+          "commune_id": 4830,
+          "commune_name": "Relizane",
+          "wilaya_id": 48,
+          "wilaya_name": "Relizane"
+        }
+      ]
     },
     "1534": {
       "id": 1534,
@@ -18069,45 +18682,35 @@
       "centers": []
     }
   }
-  /**
-   * Get all Yalidine centers for a specific commune
-   * @param communeName The name of the commune
-   * @returns Array of centers in the specified commune, or empty array if none found
-   */
-  export function getYalidineCentersByCommune(communeName: string): YalidineCenter[] {
-    if (!communeName) return []
-  
+
+// Helper function to get centers for a specific commune
+export function getYalidinCentersForCommune(communeName: string): YalidinCenter[] {
     // Normalize the commune name for comparison
     const normalizedCommuneName = communeName.toLowerCase().trim()
   
     // Find the commune in the data
-    const commune = Object.values(yalidineCommunes).find(
-      (c) => c.commune_name_ascii.toLowerCase().trim() === normalizedCommuneName,
+    const commune = Object.values(yalidinCenters).find(
+      (commune) => commune.commune_name_ascii.toLowerCase() === normalizedCommuneName,
     )
   
     return commune?.centers || []
   }
   
-  /**
-   * Check if a commune has any Yalidine centers
-   * @param communeName The name of the commune
-   * @returns True if the commune has at least one center, false otherwise
-   */
-  export function hasYalidineCenters(communeName: string): boolean {
-    const centers = getYalidineCentersByCommune(communeName)
+  // Helper function to check if a commune has Yalidin centers
+  export function hasYalidinCenters(communeName: string): boolean {
+    const centers = getYalidinCentersForCommune(communeName)
     return centers.length > 0
   }
   
-  /**
-   * Get a specific Yalidine center by its ID
-   * @param centerId The ID of the center
-   * @returns The center if found, undefined otherwise
-   */
-  export function getYalidineCenterById(centerId: number): YalidineCenter | undefined {
-    for (const commune of Object.values(yalidineCommunes)) {
-      const center = commune.centers.find((c) => c.center_id === centerId)
+  // Helper function to get a center by ID
+  export function getYalidinCenterById(centerId: string | number): YalidinCenter | undefined {
+    const id = typeof centerId === "string" ? Number.parseInt(centerId, 10) : centerId
+  
+    for (const commune of Object.values(yalidinCenters)) {
+      const center = commune.centers.find((center) => center.center_id === id)
       if (center) return center
     }
+  
     return undefined
   }
   
