@@ -567,6 +567,173 @@ export const initialOrders = [
         },
       },
     },
+    {
+        id: "ORD-004",
+        source: "instagram",
+        recipientId: "29125428493769814",
+        senderId: "414297458433299",
+        status: "confirmed",
+        timestamp: "2025-04-06T09:15:00+0100",
+        storePage: "SabyAnge Fashion",
+        shippingCompany: "FastDeliv",
+        conversation: [
+          {
+            message: "مرحبا، عندكم فساتين سواريه؟",
+            sender: "client",
+            sentAt: "2025-04-06T08:05:12+0000",
+            type: "text",
+          },
+          {
+            attachment: "https://example.com/evening-dresses.jpg",
+            message: "image",
+            sender: "shop",
+            sentAt: "2025-04-06T08:07:30+0000",
+            type: "image",
+          },
+          {
+            message: "نعم لدينا تشكيلة جديدة. المقاس المطلوب؟",
+            sender: "shop",
+            sentAt: "2025-04-06T08:08:15+0000",
+            type: "text",
+          },
+          {
+            message: "مقاس 40 باللون الاسود",
+            sender: "client",
+            sentAt: "2025-04-06T08:10:22+0000",
+            type: "text",
+          },
+          {
+            message: "السعر 85000 دج شامل التوصيل لولاية الجزائر",
+            sender: "shop",
+            sentAt: "2025-04-06T08:12:45+0000",
+            type: "text",
+          },
+          {
+            message: "موافق. الاسم: خديجة بن عمر، رقم الهاتف 0667123456",
+            sender: "client",
+            sentAt: "2025-04-06T08:15:00+0000",
+            type: "text",
+          }
+        ],
+        orderData: {
+          additional_information: {
+            confidence: 0.88,
+            description: "Evening dress with custom measurements",
+            value: "Requires special packaging"
+          },
+          address: {
+            confidence: 0.9,
+            value: "حي المرادية، الجزائر العاصمة"
+          },
+          articles: [
+            {
+              name: { confidence: 0.97, value: "فساتين سواريه" },
+              colors: [{ confidence: 0.95, value: "اسود" }],
+              price_details: [{
+                price: { confidence: 0.98, value: 80000 },
+                quantity: { confidence: 0.98, value: 1 }
+              }],
+              quantity: { confidence: 0.98, value: 1 },
+              sizes: [{ confidence: 0.9, value: "40" }],
+              total_article_price: { confidence: 0.98, value: 80000 }
+            }
+          ],
+          client_name: { confidence: 0.99, value: "خديجة بن عمر" },
+          commune: {
+            commune_probability: [{ commune_name: "المرادية", probability: 0.85 }],
+            name_ar: { confidence: 0.85, value: "المرادية" },
+            name_fr: { confidence: 0.85, value: "El Mouradia" }
+          },
+          delivery_cost: { confidence: 0.95, value: 5000 },
+          delivery_type: { confidence: 0.95, value: "home" },
+          message_time: { confidence: 0.95, value: "2025-04-06T08:15:00+0000" },
+          phone_number: { confidence: 0.99, value: "0667123456" },
+          total_price: { confidence: 0.95, value: 85000 },
+          wilaya: {
+            name_ar: { confidence: 0.98, value: "الجزائر" },
+            name_fr: { confidence: 0.98, value: "Alger" }
+          }
+        }
+      },
+      {
+        id: "ORD-005",
+        source: "messenger",
+        recipientId: "29125428493769815",
+        senderId: "414297458433300",
+        status: "pending",
+        timestamp: "2025-04-07T14:30:00+0100",
+        storePage: "SabyAnge Fashion",
+        conversation: [
+          {
+            message: "Bonsoir, je cherche un ensemble complet (hijab + abaya)",
+            sender: "client",
+            sentAt: "2025-04-07T13:15:00+0000",
+            type: "text",
+          },
+          {
+            attachment: "https://example.com/hijab-sets.jpg",
+            message: "image",
+            sender: "shop",
+            sentAt: "2025-04-07T13:17:30+0000",
+            type: "image",
+          },
+          {
+            message: "Nous avons cette collection en 3 coloris. Préférence?",
+            sender: "shop",
+            sentAt: "2025-04-07T13:18:15+0000",
+            type: "text",
+          },
+          {
+            message: "Le bleu marine en taille M. Combien avec livraison à Blida?",
+            sender: "client",
+            sentAt: "2025-04-07T13:20:45+0000",
+            type: "text",
+          },
+          {
+            message: "Total 12000 DA (10000 DA produit + 2000 DA livraison)",
+            sender: "shop",
+            sentAt: "2025-04-07T13:22:10+0000",
+            type: "text",
+          },
+          {
+            message: "D'accord. Coordonnées: Samira Khelifi, 0778456789",
+            sender: "client",
+            sentAt: "2025-04-07T13:25:30+0000",
+            type: "text",
+          }
+        ],
+        orderData: {
+          address: { confidence: 0.85, value: "Cité 200 logements, Blida" },
+          articles: [
+            {
+              name: { confidence: 0.96, value: "Ensemble hijab + abaya" },
+              colors: [{ confidence: 0.95, value: "Bleu marine" }],
+              price_details: [{
+                price: { confidence: 0.95, value: 10000 },
+                quantity: { confidence: 0.95, value: 1 }
+              }],
+              quantity: { confidence: 0.95, value: 1 },
+              sizes: [{ confidence: 0.9, value: "M" }],
+              total_article_price: { confidence: 0.95, value: 10000 }
+            }
+          ],
+          client_name: { confidence: 0.99, value: "Samira Khelifi" },
+          commune: {
+            commune_probability: [{ commune_name: "Blida", probability: 0.9 }],
+            name_ar: { confidence: 0.9, value: "البليدة" },
+            name_fr: { confidence: 0.9, value: "Blida" }
+          },
+          delivery_cost: { confidence: 0.95, value: 2000 },
+          delivery_type: { confidence: 0.95, value: "stopdesk" },
+          message_time: { confidence: 0.95, value: "2025-04-07T13:25:30+0000" },
+          phone_number: { confidence: 0.99, value: "0778456789" },
+          total_price: { confidence: 0.95, value: 12000 },
+          wilaya: {
+            name_ar: { confidence: 0.98, value: "البليدة" },
+            name_fr: { confidence: 0.98, value: "Blida" }
+          }
+        }
+      }
   ]
   
   // Define types for the order data structure
