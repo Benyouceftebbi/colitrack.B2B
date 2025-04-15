@@ -235,41 +235,47 @@ const TableRowMemo = memo(function TableRowComponent({
       <TableCell>
         {editingRow === order.id ? (
           <Select
-            value={editValues.commune || ""}
+            value={editValues.commune || "placeholder-value"}
             onValueChange={(value) => handleEditChange("commune", value)}
             disabled={!editValues.wilaya || availableCommunes.length === 0}
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select commune">{editValues.commune}</SelectValue>
+              <SelectValue placeholder="Select commune">{editValues.commune || "Select commune"}</SelectValue>
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
-              {availableCommunes
-                .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
-                .map((commune) => {
-                  // Check if this commune matches the current value using normalized comparison
-                  const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
-                  const hasStopDesk = isStopDeskAvailable(commune.namefr)
+              {availableCommunes.length > 0 ? (
+                availableCommunes
+                  .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
+                  .map((commune) => {
+                    // Check if this commune matches the current value using normalized comparison
+                    const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                    const hasStopDesk = isStopDeskAvailable(commune.namefr)
 
-                  return (
-                    <SelectItem
-                      key={commune.id}
-                      value={commune.namefr}
-                      className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span>
-                          {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
-                          {isSelected && " ✓"}
-                        </span>
-                        {!hasStopDesk && (
-                          <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                            No Stop Desk
+                    return (
+                      <SelectItem
+                        key={commune.id}
+                        value={commune.namefr || "placeholder-value"}
+                        className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <span>
+                            {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                            {isSelected && " ✓"}
                           </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  )
-                })}
+                          {!hasStopDesk && (
+                            <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                              No Stop Desk
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    )
+                  })
+              ) : (
+                <SelectItem value="placeholder-value" disabled>
+                  {editValues.wilaya ? "No communes found" : "Select wilaya first"}
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         ) : (
@@ -301,8 +307,13 @@ const TableRowMemo = memo(function TableRowComponent({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="home">À domicile</SelectItem>
-              <SelectItem value="stopdesk" disabled={!isStopDeskAvailable(editValues.commune)}>
-                Stop desk {!isStopDeskAvailable(editValues.commune) && "(Not available)"}
+              <SelectItem value="stopdesk">
+                Stop desk
+                {editValues.commune && !isStopDeskAvailable(editValues.commune) && (
+                  <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                    Non disponible
+                  </span>
+                )}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -518,11 +529,8 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
 
         setAvailableCommunes(communesList)
 
-        // Check if the current commune exists in the new wilaya using normalized comparison
-        const normalizedCurrentCommune = normalizeString(editValues.commune)
-        const communeExists = communesList.some((commune) => commune.normalizedName === normalizedCurrentCommune)
-
-        if (!communeExists && communesList.length > 0) {
+        // If there are communes available but none is selected, select the first one
+        if (!editValues.commune && communesList.length > 0) {
           setEditValues((prev) => ({
             ...prev,
             commune: communesList[0].namefr,
@@ -534,20 +542,21 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     }
   }, [editingRow, editValues.wilaya])
 
-  // Update delivery type if commune changes and stop desk is not available
+  // Don't automatically change delivery type, just update stop desk availability
   useEffect(() => {
-    if (editingRow && editValues.commune && editValues.deliveryType === "stopdesk") {
+    if (editingRow && editValues.commune) {
+      // Check stop desk availability but don't automatically change delivery type
       const stopDeskAvailable = isStopDeskAvailable(editValues.commune)
 
-      if (!stopDeskAvailable) {
-        // Automatically switch to home delivery if stop desk is not available
+      // If stop desk is not available and we have a stop desk ID, clear it
+      if (!stopDeskAvailable && editValues.stopDeskId) {
         setEditValues((prev) => ({
           ...prev,
-          deliveryType: "home",
+          stopDeskId: "", // Clear the stop desk ID if stop desk is not available
         }))
       }
     }
-  }, [editingRow, editValues.commune, editValues.deliveryType])
+  }, [editingRow, editValues.commune])
 
   // Memoize handler functions with useCallback
   const handleSelectRow = useCallback(
