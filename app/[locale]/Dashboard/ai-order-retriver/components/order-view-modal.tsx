@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo, memo } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   User,
@@ -15,7 +15,6 @@ import {
   AlertCircle,
   ShoppingBag,
   Home,
-  Building,
   Info,
   MessageSquare,
   Instagram,
@@ -30,11 +29,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import type { Order } from "../data/sample-orders"
-// Replace the import line at the top that includes algeria-regions
 import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
 import { MetaLogo } from "./meta-logo"
-
-// Add the tooltip imports
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Add a function to validate wilaya and commune after the imports but before the component
@@ -61,6 +57,51 @@ function validateRegionData(order: Order) {
   }
 }
 
+// Memoize the conversation message component
+const ConversationMessage = memo(function ConversationMessage({
+  message,
+  index,
+}: {
+  message: any
+  index: number
+}) {
+  return (
+    <div
+      key={index}
+      className={`flex ${message.sender === "client" ? "justify-start" : "justify-end"} animate-in fade-in-0 slide-in-from-bottom-3 duration-300`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <div
+        className={`max-w-[90%] rounded-lg p-3 ${
+          message.sender === "client"
+            ? "bg-gray-100 text-gray-800 dark:bg-slate-700/70 dark:text-gray-200 rounded-tl-none"
+            : "bg-indigo-600 text-white dark:bg-indigo-700 rounded-tr-none"
+        }`}
+      >
+        {message.type === "image" ? (
+          <div className="space-y-2">
+            <img
+              src={message.attachment || "/placeholder.svg?height=200&width=200"}
+              alt="Attachment"
+              className="rounded-md max-w-full max-h-[200px] object-contain"
+            />
+            <p className="text-xs italic">[Image]</p>
+          </div>
+        ) : (
+          <p dir="auto">{message.message}</p>
+        )}
+        <p
+          className={`text-xs mt-1 ${
+            message.sender === "client" ? "opacity-70 dark:text-gray-400" : "opacity-70 text-indigo-100"
+          }`}
+        >
+          {format(parseISO(message.sentAt), "MMM dd, HH:mm")}
+        </p>
+      </div>
+    </div>
+  )
+})
+
 // Add onEditOrder to the props interface
 interface OrderViewModalProps {
   order: Order
@@ -70,7 +111,6 @@ interface OrderViewModalProps {
   onEditOrder?: (order: Order, field: string, value: any) => void
 }
 
-// Update the function signature to include the new prop
 export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEditOrder }: OrderViewModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValues, setEditValues] = useState({
@@ -89,7 +129,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   })
   const [availableCommunes, setAvailableCommunes] = useState([])
 
-  // Then replace the useEffect that's causing the error
+  // Update available communes when wilaya changes
   useEffect(() => {
     if (isEditing && editValues.wilaya) {
       // Get communes for this wilaya using the normalized string comparison
@@ -122,23 +162,71 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }
   }, [isEditing, editValues.wilaya])
 
-  if (!order) return null
+  // Memoize expensive calculations
+  const validation = useMemo(() => validateRegionData(order), [order])
 
-  const handleEditChange = (field: string, value: any) => {
+  const totalPrice = useMemo(() => {
+    return isEditing
+      ? Number(editValues.articlePrice) + Number(editValues.deliveryCost)
+      : order.orderData.total_price.value / 100
+  }, [isEditing, editValues.articlePrice, editValues.deliveryCost, order.orderData.total_price.value])
+
+  // Calculate confidence rate as average of all confidence values
+  const confidenceRate = useMemo(() => {
+    let totalConfidence = 0
+    let count = 0
+
+    // Client name confidence
+    if (order.orderData.client_name?.confidence) {
+      totalConfidence += order.orderData.client_name.confidence
+      count++
+    }
+
+    // Phone number confidence
+    if (order.orderData.phone_number?.confidence) {
+      totalConfidence += order.orderData.phone_number.confidence
+      count++
+    }
+
+    // Articles confidence
+    if (order.orderData.articles && order.orderData.articles.length > 0) {
+      order.orderData.articles.forEach((article) => {
+        if (article.name?.confidence) {
+          totalConfidence += article.name.confidence
+          count++
+        }
+      })
+    }
+
+    // Address confidence
+    if (order.orderData.address?.confidence) {
+      totalConfidence += order.orderData.address.confidence
+      count++
+    }
+
+    // Return average as percentage
+    return count > 0 ? Math.round((totalConfidence / count) * 100) : 0
+  }, [order.orderData])
+
+  const confidenceBadgeColor = useMemo(() => {
+    if (confidenceRate >= 90) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+    if (confidenceRate >= 75) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+  }, [confidenceRate])
+
+  // Memoize handler functions
+  const handleEditChange = useCallback((field: string, value: any) => {
     setEditValues((prev) => ({
       ...prev,
       [field]: value,
     }))
-  }
+  }, [])
 
   // Update the startEditing function to handle accented characters
-  const startEditing = () => {
+  const startEditing = useCallback(() => {
     // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
     const communeName = order.orderData.commune.name_fr.value
-
-    console.log("Starting edit with wilaya:", wilayaName)
-    console.log("Starting edit with commune:", communeName)
 
     // Find the exact wilaya in the list to ensure we have the correct format
     const allWilayas = getAllWilayas()
@@ -151,7 +239,6 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
     // Get communes for this wilaya
     const communes = getCommunesByWilayaName(exactWilayaName)
-    console.log("Found communes:", communes.length)
 
     if (communes.length > 0) {
       // Find the matching commune to get the exact name format
@@ -188,7 +275,6 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         additionalInfo: order.orderData.additional_information?.value || "",
       }
 
-      console.log("Initial edit values:", initialValues)
       setEditValues(initialValues)
     } else {
       // If no communes found, use the original values
@@ -209,15 +295,17 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }
 
     setIsEditing(true)
-  }
+  }, [order])
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setIsEditing(false)
     setAvailableCommunes([])
-  }
+  }, [])
 
   // Also update the saveChanges function to use normalizeString instead of compareNormalizedStrings
-  const saveChanges = () => {
+  const saveChanges = useCallback(() => {
+    if (!onEditOrder) return
+
     // Get the original order values to compare with edited values
     const originalValues = {
       clientName: order.orderData.client_name.value,
@@ -250,55 +338,37 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     // Exit edit mode
     setIsEditing(false)
     setAvailableCommunes([])
-  }
+  }, [editValues, order, onEditOrder])
 
-  const totalPrice = isEditing
-    ? Number(editValues.articlePrice) + Number(editValues.deliveryCost)
-    : order.orderData.total_price.value / 100
+  // Memoize the conversation section
+  const ConversationSection = useMemo(() => {
+    return (
+      <Card className="border dark:border-gray-700 h-full">
+        <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
+          <CardTitle className="text-base font-medium flex items-center">
+            <MessageSquare className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
+            Conversation History
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="max-h-[600px] overflow-y-auto p-4 space-y-4">
+            {order.conversation && order.conversation.length > 0 ? (
+              order.conversation.map((message, index) => (
+                <ConversationMessage key={index} message={message} index={index} />
+              ))
+            ) : (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                No conversation history available.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }, [order.conversation])
 
-  // Calculate confidence rate as average of all confidence values
-  const calculateConfidenceRate = () => {
-    let totalConfidence = 0
-    let count = 0
-
-    // Client name confidence
-    if (order.orderData.client_name?.confidence) {
-      totalConfidence += order.orderData.client_name.confidence
-      count++
-    }
-
-    // Phone number confidence
-    if (order.orderData.phone_number?.confidence) {
-      totalConfidence += order.orderData.phone_number.confidence
-      count++
-    }
-
-    // Articles confidence
-    if (order.orderData.articles && order.orderData.articles.length > 0) {
-      order.orderData.articles.forEach((article) => {
-        if (article.name?.confidence) {
-          totalConfidence += article.name.confidence
-          count++
-        }
-      })
-    }
-
-    // Address confidence
-    if (order.orderData.address?.confidence) {
-      totalConfidence += order.orderData.address.confidence
-      count++
-    }
-
-    // Return average as percentage
-    return count > 0 ? Math.round((totalConfidence / count) * 100) : 0
-  }
-
-  const confidenceRate = calculateConfidenceRate()
-  const getConfidenceBadgeColor = (percentage: number) => {
-    if (percentage >= 90) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-    if (percentage >= 75) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-  }
+  // Don't render if not open to improve performance
+  if (!isOpen) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -538,7 +608,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center">
-                      <Badge className={cn("mr-2", getConfidenceBadgeColor(confidenceRate))}>{confidenceRate}%</Badge>
+                      <Badge className={cn("mr-2", confidenceBadgeColor)}>{confidenceRate}%</Badge>
                       <span className="text-sm text-gray-500 dark:text-gray-400">Confidence</span>
                     </div>
 
@@ -578,16 +648,11 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
                             <SelectValue placeholder="Select type">
-                              {editValues.deliveryType === "home"
-                                ? "À domicile"
-                                : editValues.deliveryType === "stopdesk"
-                                  ? "Stop desk"
-                                  : ""}
+                              {editValues.deliveryType === "home" ? "À domicile" : ""}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="home">À domicile</SelectItem>
-                            <SelectItem value="stopdesk">Stop desk</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
@@ -598,10 +663,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                               <span className="font-medium dark:text-gray-200">À domicile</span>
                             </>
                           ) : (
-                            <>
-                              <Building className="h-4 w-4 mr-1 text-indigo-600 dark:text-indigo-400" />
-                              <span className="font-medium dark:text-gray-200">Stop desk</span>
-                            </>
+                            <></>
                           )}
                         </div>
                       )}
@@ -667,7 +729,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           <p className="font-medium dark:text-gray-200">
                             {order.orderData.wilaya.name_fr.value} ({order.orderData.wilaya.name_ar.value})
                           </p>
-                          {!validateRegionData(order).wilayaValid && (
+                          {!validation.wilayaValid && (
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
@@ -716,7 +778,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           <p className="font-medium dark:text-gray-200">
                             {order.orderData.commune.name_fr.value} ({order.orderData.commune.name_ar.value})
                           </p>
-                          {!validateRegionData(order).communeValid && (
+                          {!validation.communeValid && (
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
@@ -760,63 +822,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
             </div>
 
             {/* Right column: Conversation */}
-            <div className="col-span-1 space-y-4">
-              <Card className="border dark:border-gray-700 h-full">
-                <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
-                  <CardTitle className="text-base font-medium flex items-center">
-                    <MessageSquare className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                    Conversation History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="max-h-[600px] overflow-y-auto p-4 space-y-4">
-                    {order.conversation && order.conversation.length > 0 ? (
-                      order.conversation.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${message.sender === "client" ? "justify-start" : "justify-end"} animate-in fade-in-0 slide-in-from-bottom-3 duration-300`}
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          <div
-                            className={`max-w-[90%] rounded-lg p-3 ${
-                              message.sender === "client"
-                                ? "bg-gray-100 text-gray-800 dark:bg-slate-700/70 dark:text-gray-200 rounded-tl-none"
-                                : "bg-indigo-600 text-white dark:bg-indigo-700 rounded-tr-none"
-                            }`}
-                          >
-                            {message.type === "image" ? (
-                              <div className="space-y-2">
-                                <img
-                                  src={message.attachment || "/placeholder.svg?height=200&width=200"}
-                                  alt="Attachment"
-                                  className="rounded-md max-w-full max-h-[200px] object-contain"
-                                />
-                                <p className="text-xs italic">[Image]</p>
-                              </div>
-                            ) : (
-                              <p dir="auto">{message.message}</p>
-                            )}
-                            <p
-                              className={`text-xs mt-1 ${
-                                message.sender === "client"
-                                  ? "opacity-70 dark:text-gray-400"
-                                  : "opacity-70 text-indigo-100"
-                              }`}
-                            >
-                              {format(parseISO(message.sentAt), "MMM dd, HH:mm")}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                        No conversation history available.
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <div className="col-span-1 space-y-4">{ConversationSection}</div>
           </div>
         </div>
       </DialogContent>

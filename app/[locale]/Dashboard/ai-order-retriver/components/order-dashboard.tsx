@@ -1,21 +1,58 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useMemo, lazy, Suspense } from "react"
 import { DashboardHeader } from "./dashboard-header"
 import { StatsCards } from "./stats-cards"
 import { OrdersTable } from "./orders-table"
-import { OrderViewModal } from "./order-view-modal"
 import { TableActionButtons } from "./table-action-buttons"
-import { OrderHistorySheet } from "./order-history-sheet"
-import { FacebookAuthDialog } from "./facebook-auth-dialog"
-import { useToast } from "@/hooks/use-toast"
-import { orders as initialOrders, type Order } from "../data/sample-orders"
 import { Button } from "@/components/ui/button"
 import { History } from "lucide-react"
-import { validateRegionData } from "./validation-utils" // We'll create this utility file
+import { useToast } from "@/hooks/use-toast"
+import { orders as initialOrders, type Order } from "../data/sample-orders"
+import { validateRegionData } from "./validation-utils"
+
+// Lazy load heavy components
+const OrderViewModal = lazy(() => import("./order-view-modal").then((mod) => ({ default: mod.OrderViewModal })))
+const OrderHistorySheet = lazy(() =>
+  import("./order-history-sheet").then((mod) => ({ default: mod.OrderHistorySheet })),
+)
+const FacebookAuthDialog = lazy(() =>
+  import("./facebook-auth-dialog").then((mod) => ({ default: mod.FacebookAuthDialog })),
+)
+
+// Create a context for orders data to avoid prop drilling
+import { createContext, useContext } from "react"
+
+// Create a context for orders data
+type OrdersContextType = {
+  orders: Order[]
+  selectedRows: string[]
+  setSelectedRows: (rows: string[]) => void
+  handleEditOrder: (order: Order, field: string, value: any) => void
+}
+
+const OrdersContext = createContext<OrdersContextType | null>(null)
+
+export const useOrders = () => {
+  const context = useContext(OrdersContext)
+  if (!context) {
+    throw new Error("useOrders must be used within an OrdersProvider")
+  }
+  return context
+}
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
+      <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+      <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">Loading...</p>
+    </div>
+  </div>
+)
 
 export function OrderDashboard() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [orders, setOrders] = useState<Order[]>(() => initialOrders) // Use lazy initialization
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
@@ -24,115 +61,116 @@ export function OrderDashboard() {
   const [isRetrieving, setIsRetrieving] = useState(false)
   const [isFacebookConnected, setIsFacebookConnected] = useState(false)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState(() => ({
     from: new Date(2025, 3, 4), // April 4, 2025
     to: new Date(2025, 3, 5), // April 5, 2025
-  })
+  }))
+  const [isExporting, setIsExporting] = useState(false)
   const { toast } = useToast()
 
-  const handleViewOrder = (order: Order, fromHistory = false) => {
+  // Memoize handler functions with useCallback
+  const handleViewOrder = useCallback((order: Order, fromHistory = false) => {
     setSelectedOrder(order)
     setIsViewingFromHistory(fromHistory)
     setIsViewModalOpen(true)
-  }
+  }, [])
 
-  // Update the handleEditOrder function to actually update the orders array
-  const handleEditOrder = (order: Order, field: string, value: any) => {
-    // Create a deep copy of the orders array
-    const updatedOrders = orders.map((o) => {
-      if (o.id === order.id) {
-        // Create a deep copy of the order we want to update
-        const updatedOrder = { ...o }
+  const handleEditOrder = useCallback(
+    (order: Order, field: string, value: any) => {
+      setOrders((currentOrders) => {
+        return currentOrders.map((o) => {
+          if (o.id !== order.id) return o
 
-        // Update the appropriate field based on the field parameter
-        switch (field) {
-          case "clientName":
-            updatedOrder.orderData.client_name.value = value
-            break
-          case "phoneNumber":
-            updatedOrder.orderData.phone_number.value = value
-            break
-          case "articleName":
-            if (updatedOrder.orderData.articles[0]) {
-              updatedOrder.orderData.articles[0].name.value = value
-            }
-            break
-          case "articleSize":
-            if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].sizes[0]) {
-              updatedOrder.orderData.articles[0].sizes[0].value = value
-            }
-            break
-          case "articleColor":
-            if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].colors[0]) {
-              updatedOrder.orderData.articles[0].colors[0].value = value
-            }
-            break
-          case "price":
-          case "articlePrice":
-            if (updatedOrder.orderData.articles[0]) {
-              updatedOrder.orderData.articles[0].total_article_price.value = value * 100
+          // Create a deep copy of the order we want to update
+          const updatedOrder = { ...o }
+
+          // Update the appropriate field based on the field parameter
+          switch (field) {
+            case "clientName":
+              updatedOrder.orderData.client_name.value = value
+              break
+            case "phoneNumber":
+              updatedOrder.orderData.phone_number.value = value
+              break
+            case "articleName":
+              if (updatedOrder.orderData.articles[0]) {
+                updatedOrder.orderData.articles[0].name.value = value
+              }
+              break
+            case "articleSize":
+              if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].sizes[0]) {
+                updatedOrder.orderData.articles[0].sizes[0].value = value
+              }
+              break
+            case "articleColor":
+              if (updatedOrder.orderData.articles[0] && updatedOrder.orderData.articles[0].colors[0]) {
+                updatedOrder.orderData.articles[0].colors[0].value = value
+              }
+              break
+            case "price":
+            case "articlePrice":
+              if (updatedOrder.orderData.articles[0]) {
+                updatedOrder.orderData.articles[0].total_article_price.value = value * 100
+                // Also update the total price
+                updatedOrder.orderData.total_price.value =
+                  updatedOrder.orderData.articles[0].total_article_price.value +
+                  updatedOrder.orderData.delivery_cost.value
+              }
+              break
+            case "deliveryPrice":
+            case "deliveryCost":
+              updatedOrder.orderData.delivery_cost.value = value * 100
               // Also update the total price
               updatedOrder.orderData.total_price.value =
-                updatedOrder.orderData.articles[0].total_article_price.value +
+                (updatedOrder.orderData.articles[0]?.total_article_price.value || 0) +
                 updatedOrder.orderData.delivery_cost.value
-            }
-            break
-          case "deliveryPrice":
-          case "deliveryCost":
-            updatedOrder.orderData.delivery_cost.value = value * 100
-            // Also update the total price
-            updatedOrder.orderData.total_price.value =
-              (updatedOrder.orderData.articles[0]?.total_article_price.value || 0) +
-              updatedOrder.orderData.delivery_cost.value
-            break
-          case "address":
-            updatedOrder.orderData.address.value = value
-            break
-          case "wilaya":
-            updatedOrder.orderData.wilaya.name_fr.value = value
-            break
-          case "commune":
-            updatedOrder.orderData.commune.name_fr.value = value
-            break
-          case "deliveryType":
-            updatedOrder.orderData.delivery_type.value = value
-            break
-          case "additionalInfo":
-            if (!updatedOrder.orderData.additional_information) {
-              updatedOrder.orderData.additional_information = {
-                confidence: 0.8,
-                description: value,
-                value: value,
+              break
+            case "address":
+              updatedOrder.orderData.address.value = value
+              break
+            case "wilaya":
+              updatedOrder.orderData.wilaya.name_fr.value = value
+              break
+            case "commune":
+              updatedOrder.orderData.commune.name_fr.value = value
+              break
+            case "deliveryType":
+              updatedOrder.orderData.delivery_type.value = value
+              break
+            case "additionalInfo":
+              if (!updatedOrder.orderData.additional_information) {
+                updatedOrder.orderData.additional_information = {
+                  confidence: 0.8,
+                  description: value,
+                  value: value,
+                }
+              } else {
+                updatedOrder.orderData.additional_information.value = value
+                updatedOrder.orderData.additional_information.description = value
               }
-            } else {
-              updatedOrder.orderData.additional_information.value = value
-              updatedOrder.orderData.additional_information.description = value
-            }
-            break
-          default:
-            console.warn(`Unknown field: ${field}`)
-        }
+              break
+            default:
+              console.warn(`Unknown field: ${field}`)
+          }
 
-        return updatedOrder
-      }
-      return o
-    })
+          return updatedOrder
+        })
+      })
 
-    // Update the orders state
-    setOrders(updatedOrders)
+      // Show toast notification
+      toast({
+        title: "Order Updated",
+        description: `Order #${order.id} has been updated.`,
+      })
+    },
+    [toast],
+  )
 
-    // Show toast notification
-    toast({
-      title: "Order Updated",
-      description: `Order #${order.id} has been updated.`,
-    })
-  }
-
-  const showFacebookAuth = () => {
+  const showFacebookAuth = useCallback(() => {
     setIsFacebookAuthOpen(true)
-  }
+  }, [])
 
-  const handleFacebookAuth = async () => {
+  const handleFacebookAuth = useCallback(async () => {
     // In a real app, this would initiate the Meta OAuth flow
     setIsRetrieving(true)
 
@@ -163,17 +201,17 @@ export function OrderDashboard() {
     })
 
     setIsRetrieving(false)
-  }
+  }, [toast])
 
-  const handleExcelExport = () => {
+  const handleExcelExport = useCallback(() => {
     // In a real app, this would generate and download an Excel file
     toast({
       title: "Exporting to Excel",
       description: "Your export will download shortly.",
     })
-  }
+  }, [toast])
 
-  const handleShippingExport = () => {
+  const handleShippingExport = useCallback(async () => {
     if (selectedRows.length === 0) {
       toast({
         title: "No Orders Selected",
@@ -183,154 +221,245 @@ export function OrderDashboard() {
       return
     }
 
-    // Filter selected orders to find those with valid and invalid data
-    const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
-    const validOrders: Order[] = []
-    const invalidOrders: { order: Order; issues: string[] }[] = []
+    // Set loading state to true
+    setIsExporting(true)
 
-    // Check each selected order for validity
-    selectedOrders.forEach((order) => {
-      const validation = validateRegionData(order)
-      const issues: string[] = []
-
-      if (!validation.wilayaValid) {
-        issues.push("Invalid wilaya")
-      }
-
-      if (!validation.communeValid) {
-        issues.push("Invalid commune")
-      }
-
-      if (issues.length === 0) {
-        validOrders.push(order)
-      } else {
-        invalidOrders.push({ order, issues })
-      }
+    // Show loading toast
+    toast({
+      title: "Checking with shipping provider",
+      description: "Verifying delivery availability for selected orders...",
     })
 
-    // Update the status of ONLY valid orders to "confirmed"
-    const updatedOrders = orders.map((order) => {
-      if (validOrders.some((validOrder) => validOrder.id === order.id)) {
-        return { ...order, status: "confirmed" }
-      }
-      return order
-    })
+    try {
+      // Get selected orders - memoize this calculation
+      const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
 
-    setOrders(updatedOrders)
+      // Simulate backend processing time
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // Show appropriate toast messages
-    if (validOrders.length > 0) {
-      toast({
-        title: "Exporting to Shipping Provider",
-        description: `Exported ${validOrders.length} orders to shipping provider. Status changed to confirmed.`,
+      // Check for issues in the selected orders
+      const invalidOrders = selectedOrders.filter((order) => {
+        const validation = validateRegionData(order)
+        // Make sure to check all validation criteria
+        return !validation.wilayaValid || !validation.communeValid || !validation.deliveryTypeValid
       })
-    }
 
-    if (invalidOrders.length > 0) {
-      const orderIds = invalidOrders.map((item) => `#${item.order.id}`).join(", ")
+      const validOrders = selectedOrders.filter((order) => !invalidOrders.includes(order))
 
+      // If no valid orders, show error and return
+      if (validOrders.length === 0) {
+        toast({
+          title: "Cannot Export Orders",
+          description: "All selected orders have validation issues. Please fix them before exporting.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Update the status of ONLY valid orders to "confirmed"
+      setOrders((currentOrders) => {
+        return currentOrders.map((order) => {
+          if (validOrders.some((validOrder) => validOrder.id === order.id)) {
+            return { ...order, status: "confirmed" }
+          }
+          return order
+        })
+      })
+
+      // Create detailed logs of exported and failed orders
+      const exportedOrdersLog = validOrders.map((order) => ({
+        id: order.id,
+        customerName: order.orderData.client_name.value,
+        phoneNumber: order.orderData.phone_number.value,
+        wilaya: order.orderData.wilaya.name_fr.value,
+        commune: order.orderData.commune.name_fr.value,
+        deliveryType: order.orderData.delivery_type.value,
+        totalPrice: order.orderData.total_price.value / 100,
+        status: "confirmed", // New status after export
+      }))
+
+      const failedOrdersLog = invalidOrders.map((order) => {
+        const validation = validateRegionData(order)
+        return {
+          id: order.id,
+          customerName: order.orderData.client_name.value,
+          phoneNumber: order.orderData.phone_number.value,
+          wilaya: order.orderData.wilaya.name_fr.value,
+          commune: order.orderData.commune.name_fr.value,
+          deliveryType: order.orderData.delivery_type.value,
+          totalPrice: order.orderData.total_price.value / 100,
+          validationIssues: {
+            wilayaValid: validation.wilayaValid,
+            communeValid: validation.communeValid,
+            deliveryTypeValid: validation.deliveryTypeValid,
+          },
+        }
+      })
+
+      // Log the arrays to console
+      console.log("Exported Orders:", exportedOrdersLog)
+      console.log("Failed Orders:", failedOrdersLog)
+
+      // Show appropriate toast messages
+      if (validOrders.length > 0) {
+        toast({
+          title: "Exporting to Shipping Provider",
+          description: `Exported ${validOrders.length} orders to shipping provider. Status changed to confirmed.`,
+        })
+      }
+
+      if (invalidOrders.length > 0) {
+        const orderIds = invalidOrders.map((order) => `#${order.id}`).join(", ")
+
+        toast({
+          title: "Some Orders Could Not Be Exported",
+          description: `${invalidOrders.length} orders have issues: ${orderIds}. Please fix the issues and try again.`,
+          variant: "destructive",
+        })
+      }
+
+      // Clear selection after export
+      setSelectedRows([])
+    } catch (error) {
+      console.error("Error exporting orders:", error)
       toast({
-        title: "Some Orders Could Not Be Exported",
-        description: `${invalidOrders.length} orders have missing or invalid region data: ${orderIds}. Please fix these issues before exporting.`,
+        title: "Export Failed",
+        description: "An error occurred while exporting orders. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      // Set loading state back to false
+      setIsExporting(false)
     }
+  }, [orders, selectedRows, toast])
 
-    // Clear selection after export
-    setSelectedRows([])
-  }
+  const toggleHistorySheet = useCallback(() => {
+    setIsHistorySheetOpen((prev) => !prev)
+  }, [])
 
-  const toggleHistorySheet = () => {
-    setIsHistorySheetOpen(!isHistorySheetOpen)
-  }
+  const handleDisconnect = useCallback(() => {
+    setIsFacebookConnected(false)
+  }, [])
 
-  // Function to check if selected orders have any validation issues
-  const getSelectedOrdersValidationStatus = () => {
+  // Memoize the validation status calculation
+  const selectedOrdersValidationStatus = useMemo(() => {
     if (selectedRows.length === 0) return { valid: true, invalidCount: 0 }
 
     const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
     const invalidCount = selectedOrders.filter((order) => {
       const validation = validateRegionData(order)
-      return !validation.wilayaValid || !validation.communeValid
+      return !validation.wilayaValid || !validation.communeValid || !validation.deliveryTypeValid
     }).length
 
     return {
       valid: invalidCount === 0,
       invalidCount,
     }
-  }
+  }, [orders, selectedRows])
+
+  // Memoize the view order handler from history
+  const handleViewFromHistory = useCallback(
+    (order: Order) => {
+      handleViewOrder(order, true)
+      setIsHistorySheetOpen(false)
+    },
+    [handleViewOrder],
+  )
+
+  // Create context value
+  const ordersContextValue = useMemo(
+    () => ({
+      orders,
+      selectedRows,
+      setSelectedRows,
+      handleEditOrder,
+    }),
+    [orders, selectedRows, handleEditOrder],
+  )
+
+  // Memoize the filtered orders for the current date range
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const orderDate = new Date(order.timestamp)
+      return orderDate >= dateRange.from && orderDate <= new Date(dateRange.to.getTime() + 24 * 60 * 60 * 1000 - 1)
+    })
+  }, [orders, dateRange])
 
   return (
-    <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 space-y-4 md:space-y-6">
-      <DashboardHeader
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
-        isFacebookConnected={isFacebookConnected}
-        showFacebookAuth={showFacebookAuth}
-        onDisconnect={() => setIsFacebookConnected(false)}
-      />
-
-      <StatsCards orders={orders} dateRange={dateRange} />
-
-      <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow p-4 md:p-6 border dark:border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <TableActionButtons
-            onExcelExport={handleExcelExport}
-            onShippingExport={handleShippingExport}
-            selectedCount={selectedRows.length}
-            isRetrieving={isRetrieving}
-            isFacebookConnected={isFacebookConnected}
-            showFacebookAuth={showFacebookAuth}
-            validationStatus={getSelectedOrdersValidationStatus()}
-          />
-
-          <Button
-            variant="outline"
-            onClick={toggleHistorySheet}
-            className="ml-2 border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20"
-          >
-            <History className="mr-2 h-4 w-4" />
-            Order History
-          </Button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <OrdersTable
-            orders={orders}
-            onViewOrder={(order) => handleViewOrder(order, false)}
-            onEditOrder={handleEditOrder}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-            dateRange={dateRange}
-          />
-        </div>
-      </div>
-
-      {selectedOrder && (
-        <OrderViewModal
-          order={selectedOrder}
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          readOnly={isViewingFromHistory}
-          onEditOrder={handleEditOrder}
+    <OrdersContext.Provider value={ordersContextValue}>
+      <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 space-y-4 md:space-y-6">
+        <DashboardHeader
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          isFacebookConnected={isFacebookConnected}
+          showFacebookAuth={showFacebookAuth}
+          onDisconnect={handleDisconnect}
         />
-      )}
 
-      <OrderHistorySheet
-        isOpen={isHistorySheetOpen}
-        onClose={() => setIsHistorySheetOpen(false)}
-        orders={orders}
-        onViewOrder={(order) => {
-          handleViewOrder(order, true)
-          setIsHistorySheetOpen(false)
-        }}
-      />
+        <StatsCards orders={filteredOrders} dateRange={dateRange} />
 
-      <FacebookAuthDialog
-        isOpen={isFacebookAuthOpen}
-        onClose={() => setIsFacebookAuthOpen(false)}
-        onAuthenticate={handleFacebookAuth}
-      />
-    </div>
+        <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow p-4 md:p-6 border dark:border-gray-700">
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
+            <div className="flex flex-wrap gap-3">
+              <TableActionButtons
+                onExcelExport={handleExcelExport}
+                onShippingExport={handleShippingExport}
+                selectedCount={selectedRows.length}
+                isRetrieving={isRetrieving}
+                isExporting={isExporting}
+                isFacebookConnected={isFacebookConnected}
+                showFacebookAuth={showFacebookAuth}
+                validationStatus={selectedOrdersValidationStatus}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                onClick={toggleHistorySheet}
+                className="border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20"
+              >
+                <History className="mr-2 h-4 w-4" />
+                Order History
+              </Button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <OrdersTable orders={filteredOrders} onViewOrder={handleViewOrder} dateRange={dateRange} />
+          </div>
+        </div>
+
+        {/* Lazy load heavy components with Suspense */}
+        <Suspense fallback={<LoadingFallback />}>
+          {selectedOrder && isViewModalOpen && (
+            <OrderViewModal
+              order={selectedOrder}
+              isOpen={isViewModalOpen}
+              onClose={() => setIsViewModalOpen(false)}
+              readOnly={isViewingFromHistory}
+              onEditOrder={handleEditOrder}
+            />
+          )}
+
+          {isHistorySheetOpen && (
+            <OrderHistorySheet
+              isOpen={isHistorySheetOpen}
+              onClose={() => setIsHistorySheetOpen(false)}
+              orders={orders}
+              onViewOrder={handleViewFromHistory}
+            />
+          )}
+
+          {isFacebookAuthOpen && (
+            <FacebookAuthDialog
+              isOpen={isFacebookAuthOpen}
+              onClose={() => setIsFacebookAuthOpen(false)}
+              onAuthenticate={handleFacebookAuth}
+            />
+          )}
+        </Suspense>
+      </div>
+    </OrdersContext.Provider>
   )
 }

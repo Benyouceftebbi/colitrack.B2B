@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import type React from "react"
+
+import { useState, useMemo, useCallback, memo } from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -20,9 +22,59 @@ interface OrderHistorySheetProps {
   onViewOrder: (order: Order) => void
 }
 
-export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: OrderHistorySheetProps) {
-  // Filter only confirmed orders
-  const confirmedOrders = orders.filter((order) => order.status === "confirmed")
+// Memoize the OrderRow component to prevent re-rendering all rows
+const OrderRow = memo(function OrderRow({
+  order,
+  onViewOrder,
+}: {
+  order: Order
+  onViewOrder: (order: Order) => void
+}) {
+  const handleViewClick = useCallback(() => {
+    onViewOrder(order)
+  }, [order, onViewOrder])
+
+  return (
+    <TableRow key={order.id} className="dark:border-gray-700">
+      <TableCell className="font-medium">{order.id}</TableCell>
+      <TableCell>
+        <div>
+          <div className="font-medium">{order.orderData.client_name.value}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">{order.orderData.phone_number.value}</div>
+        </div>
+      </TableCell>
+      <TableCell>{format(parseISO(order.timestamp), "MMM dd, yyyy")}</TableCell>
+      <TableCell>{(order.orderData.total_price.value / 100).toLocaleString()} DA</TableCell>
+      <TableCell>
+        <div className="max-w-[150px] truncate" title={order.orderData.articles[0]?.name.value || ""}>
+          {order.orderData.articles[0]?.name.value || "-"}
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleViewClick}
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
+        >
+          <Eye className="h-4 w-4 mr-1" /> View
+        </Button>
+      </TableCell>
+    </TableRow>
+  )
+})
+
+// Memoize the entire OrderHistorySheet component
+export const OrderHistorySheet = memo(function OrderHistorySheet({
+  isOpen,
+  onClose,
+  orders,
+  onViewOrder,
+}: OrderHistorySheetProps) {
+  // Filter only confirmed orders - memoized
+  const confirmedOrders = useMemo(() => {
+    return orders.filter((order) => order.status === "confirmed")
+  }, [orders])
 
   // State for search and filters
   const [searchTerm, setSearchTerm] = useState("")
@@ -33,7 +85,7 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
   const [searchField, setSearchField] = useState<string>("all")
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  // Use useMemo instead of useState + useEffect for filtered orders
+  // Use useMemo for filtered orders
   const filteredOrders = useMemo(() => {
     // Start with confirmed orders
     let result = confirmedOrders
@@ -77,21 +129,94 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
     return result
   }, [confirmedOrders, searchTerm, dateRange, searchField])
 
-  const clearFilters = () => {
+  // Use useCallback for event handlers
+  const clearFilters = useCallback(() => {
     setSearchTerm("")
     setDateRange({
       from: new Date(2025, 0, 1),
       to: new Date(),
     })
     setSearchField("all")
-  }
+  }, [])
 
-  const formatDateRange = () => {
+  const formatDateRange = useCallback(() => {
     if (dateRange.from && dateRange.to) {
       return `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`
     }
     return "All time"
-  }
+  }, [dateRange])
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }, [])
+
+  const handleSearchFieldChange = useCallback((value: string) => {
+    setSearchField(value)
+  }, [])
+
+  const handleDateRangeChange = useCallback((range: { from: Date; to: Date | undefined }) => {
+    if (range) {
+      setDateRange(range)
+    }
+    if (range?.from && range?.to) {
+      setIsCalendarOpen(false)
+    }
+  }, [])
+
+  const handleCalendarReset = useCallback(() => {
+    setDateRange({ from: new Date(2025, 0, 1), to: new Date() })
+    setIsCalendarOpen(false)
+  }, [])
+
+  const toggleCalendar = useCallback(() => {
+    setIsCalendarOpen((prev) => !prev)
+  }, [])
+
+  // Memoize the empty state component
+  const EmptyState = useMemo(
+    () => (
+      <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/50 rounded-lg border dark:border-gray-700">
+        <div className="flex flex-col items-center gap-2">
+          <Filter className="h-10 w-10 text-gray-400 dark:text-gray-500" />
+          <h3 className="font-medium text-gray-700 dark:text-gray-300">No matching orders</h3>
+          <p className="text-sm">Try adjusting your search or filter criteria</p>
+          <Button variant="outline" size="sm" onClick={clearFilters} className="mt-2">
+            Clear all filters
+          </Button>
+        </div>
+      </div>
+    ),
+    [clearFilters],
+  )
+
+  // Memoize the table component
+  const OrdersTable = useMemo(
+    () => (
+      <div className="overflow-x-auto border rounded-md dark:border-gray-700">
+        <Table>
+          <TableHeader>
+            <TableRow className="dark:border-gray-700">
+              <TableHead>ID</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Total</TableHead>
+              <TableHead>Article</TableHead>
+              <TableHead className="text-right">View</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredOrders.map((order) => (
+              <OrderRow key={order.id} order={order} onViewOrder={onViewOrder} />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    ),
+    [filteredOrders, onViewOrder],
+  )
+
+  // Don't render anything if not open to improve performance
+  if (!isOpen) return null
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -119,12 +244,12 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
               <Input
                 placeholder="Search orders..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-9 h-10"
               />
             </div>
 
-            <Select value={searchField} onValueChange={setSearchField}>
+            <Select value={searchField} onValueChange={handleSearchFieldChange}>
               <SelectTrigger className="w-[140px] h-10">
                 <SelectValue placeholder="Search in..." />
               </SelectTrigger>
@@ -139,7 +264,11 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
 
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto justify-start text-left h-10 gap-2">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto justify-start text-left h-10 gap-2"
+                  onClick={toggleCalendar}
+                >
                   <Calendar className="h-4 w-4" />
                   <span className="truncate">{formatDateRange()}</span>
                 </Button>
@@ -148,26 +277,12 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
                 <CalendarComponent
                   mode="range"
                   selected={dateRange}
-                  onSelect={(range) => {
-                    if (range) {
-                      setDateRange(range)
-                    }
-                    if (range?.from && range?.to) {
-                      setIsCalendarOpen(false)
-                    }
-                  }}
+                  onSelect={handleDateRangeChange}
                   initialFocus
                   numberOfMonths={2}
                 />
                 <div className="p-3 border-t border-border flex justify-between">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setDateRange({ from: new Date(2025, 0, 1), to: new Date() })
-                      setIsCalendarOpen(false)
-                    }}
-                  >
+                  <Button variant="ghost" size="sm" onClick={handleCalendarReset}>
                     Reset
                   </Button>
                   <Button size="sm" onClick={() => setIsCalendarOpen(false)}>
@@ -184,68 +299,9 @@ export function OrderHistorySheet({ isOpen, onClose, orders, onViewOrder }: Orde
           </div>
 
           {/* Orders table */}
-          {filteredOrders.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/50 rounded-lg border dark:border-gray-700">
-              <div className="flex flex-col items-center gap-2">
-                <Filter className="h-10 w-10 text-gray-400 dark:text-gray-500" />
-                <h3 className="font-medium text-gray-700 dark:text-gray-300">No matching orders</h3>
-                <p className="text-sm">Try adjusting your search or filter criteria</p>
-                <Button variant="outline" size="sm" onClick={clearFilters} className="mt-2">
-                  Clear all filters
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto border rounded-md dark:border-gray-700">
-              <Table>
-                <TableHeader>
-                  <TableRow className="dark:border-gray-700">
-                    <TableHead>ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Article</TableHead>
-                    <TableHead className="text-right">View</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id} className="dark:border-gray-700">
-                      <TableCell className="font-medium">{order.id}</TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{order.orderData.client_name.value}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {order.orderData.phone_number.value}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{format(parseISO(order.timestamp), "MMM dd, yyyy")}</TableCell>
-                      <TableCell>{(order.orderData.total_price.value / 100).toLocaleString()} DA</TableCell>
-                      <TableCell>
-                        <div className="max-w-[150px] truncate" title={order.orderData.articles[0]?.name.value || ""}>
-                          {order.orderData.articles[0]?.name.value || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewOrder(order)}
-                          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
-                        >
-                          <Eye className="h-4 w-4 mr-1" /> View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          {filteredOrders.length === 0 ? EmptyState : OrdersTable}
         </div>
       </SheetContent>
     </Sheet>
   )
-}
-
+})
