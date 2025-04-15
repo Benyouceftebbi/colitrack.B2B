@@ -381,7 +381,11 @@ export function OrderDashboard() {
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const orderDate = new Date(order.timestamp)
-      return orderDate >= dateRange.from && orderDate <= new Date(dateRange.to.getTime() + 24 * 60 * 60 * 1000 - 1)
+      const isInDateRange =
+        orderDate >= dateRange.from && orderDate <= new Date(dateRange.to.getTime() + 24 * 60 * 60 * 1000 - 1)
+
+      // Only include orders that are not confirmed and are in the date range
+      return order.status !== "confirmed" && isInDateRange
     })
   }, [orders, dateRange])
 

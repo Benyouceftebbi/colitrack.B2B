@@ -15,10 +15,13 @@ export function StatsCards({ orders, dateRange }: StatsCardsProps) {
   // Filter orders based on date range
   const filteredOrders = orders.filter((order) => {
     const orderDate = parseISO(order.timestamp)
-    return isWithinInterval(orderDate, {
+    const isInDateRange = isWithinInterval(orderDate, {
       start: dateRange.from,
       end: new Date(dateRange.to.setHours(23, 59, 59, 999)),
     })
+
+    // Only include orders that are not confirmed
+    return isInDateRange && order.status !== "confirmed"
   })
 
   // Calculate statistics from filtered orders
@@ -67,9 +70,8 @@ function StatCard({ title, value, icon }: StatCardProps) {
           <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">{title}</p>
           <h2 className="text-xl md:text-3xl font-bold text-indigo-600 dark:text-indigo-400">{value}</h2>
         </div>
-        <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 md:p-3 rounded-full">{icon}</div>
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 md:p-3 rounded-full">{icon}</div>
       </div>
     </div>
   )
 }
-

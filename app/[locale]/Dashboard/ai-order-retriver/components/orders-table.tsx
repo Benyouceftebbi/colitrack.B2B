@@ -593,6 +593,14 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     }))
   }, [])
 
+  // Use useMemo for filtered orders
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      // Filter out confirmed orders - they should only appear in the history sheet
+      return order.status !== "confirmed"
+    })
+  }, [orders])
+
   // Inside the table row, after the delivery type cell
   return (
     <div className="rounded-md border dark:border-gray-700 overflow-x-auto">
@@ -629,7 +637,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
               </TableCell>
             </TableRow>
           ) : (
-            orders.map((order) => (
+            filteredOrders.map((order) => (
               <TableRowMemo
                 key={order.id}
                 order={order}
