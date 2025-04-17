@@ -33,6 +33,7 @@ import { MetaLogo } from "./meta-logo"
 // Add the import for Yalidin centers
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
+import { getNoastCentersByWilaya } from "../data/noast-centers"
 
 // Add a function to validate wilaya and commune after the imports but before the component
 function validateRegionData(order: Order) {
@@ -112,7 +113,7 @@ interface OrderViewModalProps {
   onEditOrder?: (order: Order, field: string, value: any) => void
 }
 
-// Update the OrderViewModal component to include stop desk selection
+// Update the OrderViewModal component to handle other shipping providers
 export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEditOrder }: OrderViewModalProps) {
   const { shopData } = useShop()
   const [isEditing, setIsEditing] = useState(false)
@@ -134,30 +135,56 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   const [availableCommunes, setAvailableCommunes] = useState([])
   const [availableStopDesks, setAvailableStopDesks] = useState([])
 
-  // Check if Yalidin Express is the delivery company
-  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
+  // Check if a shipping provider that requires stop desk is being used
+  const shippingProvider = shopData?.deliveryCompany
+  const isNoastExpress = shippingProvider?.toUpperCase() === "NOAST EXPRESS"
+  const isYalidinExpress = shippingProvider?.toUpperCase() === "YALIDIN EXPRESS"
+  const requiresStopDesk = isNoastExpress || isYalidinExpress
 
-  // Update available stop desks when commune changes
+  // Update available stop desks when wilaya or commune changes
   useEffect(() => {
-    if (isEditing && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
-      const stopDesks = getYalidinCentersForCommune(editValues.commune)
+    if (isEditing && editValues.deliveryType === "stopdesk" && requiresStopDesk) {
+      let stopDesks = []
+
+      // For NOEST Express, load centers based on wilaya, not commune
+      if (isNoastExpress) {
+        if (editValues.wilaya) {
+          // Get centers directly by wilaya
+          stopDesks = getNoastCentersByWilaya(editValues.wilaya)
+        }
+      } else if (shippingProvider === "Yalidin Express") {
+        // For Yalidin, continue using commune-based centers
+        if (editValues.commune) {
+          stopDesks = getYalidinCentersForCommune(editValues.commune)
+        }
+      }
+
       setAvailableStopDesks(stopDesks)
 
       // If there's only one stop desk, select it automatically
       if (stopDesks.length === 1 && !editValues.stopDeskId) {
         setEditValues((prev) => ({
           ...prev,
-          stopDeskId: stopDesks[0].center_id.toString(),
+          stopDeskId: stopDesks[0].center_id ? stopDesks[0].center_id.toString() : stopDesks[0].key,
         }))
       }
     } else {
       setAvailableStopDesks([])
     }
-  }, [isEditing, editValues.commune, editValues.deliveryType, isYalidinExpress])
+  }, [
+    isEditing,
+    editValues.wilaya,
+    editValues.commune,
+    editValues.deliveryType,
+    requiresStopDesk,
+    shippingProvider,
+    isNoastExpress,
+    isYalidinExpress,
+  ])
 
   // Add this useEffect to update available communes when wilaya changes
   useEffect(() => {
-    if (isEditing && editValues.wilaya) {
+    if (isEditing && editValues.wilaya && (!isNoastExpress || (isNoastExpress && editValues.deliveryType === "home"))) {
       // Get communes for this wilaya
       const communes = getCommunesByWilayaName(editValues.wilaya)
 
@@ -183,7 +210,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         setAvailableCommunes([])
       }
     }
-  }, [isEditing, editValues.wilaya])
+  }, [isEditing, editValues.wilaya, editValues.deliveryType, isNoastExpress])
 
   // Memoize expensive calculations
   const validation = useMemo(() => validateRegionData(order), [order])
@@ -245,7 +272,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }))
   }, [])
 
-  // Add to the startEditing function to include stop desk information
+  // Update the startEditing function to load NOEST centers based on wilaya
   const startEditing = useCallback(() => {
     // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
@@ -263,7 +290,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     // Get communes for this wilaya
     const communes = getCommunesByWilayaName(exactWilayaName)
 
-    if (communes.length > 0) {
+    if (communes.length > 0 && !isNoastExpress) {
       // Find the matching commune to get the exact name format
       const matchingCommune = communes.find(
         (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
@@ -301,7 +328,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
       setEditValues(initialValues)
     } else {
-      // If no communes found, use the original values
+      // If no communes found or using NOEST Express, use the original values
       setEditValues({
         clientName: order.orderData.client_name.value,
         phoneNumber: order.orderData.phone_number.value,
@@ -328,19 +355,28 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       stopDeskId,
     }))
 
-    // If delivery type is stopdesk and Yalidin Express is the delivery company,
+    // If delivery type is stopdesk and we have a shipping provider that requires stop desks,
     // load available stop desks
-    if (order.orderData.delivery_type.value === "stopdesk" && shopData?.deliveryCompany === "Yalidin Express") {
-      const stopDesks = getYalidinCentersForCommune(order.orderData.commune.name_fr.value)
+    if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
+      let stopDesks = []
+
+      if (isNoastExpress) {
+        // For NOEST Express, load centers based on wilaya
+        stopDesks = getNoastCentersByWilaya(wilayaName)
+      } else if (shippingProvider === "Yalidin Express") {
+        stopDesks = getYalidinCentersForCommune(order.orderData.commune.name_fr.value)
+      }
+
       setAvailableStopDesks(stopDesks)
     }
 
     setIsEditing(true)
-  }, [order, shopData])
+  }, [order, requiresStopDesk, shippingProvider, isNoastExpress, isYalidinExpress])
 
   const cancelEditing = useCallback(() => {
     setIsEditing(false)
     setAvailableCommunes([])
+    setAvailableStopDesks([])
   }, [])
 
   // Also update the saveChanges function to use normalizeString instead of compareNormalizedStrings
@@ -415,13 +451,16 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   }, [order.conversation])
 
   // Function to check if stop desk is available for a commune
-  const isStopDeskAvailable = useCallback(
+  const isStopDeskAvailableForCommune = useCallback(
     (communeName: string) => {
-      if (!isYalidinExpress) return true // If not Yalidin Express, stop desks are always "available"
+      if (isNoastExpress) return true // For NOEST Express, stop desks are always available
+      if (!requiresStopDesk) return true // If not a provider that requires stop desk, stop desks are always "available"
+
+      // For Yalidin Express, check if the commune has stop desks
       const stopDesks = getYalidinCentersForCommune(communeName)
       return stopDesks.length > 0
     },
-    [isYalidinExpress],
+    [requiresStopDesk, isNoastExpress],
   )
 
   // Don't render if not open to improve performance
@@ -714,7 +753,16 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="home">À domicile</SelectItem>
-                            <SelectItem value="stopdesk">Point de relais</SelectItem>
+                            <SelectItem value="stopdesk">
+                              Point de relais
+                              {!isNoastExpress &&
+                                editValues.commune &&
+                                !isStopDeskAvailableForCommune(editValues.commune) && (
+                                  <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                                    Non disponible
+                                  </span>
+                                )}
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
@@ -736,7 +784,8 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       )}
                     </div>
 
-                    {editValues.deliveryType === "stopdesk" && isYalidinExpress && (
+                    {/* Only show stop desk selection for providers that require it */}
+                    {editValues.deliveryType === "stopdesk" && requiresStopDesk ? (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">Stop Desk</p>
                         {isEditing ? (
@@ -760,11 +809,15 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                                   <SelectItem value="no_selection">Select a stop desk</SelectItem>
                                   {availableStopDesks
                                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
-                                    .map((desk) => (
-                                      <SelectItem key={desk.center_id} value={desk.center_id.toString()}>
-                                        {desk.name}
-                                      </SelectItem>
-                                    ))}
+                                    .map((desk) => {
+                                      // Use key for NOEST centers and center_id for Yalidin centers
+                                      const centerId = isNoastExpress ? desk.key : desk.center_id
+                                      return (
+                                        <SelectItem key={centerId} value={centerId?.toString() || ""}>
+                                          {desk.name} {isNoastExpress && desk.code ? `(${desk.code})` : ""}
+                                        </SelectItem>
+                                      )
+                                    })}
                                 </>
                               )}
                             </SelectContent>
@@ -775,7 +828,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           </p>
                         )}
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <div className="space-y-1">
@@ -836,27 +889,92 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         <Select
                           value={editValues.commune || "placeholder-value"}
                           onValueChange={(value) => handleEditChange("commune", value)}
-                          disabled={!editValues.wilaya}
+                          disabled={
+                            !editValues.wilaya ||
+                            availableCommunes.length === 0 ||
+                            (isNoastExpress && editValues.deliveryType === "stopdesk")
+                          }
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
                             <SelectValue placeholder="Select commune">
-                              {editValues.commune ? editValues.commune : "Select wilaya first"}
+                              {isNoastExpress && editValues.deliveryType === "stopdesk"
+                                ? "Not required for NOEST"
+                                : editValues.commune || "Select commune"}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {availableCommunes.length > 0 ? (
+                            {isNoastExpress && editValues.deliveryType === "stopdesk" ? (
+                              <SelectItem value="placeholder-value" disabled>
+                                Not required for NOEST Express
+                              </SelectItem>
+                            ) : isNoastExpress ? (
+                              // For NOEST Express, add the wilaya as a commune option
+                              <>
+                                <SelectItem value={editValues.wilaya}>{editValues.wilaya} (Same as Wilaya)</SelectItem>
+                                {availableCommunes.length > 0 ? (
+                                  availableCommunes
+                                    .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
+                                    .map((commune) => {
+                                      // Check if this commune matches the current value using normalized comparison
+                                      const isSelected =
+                                        normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                                      const hasStopDesk = isStopDeskAvailableForCommune(commune.namefr)
+
+                                      return (
+                                        <SelectItem
+                                          key={commune.id}
+                                          value={commune.namefr || "placeholder-value"}
+                                          className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                                        >
+                                          <div className="flex items-center justify-between w-full">
+                                            <span>
+                                              {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                                              {isSelected && " ✓"}
+                                            </span>
+                                            {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
+                                              <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                                                No Stop Desk
+                                              </span>
+                                            )}
+                                          </div>
+                                        </SelectItem>
+                                      )
+                                    })
+                                ) : (
+                                  <SelectItem value="placeholder-value" disabled>
+                                    {editValues.wilaya ? "No communes found" : "Select wilaya first"}
+                                  </SelectItem>
+                                )}
+                              </>
+                            ) : availableCommunes.length > 0 ? (
                               availableCommunes
                                 .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
-                                .map((commune) => (
-                                  <SelectItem key={commune.id} value={commune.namefr || "placeholder-value"}>
-                                    {commune.namefr}
-                                    {!isStopDeskAvailable(commune.namefr) && (
-                                      <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                                        No Stop Desk
-                                      </span>
-                                    )}
-                                  </SelectItem>
-                                ))
+                                .map((commune) => {
+                                  // Check if this commune matches the current value using normalized comparison
+                                  const isSelected =
+                                    normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                                  const hasStopDesk = isStopDeskAvailableForCommune(commune.namefr)
+
+                                  return (
+                                    <SelectItem
+                                      key={commune.id}
+                                      value={commune.namefr || "placeholder-value"}
+                                      className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                                    >
+                                      <div className="flex items-center justify-between w-full">
+                                        <span>
+                                          {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                                          {isSelected && " ✓"}
+                                        </span>
+                                        {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
+                                          <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                                            No Stop Desk
+                                          </span>
+                                        )}
+                                      </div>
+                                    </SelectItem>
+                                  )
+                                })
                             ) : (
                               <SelectItem value="placeholder-value" disabled>
                                 {editValues.wilaya ? "No communes found" : "Select wilaya first"}
@@ -865,14 +983,23 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="font-medium dark:text-gray-200">{order.orderData.commune.name_fr.value}</p>
+                        <p className="font-medium dark:text-gray-200">
+                          {isNoastExpress && order.orderData.delivery_type.value === "stopdesk" ? (
+                            <span className="text-gray-500 dark:text-gray-400 italic">Not required for NOEST</span>
+                          ) : order.orderData.commune.name_fr.value ? (
+                            order.orderData.commune.name_fr.value
+                          ) : (
+                            <span className="text-gray-500 dark:text-gray-400 italic">Not specified</span>
+                          )}
+                        </p>
                       )}
-                      {!validation.communeValid && (
-                        <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
-                          <AlertTriangle className="h-4 w-4 mr-1" />
-                          Invalid commune
-                        </div>
-                      )}
+                      {!validation.communeValid &&
+                        !(isNoastExpress && order.orderData.delivery_type.value === "stopdesk") && (
+                          <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
+                            <AlertTriangle className="h-4 w-4 mr-1" />
+                            Invalid commune
+                          </div>
+                        )}
                     </div>
                   </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo, lazy, Suspense } from "react"
+import { useState, useCallback, useMemo, lazy, Suspense, useEffect } from "react"
 import { DashboardHeader } from "./dashboard-header"
 import { StatsCards } from "./stats-cards"
 import { OrdersTable } from "./orders-table"
@@ -25,6 +25,9 @@ import { createContext, useContext } from "react"
 
 // Create the import for Yalidin centers
 import { getYalidinCenterById } from "../data/yalidin-centers"
+
+// Add the import for Noast centers:
+import { getNoastCenterById } from "../data/noast-centers"
 
 // Create a context for orders data
 type OrdersContextType = {
@@ -54,6 +57,26 @@ const LoadingFallback = () => (
   </div>
 )
 
+// Mock shopData or fetch it from an API
+import { useShop } from "@/app/context/ShopContext"
+
+// Helper function to get center by ID
+const getCenterById = (id: string, deliveryCompany: string) => {
+  if (deliveryCompany && deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
+    return getYalidinCenterById(id)
+  } else if (deliveryCompany && deliveryCompany.toUpperCase() === "NOEST EXPRESS") {
+    return getNoastCenterById(id)
+  }
+  return undefined
+}
+
+// Helper function to find commune ID for NOEST Express with improved matching
+const findNoestCommuneId = (wilayaName: string): string | undefined => {
+  // Use the improved getNoastCommuneIdByWilaya function that handles different spellings and accents
+  const { getNoastCommuneIdByWilaya } = require("../data/noast-centers")
+  return getNoastCommuneIdByWilaya(wilayaName)
+}
+
 export function OrderDashboard() {
   const [orders, setOrders] = useState<Order[]>(() => initialOrders) // Use lazy initialization
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
@@ -64,12 +87,31 @@ export function OrderDashboard() {
   const [isRetrieving, setIsRetrieving] = useState(false)
   const [isFacebookConnected, setIsFacebookConnected] = useState(false)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
-  const [dateRange, setDateRange] = useState(() => ({
-    from: new Date(2025, 3, 4), // April 4, 2025
-    to: new Date(2025, 3, 5), // April 5, 2025
-  }))
+  const [dateRange, setDateRange] = useState(() => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    return {
+      from: yesterday, // Yesterday
+      to: today, // Today
+    }
+  })
   const [isExporting, setIsExporting] = useState(false)
   const { toast } = useToast()
+
+  // Initialize shopData with deliveryCompany
+  const { shopData, setShopData } = useShop()
+
+  // Initialize shopData with deliveryCompany if not already set
+  useEffect(() => {
+    if (!shopData.deliveryCompany) {
+      setShopData((prev) => ({
+        ...prev,
+        deliveryCompany: "XX", // Default value
+      }))
+    }
+  }, [shopData, setShopData])
 
   // Memoize handler functions with useCallback
   const handleViewOrder = useCallback((order: Order, fromHistory = false) => {
@@ -157,11 +199,20 @@ export function OrderDashboard() {
             case "stopDeskId":
               // If stop desk ID is provided, get the center information
               if (value) {
-                const center = getYalidinCenterById(value)
+                const center = getCenterById(value, shopData.deliveryCompany)
                 if (center) {
-                  updatedOrder.orderData.stop_desk = {
-                    id: value,
-                    name: center.name,
+                  // Handle different structures for Yalidin and Noast
+                  if (shopData.deliveryCompany === "NOEST EXPRESS") {
+                    updatedOrder.orderData.stop_desk = {
+                      id: value,
+                      name: center.name,
+                      code: center.code,
+                    }
+                  } else {
+                    updatedOrder.orderData.stop_desk = {
+                      id: value,
+                      name: center.name,
+                    }
                   }
                 } else {
                   updatedOrder.orderData.stop_desk = {
@@ -188,7 +239,7 @@ export function OrderDashboard() {
         description: `Order #${order.id} has been updated.`,
       })
     },
-    [toast],
+    [toast, shopData.deliveryCompany],
   )
 
   const showFacebookAuth = useCallback(() => {
@@ -236,7 +287,7 @@ export function OrderDashboard() {
     })
   }, [toast])
 
-  // Update the handleShippingExport function to include stop desk information in the logs
+  // Update the handleShippingExport function to use the improved wilaya matching
   const handleShippingExport = useCallback(async () => {
     if (selectedRows.length === 0) {
       toast({
@@ -257,24 +308,39 @@ export function OrderDashboard() {
     })
 
     try {
-      // Get selected orders - memoize this calculation
+      // Get selected orders
       const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
 
       // Simulate backend processing time
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Check for issues in the selected orders
+      // Check for issues in the selected orders - STRICT VALIDATION
       const invalidOrders = selectedOrders.filter((order) => {
         const validation = validateRegionData(order, {
-          deliveryCompany: "Yalidin Express", // Pass the delivery company to the validation function
+          deliveryCompany: shopData?.deliveryCompany,
         })
-        // Make sure to check all validation criteria including stop desk
-        return (
-          !validation.wilayaValid ||
-          !validation.communeValid ||
-          !validation.deliveryTypeValid ||
-          !validation.stopDeskValid
-        )
+
+        // CRITICAL: Check for missing stop desk when delivery type is stopdesk
+        // Only for shipping providers that require stop desk (NOEST Express and Yalidin Express)
+        const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+        const requiresStopDesk = isNoestExpress || isYalidinExpress
+
+        const missingStopDesk =
+          order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
+
+        // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+        if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+          return !validation.wilayaValid || !validation.stopDeskValid || missingStopDesk
+        } else {
+          return (
+            !validation.wilayaValid ||
+            !validation.communeValid ||
+            !validation.deliveryTypeValid ||
+            (requiresStopDesk && !validation.stopDeskValid) ||
+            missingStopDesk
+          )
+        }
       })
 
       const validOrders = selectedOrders.filter((order) => !invalidOrders.includes(order))
@@ -286,8 +352,18 @@ export function OrderDashboard() {
           description: "All selected orders have validation issues. Please fix them before exporting.",
           variant: "destructive",
         })
+        setIsExporting(false)
         return
       }
+
+      // Count orders with missing stop desk
+      const missingStopDeskOrders = invalidOrders.filter((order) => {
+        const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+        const requiresStopDesk = isNoestExpress || isYalidinExpress
+
+        return order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
+      })
 
       // Update the status of ONLY valid orders to "confirmed"
       setOrders((currentOrders) => {
@@ -300,27 +376,57 @@ export function OrderDashboard() {
       })
 
       // Create detailed logs of exported and failed orders
-      const exportedOrdersLog = validOrders.map((order) => ({
-        id: order.id,
-        customerName: order.orderData.client_name.value,
-        phoneNumber: order.orderData.phone_number.value,
-        wilaya: order.orderData.wilaya.name_fr.value,
-        commune: order.orderData.commune.name_fr.value,
-        deliveryType: order.orderData.delivery_type.value,
-        totalPrice: order.orderData.total_price.value / 100,
-        status: "confirmed", // New status after export
-        // Include stop desk information if applicable
-        stopDesk:
-          order.orderData.delivery_type.value === "stopdesk"
-            ? {
-                id: order.orderData.stop_desk?.id,
-                name: order.orderData.stop_desk?.name,
-              }
-            : undefined,
-      }))
+      const { findWilayaByName, findCommuneByNameAcrossWilayas } = require("../data/algeria-regions")
+      const exportedOrdersLog = validOrders.map((order) => {
+        // Find the wilaya code and commune ID from the algeria-regions data
+        const wilayaName = order.orderData.wilaya.name_fr.value
+        const communeName = order.orderData.commune.name_fr.value
+
+        // Get wilaya code using the improved findWilayaByName function
+        const wilayaCode = findWilayaByName(wilayaName)
+
+        // Get commune ID based on delivery type and shipping provider
+        let communeId
+        const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+
+        if (order.orderData.delivery_type.value === "home") {
+          // For home delivery, get commune ID from algeria-regions data
+          const commune = findCommuneByNameAcrossWilayas(communeName)
+          communeId = commune?.id
+        } else if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+          // For NOEST Express with stopdesk, get commune ID from NOEST centers
+          // If commune is undefined, use wilaya name to find the commune ID
+          communeId = findNoestCommuneId(wilayaName)
+        }
+
+        return {
+          id: order.id,
+          customerName: order.orderData.client_name.value,
+          phoneNumber: order.orderData.phone_number.value,
+          wilaya: order.orderData.wilaya.name_fr.value,
+          wilayaCode: wilayaCode, // Add wilaya code
+          commune: order.orderData.commune.name_fr.value || wilayaName, // Use wilaya name if commune is undefined
+          communeId: communeId, // Add commune ID
+          deliveryType: order.orderData.delivery_type.value,
+          totalPrice: order.orderData.total_price.value / 100,
+          status: "confirmed", // New status after export
+          // Include stop desk information if applicable
+          stopDesk:
+            order.orderData.delivery_type.value === "stopdesk"
+              ? {
+                  id: order.orderData.stop_desk?.id,
+                  name: order.orderData.stop_desk?.name,
+                  code: order.orderData.stop_desk?.code,
+                }
+              : undefined,
+        }
+      })
 
       const failedOrdersLog = invalidOrders.map((order) => {
-        const validation = validateRegionData(order)
+        const validation = validateRegionData(order, {
+          deliveryCompany: shopData?.deliveryCompany,
+        })
+
         return {
           id: order.id,
           customerName: order.orderData.client_name.value,
@@ -333,6 +439,8 @@ export function OrderDashboard() {
             wilayaValid: validation.wilayaValid,
             communeValid: validation.communeValid,
             deliveryTypeValid: validation.deliveryTypeValid,
+            stopDeskValid: validation.stopDeskValid,
+            missingStopDesk: order.orderData.delivery_type.value === "stopdesk" && !order.orderData.stop_desk?.id,
           },
           // Include stop desk information if applicable
           stopDesk:
@@ -340,6 +448,7 @@ export function OrderDashboard() {
               ? {
                   id: order.orderData.stop_desk?.id,
                   name: order.orderData.stop_desk?.name,
+                  code: order.orderData.stop_desk?.code,
                 }
               : undefined,
         }
@@ -352,18 +461,36 @@ export function OrderDashboard() {
       // Show appropriate toast messages
       if (validOrders.length > 0) {
         toast({
-          title: "Exporting to Shipping Provider",
-          description: `Exported ${validOrders.length} orders to shipping provider. Status changed to confirmed.`,
+          title: "Export Successful",
+          description: `Successfully exported ${validOrders.length} orders to shipping provider.`,
         })
       }
 
       if (invalidOrders.length > 0) {
+        // Create a more detailed message about why orders failed
+        const stopDeskIssues = missingStopDeskOrders.length
+        const otherIssues = invalidOrders.length - stopDeskIssues
+
+        let warningMessage = `${invalidOrders.length} orders were skipped due to validation issues: `
+
+        if (stopDeskIssues > 0) {
+          warningMessage += `${stopDeskIssues} missing stop desk selection`
+        }
+
+        if (otherIssues > 0) {
+          warningMessage +=
+            stopDeskIssues > 0
+              ? `, ${otherIssues} with other validation issues`
+              : `${otherIssues} with validation issues`
+        }
+
         const orderIds = invalidOrders.map((order) => `#${order.id}`).join(", ")
+        warningMessage += `. Skipped orders: ${orderIds}`
 
         toast({
-          title: "Some Orders Could Not Be Exported",
-          description: `${invalidOrders.length} orders have issues: ${orderIds}. Please fix the issues and try again.`,
-          variant: "destructive",
+          title: "Some Orders Were Skipped",
+          description: warningMessage,
+          variant: "warning",
         })
       }
 
@@ -380,7 +507,7 @@ export function OrderDashboard() {
       // Set loading state back to false
       setIsExporting(false)
     }
-  }, [orders, selectedRows, toast])
+  }, [orders, selectedRows, toast, shopData])
 
   const toggleHistorySheet = useCallback(() => {
     setIsHistorySheetOpen((prev) => !prev)
@@ -390,21 +517,46 @@ export function OrderDashboard() {
     setIsFacebookConnected(false)
   }, [])
 
+  // Update the validation status calculation to properly count invalid orders
+
+  // Replace the selectedOrdersValidationStatus useMemo with this updated version:
   // Memoize the validation status calculation
   const selectedOrdersValidationStatus = useMemo(() => {
     if (selectedRows.length === 0) return { valid: true, invalidCount: 0 }
 
     const selectedOrders = orders.filter((order) => selectedRows.includes(order.id))
-    const invalidCount = selectedOrders.filter((order) => {
-      const validation = validateRegionData(order)
-      return !validation.wilayaValid || !validation.communeValid || !validation.deliveryTypeValid
-    }).length
+    const invalidOrders = selectedOrders.filter((order) => {
+      const validation = validateRegionData(order, {
+        deliveryCompany: shopData?.deliveryCompany,
+      })
+
+      // CRITICAL: Check for missing stop desk when delivery type is stopdesk
+      const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+      const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+      const requiresStopDesk = isNoestExpress || isYalidinExpress
+
+      const missingStopDesk =
+        order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
+
+      // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+      if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+        return !validation.wilayaValid || !validation.stopDeskValid || missingStopDesk
+      } else {
+        return (
+          !validation.wilayaValid ||
+          !validation.communeValid ||
+          !validation.deliveryTypeValid ||
+          (requiresStopDesk && !validation.stopDeskValid) ||
+          missingStopDesk
+        )
+      }
+    })
 
     return {
-      valid: invalidCount === 0,
-      invalidCount,
+      valid: invalidOrders.length === 0,
+      invalidCount: invalidOrders.length,
     }
-  }, [orders, selectedRows])
+  }, [orders, selectedRows, shopData])
 
   // Memoize the view order handler from history
   const handleViewFromHistory = useCallback(

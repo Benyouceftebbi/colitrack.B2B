@@ -15423,39 +15423,48 @@ export interface AlgeriaRegion {
         "wilaya_name": "المنيعة"
     }
 ]
-  
-  // Helper functions to work with the new data structure
-  
-  /**
-   * Normalizes a string by removing accents and converting to lowercase
-   * This helps with matching strings regardless of accents
-   * @param str The string to normalize
-   * @returns Normalized string without accents
-   */
-   export function normalizeString(str: string): string {
+ // Helper functions to work with the new data structure
+
+/**
+ * Normalizes a string by removing accents and converting to lowercase
+ * This helps with matching strings regardless of accents
+ * @param str The string to normalize
+ * @returns Normalized string without accents
+ */
+export function normalizeString(str: string): string {
     if (!str) return ""
-    
+  
     // First convert to lowercase and trim
     const lowerStr = str.toLowerCase().trim()
-    
+  
     // Handle common French accented characters directly
     // This provides a more robust fallback in case the NFD normalization doesn't work as expected
     const replacements: Record<string, string> = {
-      'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-      'à': 'a', 'â': 'a', 'ä': 'a',
-      'î': 'i', 'ï': 'i',
-      'ô': 'o', 'ö': 'o',
-      'ù': 'u', 'û': 'u', 'ü': 'u',
-      'ç': 'c',
-      'ÿ': 'y'
+      é: "e",
+      è: "e",
+      ê: "e",
+      ë: "e",
+      à: "a",
+      â: "a",
+      ä: "a",
+      î: "i",
+      ï: "i",
+      ô: "o",
+      ö: "o",
+      ù: "u",
+      û: "u",
+      ü: "u",
+      ç: "c",
+      ÿ: "y",
+      // Add Arabic normalization if needed
     }
-    
+  
     // Apply direct replacements first
     let result = lowerStr
     for (const [accented, plain] of Object.entries(replacements)) {
-      result = result.replace(new RegExp(accented, 'g'), plain)
+      result = result.replace(new RegExp(accented, "g"), plain)
     }
-    
+  
     // Then apply Unicode normalization as a second layer
     return result
       .normalize("NFD") // Normalize to decomposed form
@@ -15498,7 +15507,7 @@ export interface AlgeriaRegion {
    */
   export function getCommunesByWilayaName(wilayaName: string): AlgeriaRegion[] {
     if (!wilayaName) return []
-    
+  
     const normalizedName = normalizeString(wilayaName)
   
     // First try exact match with normalization
@@ -15530,7 +15539,7 @@ export interface AlgeriaRegion {
    */
   export function findCommuneByName(wilayaCode: string, communeName: string): AlgeriaRegion | undefined {
     if (!communeName) return undefined
-    
+  
     const normalizedName = normalizeString(communeName)
   
     // First try exact match with normalization
@@ -15563,7 +15572,7 @@ export interface AlgeriaRegion {
    */
   export function findCommuneByNameAcrossWilayas(communeName: string): AlgeriaRegion | undefined {
     if (!communeName) return undefined
-    
+  
     const normalizedName = normalizeString(communeName)
   
     // First try exact match with normalization
@@ -15587,24 +15596,32 @@ export interface AlgeriaRegion {
     )
   }
   
-  /**
-   * Find a wilaya by its name
-   * @param wilayaName The name of the wilaya (in ASCII/French or Arabic)
-   * @returns The wilaya code if found, undefined otherwise
-   */
+  // Update the findWilayaByName function to be more flexible with wilaya name matching
   export function findWilayaByName(wilayaName: string): string | undefined {
     if (!wilayaName) return undefined
-    
-    const normalizedName = normalizeString(wilayaName)
+  
+    const normalizedName = normalizeString(wilayaName).toLowerCase()
   
     // First try exact match with normalization
     const exactMatch = algeriaRegions.find(
       (region) =>
-        normalizeString(region.wilaya_name_ascii) === normalizedName ||
-        normalizeString(region.wilaya_name) === normalizedName,
+        normalizeString(region.wilaya_name_ascii).toLowerCase() === normalizedName ||
+        normalizeString(region.wilaya_name).toLowerCase() === normalizedName,
     )
   
     if (exactMatch) {
       return exactMatch.wilaya_code
     }
-}
+  
+    // If no exact match, try partial match (contains)
+    const partialMatch = algeriaRegions.find(
+      (region) =>
+        normalizeString(region.wilaya_name_ascii).toLowerCase().includes(normalizedName) ||
+        normalizedName.includes(normalizeString(region.wilaya_name_ascii).toLowerCase()) ||
+        normalizeString(region.wilaya_name).toLowerCase().includes(normalizedName) ||
+        normalizedName.includes(normalizeString(region.wilaya_name).toLowerCase()),
+    )
+  
+    return partialMatch?.wilaya_code
+  }
+  

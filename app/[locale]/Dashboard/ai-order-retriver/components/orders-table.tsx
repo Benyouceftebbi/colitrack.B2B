@@ -17,6 +17,7 @@ import { useOrders } from "./order-dashboard"
 // Add the import for Yalidin centers
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
+import { getNoastCentersByWilaya } from "../data/noast-centers"
 
 interface OrdersTableProps {
   orders: Order[]
@@ -27,13 +28,13 @@ interface OrdersTableProps {
   }
 }
 
-// Memoize the table row component to prevent re-rendering all rows
+// Update the TableRowMemo component to handle NOEST Express with stopdesk
 const TableRowMemo = memo(function TableRowComponent({
   order,
   editingRow,
   editValues,
   availableCommunes,
-  availableStopDesks, // Add this prop
+  availableStopDesks,
   handleEditChange,
   saveEditing,
   cancelEditing,
@@ -41,12 +42,14 @@ const TableRowMemo = memo(function TableRowComponent({
   onViewOrder,
   selectedRows,
   handleSelectRow,
+  isNoestExpress,
+  requiresStopDesk,
 }: {
   order: Order
   editingRow: string | null
   editValues: Record<string, any>
   availableCommunes: { id: number; namefr: string; namear: string; normalizedName?: string }[]
-  availableStopDesks: any[] // Add this prop type
+  availableStopDesks: any[]
   handleEditChange: (field: string, value: any) => void
   saveEditing: (order: Order) => void
   cancelEditing: () => void
@@ -54,6 +57,8 @@ const TableRowMemo = memo(function TableRowComponent({
   onViewOrder: (order: Order) => void
   selectedRows: string[]
   handleSelectRow: (orderId: string) => void
+  isNoestExpress: boolean
+  requiresStopDesk: boolean
 }) {
   // Memoize expensive calculations for each row
   const confidenceRate = useMemo(() => {
@@ -100,9 +105,24 @@ const TableRowMemo = memo(function TableRowComponent({
 
   const validation = useMemo(() => validateRegionData(order), [order])
 
+  // Check for validation issues based on delivery type
   const hasIssues = useMemo(() => {
-    return !validation.wilayaValid || !validation.communeValid || !validation.deliveryTypeValid
-  }, [validation])
+    // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+    if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+      return !validation.wilayaValid || !validation.stopDeskValid
+    } else if (order.orderData.delivery_type.value === "home") {
+      // For home delivery, we need valid wilaya and commune
+      return !validation.wilayaValid || !validation.communeValid
+    } else {
+      // For stop desk delivery, we need valid wilaya, commune, and stop desk
+      return (
+        !validation.wilayaValid ||
+        !validation.communeValid ||
+        !validation.deliveryTypeValid ||
+        (requiresStopDesk && !validation.stopDeskValid)
+      )
+    }
+  }, [validation, order.orderData.delivery_type.value, isNoestExpress, requiresStopDesk])
 
   const stopDeskValid = useMemo(() => {
     if (order.orderData.delivery_type.value !== "stopdesk") return true
@@ -127,26 +147,19 @@ const TableRowMemo = memo(function TableRowComponent({
 
   const { shopData } = useShop()
 
-  // Check if Yalidin Express is the delivery company
-  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
-
-  // Remove the local availableStopDesks state since it's now passed as a prop
-  // const [availableStopDesks, setAvailableStopDesks] = useState([])
-
-  // Add this useEffect inside the TableRowMemo component, right after the isYalidinExpress constant
-  // useEffect(() => {
-  //   if (editingRow === order.id && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
-  //     const stopDesks = getYalidinCentersForCommune(editValues.commune)
-  //     setAvailableStopDesks(stopDesks)
-  //   }
-  // }, [editingRow, order.id, editValues.commune, editValues.deliveryType, isYalidinExpress])
+  // Add a check for missing stop desk - CRITICAL VALIDATION
+  const missingStopDesk = useMemo(() => {
+    return order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
+  }, [order, requiresStopDesk])
 
   return (
     <TableRow
       key={order.id}
       className={`dark:border-gray-700 ${
-        hasIssues
-          ? "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+        hasIssues || missingStopDesk
+          ? missingStopDesk
+            ? "bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/40" // Stronger highlight for missing stop desk
+            : "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30"
           : "hover:bg-gray-50 dark:hover:bg-slate-800/30"
       }`}
     >
@@ -232,18 +245,69 @@ const TableRowMemo = memo(function TableRowComponent({
           </div>
         )}
       </TableCell>
+
       <TableCell>
         {editingRow === order.id ? (
           <Select
             value={editValues.commune || "placeholder-value"}
             onValueChange={(value) => handleEditChange("commune", value)}
-            disabled={!editValues.wilaya || availableCommunes.length === 0}
+            disabled={
+              !editValues.wilaya ||
+              availableCommunes.length === 0 ||
+              (isNoestExpress && editValues.deliveryType === "stopdesk")
+            }
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select commune">{editValues.commune || "Select commune"}</SelectValue>
+              <SelectValue placeholder="Select commune">
+                {isNoestExpress && editValues.deliveryType === "stopdesk"
+                  ? "Not required for NOEST"
+                  : editValues.commune || "Select commune"}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[200px]">
-              {availableCommunes.length > 0 ? (
+            <SelectContent>
+              {isNoestExpress && editValues.deliveryType === "stopdesk" ? (
+                <SelectItem value="placeholder-value" disabled>
+                  Not required for NOEST Express
+                </SelectItem>
+              ) : isNoestExpress ? (
+                // For NOEST Express, add the wilaya as a commune option
+                <>
+                  <SelectItem value={editValues.wilaya}>{editValues.wilaya} (Same as Wilaya)</SelectItem>
+                  {availableCommunes.length > 0 ? (
+                    availableCommunes
+                      .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
+                      .map((commune) => {
+                        // Check if this commune matches the current value using normalized comparison
+                        const isSelected = normalizeString(commune.namefr) === normalizeString(editValues.commune)
+                        const hasStopDesk = isStopDeskAvailable(commune.namefr)
+
+                        return (
+                          <SelectItem
+                            key={commune.id}
+                            value={commune.namefr || "placeholder-value"}
+                            className={isSelected ? "bg-indigo-50 dark:bg-indigo-900/20" : ""}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span>
+                                {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
+                                {isSelected && " ✓"}
+                              </span>
+                              {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
+                                <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
+                                  No Stop Desk
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        )
+                      })
+                  ) : (
+                    <SelectItem value="placeholder-value" disabled>
+                      {editValues.wilaya ? "No communes found" : "Select wilaya first"}
+                    </SelectItem>
+                  )}
+                </>
+              ) : availableCommunes.length > 0 ? (
                 availableCommunes
                   .sort((a, b) => a.namefr.localeCompare(b.namefr)) // Sort alphabetically
                   .map((commune) => {
@@ -262,7 +326,7 @@ const TableRowMemo = memo(function TableRowComponent({
                             {commune.namefr} {commune.namear ? `(${commune.namear})` : ""}
                             {isSelected && " ✓"}
                           </span>
-                          {!hasStopDesk && (
+                          {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
                             <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
                               No Stop Desk
                             </span>
@@ -280,22 +344,19 @@ const TableRowMemo = memo(function TableRowComponent({
           </Select>
         ) : (
           <div className="flex items-center gap-1">
-            {order.orderData.commune.name_fr.value}
-            {!validation.communeValid && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Commune not found in database. This order cannot be exported.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            {isNoestExpress && order.orderData.delivery_type.value === "stopdesk" ? (
+              <span className="text-gray-500 dark:text-gray-400 italic">Not required for NOEST</span>
+            ) : (
+              <>
+                {order.orderData.commune.name_fr.value || (
+                  <span className="text-gray-500 dark:text-gray-400 italic">Not specified</span>
+                )}
+              </>
             )}
           </div>
         )}
       </TableCell>
+
       <TableCell>
         {editingRow === order.id ? (
           <Select
@@ -309,7 +370,7 @@ const TableRowMemo = memo(function TableRowComponent({
               <SelectItem value="home">À domicile</SelectItem>
               <SelectItem value="stopdesk">
                 Stop desk
-                {editValues.commune && !isStopDeskAvailable(editValues.commune) && (
+                {!isNoestExpress && editValues.commune && !isStopDeskAvailable(editValues.commune) && (
                   <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
                     Non disponible
                   </span>
@@ -321,7 +382,7 @@ const TableRowMemo = memo(function TableRowComponent({
           <div className="flex items-center gap-1">
             {order.orderData.delivery_type.value === "home" ? "À domicile" : "Stop desk"}
 
-            {order.orderData.delivery_type.value === "stopdesk" && !stopDeskValid && (
+            {order.orderData.delivery_type.value === "stopdesk" && !stopDeskValid && !isNoestExpress && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -337,7 +398,7 @@ const TableRowMemo = memo(function TableRowComponent({
         )}
       </TableCell>
       {/* Add this after the delivery type cell */}
-      {editingRow === order.id && editValues.deliveryType === "stopdesk" && isYalidinExpress ? (
+      {editingRow === order.id && editValues.deliveryType === "stopdesk" && requiresStopDesk ? (
         <TableCell>
           <Select
             value={editValues.stopDeskId || "no_selection"}
@@ -356,11 +417,15 @@ const TableRowMemo = memo(function TableRowComponent({
                   <SelectItem value="no_selection">Select a stop desk</SelectItem>
                   {availableStopDesks
                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
-                    .map((desk) => (
-                      <SelectItem key={desk.center_id} value={desk.center_id.toString()}>
-                        {desk.name}
-                      </SelectItem>
-                    ))}
+                    .map((desk) => {
+                      // Use key for NOEST centers and center_id for Yalidin centers
+                      const centerId = isNoestExpress ? desk.key : desk.center_id
+                      return (
+                        <SelectItem key={centerId} value={centerId?.toString() || ""}>
+                          {desk.name} {isNoestExpress && desk.code ? `(${desk.code})` : ""}
+                        </SelectItem>
+                      )
+                    })}
                 </>
               )}
             </SelectContent>
@@ -368,26 +433,33 @@ const TableRowMemo = memo(function TableRowComponent({
         </TableCell>
       ) : (
         <TableCell>
-          {order.orderData.delivery_type.value === "stopdesk" && isYalidinExpress ? (
+          {order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk ? (
             <div className="flex items-center gap-1">
-              {order.orderData.stop_desk?.name || "Not selected"}
+              {order.orderData.stop_desk?.name || (
+                <span className="text-amber-600 dark:text-amber-400 font-medium">Not selected</span>
+              )}
               {order.orderData.delivery_type.value === "stopdesk" &&
-                isYalidinExpress &&
+                requiresStopDesk &&
                 !order.orderData.stop_desk?.id && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Stop desk selection is required for Yalidin Express. This order cannot be exported.</p>
+                      <TooltipContent className="bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800">
+                        <p className="font-medium text-amber-700 dark:text-amber-400">
+                          Stop desk selection is required. This order cannot be exported.
+                        </p>
+                        <p className="text-sm text-amber-600 dark:text-amber-500 mt-1">
+                          Click the edit button to select a stop desk.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 )}
             </div>
           ) : (
-            "-"
+            <span className="text-gray-500 dark:text-gray-400 italic">Not required</span>
           )}
         </TableCell>
       )}
@@ -480,7 +552,7 @@ const TableRowMemo = memo(function TableRowComponent({
   )
 })
 
-// Update the OrdersTable component to include stop desk selection
+// Update the OrdersTable component to pass requiresStopDesk to TableRowMemo
 export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, dateRange }: OrdersTableProps) {
   const { selectedRows, setSelectedRows, handleEditOrder } = useOrders()
   const { shopData } = useShop()
@@ -491,30 +563,62 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
   >([])
   const [availableStopDesks, setAvailableStopDesks] = useState([])
 
-  // Check if Yalidin Express is the delivery company
-  const isYalidinExpress = shopData?.deliveryCompany === "Yalidin Express"
+  // Check if NOEST Express is the delivery company
+  const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+  const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
 
-  // Update available stop desks when commune changes
+  // Check if a shipping provider that requires stop desk is being used
+  const requiresStopDesk = isNoestExpress || isYalidinExpress
+
+  const shippingProvider = shopData?.deliveryCompany?.toUpperCase()
+
+  // Update available stop desks when wilaya or commune changes
   useEffect(() => {
-    if (editingRow && editValues.commune && editValues.deliveryType === "stopdesk" && isYalidinExpress) {
-      const stopDesks = getYalidinCentersForCommune(editValues.commune)
+    if (editingRow && editValues.deliveryType === "stopdesk" && requiresStopDesk) {
+      let stopDesks = []
+
+      // For NOEST Express, load centers based on wilaya, not commune
+      if (isNoestExpress) {
+        if (editValues.wilaya) {
+          // Get centers directly by wilaya
+          stopDesks = getNoastCentersByWilaya(editValues.wilaya)
+        }
+      } else if (shippingProvider === "YALIDIN EXPRESS") {
+        // For Yalidin, continue using commune-based centers
+        if (editValues.commune) {
+          stopDesks = getYalidinCentersForCommune(editValues.commune)
+        }
+      }
+
       setAvailableStopDesks(stopDesks)
 
       // If there's only one stop desk, select it automatically
       if (stopDesks.length === 1 && !editValues.stopDeskId) {
         setEditValues((prev) => ({
           ...prev,
-          stopDeskId: stopDesks[0].center_id.toString(),
+          stopDeskId: stopDesks[0].center_id ? stopDesks[0].center_id.toString() : stopDesks[0].key,
         }))
       }
     } else {
       setAvailableStopDesks([])
     }
-  }, [editingRow, editValues.commune, editValues.deliveryType, isYalidinExpress])
+  }, [
+    editingRow,
+    editValues.wilaya,
+    editValues.commune,
+    editValues.deliveryType,
+    requiresStopDesk,
+    shippingProvider,
+    isNoestExpress,
+  ])
 
   // Fix the commune property in the availableCommunes array
   useEffect(() => {
-    if (editingRow && editValues.wilaya) {
+    if (
+      editingRow &&
+      editValues.wilaya &&
+      (!isNoestExpress || (isNoestExpress && editValues.deliveryType === "home"))
+    ) {
       // Get communes for this wilaya using the normalized string comparison
       const communes = getCommunesByWilayaName(editValues.wilaya)
 
@@ -540,11 +644,11 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         setAvailableCommunes([])
       }
     }
-  }, [editingRow, editValues.wilaya])
+  }, [editingRow, editValues.wilaya, editValues.deliveryType, isNoestExpress])
 
   // Don't automatically change delivery type, just update stop desk availability
   useEffect(() => {
-    if (editingRow && editValues.commune) {
+    if (editingRow && editValues.commune && !isNoestExpress) {
       // Check stop desk availability but don't automatically change delivery type
       const stopDeskAvailable = isStopDeskAvailable(editValues.commune)
 
@@ -556,7 +660,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         }))
       }
     }
-  }, [editingRow, editValues.commune])
+  }, [editingRow, editValues.commune, isNoestExpress])
 
   // Memoize handler functions with useCallback
   const handleSelectRow = useCallback(
@@ -572,7 +676,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     setSelectedRows(selectedRows.length === orders.length ? [] : orders.map((order) => order.id))
   }, [selectedRows, orders, setSelectedRows])
 
-  // Update the startEditing function to include stop desk information
+  // Update the startEditing function to handle commune selection for NOEST Express with home delivery
   const startEditing = useCallback(
     (order: Order) => {
       // Get the exact wilaya name as it appears in the data
@@ -591,7 +695,12 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       // Get communes for this wilaya
       const communes = getCommunesByWilayaName(exactWilayaName)
 
-      if (communes.length > 0) {
+      // For NOEST Express with stopdesk, we don't need commune
+      // For all other cases (including NOEST Express with home delivery), we need commune
+      if (
+        communes.length > 0 &&
+        (!isNoestExpress || (isNoestExpress && order.orderData.delivery_type.value === "home"))
+      ) {
         // Find the matching commune to get the exact name format
         const matchingCommune = communes.find(
           (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
@@ -631,14 +740,19 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         setEditingRow(order.id)
         setEditValues(updatedEditValues)
 
-        // If delivery type is stopdesk and Yalidin Express is the delivery company,
+        // If delivery type is stopdesk and we have a shipping provider that requires stop desks,
         // load available stop desks
-        if (order.orderData.delivery_type.value === "stopdesk" && isYalidinExpress) {
-          const stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
+        if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
+          let stopDesks = []
+
+          if (shippingProvider === "YALIDIN EXPRESS") {
+            stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
+          }
+
           setAvailableStopDesks(stopDesks)
         }
       } else {
-        // If no communes found, use the original values
+        // For NOEST Express with stopdesk or if no communes found, use the original values
         // Add stop desk information
         const stopDeskId = order.orderData.stop_desk?.id || ""
 
@@ -658,9 +772,15 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
 
         setEditingRow(order.id)
         setEditValues(editValuesWithoutCenter)
+
+        // For NOEST Express, load centers based on wilaya
+        if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+          const stopDesks = getNoastCentersByWilaya(wilayaName)
+          setAvailableStopDesks(stopDesks)
+        }
       }
     },
-    [isYalidinExpress],
+    [requiresStopDesk, shippingProvider, isNoestExpress],
   )
 
   const cancelEditing = useCallback(() => {
@@ -791,7 +911,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
                 editingRow={editingRow}
                 editValues={editValues}
                 availableCommunes={availableCommunes}
-                availableStopDesks={availableStopDesks} // Add this prop
+                availableStopDesks={availableStopDesks}
                 handleEditChange={handleEditChange}
                 saveEditing={saveEditing}
                 cancelEditing={cancelEditing}
@@ -799,6 +919,8 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
                 onViewOrder={onViewOrder}
                 selectedRows={selectedRows}
                 handleSelectRow={handleSelectRow}
+                isNoestExpress={isNoestExpress}
+                requiresStopDesk={requiresStopDesk}
               />
             ))
           )}

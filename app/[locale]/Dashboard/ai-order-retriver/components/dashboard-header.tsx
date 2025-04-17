@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { MetaLogo } from "./meta-logo"
 import { useToast } from "@/hooks/use-toast"
+import { useShop } from "@/app/context/ShopContext"
 
 interface DashboardHeaderProps {
   dateRange: {
@@ -44,7 +45,7 @@ export function DashboardHeader({
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [progress, setProgress] = useState(0)
   const { toast } = useToast()
-
+  const {shopData} = useShop()
   const handleLogoutClick = () => {
     setIsLogoutDialogOpen(true)
     setLogoutStep(1)
@@ -128,7 +129,7 @@ export function DashboardHeader({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full md:w-[280px] justify-start text-left font-normal border-indigo-200 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700"
+                className="w-full md:w-[200px] justify-start text-left font-normal border-indigo-200 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700"
               >
                 <CalendarIcon className="mr-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 {format(dateRange.from, "MM/dd/yyyy")} - {format(dateRange.to, "MM/dd/yyyy")}
@@ -153,7 +154,7 @@ export function DashboardHeader({
           </Popover>
 
           <Button className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:text-white w-full md:w-auto font-medium">
-            Yalidin Express
+            {shopData.deliveryCompany}
           </Button>
 
           {isFacebookConnected ? (

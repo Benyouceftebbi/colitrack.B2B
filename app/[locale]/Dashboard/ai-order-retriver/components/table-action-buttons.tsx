@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { LearnMoreDialog } from "./learn-more-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
+import { useShop } from "@/app/context/ShopContext"
 
 interface TableActionButtonsProps {
   onExcelExport: () => void
@@ -22,16 +23,15 @@ interface TableActionButtonsProps {
   validationStatus?: { valid: boolean; invalidCount: number }
 }
 
-// Update the validation tooltip content to include stop desk validation
-
-// Find the ValidationTooltipContent component and update it to include stop desk validation:
-
+// Update the validation tooltip content to handle other shipping providers
 const ValidationTooltipContent = memo(function ValidationTooltipContent({
   invalidCount,
   selectedCount,
+  requiresStopDesk,
 }: {
   invalidCount: number
   selectedCount: number
+  requiresStopDesk: boolean
 }) {
   return (
     <TooltipContent className="max-w-xs">
@@ -41,18 +41,27 @@ const ValidationTooltipContent = memo(function ValidationTooltipContent({
       <ul className="mt-1 list-disc list-inside text-sm">
         <li>Missing or invalid region data</li>
         <li>Invalid delivery type for the selected commune</li>
-        <li>Missing stop desk selection for Yalidin Express</li>
+        {requiresStopDesk && (
+          <li className="font-semibold text-amber-600 dark:text-amber-400">
+            Missing stop desk selection (required for stop desk delivery)
+          </li>
+        )}
       </ul>
       <p className="mt-1 text-sm">
         {invalidCount === selectedCount
           ? "Please fix these issues before exporting."
           : "Only valid orders will be exported."}
       </p>
+      {requiresStopDesk && (
+        <p className="mt-1 text-sm font-medium text-amber-600 dark:text-amber-400">
+          Note: Orders with stop desk delivery MUST have a stop desk selected to be exported.
+        </p>
+      )}
     </TooltipContent>
   )
 })
 
-// Use memo to prevent unnecessary re-renders
+// Update the TableActionButtons component to pass requiresStopDesk to ValidationTooltipContent
 export const TableActionButtons = memo(function TableActionButtons({
   onExcelExport,
   onShippingExport,
@@ -64,6 +73,13 @@ export const TableActionButtons = memo(function TableActionButtons({
   validationStatus = { valid: true, invalidCount: 0 },
 }: TableActionButtonsProps) {
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false)
+  const { shopData } = useShop()
+
+  // Check if a shipping provider that requires stop desk is being used
+  const shippingProvider = shopData?.deliveryCompany
+  const isNoastExpress = shippingProvider?.toUpperCase() === "NOAST EXPRESS"
+  const isYalidinExpress = shippingProvider?.toUpperCase() === "YALIDIN EXPRESS"
+  const requiresStopDesk = isNoastExpress || isYalidinExpress
 
   const hasInvalidOrders = !validationStatus.valid && validationStatus.invalidCount > 0
 
@@ -97,17 +113,19 @@ export const TableActionButtons = memo(function TableActionButtons({
 
   // Memoize the export button
   const ExportButton = useMemo(() => {
+    // Determine button color based on validation status
+    const buttonColorClass = hasInvalidOrders
+      ? "bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 dark:text-white"
+      : "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white"
+
+    // Only show button as colored when there are selected orders
+    const finalButtonClass = selectedCount > 0 ? buttonColorClass : ""
+
     return (
       <Button
         onClick={onShippingExport}
         variant={selectedCount > 0 ? "default" : "outline"}
-        className={`w-full sm:w-auto ${
-          selectedCount > 0
-            ? hasInvalidOrders
-              ? "bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 dark:text-white"
-              : "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white"
-            : ""
-        }`}
+        className={`w-full sm:w-auto ${finalButtonClass}`}
         disabled={
           isExporting || selectedCount === 0 || (hasInvalidOrders && validationStatus.invalidCount === selectedCount)
         }
@@ -141,6 +159,7 @@ export const TableActionButtons = memo(function TableActionButtons({
     )
   }, [selectedCount, hasInvalidOrders, isExporting, onShippingExport, validationStatus])
 
+  // Pass requiresStopDesk to ValidationTooltipContent
   return (
     <>
       <div className="flex flex-wrap gap-3">
@@ -176,7 +195,11 @@ export const TableActionButtons = memo(function TableActionButtons({
               <div>{ExportButton}</div>
             </TooltipTrigger>
             {hasInvalidOrders && (
-              <ValidationTooltipContent invalidCount={validationStatus.invalidCount} selectedCount={selectedCount} />
+              <ValidationTooltipContent
+                invalidCount={validationStatus.invalidCount}
+                selectedCount={selectedCount}
+                requiresStopDesk={requiresStopDesk}
+              />
             )}
           </Tooltip>
         </TooltipProvider>
