@@ -129,6 +129,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     commune: order?.orderData.commune.name_fr.value || "",
     deliveryType: order?.orderData.delivery_type.value || "",
     deliveryCost: order?.orderData.delivery_cost.value / 100 || 0,
+    totalPrice: order?.orderData.total_price.value / 100 || 0,
     additionalInfo: order?.orderData.additional_information?.value || "",
     stopDeskId: order?.orderData.stop_desk?.id || "",
   })
@@ -137,7 +138,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
   // Check if a shipping provider that requires stop desk is being used
   const shippingProvider = shopData?.deliveryCompany
-  const isNoastExpress = shippingProvider?.toUpperCase() === "NOAST EXPRESS"
+  const isNoastExpress = shippingProvider?.toUpperCase() === "NOEST EXPRESS"
   const isYalidinExpress = shippingProvider?.toUpperCase() === "YALIDIN EXPRESS"
   const requiresStopDesk = isNoastExpress || isYalidinExpress
 
@@ -216,10 +217,8 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   const validation = useMemo(() => validateRegionData(order), [order])
 
   const totalPrice = useMemo(() => {
-    return isEditing
-      ? Number(editValues.articlePrice) + Number(editValues.deliveryCost)
-      : order.orderData.total_price.value / 100
-  }, [isEditing, editValues.articlePrice, editValues.deliveryCost, order.orderData.total_price.value])
+    return isEditing ? Number(editValues.totalPrice) : order.orderData.total_price.value / 100
+  }, [isEditing, editValues.totalPrice, order.orderData.total_price.value])
 
   // Calculate confidence rate as average of all confidence values
   const confidenceRate = useMemo(() => {
@@ -272,7 +271,6 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }))
   }, [])
 
-  // Update the startEditing function to load NOEST centers based on wilaya
   const startEditing = useCallback(() => {
     // Get the exact wilaya name as it appears in the data
     const wilayaName = order.orderData.wilaya.name_fr.value
@@ -290,7 +288,35 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     // Get communes for this wilaya
     const communes = getCommunesByWilayaName(exactWilayaName)
 
-    if (communes.length > 0 && !isNoastExpress) {
+    // Create initial edit values
+    const initialValues = {
+      clientName: order.orderData.client_name.value,
+      phoneNumber: order.orderData.phone_number.value,
+      articleName: order.orderData.articles[0]?.name.value || "",
+      articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
+      articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
+      articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+      address: order.orderData.address.value,
+      wilaya: exactWilayaName,
+      commune: communeName,
+      deliveryType: order.orderData.delivery_type.value,
+      deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
+      totalPrice: order.orderData.total_price.value / 100 || 0,
+      additionalInfo: order.orderData.additional_information?.value || "",
+      stopDeskId: order.orderData.stop_desk?.id || "",
+    }
+
+    // For NOEST Express with stopdesk, commune is not required
+    if (isNoastExpress && order.orderData.delivery_type.value === "stopdesk") {
+      // No need to set available communes
+      setEditValues(initialValues)
+
+      // Load NOEST centers based on wilaya
+      const stopDesks = getNoastCentersByWilaya(wilayaName)
+      setAvailableStopDesks(stopDesks)
+    }
+    // For other cases, load communes if available
+    else if (communes.length > 0) {
       // Find the matching commune to get the exact name format
       const matchingCommune = communes.find(
         (commune) => normalizeString(commune.commune_name_ascii) === normalizeString(communeName),
@@ -309,69 +335,41 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         })),
       )
 
-      // Set the initial values with the exact names
-      const initialValues = {
-        clientName: order.orderData.client_name.value,
-        phoneNumber: order.orderData.phone_number.value,
-        articleName: order.orderData.articles[0]?.name.value || "",
-        articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
-        articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
-        articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-        address: order.orderData.address.value,
-        wilaya: exactWilayaName,
-        commune: exactCommuneName,
-        deliveryType: order.orderData.delivery_type.value,
-        deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
-        additionalInfo: order.orderData.additional_information?.value || "",
-        stopDeskId: order.orderData.stop_desk?.id || "",
-      }
-
+      // Update commune in initial values
+      initialValues.commune = exactCommuneName
       setEditValues(initialValues)
-    } else {
-      // If no communes found or using NOEST Express, use the original values
-      setEditValues({
-        clientName: order.orderData.client_name.value,
-        phoneNumber: order.orderData.phone_number.value,
-        articleName: order.orderData.articles[0]?.name.value || "",
-        articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
-        articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
-        articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-        address: order.orderData.address.value,
-        wilaya: wilayaName,
-        commune: communeName,
-        deliveryType: order.orderData.delivery_type.value,
-        deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
-        additionalInfo: order.orderData.additional_information?.value || "",
-        stopDeskId: order.orderData.stop_desk?.id || "",
-      })
-    }
 
-    // Add stop desk information
-    const stopDeskId = order.orderData.stop_desk?.id || ""
+      // If delivery type is stopdesk and we have a shipping provider that requires stop desks,
+      // load available stop desks
+      if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
+        let stopDesks = []
 
-    // Update editValues with stop desk information
-    setEditValues((prev) => ({
-      ...prev,
-      stopDeskId,
-    }))
+        if (isNoastExpress) {
+          stopDesks = getNoastCentersByWilaya(wilayaName)
+        } else if (isYalidinExpress) {
+          stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
+        }
 
-    // If delivery type is stopdesk and we have a shipping provider that requires stop desks,
-    // load available stop desks
-    if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
-      let stopDesks = []
-
-      if (isNoastExpress) {
-        // For NOEST Express, load centers based on wilaya
-        stopDesks = getNoastCentersByWilaya(wilayaName)
-      } else if (shippingProvider === "Yalidin Express") {
-        stopDesks = getYalidinCentersForCommune(order.orderData.commune.name_fr.value)
+        setAvailableStopDesks(stopDesks)
       }
+    }
+    // If no communes found, just use the original values
+    else {
+      setEditValues(initialValues)
 
-      setAvailableStopDesks(stopDesks)
+      // For NOEST Express, load centers based on wilaya
+      if (isNoastExpress && order.orderData.delivery_type.value === "stopdesk") {
+        const stopDesks = getNoastCentersByWilaya(wilayaName)
+        setAvailableStopDesks(stopDesks)
+      } else if (isYalidinExpress && order.orderData.delivery_type.value === "stopdesk") {
+        // For Yalidin, try to get centers for the commune
+        const stopDesks = getYalidinCentersForCommune(communeName)
+        setAvailableStopDesks(stopDesks)
+      }
     }
 
     setIsEditing(true)
-  }, [order, requiresStopDesk, shippingProvider, isNoastExpress, isYalidinExpress])
+  }, [order, requiresStopDesk, isNoastExpress, isYalidinExpress])
 
   const cancelEditing = useCallback(() => {
     setIsEditing(false)
@@ -396,6 +394,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       commune: order.orderData.commune.name_fr.value,
       deliveryType: order.orderData.delivery_type.value,
       deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
+      totalPrice: order.orderData.total_price.value / 100 || 0,
       additionalInfo: order.orderData.additional_information?.value || "",
     }
 
@@ -406,16 +405,16 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         if (normalizeString(editValues[field]) !== normalizeString(originalValues[field])) {
           onEditOrder(order, field, editValues[field])
         }
+      } else if (field === "stopDeskId") {
+        // Handle stop desk ID separately
+        if (editValues[field] !== (order.orderData.stop_desk?.id || "")) {
+          onEditOrder(order, field, editValues[field])
+        }
       } else if (editValues[field] !== originalValues[field]) {
         // For other fields, use regular comparison
         onEditOrder(order, field, editValues[field])
       }
     })
-
-    // Check if stop desk information has changed
-    if (editValues.stopDeskId !== (order.orderData.stop_desk?.id || "")) {
-      onEditOrder(order, "stopDeskId", editValues.stopDeskId)
-    }
 
     // Exit edit mode
     setIsEditing(false)
@@ -697,9 +696,21 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Price</p>
-                    <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                      {totalPrice.toLocaleString()} DA
-                    </p>
+                    {isEditing ? (
+                      <div className="flex items-center">
+                        <Input
+                          type="number"
+                          value={editValues.totalPrice}
+                          onChange={(e) => handleEditChange("totalPrice", e.target.value)}
+                          className="h-8 w-32 dark:bg-slate-700/70 dark:border-gray-700 mr-2"
+                        />
+                        <span className="text-sm font-medium">DA</span>
+                      </div>
+                    ) : (
+                      <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                        {totalPrice.toLocaleString()} DA
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between mt-2">

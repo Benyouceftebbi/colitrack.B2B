@@ -18685,32 +18685,65 @@ interface YalidinCenter {
 
 // Helper function to get centers for a specific commune
 export function getYalidinCentersForCommune(communeName: string): YalidinCenter[] {
-    // Normalize the commune name for comparison
-    const normalizedCommuneName = communeName.toLowerCase().trim()
-  
-    // Find the commune in the data
-    const commune = Object.values(yalidinCenters).find(
-      (commune) => commune.commune_name_ascii.toLowerCase() === normalizedCommuneName,
-    )
-  
-    return commune?.centers || []
+  // Normalize the commune name for comparison
+  const normalizedCommuneName = communeName.toLowerCase().trim()
+
+  // Find the commune in the data
+  const commune = Object.values(yalidinCenters).find(
+    (commune) => commune.commune_name_ascii.toLowerCase() === normalizedCommuneName,
+  )
+
+  return commune?.centers || []
+}
+
+// Helper function to check if a commune has Yalidin centers
+export function hasYalidinCenters(communeName: string): boolean {
+  const centers = getYalidinCentersForCommune(communeName)
+  return centers.length > 0
+}
+
+// Helper function to get a center by ID
+export function getYalidinCenterById(centerId: string | number): YalidinCenter | undefined {
+  const id = typeof centerId === "string" ? Number.parseInt(centerId, 10) : centerId
+
+  for (const commune of Object.values(yalidinCenters)) {
+    const center = commune.centers.find((center) => center.center_id === id)
+    if (center) return center
   }
-  
-  // Helper function to check if a commune has Yalidin centers
-  export function hasYalidinCenters(communeName: string): boolean {
-    const centers = getYalidinCentersForCommune(communeName)
-    return centers.length > 0
+
+  return undefined
+}
+
+// Add a helper function to get commune ID from a center
+export function getYalidinCommuneIdFromCenter(centerId: string | number): number | undefined {
+  const center = getYalidinCenterById(centerId)
+  return center?.commune_id
+}
+
+// Add a helper function to get wilaya code from a center
+export function getYalidinWilayaCodeFromCenter(centerId: string | number): string | undefined {
+  const center = getYalidinCenterById(centerId)
+  if (center) {
+    // Convert wilaya_id to string and pad with leading zero if needed
+    const wilayaId = center.wilaya_id.toString()
+    return wilayaId.length === 1 ? `0${wilayaId}` : wilayaId
   }
-  
-  // Helper function to get a center by ID
-  export function getYalidinCenterById(centerId: string | number): YalidinCenter | undefined {
-    const id = typeof centerId === "string" ? Number.parseInt(centerId, 10) : centerId
-  
-    for (const commune of Object.values(yalidinCenters)) {
-      const center = commune.centers.find((center) => center.center_id === id)
-      if (center) return center
+  return undefined
+}
+
+// Add a helper function to get all centers for a wilaya
+export function getYalidinCentersByWilaya(wilayaName: string): YalidinCenter[] {
+  if (!wilayaName) return []
+
+  const normalizedWilayaName = wilayaName.toLowerCase().trim()
+  let centers: YalidinCenter[] = []
+
+  // Find all communes in this wilaya
+  for (const commune of Object.values(yalidinCenters)) {
+    if (commune.wilaya_name_ascii.toLowerCase() === normalizedWilayaName) {
+      centers = [...centers, ...commune.centers]
     }
-  
-    return undefined
   }
-  
+
+  return centers
+}

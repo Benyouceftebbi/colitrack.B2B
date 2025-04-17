@@ -506,7 +506,16 @@ const TableRowMemo = memo(function TableRowComponent({
         <Badge className={`${confidenceBadgeColor}`}>{confidenceRate}%</Badge>
       </TableCell>
       <TableCell>
-        <span className="font-medium">{(order.orderData.total_price.value / 100).toLocaleString()} DA</span>
+        {editingRow === order.id ? (
+          <Input
+            type="number"
+            value={editValues.totalPrice || ""}
+            onChange={(e) => handleEditChange("totalPrice", e.target.value)}
+            className="h-8 w-24 dark:bg-slate-700/70 dark:border-gray-700"
+          />
+        ) : (
+          <span className="font-medium">{(order.orderData.total_price.value / 100).toLocaleString()} DA</span>
+        )}
       </TableCell>
       <TableCell>
         {order.source === "messenger" ? (
@@ -729,6 +738,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
           articleName: order.orderData.articles[0]?.name.value || "",
           price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
           deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+          totalPrice: order.orderData.total_price.value / 100 || 0,
           address: order.orderData.address.value,
           wilaya: exactWilayaName,
           commune: exactCommuneName,
@@ -762,6 +772,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
           articleName: order.orderData.articles[0]?.name.value || "",
           price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
           deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
+          totalPrice: order.orderData.total_price.value / 100 || 0,
           address: order.orderData.address.value,
           wilaya: wilayaName,
           commune: communeName,
@@ -816,6 +827,8 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       // Existing cases...
       case "stopDeskId":
         return order.orderData.stop_desk?.id || ""
+      case "totalPrice":
+        return order.orderData.total_price.value / 100 || 0
       default:
         return ""
     }

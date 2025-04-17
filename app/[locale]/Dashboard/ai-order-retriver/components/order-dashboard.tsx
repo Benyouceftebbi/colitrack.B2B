@@ -196,6 +196,10 @@ export function OrderDashboard() {
               }
               break
             // Existing cases...
+            case "totalPrice":
+              // Update the total price directly
+              updatedOrder.orderData.total_price.value = value * 100
+              break
             case "stopDeskId":
               // If stop desk ID is provided, get the center information
               if (value) {
@@ -388,6 +392,7 @@ export function OrderDashboard() {
         // Get commune ID based on delivery type and shipping provider
         let communeId
         const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
 
         if (order.orderData.delivery_type.value === "home") {
           // For home delivery, get commune ID from algeria-regions data
@@ -397,6 +402,25 @@ export function OrderDashboard() {
           // For NOEST Express with stopdesk, get commune ID from NOEST centers
           // If commune is undefined, use wilaya name to find the commune ID
           communeId = findNoestCommuneId(wilayaName)
+        } else if (isYalidinExpress && order.orderData.delivery_type.value === "stopdesk") {
+          // For Yalidin Express with stopdesk, get commune ID from the selected stop desk
+          // The stop desk ID should already contain the commune information
+          if (order.orderData.stop_desk?.id) {
+            // Extract commune ID from the stop desk center
+            const { getYalidinCenterById } = require("../data/yalidin-centers")
+            const center = getYalidinCenterById(order.orderData.stop_desk.id)
+            if (center) {
+              communeId = center.commune_id
+            } else {
+              // Fallback to finding commune by name
+              const commune = findCommuneByNameAcrossWilayas(communeName)
+              communeId = commune?.id
+            }
+          }
+        } else {
+          // For other cases, try to find commune by name
+          const commune = findCommuneByNameAcrossWilayas(communeName)
+          communeId = commune?.id
         }
 
         return {
