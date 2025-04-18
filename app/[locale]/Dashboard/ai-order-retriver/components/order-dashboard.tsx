@@ -70,11 +70,11 @@ const getCenterById = (id: string, deliveryCompany: string) => {
   return undefined
 }
 
-// Helper function to find commune ID for NOEST Express with improved matching
-const findNoestCommuneId = (wilayaName: string): string | undefined => {
-  // Use the improved getNoastCommuneIdByWilaya function that handles different spellings and accents
-  const { getNoastCommuneIdByWilaya } = require("../data/noast-centers")
-  return getNoastCommuneIdByWilaya(wilayaName)
+// Update the findNoestCommuneId function to use the new getNoestCommuneId function
+const findNoestCommuneId = (wilayaName: string): number | undefined => {
+  // Use the getNoestCommuneId function that returns the numeric ID directly
+  const { getNoestCommuneId } = require("../data/noast-centers")
+  return getNoestCommuneId(wilayaName)
 }
 
 export function OrderDashboard() {
@@ -399,8 +399,8 @@ export function OrderDashboard() {
           const commune = findCommuneByNameAcrossWilayas(communeName)
           communeId = commune?.id
         } else if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
-          // For NOEST Express with stopdesk, get commune ID from NOEST centers
-          // If commune is undefined, use wilaya name to find the commune ID
+          // For NOEST Express with stopdesk, get commune ID directly from the commune object
+          // This is the numeric ID of the commune, not the key from the centers array
           communeId = findNoestCommuneId(wilayaName)
         } else if (isYalidinExpress && order.orderData.delivery_type.value === "stopdesk") {
           // For Yalidin Express with stopdesk, get commune ID from the selected stop desk
@@ -425,6 +425,9 @@ export function OrderDashboard() {
 
         return {
           id: order.id,
+          delivery_cost: order.orderData.delivery_cost.value,
+          address: order.orderData.address.value,
+          articles: order.orderData.articles,
           customerName: order.orderData.client_name.value,
           phoneNumber: order.orderData.phone_number.value,
           wilaya: order.orderData.wilaya.name_fr.value,
