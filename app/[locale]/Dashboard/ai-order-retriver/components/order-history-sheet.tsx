@@ -34,6 +34,9 @@ const OrderRow = memo(function OrderRow({
     onViewOrder(order)
   }, [order, onViewOrder])
 
+  // Handle both string and Date objects for timestamp
+  const orderDate = order.timestamp instanceof Date ? order.timestamp : parseISO(order.timestamp)
+
   return (
     <TableRow key={order.id} className="dark:border-gray-700">
       <TableCell className="font-medium">{order.id}</TableCell>
@@ -43,7 +46,7 @@ const OrderRow = memo(function OrderRow({
           <div className="text-xs text-gray-500 dark:text-gray-400">{order.orderData.phone_number.value}</div>
         </div>
       </TableCell>
-      <TableCell>{format(parseISO(order.timestamp), "MMM dd, yyyy")}</TableCell>
+      <TableCell>{format(orderDate, "MMM dd, yyyy")}</TableCell>
       <TableCell>{(order.orderData.total_price.value / 100).toLocaleString()} DA</TableCell>
       <TableCell>
         <div className="max-w-[150px] truncate" title={order.orderData.articles[0]?.name.value || ""}>
@@ -104,7 +107,8 @@ export const OrderHistorySheet = memo(function OrderHistorySheet({
     if (dateRange.from && dateRange.to) {
       const endDate = endOfDay(new Date(dateRange.to))
       result = result.filter((order) => {
-        const orderDate = parseISO(order.timestamp)
+        // Handle both string and Date objects for timestamp
+        const orderDate = order.timestamp instanceof Date ? order.timestamp : parseISO(order.timestamp)
         return isWithinInterval(orderDate, {
           start: dateRange.from,
           end: endDate,

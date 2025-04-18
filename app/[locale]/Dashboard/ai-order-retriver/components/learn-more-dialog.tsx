@@ -86,12 +86,12 @@ export function LearnMoreDialog({ isOpen, onClose }: LearnMoreDialogProps) {
                 <div className="space-y-3 pl-7">
                   <div className="flex gap-2">
                     <Facebook className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
-                    <p className="text-gray-700 dark:text-gray-300 text-sm">"Thank you for your order! ✅"</p>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm">"✅"</p>
                   </div>
                   <div className="flex gap-2">
                     <Instagram className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" />
                     <p className="text-gray-700 dark:text-gray-300 text-sm">
-                      "Your order has been confirmed ✅ It will be shipped tomorrow."
+                      "✅"
                     </p>
                   </div>
                 </div>

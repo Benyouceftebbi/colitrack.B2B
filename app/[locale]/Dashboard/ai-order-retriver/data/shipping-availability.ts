@@ -14,7 +14,7 @@
    "Ain Beida",
    "Tadjemout",
    "Hassi Delaa",
-   
+   "Hai 350 Maskan",
    "Tit",
    "Sebaa",
    "Oued Morra",
@@ -140,5 +140,86 @@
    }
  
    return undefined
+ }
+ 
+ /**
+  * Uploads orders to the shipping provider's backend
+  * @param shopdata The shop data containing API keys and other information
+  * @param orders The orders to upload
+  * @param deliveryCompany The delivery company to use
+  * @returns Promise that resolves to a success object or a failure object with failed orders
+  */
+ export async function uploadOrders(
+   shopdata: any,
+   orders: any[],
+   deliveryCompany: string,
+ ): Promise<{ success: boolean; failed?: any[] }> {
+   // In a real implementation, this would make API calls to the shipping provider
+   // For demonstration purposes, we'll simulate some orders failing
+ 
+   try {
+     // Simulate API delay
+     await new Promise((resolve) => setTimeout(resolve, 1500))
+ 
+     // Simulate validation on the backend side
+     // In a real implementation, this would be handled by the shipping provider's API
+     const failedOrders: any[] = []
+ 
+     for (const order of orders) {
+       // Simulate some random failures (about 10% of orders)
+       const randomFail = Math.random() < 0.1
+ 
+       // Check for specific validation issues based on shipping provider
+       if (deliveryCompany.toUpperCase() === "NOEST EXPRESS") {
+         // For NOEST Express, check if commune ID is valid
+         if (!order.communeId || randomFail) {
+           failedOrders.push({
+             ...order,
+             failureReason: !order.communeId ? "Missing commune ID" : "Backend validation failed",
+           })
+         }
+       } else if (deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
+         // For Yalidin Express, check if stop desk is valid for stopdesk delivery
+         if (order.deliveryType === "stopdesk" && (!order.stopDesk?.id || randomFail)) {
+           failedOrders.push({
+             ...order,
+             failureReason: !order.stopDesk?.id ? "Missing stop desk ID" : "Backend validation failed",
+           })
+         }
+       } else {
+         // For other providers, just use random failures
+         if (randomFail) {
+           failedOrders.push({
+             ...order,
+             failureReason: "Backend validation failed",
+           })
+         }
+       }
+     }
+ 
+     // If there are any failed orders, return them
+     if (failedOrders.length > 0) {
+       return {
+         success: false,
+         failed: failedOrders,
+       }
+     }
+ 
+     // All orders were successful
+     return {
+       success: true,
+     }
+   } catch (error) {
+     console.error("Error uploading orders:", error)
+ 
+     // In case of an exception, return all orders as failed
+     return {
+       success: false,
+       failed: orders.map((order) => ({
+         ...order,
+         failureReason: "API error: " + (error instanceof Error ? error.message : "Unknown error"),
+       })),
+     }
+   }
  }
  

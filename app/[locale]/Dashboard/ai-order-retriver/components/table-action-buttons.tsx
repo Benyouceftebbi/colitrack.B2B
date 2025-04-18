@@ -21,6 +21,7 @@ interface TableActionButtonsProps {
   isFacebookConnected: boolean
   showFacebookAuth: () => void
   validationStatus?: { valid: boolean; invalidCount: number }
+  hasRequestedBeta?: boolean // Add this prop
 }
 
 // Update the validation tooltip content to handle other shipping providers
@@ -71,6 +72,7 @@ export const TableActionButtons = memo(function TableActionButtons({
   isFacebookConnected,
   showFacebookAuth,
   validationStatus = { valid: true, invalidCount: 0 },
+  hasRequestedBeta = false, // Add default value
 }: TableActionButtonsProps) {
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false)
   const { shopData } = useShop()

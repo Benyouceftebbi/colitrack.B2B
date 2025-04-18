@@ -14,10 +14,11 @@ interface StatsCardsProps {
 export function StatsCards({ orders, dateRange }: StatsCardsProps) {
   // Filter orders based on date range
   const filteredOrders = orders.filter((order) => {
-    const orderDate = parseISO(order.timestamp)
+    // Handle both string and Date objects for timestamp
+    const orderDate = order.timestamp instanceof Date ? order.timestamp : parseISO(order.timestamp)
     const isInDateRange = isWithinInterval(orderDate, {
       start: dateRange.from,
-      end: new Date(dateRange.to.setHours(23, 59, 59, 999)),
+      end: new Date(new Date(dateRange.to).setHours(23, 59, 59, 999)),
     })
 
     // Only include orders that are not confirmed

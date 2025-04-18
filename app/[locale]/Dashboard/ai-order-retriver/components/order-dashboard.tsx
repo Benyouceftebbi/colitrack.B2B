@@ -6,10 +6,12 @@ import { StatsCards } from "./stats-cards"
 import { OrdersTable } from "./orders-table"
 import { TableActionButtons } from "./table-action-buttons"
 import { Button } from "@/components/ui/button"
-import { History } from "lucide-react"
+import { History, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { orders as initialOrders, type Order } from "../data/sample-orders"
 import { validateRegionData } from "./validation-utils"
+import { uploadOrders } from "../data/shipping-availability"
+import { Badge } from "@/components/ui/badge"
 
 // Lazy load heavy components
 const OrderViewModal = lazy(() => import("./order-view-modal").then((mod) => ({ default: mod.OrderViewModal })))
@@ -28,6 +30,9 @@ import { getYalidinCenterById } from "../data/yalidin-centers"
 
 // Add the import for Noast centers:
 import { getNoastCenterById } from "../data/noast-centers"
+
+// Import the useShop hook
+import { useShop } from "@/app/context/ShopContext"
 
 // Create a context for orders data
 type OrdersContextType = {
@@ -57,9 +62,6 @@ const LoadingFallback = () => (
   </div>
 )
 
-// Mock shopData or fetch it from an API
-import { useShop } from "@/app/context/ShopContext"
-
 // Helper function to get center by ID
 const getCenterById = (id: string, deliveryCompany: string) => {
   if (deliveryCompany && deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
@@ -77,8 +79,11 @@ const findNoestCommuneId = (wilayaName: string): number | undefined => {
   return getNoestCommuneId(wilayaName)
 }
 
+// Update the OrderDashboard component to handle the beta request state
 export function OrderDashboard() {
-  const [orders, setOrders] = useState<Order[]>(() => initialOrders) // Use lazy initialization
+  // Use orders from shopData if available, otherwise use initialOrders
+  const { shopData, dateRange, setDateRange } = useShop()
+  const [orders, setOrders] = useState<Order[]>(() => shopData.orders || initialOrders)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
@@ -87,31 +92,16 @@ export function OrderDashboard() {
   const [isRetrieving, setIsRetrieving] = useState(false)
   const [isFacebookConnected, setIsFacebookConnected] = useState(false)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
-  const [dateRange, setDateRange] = useState(() => {
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-
-    return {
-      from: yesterday, // Yesterday
-      to: today, // Today
-    }
-  })
+  const [hasRequestedBeta, setHasRequestedBeta] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const { toast } = useToast()
 
-  // Initialize shopData with deliveryCompany
-  const { shopData, setShopData } = useShop()
-
-  // Initialize shopData with deliveryCompany if not already set
+  // Update orders when shopData.orders changes
   useEffect(() => {
-    if (!shopData.deliveryCompany) {
-      setShopData((prev) => ({
-        ...prev,
-        deliveryCompany: "XX", // Default value
-      }))
+    if (shopData.orders && shopData.orders.length > 0) {
+      setOrders(shopData.orders)
     }
-  }, [shopData, setShopData])
+  }, [shopData.orders])
 
   // Memoize handler functions with useCallback
   const handleViewOrder = useCallback((order: Order, fromHistory = false) => {
@@ -247,6 +237,7 @@ export function OrderDashboard() {
   )
 
   const showFacebookAuth = useCallback(() => {
+    // Reset any previous submission state
     setIsFacebookAuthOpen(true)
   }, [])
 
@@ -282,6 +273,23 @@ export function OrderDashboard() {
 
     setIsRetrieving(false)
   }, [toast])
+
+  // Handle beta request sent
+  const handleBetaRequestSent = useCallback(() => {
+    console.log("Beta request sent, updating state")
+    setHasRequestedBeta(true)
+    // Store in localStorage to persist across sessions
+    localStorage.setItem("betaRequested", "true")
+  }, [])
+
+  // Check if beta has been requested before
+  useEffect(() => {
+    // Only check localStorage if we need to restore a previous session state
+   // const betaRequested = localStorage.getItem("betaRequested") === "true"
+   // console.log("Initial beta requested state from localStorage:", betaRequested)
+   // setHasRequestedBeta(betaRequested)
+    // We don't automatically open the dialog based on betaRequested
+  }, [])
 
   const handleExcelExport = useCallback(() => {
     // In a real app, this would generate and download an Excel file
@@ -369,16 +377,6 @@ export function OrderDashboard() {
         return order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
       })
 
-      // Update the status of ONLY valid orders to "confirmed"
-      setOrders((currentOrders) => {
-        return currentOrders.map((order) => {
-          if (validOrders.some((validOrder) => validOrder.id === order.id)) {
-            return { ...order, status: "confirmed" }
-          }
-          return order
-        })
-      })
-
       // Create detailed logs of exported and failed orders
       const { findWilayaByName, findCommuneByNameAcrossWilayas } = require("../data/algeria-regions")
       const exportedOrdersLog = validOrders.map((order) => {
@@ -425,7 +423,6 @@ export function OrderDashboard() {
 
         return {
           id: order.id,
-          delivery_cost: order.orderData.delivery_cost.value,
           address: order.orderData.address.value,
           articles: order.orderData.articles,
           customerName: order.orderData.client_name.value,
@@ -485,14 +482,71 @@ export function OrderDashboard() {
       console.log("Exported Orders:", exportedOrdersLog)
       console.log("Failed Orders:", failedOrdersLog)
 
-      // Show appropriate toast messages
-      if (validOrders.length > 0) {
+      // Now upload the valid orders to the shipping provider's backend
+      const uploadResult = await uploadOrders(shopData, exportedOrdersLog, shopData.deliveryCompany)
+
+      if (uploadResult.success) {
+        // All orders were successfully uploaded to the backend
+        // Update the status of ONLY valid orders to "confirmed" in both local state and Firestore
+        //const updatePromises = validOrders.map((order) => updateOrderStatus(order.id, "confirmed"))
+        //await Promise.all(updatePromises)
+
+        // Update local state
+        setOrders((currentOrders) => {
+          return currentOrders.map((order) => {
+            if (validOrders.some((validOrder) => validOrder.id === order.id)) {
+              return { ...order, status: "confirmed" }
+            }
+            return order
+          })
+        })
+
         toast({
           title: "Export Successful",
           description: `Successfully exported ${validOrders.length} orders to shipping provider.`,
         })
+      } else {
+        // Some orders failed on the backend
+        const backendFailedOrders = uploadResult.failed || []
+        const backendFailedIds = backendFailedOrders.map((order) => order.id)
+
+        // Only update the status of orders that passed both frontend and backend validation
+        const successfulOrders = validOrders.filter((order) => !backendFailedIds.includes(order.id))
+
+        // Update status in Firestore for successful orders
+       // const updatePromises = successfulOrders.map((order) => updateOrderStatus(order.id, "confirmed"))
+        //await Promise.all(updatePromises)
+
+        // Update local state
+        setOrders((currentOrders) => {
+          return currentOrders.map((order) => {
+            if (successfulOrders.some((successfulOrder) => successfulOrder.id === order.id)) {
+              return { ...order, status: "confirmed" }
+            }
+            return order
+          })
+        })
+
+        // Show success message for successful orders
+        if (successfulOrders.length > 0) {
+          toast({
+            title: "Partial Export Successful",
+            description: `Successfully exported ${successfulOrders.length} out of ${validOrders.length} orders.`,
+          })
+        }
+
+        // Show warning for backend failed orders
+        if (backendFailedOrders.length > 0) {
+          const orderIds = backendFailedOrders.map((order) => `#${order.id}`).join(", ")
+          toast({
+            title: "Some Orders Failed Backend Validation",
+            description: `${backendFailedOrders.length} orders were rejected by the shipping provider: ${orderIds}`,
+            variant: "warning",
+          })
+        }
       }
 
+      // Show warning for frontend validation failures
       if (invalidOrders.length > 0) {
         // Create a more detailed message about why orders failed
         const stopDeskIssues = missingStopDeskOrders.length
@@ -544,9 +598,6 @@ export function OrderDashboard() {
     setIsFacebookConnected(false)
   }, [])
 
-  // Update the validation status calculation to properly count invalid orders
-
-  // Replace the selectedOrdersValidationStatus useMemo with this updated version:
   // Memoize the validation status calculation
   const selectedOrdersValidationStatus = useMemo(() => {
     if (selectedRows.length === 0) return { valid: true, invalidCount: 0 }
@@ -642,10 +693,17 @@ export function OrderDashboard() {
                 isFacebookConnected={isFacebookConnected}
                 showFacebookAuth={showFacebookAuth}
                 validationStatus={selectedOrdersValidationStatus}
+                hasRequestedBeta={hasRequestedBeta}
               />
             </div>
 
             <div className="flex flex-wrap gap-3">
+              {hasRequestedBeta && !isFacebookConnected && (
+                <Badge className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 py-2 px-3">
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  Beta Access Requested
+                </Badge>
+              )}
               <Button
                 variant="outline"
                 onClick={toggleHistorySheet}
@@ -688,6 +746,8 @@ export function OrderDashboard() {
               isOpen={isFacebookAuthOpen}
               onClose={() => setIsFacebookAuthOpen(false)}
               onAuthenticate={handleFacebookAuth}
+              onRequestSent={handleBetaRequestSent}
+              hasRequestedBeta={hasRequestedBeta}
             />
           )}
         </Suspense>

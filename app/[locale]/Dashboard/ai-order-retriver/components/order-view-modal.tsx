@@ -488,7 +488,10 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                 <Clock className="h-3 w-3 mr-1" />
-                {format(parseISO(order.timestamp), "MMM dd, yyyy 'at' HH:mm")}
+                {format(
+                  order.timestamp instanceof Date ? order.timestamp : parseISO(order.timestamp),
+                  "MMM dd, yyyy 'at' HH:mm",
+                )}
               </p>
             </div>
           </div>
