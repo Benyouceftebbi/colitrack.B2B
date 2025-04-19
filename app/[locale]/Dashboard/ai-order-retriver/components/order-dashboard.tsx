@@ -82,7 +82,7 @@ const findNoestCommuneId = (wilayaName: string): number | undefined => {
 // Update the OrderDashboard component to handle the beta request state
 export function OrderDashboard() {
   // Use orders from shopData if available, otherwise use initialOrders
-  const { shopData, dateRange, setDateRange } = useShop()
+  const { shopData, dateRange, setDateRange,setShopData} = useShop()
   const [orders, setOrders] = useState<Order[]>(() => shopData.orders || initialOrders)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -282,14 +282,6 @@ export function OrderDashboard() {
     localStorage.setItem("betaRequested", "true")
   }, [])
 
-  // Check if beta has been requested before
-  useEffect(() => {
-    // Only check localStorage if we need to restore a previous session state
-   // const betaRequested = localStorage.getItem("betaRequested") === "true"
-   // console.log("Initial beta requested state from localStorage:", betaRequested)
-   // setHasRequestedBeta(betaRequested)
-    // We don't automatically open the dialog based on betaRequested
-  }, [])
 
   const handleExcelExport = useCallback(() => {
     // In a real app, this would generate and download an Excel file
@@ -500,6 +492,10 @@ export function OrderDashboard() {
             return order
           })
         })
+        setShopData(prev => ({
+          ...prev,
+          tokens: uploadResult.tokens
+        }));
 
         toast({
           title: "Export Successful",

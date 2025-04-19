@@ -7,6 +7,8 @@
  import { getYalidinCentersForCommune } from "./yalidin-centers"
  import { getNoastCentersForCommune, getNoastCentersByWilaya } from "./noast-centers"
  import { findCommuneByNameAcrossWilayas } from "./algeria-regions"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
  
  // Mock list of communes that don't have stop desk available
  // In a real application, this would come from an API call to the shipping provider
@@ -152,62 +154,86 @@
  export async function uploadOrders(
    shopdata: any,
    orders: any[],
-   deliveryCompany: string,
- ): Promise<{ success: boolean; failed?: any[] }> {
+   deliveryCompany: string | undefined,
+ ): Promise<{ success: boolean; failed?: any[];tokens: number }> {
    // In a real implementation, this would make API calls to the shipping provider
    // For demonstration purposes, we'll simulate some orders failing
  
    try {
-     // Simulate API delay
-     await new Promise((resolve) => setTimeout(resolve, 1500))
- 
-     // Simulate validation on the backend side
-     // In a real implementation, this would be handled by the shipping provider's API
+
      const failedOrders: any[] = []
- 
-     for (const order of orders) {
+ let tokens:number=0;
+
        // Simulate some random failures (about 10% of orders)
        const randomFail = Math.random() < 0.1
  
        // Check for specific validation issues based on shipping provider
-       if (deliveryCompany.toUpperCase() === "NOEST EXPRESS") {
-         // For NOEST Express, check if commune ID is valid
-         if (!order.communeId || randomFail) {
-           failedOrders.push({
-             ...order,
-             failureReason: !order.communeId ? "Missing commune ID" : "Backend validation failed",
-           })
+       if (shopdata.deliveryCompany === "NOEST Express") {
+         // For NOEST Express, check if commune ID is valid7
+
+         
+         const uploadNoest=httpsCallable(functions,"uploadNoestOrders")
+         const result = await uploadNoest({ rawOrders:orders,apiKey:shopdata.apiKey,apiToken:shopdata.apiToken,shopId:shopdata.id })
+         if (result.data?.success === false) {
+           failedOrders.push(
+             ...result.data?.failed.map(order => ({
+               ...order,
+               failureReason: "Backend validation failed",
+             }))
+           );
+           tokens=result.data?.newTokens
+         } else{
+           tokens=result.data?.newTokens
          }
-       } else if (deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
+
+       } else if (shopdata.deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
          // For Yalidin Express, check if stop desk is valid for stopdesk delivery
-         if (order.deliveryType === "stopdesk" && (!order.stopDesk?.id || randomFail)) {
-           failedOrders.push({
-             ...order,
-             failureReason: !order.stopDesk?.id ? "Missing stop desk ID" : "Backend validation failed",
-           })
-         }
-       } else {
+         failedOrders.push(
+          ...orders.map(order => ({
+            ...order,
+            failureReason: "Backend validation failed",
+          }))
+        );
+        tokens=shopdata.tokens
+       } else if (shopdata.deliveryCompany.toUpperCase() === "DHD") {
          // For other providers, just use random failures
-         if (randomFail) {
-           failedOrders.push({
-             ...order,
-             failureReason: "Backend validation failed",
-           })
-         }
+          const uploadDHD=httpsCallable(functions,"uploadDHDOrders")
+          const result = await uploadDHD({ rawOrders:orders,authToken:shopdata.authToken,shopId:shopdata.id })
+          if (result.data?.success === false) {
+            failedOrders.push(
+              ...result.data?.failed.map(order => ({
+                ...order,
+                failureReason: "Backend validation failed",
+              }))
+            );
+            tokens=result.data?.newTokens
+          } else{
+            tokens=result.data?.newTokens
+          }
        }
-     }
+       else{
+        if (randomFail) {
+          failedOrders.push({
+            ...order,
+            failureReason: "Backend validation failed",
+          })
+        }
+       }
+     
  
      // If there are any failed orders, return them
      if (failedOrders.length > 0) {
        return {
          success: false,
          failed: failedOrders,
+         tokens:tokens
        }
      }
  
      // All orders were successful
      return {
        success: true,
+       tokens:tokens
      }
    } catch (error) {
      console.error("Error uploading orders:", error)

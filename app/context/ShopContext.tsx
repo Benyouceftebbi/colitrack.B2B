@@ -80,27 +80,6 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
   })
 
-  // Function to update order status in Firestore
- /* const updateOrderStatus = async (orderId: string, status: string): Promise<boolean> => {
-    if (!shopData.id) return false
-
-    try {
-      const orderRef = doc(db, "Shops", shopData.id, "OrdersRetrieved", orderId)
-      await updateDoc(orderRef, { status })
-
-      // Update local state as well
-      setShopData((prev) => ({
-        ...prev,
-        orders: prev.orders?.map((order) => (order.id === orderId ? { ...order, status } : order)),
-      }))
-
-      return true
-    } catch (error) {
-      console.error("Error updating order status:", error)
-      return false
-    }
-  }
-*/
   // Helper function to convert JavaScript Date to Firestore Timestamp
   const dateToTimestamp = (date: Date): Timestamp => {
     return Timestamp.fromDate(date)
@@ -190,32 +169,22 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
                 )
               : collection(shopRef, "OrdersRetrieved")
 
-          // Also add query for regular Orders collection
-          const regularOrdersQuery =
-            fromTimestamp && toTimestamp
-              ? query(
-                  collection(shopRef, "Orders"),
-                  where("createdAt", ">=", fromTimestamp),
-                  where("createdAt", "<=", toTimestamp),
-                )
-              : collection(shopRef, "Orders")
 
           const smsCampaignQuery = collection(shopRef, "SMScampaign")
 
           // Fetch subcollections in parallel
-          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs, regularOrdersDocs] = await Promise.all([
+          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs] = await Promise.all([
             getDocs(smsQuery),
             getDocs(trackingQuery),
             getDocs(smsCampaignQuery),
             getDocs(ordersQuery),
-            getDocs(regularOrdersQuery),
           ])
 
           const trackingMap = {}
           const smsData = []
           const trackingData = []
           const ordersData = []
-          const regularOrdersData = []
+
 
           // Process orders data - convert timestamps to dates
           ordersDocs.docs.forEach((orderDoc) => {
@@ -237,20 +206,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             })
           })
 
-          // Process regular orders data
-          regularOrdersDocs.docs.forEach((orderDoc) => {
-            const orderData = orderDoc.data()
 
-            // Convert timestamp fields
-            if (orderData.createdAt) {
-              orderData.createdAt = timestampToDate(orderData.createdAt)
-            }
-
-            regularOrdersData.push({
-              ...orderData,
-              id: orderDoc.id,
-            })
-          })
 
           // Process tracking data
           trackingDocs.docs.forEach((trackingDoc) => {
@@ -312,7 +268,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           shopData.smsCampaign = smsCampaignData
 
           // Combine both types of orders
-          shopData.orders = [...ordersData, ...regularOrdersData]
+          shopData.orders =ordersData
 
           fetchedShops.push(shopData)
         }
@@ -328,7 +284,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
 
     fetchShopData()
-  }, [userEmail, dateRange])
+  }, [userEmail])
 
   // Set up real-time listener for OrdersRetrieved collection
   useEffect(() => {
@@ -420,73 +376,6 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     return () => unsubscribe()
   }, [shopData.id])
 
-  // Set up real-time listener for regular Orders collection
-  useEffect(() => {
-    if (!shopData.id) return
-
-    const ordersRef = collection(db, "Shops", shopData.id, "Orders")
-
-    const unsubscribe = onSnapshot(ordersRef, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const orderData = change.doc.data()
-
-          // Convert timestamp fields
-          if (orderData.createdAt) {
-            orderData.createdAt = timestampToDate(orderData.createdAt)
-          }
-
-          const newOrder = {
-            id: change.doc.id,
-            ...orderData,
-          }
-
-          // Update shopData only if order doesn't already exist
-          setShopData((prevShopData) => {
-            const orderExists = prevShopData.orders?.some((order) => order.id === newOrder.id)
-            if (orderExists) return prevShopData
-
-            return {
-              ...prevShopData,
-              orders: [...(prevShopData.orders || []), newOrder],
-            }
-          })
-        }
-
-        if (change.type === "modified") {
-          const orderData = change.doc.data()
-
-          // Convert timestamp fields
-          if (orderData.createdAt) {
-            orderData.createdAt = timestampToDate(orderData.createdAt)
-          }
-
-          const updatedOrder = {
-            id: change.doc.id,
-            ...orderData,
-          }
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            orders: prevShopData.orders?.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)) || [],
-          }))
-        }
-
-        if (change.type === "removed") {
-          const removedOrderId = change.doc.id
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            orders: prevShopData.orders?.filter((order) => order.id !== removedOrderId) || [],
-          }))
-        }
-      })
-    })
-
-    return () => unsubscribe()
-  }, [shopData.id])
 
   // Set up real-time listener for SMScampaign collection
   useEffect(() => {
