@@ -187,14 +187,19 @@ import { functions } from "@/firebase/firebase"
          }
 
        } else if (shopdata.deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
-         // For Yalidin Express, check if stop desk is valid for stopdesk delivery
-         failedOrders.push(
-          ...orders.map(order => ({
-            ...order,
-            failureReason: "Backend validation failed",
-          }))
-        );
-        tokens=shopdata.tokens
+        const uploadYalidine=httpsCallable(functions,"uploadYalidineOrders")
+        const result = await uploadYalidine({ rawOrders:orders,apiKey:shopdata.apiKey,apiToken:shopdata.apiToken,shopId:shopdata.id })
+        if (result.data?.success === false) {
+          failedOrders.push(
+            ...result.data?.failed.map(order => ({
+              ...order,
+              failureReason: "Backend validation failed",
+            }))
+          );
+          tokens=result.data?.newTokens
+        } else{
+          tokens=result.data?.newTokens
+        }
        } else if (shopdata.deliveryCompany.toUpperCase() === "DHD") {
          // For other providers, just use random failures
           const uploadDHD=httpsCallable(functions,"uploadDHDOrders")
