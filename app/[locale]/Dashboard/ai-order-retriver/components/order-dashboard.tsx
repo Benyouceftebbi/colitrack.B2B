@@ -92,7 +92,7 @@ export function OrderDashboard() {
   const [isRetrieving, setIsRetrieving] = useState(false)
   const [isFacebookConnected, setIsFacebookConnected] = useState(false)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
-  const [hasRequestedBeta, setHasRequestedBeta] = useState(false)
+  const [hasRequestedBeta, setHasRequestedBeta] = useState(shopData.hasRequestedBeta?true:false)
   const [isExporting, setIsExporting] = useState(false)
   const { toast } = useToast()
 
@@ -279,7 +279,7 @@ export function OrderDashboard() {
     console.log("Beta request sent, updating state")
     setHasRequestedBeta(true)
     // Store in localStorage to persist across sessions
-    localStorage.setItem("betaRequested", "true")
+    setShopData(prev=>({...prev,hasRequestedBeta:true}))
   }, [])
 
 
@@ -744,6 +744,7 @@ export function OrderDashboard() {
               onAuthenticate={handleFacebookAuth}
               onRequestSent={handleBetaRequestSent}
               hasRequestedBeta={hasRequestedBeta}
+              shopId={shopData.id}
             />
           )}
         </Suspense>

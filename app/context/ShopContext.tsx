@@ -284,7 +284,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
 
     fetchShopData()
-  }, [userEmail])
+  }, [userEmail,dateRange])
 
   // Set up real-time listener for OrdersRetrieved collection
   useEffect(() => {

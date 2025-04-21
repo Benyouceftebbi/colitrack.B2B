@@ -14,6 +14,8 @@ import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 interface FacebookAuthDialogProps {
   isOpen: boolean
@@ -21,6 +23,7 @@ interface FacebookAuthDialogProps {
   onAuthenticate?: () => void
   onRequestSent: () => void
   hasRequestedBeta?: boolean // Add this prop
+  shopId:string | undefined
 }
 
 // Update the component to use the new prop
@@ -30,6 +33,7 @@ export function FacebookAuthDialog({
   onAuthenticate,
   onRequestSent,
   hasRequestedBeta = false,
+  shopId
 }: FacebookAuthDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -43,7 +47,8 @@ export function FacebookAuthDialog({
     try {
       console.log("Submitting beta access request...")
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+const sendRequest=httpsCallable(functions,"sendBetaRequest")
+await sendRequest({shopId:shopId})
 
       // Only set isSubmitted to true after successful API call
       setIsSubmitted(true)
@@ -57,12 +62,9 @@ export function FacebookAuthDialog({
 
       // Notify parent component that request has been sent - ONLY after success
       onRequestSent()
-
-      // Reset after 3 seconds and close dialog
-      setTimeout(() => {
         setIsSubmitted(false)
         onClose()
-      }, 3000)
+
     } catch (error) {
       console.error("Error submitting beta request:", error)
 
