@@ -123,13 +123,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     articleName: order?.orderData.articles[0]?.name.value || "",
     articleSize: order?.orderData.articles[0]?.sizes[0]?.value || "",
     articleColor: order?.orderData.articles[0]?.colors[0]?.value || "",
-    articlePrice: order?.orderData.articles[0]?.total_article_price.value / 100 || 0,
+    articlePrice: order?.orderData.articles[0]?.total_article_price.value || 0,
     address: order?.orderData.address.value || "",
     wilaya: order?.orderData.wilaya.name_fr.value || "",
     commune: order?.orderData.commune.name_fr.value || "",
     deliveryType: order?.orderData.delivery_type.value || "",
-    deliveryCost: order?.orderData.delivery_cost.value / 100 || 0,
-    totalPrice: order?.orderData.total_price.value / 100 || 0,
+    deliveryCost: order?.orderData.delivery_cost.value || 0,
+    totalPrice: order?.orderData.total_price.value || 0,
     additionalInfo: order?.orderData.additional_information?.value || "",
     stopDeskId: order?.orderData.stop_desk?.id || "",
   })
@@ -217,7 +217,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   const validation = useMemo(() => validateRegionData(order), [order])
 
   const totalPrice = useMemo(() => {
-    return isEditing ? Number(editValues.totalPrice) : order.orderData.total_price.value / 100
+    return isEditing ? Number(editValues.totalPrice) : order.orderData.total_price.value
   }, [isEditing, editValues.totalPrice, order.orderData.total_price.value])
 
   // Calculate confidence rate as average of all confidence values
@@ -265,10 +265,18 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
   // Memoize handler functions
   const handleEditChange = useCallback((field: string, value: any) => {
-    setEditValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
+    setEditValues((prev) => {
+      const newValues = { ...prev, [field]: value }
+
+      // If article price or delivery cost changes, update the total price
+      if (field === "articlePrice" || field === "deliveryCost") {
+        const articlePrice = field === "articlePrice" ? Number(value) : Number(prev.articlePrice)
+        const deliveryCost = field === "deliveryCost" ? Number(value) : Number(prev.deliveryCost)
+        newValues.totalPrice = articlePrice + deliveryCost
+      }
+
+      return newValues
+    })
   }, [])
 
   const startEditing = useCallback(() => {
@@ -295,13 +303,14 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       articleName: order.orderData.articles[0]?.name.value || "",
       articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
       articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
-      articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+      articlePrice: order.orderData.articles[0]?.total_article_price.value || 0,
       address: order.orderData.address.value,
       wilaya: exactWilayaName,
       commune: communeName,
       deliveryType: order.orderData.delivery_type.value,
-      deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
-      totalPrice: order.orderData.total_price.value / 100 || 0,
+      deliveryCost: order.orderData.delivery_cost.value || 0,
+      totalPrice:
+        (order.orderData.articles[0]?.total_article_price.value || 0) + (order.orderData.delivery_cost.value || 0),
       additionalInfo: order.orderData.additional_information?.value || "",
       stopDeskId: order.orderData.stop_desk?.id || "",
     }
@@ -388,13 +397,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       articleName: order.orderData.articles[0]?.name.value || "",
       articleSize: order.orderData.articles[0]?.sizes[0]?.value || "",
       articleColor: order.orderData.articles[0]?.colors[0]?.value || "",
-      articlePrice: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
+      articlePrice: order.orderData.articles[0]?.total_article_price.value || 0,
       address: order.orderData.address.value,
       wilaya: order.orderData.wilaya.name_fr.value,
       commune: order.orderData.commune.name_fr.value,
       deliveryType: order.orderData.delivery_type.value,
-      deliveryCost: order.orderData.delivery_cost.value / 100 || 0,
-      totalPrice: order.orderData.total_price.value / 100 || 0,
+      deliveryCost: order.orderData.delivery_cost.value || 0,
+      totalPrice: order.orderData.total_price.value || 0,
       additionalInfo: order.orderData.additional_information?.value || "",
     }
 
@@ -673,7 +682,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         />
                       ) : (
                         <p className="font-medium dark:text-gray-200">
-                          {(order.orderData.articles[0]?.total_article_price.value / 100).toLocaleString()} DA
+                          {(order.orderData.articles[0]?.total_article_price.value).toLocaleString()} DA
                         </p>
                       )}
                     </div>
@@ -689,7 +698,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         />
                       ) : (
                         <p className="font-medium dark:text-gray-200">
-                          {(order.orderData.delivery_cost.value / 100).toLocaleString()} DA
+                          {order.orderData.delivery_cost.value.toLocaleString()} DA
                         </p>
                       )}
                     </div>

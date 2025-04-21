@@ -28,7 +28,7 @@ export function StatsCards({ orders, dateRange }: StatsCardsProps) {
   // Calculate statistics from filtered orders
   const totalOrders = filteredOrders.length
   const deliveredOrders = filteredOrders.filter((order) => order.status === "delivered").length
-  const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.orderData.total_price.value, 0) / 100
+  const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.orderData.total_price.value, 0)
   const successRate = totalOrders > 0 ? Math.round((deliveredOrders / totalOrders) * 100) : 0
 
   return (

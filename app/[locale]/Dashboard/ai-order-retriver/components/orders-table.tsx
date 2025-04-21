@@ -135,7 +135,7 @@ const TableRowMemo = memo(function TableRowComponent({
     return order.orderData.articles.map((article, index) => {
       const quantity = article.quantity.value
       const name = article.name.value
-      const price = article.total_article_price.value / 100
+      const price = article.total_article_price.value
 
       return (
         <div key={index} className={index > 0 ? "mt-1 pt-1 border-t dark:border-gray-700" : ""}>
@@ -473,7 +473,7 @@ const TableRowMemo = memo(function TableRowComponent({
             className="h-8 w-24 dark:bg-slate-700/70 dark:border-gray-700"
           />
         ) : (
-          `${(order.orderData.delivery_cost.value / 100).toLocaleString()} DA`
+          `${(order.orderData.delivery_cost.value).toLocaleString()} DA`
         )}
       </TableCell>
       <TableCell>
@@ -514,7 +514,7 @@ const TableRowMemo = memo(function TableRowComponent({
             className="h-8 w-24 dark:bg-slate-700/70 dark:border-gray-700"
           />
         ) : (
-          <span className="font-medium">{(order.orderData.total_price.value / 100).toLocaleString()} DA</span>
+          <span className="font-medium">{order.orderData.total_price.value.toLocaleString()} DA</span>
         )}
       </TableCell>
       <TableCell>
@@ -736,9 +736,9 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
           clientName: order.orderData.client_name.value,
           phoneNumber: order.orderData.phone_number.value,
           articleName: order.orderData.articles[0]?.name.value || "",
-          price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-          deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
-          totalPrice: order.orderData.total_price.value / 100 || 0,
+          price: order.orderData.articles[0]?.total_article_price.value || 0,
+          deliveryPrice: order.orderData.delivery_cost.value || 0,
+          totalPrice: order.orderData.total_price.value || 0,
           address: order.orderData.address.value,
           wilaya: exactWilayaName,
           commune: exactCommuneName,
@@ -770,9 +770,9 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
           clientName: order.orderData.client_name.value,
           phoneNumber: order.orderData.phone_number.value,
           articleName: order.orderData.articles[0]?.name.value || "",
-          price: order.orderData.articles[0]?.total_article_price.value / 100 || 0,
-          deliveryPrice: order.orderData.delivery_cost.value / 100 || 0,
-          totalPrice: order.orderData.total_price.value / 100 || 0,
+          price: order.orderData.articles[0]?.total_article_price.value || 0,
+          deliveryPrice: order.orderData.delivery_cost.value || 0,
+          totalPrice: order.orderData.total_price.value || 0,
           address: order.orderData.address.value,
           wilaya: wilayaName,
           commune: communeName,
@@ -811,9 +811,9 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       case "articleName":
         return order.orderData.articles[0]?.name.value || ""
       case "price":
-        return order.orderData.articles[0]?.total_article_price.value / 100 || 0
+        return order.orderData.articles[0]?.total_article_price.value || 0
       case "deliveryPrice":
-        return order.orderData.delivery_cost.value / 100 || 0
+        return order.orderData.delivery_cost.value || 0
       case "address":
         return order.orderData.address.value
       case "wilaya":
@@ -828,7 +828,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       case "stopDeskId":
         return order.orderData.stop_desk?.id || ""
       case "totalPrice":
-        return order.orderData.total_price.value / 100 || 0
+        return order.orderData.total_price.value || 0
       default:
         return ""
     }
@@ -866,10 +866,18 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
   )
 
   const handleEditChange = useCallback((field: string, value: any) => {
-    setEditValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
+    setEditValues((prev) => {
+      const newValues = { ...prev, [field]: value }
+
+      // If price (article price) or deliveryPrice (delivery cost) changes, update the total price
+      if (field === "price" || field === "deliveryPrice") {
+        const articlePrice = field === "price" ? Number(value) : Number(prev.price || 0)
+        const deliveryCost = field === "deliveryPrice" ? Number(value) : Number(prev.deliveryPrice || 0)
+        newValues.totalPrice = articlePrice + deliveryCost
+      }
+
+      return newValues
+    })
   }, [])
 
   // Use useMemo for filtered orders

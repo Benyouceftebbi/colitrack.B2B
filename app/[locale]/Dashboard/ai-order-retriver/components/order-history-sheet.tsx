@@ -47,7 +47,7 @@ const OrderRow = memo(function OrderRow({
         </div>
       </TableCell>
       <TableCell>{format(orderDate, "MMM dd, yyyy")}</TableCell>
-      <TableCell>{(order.orderData.total_price.value / 100).toLocaleString()} DA</TableCell>
+      <TableCell>{(order.orderData.total_price.value).toLocaleString()} DA</TableCell>
       <TableCell>
         <div className="max-w-[150px] truncate" title={order.orderData.articles[0]?.name.value || ""}>
           {order.orderData.articles[0]?.name.value || "-"}

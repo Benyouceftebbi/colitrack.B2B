@@ -146,7 +146,7 @@ export function OrderDashboard() {
             case "price":
             case "articlePrice":
               if (updatedOrder.orderData.articles[0]) {
-                updatedOrder.orderData.articles[0].total_article_price.value = value * 100
+                updatedOrder.orderData.articles[0].total_article_price.value = value
                 // Also update the total price
                 updatedOrder.orderData.total_price.value =
                   updatedOrder.orderData.articles[0].total_article_price.value +
@@ -155,7 +155,7 @@ export function OrderDashboard() {
               break
             case "deliveryPrice":
             case "deliveryCost":
-              updatedOrder.orderData.delivery_cost.value = value * 100
+              updatedOrder.orderData.delivery_cost.value = value 
               // Also update the total price
               updatedOrder.orderData.total_price.value =
                 (updatedOrder.orderData.articles[0]?.total_article_price.value || 0) +
@@ -188,7 +188,7 @@ export function OrderDashboard() {
             // Existing cases...
             case "totalPrice":
               // Update the total price directly
-              updatedOrder.orderData.total_price.value = value * 100
+              updatedOrder.orderData.total_price.value = value
               break
             case "stopDeskId":
               // If stop desk ID is provided, get the center information
@@ -424,7 +424,7 @@ export function OrderDashboard() {
           commune: order.orderData.commune.name_fr.value || wilayaName, // Use wilaya name if commune is undefined
           communeId: communeId, // Add commune ID
           deliveryType: order.orderData.delivery_type.value,
-          totalPrice: order.orderData.total_price.value / 100,
+          totalPrice: order.orderData.total_price.value,
           status: "confirmed", // New status after export
           // Include stop desk information if applicable
           stopDesk:
@@ -450,7 +450,7 @@ export function OrderDashboard() {
           wilaya: order.orderData.wilaya.name_fr.value,
           commune: order.orderData.commune.name_fr.value,
           deliveryType: order.orderData.delivery_type.value,
-          totalPrice: order.orderData.total_price.value / 100,
+          totalPrice: order.orderData.total_price.value,
           validationIssues: {
             wilayaValid: validation.wilayaValid,
             communeValid: validation.communeValid,

@@ -1,21 +1,12 @@
 "use client"
 
 import type * as React from "react"
-import { Command, CreditCard, Home, MessageSquare, Settings, Target, Brain,Squirrel } from "lucide-react"
+import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel } from "lucide-react"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
 import { NavUser } from "@/components/ui/navigation/nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar"
-import { Link, usePathname } from "@/i18n/routing"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { usePathname } from "@/i18n/routing"
 import { useShop } from "@/app/context/ShopContext"
 import { useTranslations } from "next-intl"
 import { ShopSwitcher } from "./shop-switcher"
@@ -24,7 +15,7 @@ import { NavSecondaryWithDialogs } from "./nav-secondary"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname().split("/").filter(Boolean)
   const { shopData } = useShop()
-  const {shops}=useShop()
+  const { shops } = useShop()
   const t = useTranslations("sidebar")
 
   const data = {
@@ -60,9 +51,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t("nav.retargeting"),
         isActive: pathname[1] === "retargeting",
       },
-      {url: "/dashboard/ai-order-retriver",icon: Squirrel,title: t("nav.ai-order-retriver"),isActive: pathname[1] === "ai-order-retriver",},
+      {
+        url: "/dashboard/ai-order-retriver",
+        icon: Squirrel,
+        title: (
+          <div className="flex items-center gap-2">
+            {t("nav.ai-order-retriver")}
+            <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm ring-1 ring-inset ring-primary/20 animate-pulse">
+              NEW
+            </span>
+          </div>
+        ),
+        isActive: pathname[1] === "ai-order-retriver",
+      },
       { url: "/dashboard/orders", icon: Brain, title: t("nav.ai-orders"), isActive: pathname[1] === "orders" },
-    //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },
+      //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },
       { url: "/dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],
   }
@@ -70,18 +73,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-      <ShopSwitcher teams={shops} />
+        <ShopSwitcher teams={shops} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-      <NavSecondaryWithDialogs className="mt-auto"/>
+        <NavSecondaryWithDialogs className="mt-auto" />
         <NavUser user={data.user} shopData={shopData} />
-
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
 }
-
