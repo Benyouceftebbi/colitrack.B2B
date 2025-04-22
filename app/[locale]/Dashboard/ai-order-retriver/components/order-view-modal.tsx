@@ -28,12 +28,14 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import type { Order } from "../data/sample-orders"
 import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
-import { MetaLogo } from "./meta-logo"
 
 // Add the import for Yalidin centers
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
 import { getNoastCentersByWilaya } from "../data/noast-centers"
+
+// At the top of the file, add the import for useTranslations
+import { useTranslations } from "next-intl"
 
 // Add a function to validate wilaya and commune after the imports but before the component
 function validateRegionData(order: Order) {
@@ -113,8 +115,22 @@ interface OrderViewModalProps {
   onEditOrder?: (order: Order, field: string, value: any) => void
 }
 
+// Define MetaLogo component (replace with actual implementation or import)
+const MetaLogo = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+      <path
+        fill="currentColor"
+        d="M14 13.5h2.5l1-4H14v-2c0-.55.45-1 1-1h1.5V3.28c0-.88-1.08-1.3-1.8-.82l-3 2.25V9h-3c0 .55.45 1 1 1h2v3.5z"
+      />
+    </svg>
+  )
+}
+
 // Update the OrderViewModal component to handle other shipping providers
 export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEditOrder }: OrderViewModalProps) {
+  // Inside the OrderViewModal component, add this line near the top:
+  const t = useTranslations("ai-order-retriever")
   const { shopData } = useShop()
   const [isEditing, setIsEditing] = useState(false)
   const [editValues, setEditValues] = useState({
@@ -438,7 +454,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
           <CardTitle className="text-base font-medium flex items-center">
             <MessageSquare className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-            Conversation History
+            {t("conversationHistory")}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -448,15 +464,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                 <ConversationMessage key={index} message={message} index={index} />
               ))
             ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                No conversation history available.
-              </div>
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">{t("noConversationHistory")}</div>
             )}
           </div>
         </CardContent>
       </Card>
     )
-  }, [order.conversation])
+  }, [order.conversation, t])
 
   // Function to check if stop desk is available for a commune
   const isStopDeskAvailableForCommune = useCallback(
@@ -513,7 +527,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                 onClick={startEditing}
                 className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 dark:border-indigo-800"
               >
-                <Edit2 className="h-4 w-4 mr-1" /> Edit
+                <Edit2 className="h-4 w-4 mr-1" /> {t("edit")}
               </Button>
             )}
             {isEditing && (
@@ -524,7 +538,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                   onClick={cancelEditing}
                   className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
                 >
-                  <X className="h-4 w-4 mr-1" /> Cancel
+                  <X className="h-4 w-4 mr-1" /> {t("cancel")}
                 </Button>
                 <Button
                   variant="default"
@@ -532,7 +546,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                   onClick={saveChanges}
                   className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
                 >
-                  <Save className="h-4 w-4 mr-1" /> Save
+                  <Save className="h-4 w-4 mr-1" /> {t("save")}
                 </Button>
               </>
             )}
@@ -543,7 +557,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               <X className="h-5 w-5" />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t("close")}</span>
             </Button>
           </div>
         </div>
@@ -557,13 +571,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                 <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
                   <CardTitle className="text-base font-medium flex items-center">
                     <User className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                    Customer Information
+                    {t("customerInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("name")}</p>
                       {isEditing ? (
                         <Input
                           value={editValues.clientName}
@@ -576,7 +590,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                     </div>
 
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("phone")}</p>
                       {isEditing ? (
                         <Input
                           value={editValues.phoneNumber}
@@ -589,7 +603,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                     </div>
 
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Source</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("source")}</p>
                       <div className="flex items-center">
                         {order.source === "messenger" ? (
                           <Badge
@@ -619,13 +633,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                 <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
                   <CardTitle className="text-base font-medium flex items-center">
                     <Package className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                    Order Details
+                    {t("orderDetails")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Article</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("article")}</p>
                       {isEditing ? (
                         <Input
                           value={editValues.articleName}
@@ -641,7 +655,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
                     {(order.orderData.articles[0]?.sizes.length > 0 || isEditing) && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Size</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("size")}</p>
                         {isEditing ? (
                           <Input
                             value={editValues.articleSize}
@@ -656,7 +670,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
                     {(order.orderData.articles[0]?.colors.length > 0 || isEditing) && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Color</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("color")}</p>
                         {isEditing ? (
                           <Input
                             value={editValues.articleColor}
@@ -672,7 +686,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                     )}
 
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Price</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("price")}</p>
                       {isEditing ? (
                         <Input
                           type="number"
@@ -688,7 +702,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                     </div>
 
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Delivery Cost</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("deliveryCost")}</p>
                       {isEditing ? (
                         <Input
                           type="number"
@@ -707,7 +721,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                   <Separator className="my-2 dark:border-gray-700" />
 
                   <div className="flex justify-between items-center">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Price</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("totalPrice")}</p>
                     {isEditing ? (
                       <div className="flex items-center">
                         <Input
@@ -728,19 +742,19 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center">
                       <Badge className={cn("mr-2", confidenceBadgeColor)}>{confidenceRate}%</Badge>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Confidence</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t("confidence")}</span>
                     </div>
 
                     <div className="flex items-center">
                       {order.status === "delivered" ? (
                         <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 flex items-center">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Delivered
+                          {t("delivered")}
                         </Badge>
                       ) : (
                         <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 flex items-center">
                           <AlertCircle className="h-3 w-3 mr-1" />
-                          Pending
+                          {t("pending")}
                         </Badge>
                       )}
                     </div>
@@ -753,20 +767,20 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                 <CardHeader className="bg-gray-50 dark:bg-slate-800/80 border-b dark:border-gray-700 py-3">
                   <CardTitle className="text-base font-medium flex items-center">
                     <Truck className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                    Delivery Information
+                    {t("deliveryInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Delivery Type</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("deliveryType")}</p>
                       {isEditing ? (
                         <Select
                           value={editValues.deliveryType}
                           onValueChange={(value) => handleEditChange("deliveryType", value)}
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select type">
+                            <SelectValue placeholder={t("selectType")}>
                               {editValues.deliveryType === "home"
                                 ? "À domicile"
                                 : editValues.deliveryType === "stopdesk"
@@ -775,9 +789,9 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="home">À domicile</SelectItem>
+                            <SelectItem value="home">{t("homeDelivery")}</SelectItem>
                             <SelectItem value="stopdesk">
-                              Point de relais
+                              {t("stopDesk")}
                               {!isNoastExpress &&
                                 editValues.commune &&
                                 !isStopDeskAvailableForCommune(editValues.commune) && (
@@ -810,7 +824,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                     {/* Only show stop desk selection for providers that require it */}
                     {editValues.deliveryType === "stopdesk" && requiresStopDesk ? (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Stop Desk</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("stopDesk")}</p>
                         {isEditing ? (
                           <Select
                             value={editValues.stopDeskId || "no_selection"}
@@ -820,16 +834,18 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                             disabled={availableStopDesks.length === 0}
                           >
                             <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                              <SelectValue placeholder="Select stop desk" />
+                              <SelectValue placeholder={t("selectStopDesk")} />
                             </SelectTrigger>
                             <SelectContent>
                               {availableStopDesks.length === 0 ? (
                                 <SelectItem value="no_selection">
-                                  <span className="text-amber-500 font-medium">No Stop Desks Available</span>
+                                  <span className="text-amber-500 text-xs font-medium">
+                                    {t("noStopDesksAvailable")}
+                                  </span>
                                 </SelectItem>
                               ) : (
                                 <>
-                                  <SelectItem value="no_selection">Select a stop desk</SelectItem>
+                                  <SelectItem value="no_selection">{t("selectAStopDesk")}</SelectItem>
                                   {availableStopDesks
                                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
                                     .map((desk) => {
@@ -847,7 +863,9 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           </Select>
                         ) : (
                           <p className="font-medium dark:text-gray-200">
-                            {order.orderData.stop_desk?.name || "Not selected"}
+                            {order.orderData.stop_desk?.name || (
+                              <span className="text-amber-600 dark:text-amber-400 font-medium">{t("notSelected")}</span>
+                            )}
                           </p>
                         )}
                       </div>
@@ -855,7 +873,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t("address")}</p>
                     {isEditing ? (
                       <Input
                         value={editValues.address}
@@ -869,7 +887,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Wilaya</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("wilaya")}</p>
                       {isEditing ? (
                         <Select
                           value={editValues.wilaya}
@@ -880,7 +898,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           }}
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
+                            <SelectValue placeholder={t("selectWilaya")}>{editValues.wilaya}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {getAllWilayas()
@@ -901,13 +919,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       {!validation.wilayaValid && (
                         <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
                           <AlertTriangle className="h-4 w-4 mr-1" />
-                          Invalid wilaya
+                          {t("invalidWilaya")}
                         </div>
                       )}
                     </div>
 
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Commune</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("commune")}</p>
                       {isEditing ? (
                         <Select
                           value={editValues.commune || "placeholder-value"}
@@ -919,7 +937,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           }
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
-                            <SelectValue placeholder="Select commune">
+                            <SelectValue placeholder={t("selectCommune")}>
                               {isNoastExpress && editValues.deliveryType === "stopdesk"
                                 ? "Not required for NOEST"
                                 : editValues.commune || "Select commune"}
@@ -928,7 +946,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           <SelectContent>
                             {isNoastExpress && editValues.deliveryType === "stopdesk" ? (
                               <SelectItem value="placeholder-value" disabled>
-                                Not required for NOEST Express
+                                {t("notRequiredForNoestExpress")}
                               </SelectItem>
                             ) : isNoastExpress ? (
                               // For NOEST Express, add the wilaya as a commune option
@@ -956,7 +974,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                                             </span>
                                             {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
                                               <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                                                No Stop Desk
+                                                {t("noStopDesk")}
                                               </span>
                                             )}
                                           </div>
@@ -991,7 +1009,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                                         </span>
                                         {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
                                           <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                                            No Stop Desk
+                                            {t("noStopDesk")}
                                           </span>
                                         )}
                                       </div>
@@ -1008,7 +1026,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                       ) : (
                         <p className="font-medium dark:text-gray-200">
                           {isNoastExpress && order.orderData.delivery_type.value === "stopdesk" ? (
-                            <span className="text-gray-500 dark:text-gray-400 italic">Not required for NOEST</span>
+                            <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequiredForNoest")}</span>
                           ) : order.orderData.commune.name_fr.value ? (
                             order.orderData.commune.name_fr.value
                           ) : (
@@ -1020,14 +1038,14 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         !(isNoastExpress && order.orderData.delivery_type.value === "stopdesk") && (
                           <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
                             <AlertTriangle className="h-4 w-4 mr-1" />
-                            Invalid commune
+                            {t("invalidCommune")}
                           </div>
                         )}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Additional Information</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t("additionalInformation")}</p>
                     {isEditing ? (
                       <Input
                         value={editValues.additionalInfo}

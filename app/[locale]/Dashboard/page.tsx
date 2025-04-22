@@ -500,7 +500,7 @@ const percentageChangereturn =
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
                     {t("tokens-left")}
                   </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{shopData.tokens}</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold"> {Number(shopData.tokens).toFixed(2)}</h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />

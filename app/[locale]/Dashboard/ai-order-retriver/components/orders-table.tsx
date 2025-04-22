@@ -18,6 +18,8 @@ import { useOrders } from "./order-dashboard"
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
 import { getNoastCentersByWilaya } from "../data/noast-centers"
+// At the top of the file, add the import for useTranslations
+import { useTranslations } from "next-intl"
 
 interface OrdersTableProps {
   orders: Order[]
@@ -60,6 +62,8 @@ const TableRowMemo = memo(function TableRowComponent({
   isNoestExpress: boolean
   requiresStopDesk: boolean
 }) {
+  // Inside the TableRowMemo component, add this line near the top:
+  const t = useTranslations("ai-order-retriever")
   // Memoize expensive calculations for each row
   const confidenceRate = useMemo(() => {
     let totalConfidence = 0
@@ -207,7 +211,7 @@ const TableRowMemo = memo(function TableRowComponent({
         {editingRow === order.id ? (
           <Select value={editValues.wilaya || ""} onValueChange={(value) => handleEditChange("wilaya", value)}>
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select wilaya">{editValues.wilaya}</SelectValue>
+              <SelectValue placeholder={t("selectWilaya")}>{editValues.wilaya}</SelectValue>
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
               {getAllWilayas()
@@ -237,7 +241,7 @@ const TableRowMemo = memo(function TableRowComponent({
                     <AlertTriangle className="h-4 w-4 text-amber-500" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Wilaya not found in database. This order cannot be exported.</p>
+                    <p>{t("wilayaNotFound")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -258,7 +262,7 @@ const TableRowMemo = memo(function TableRowComponent({
             }
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select commune">
+              <SelectValue placeholder={t("selectCommune")}>
                 {isNoestExpress && editValues.deliveryType === "stopdesk"
                   ? "Not required for NOEST"
                   : editValues.commune || "Select commune"}
@@ -267,7 +271,7 @@ const TableRowMemo = memo(function TableRowComponent({
             <SelectContent>
               {isNoestExpress && editValues.deliveryType === "stopdesk" ? (
                 <SelectItem value="placeholder-value" disabled>
-                  Not required for NOEST Express
+                  {t("notRequiredForNoestExpress")}
                 </SelectItem>
               ) : isNoestExpress ? (
                 // For NOEST Express, add the wilaya as a commune option
@@ -294,7 +298,7 @@ const TableRowMemo = memo(function TableRowComponent({
                               </span>
                               {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
                                 <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                                  No Stop Desk
+                                  {t("noStopDesk")}
                                 </span>
                               )}
                             </div>
@@ -328,7 +332,7 @@ const TableRowMemo = memo(function TableRowComponent({
                           </span>
                           {!hasStopDesk && editValues.deliveryType === "stopdesk" && (
                             <span className="text-amber-500 text-xs font-medium ml-2 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                              No Stop Desk
+                              {t("noStopDesk")}
                             </span>
                           )}
                         </div>
@@ -345,11 +349,11 @@ const TableRowMemo = memo(function TableRowComponent({
         ) : (
           <div className="flex items-center gap-1">
             {isNoestExpress && order.orderData.delivery_type.value === "stopdesk" ? (
-              <span className="text-gray-500 dark:text-gray-400 italic">Not required for NOEST</span>
+              <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequiredForNoest")}</span>
             ) : (
               <>
                 {order.orderData.commune.name_fr.value || (
-                  <span className="text-gray-500 dark:text-gray-400 italic">Not specified</span>
+                  <span className="text-gray-500 dark:text-gray-400 italic">{t("notSpecified")}</span>
                 )}
               </>
             )}
@@ -364,15 +368,15 @@ const TableRowMemo = memo(function TableRowComponent({
             onValueChange={(value) => handleEditChange("deliveryType", value)}
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select type" />
+              <SelectValue placeholder={t("selectType")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="home">À domicile</SelectItem>
+              <SelectItem value="home">{t("homeDelivery")}</SelectItem>
               <SelectItem value="stopdesk">
-                Stop desk
+                {t("stopDesk")}
                 {!isNoestExpress && editValues.commune && !isStopDeskAvailable(editValues.commune) && (
                   <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
-                    Non disponible
+                    {t("notAvailable")}
                   </span>
                 )}
               </SelectItem>
@@ -380,7 +384,7 @@ const TableRowMemo = memo(function TableRowComponent({
           </Select>
         ) : (
           <div className="flex items-center gap-1">
-            {order.orderData.delivery_type.value === "home" ? "À domicile" : "Stop desk"}
+            {order.orderData.delivery_type.value === "home" ? t("homeDelivery") : t("stopDesk")}
 
             {order.orderData.delivery_type.value === "stopdesk" && !stopDeskValid && !isNoestExpress && (
               <TooltipProvider>
@@ -389,7 +393,7 @@ const TableRowMemo = memo(function TableRowComponent({
                     <AlertTriangle className="h-4 w-4 text-amber-500" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Stop desk is not available in this commune. This order cannot be exported.</p>
+                    <p>{t("stopDeskNotAvailable")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -405,16 +409,16 @@ const TableRowMemo = memo(function TableRowComponent({
             onValueChange={(value) => handleEditChange("stopDeskId", value === "no_selection" ? "" : value)}
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
-              <SelectValue placeholder="Select stop desk" />
+              <SelectValue placeholder={t("selectStopDesk")} />
             </SelectTrigger>
             <SelectContent>
               {availableStopDesks.length === 0 ? (
                 <SelectItem value="no_selection">
-                  <span className="text-amber-500 font-medium">No Stop Desks Available</span>
+                  <span className="text-amber-500 font-medium">{t("noStopDesksAvailable")}</span>
                 </SelectItem>
               ) : (
                 <>
-                  <SelectItem value="no_selection">Select a stop desk</SelectItem>
+                  <SelectItem value="no_selection">{t("selectAStopDesk")}</SelectItem>
                   {availableStopDesks
                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
                     .map((desk) => {
@@ -436,7 +440,7 @@ const TableRowMemo = memo(function TableRowComponent({
           {order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk ? (
             <div className="flex items-center gap-1">
               {order.orderData.stop_desk?.name || (
-                <span className="text-amber-600 dark:text-amber-400 font-medium">Not selected</span>
+                <span className="text-amber-600 dark:text-amber-400 font-medium">{t("notSelected")}</span>
               )}
               {order.orderData.delivery_type.value === "stopdesk" &&
                 requiresStopDesk &&
@@ -448,10 +452,10 @@ const TableRowMemo = memo(function TableRowComponent({
                       </TooltipTrigger>
                       <TooltipContent className="bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800">
                         <p className="font-medium text-amber-700 dark:text-amber-400">
-                          Stop desk selection is required. This order cannot be exported.
+                          {t("stopDeskSelectionRequired")}
                         </p>
                         <p className="text-sm text-amber-600 dark:text-amber-500 mt-1">
-                          Click the edit button to select a stop desk.
+                          {t("clickEditToSelectStopDesk")}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -459,7 +463,7 @@ const TableRowMemo = memo(function TableRowComponent({
                 )}
             </div>
           ) : (
-            <span className="text-gray-500 dark:text-gray-400 italic">Not required</span>
+            <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequired")}</span>
           )}
         </TableCell>
       )}
@@ -563,6 +567,8 @@ const TableRowMemo = memo(function TableRowComponent({
 
 // Update the OrdersTable component to pass requiresStopDesk to TableRowMemo
 export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, dateRange }: OrdersTableProps) {
+  // Inside the OrdersTable component, add this line near the top:
+  const t = useTranslations("ai-order-retriever")
   const { selectedRows, setSelectedRows, handleEditOrder } = useOrders()
   const { shopData } = useShop()
   const [editingRow, setEditingRow] = useState<string | null>(null)
@@ -901,27 +907,27 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
                 aria-label="Select all"
               />
             </TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Articles</TableHead>
-            <TableHead>Wilaya</TableHead>
-            <TableHead>Commune</TableHead>
-            <TableHead>Delivery Type</TableHead>
-            <TableHead>Stop Desk</TableHead>
-            <TableHead>Delivery Price</TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Additional Info</TableHead>
-            <TableHead>Confidence</TableHead>
-            <TableHead>Total Price</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("name")}</TableHead>
+            <TableHead>{t("phone")}</TableHead>
+            <TableHead>{t("articles")}</TableHead>
+            <TableHead>{t("wilaya")}</TableHead>
+            <TableHead>{t("commune")}</TableHead>
+            <TableHead>{t("deliveryType")}</TableHead>
+            <TableHead>{t("stopDesk")}</TableHead>
+            <TableHead>{t("deliveryPrice")}</TableHead>
+            <TableHead>{t("address")}</TableHead>
+            <TableHead>{t("additionalInfo")}</TableHead>
+            <TableHead>{t("confidence")}</TableHead>
+            <TableHead>{t("totalPrice")}</TableHead>
+            <TableHead>{t("source")}</TableHead>
+            <TableHead className="text-right">{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow className="dark:border-gray-700">
               <TableCell colSpan={14} className="h-24 text-center dark:text-gray-400">
-                No orders found in the selected date range.
+                {t("noOrdersInDateRange")}
               </TableCell>
             </TableRow>
           ) : (

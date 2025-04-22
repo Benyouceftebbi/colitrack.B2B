@@ -1,19 +1,11 @@
 "use client"
+import { ArrowUpRight, Box, CheckCircle, Clock, Package, Truck } from "lucide-react"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { doc, getDocs, collection, onSnapshot, query, where, updateDoc, Timestamp } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import type { DateRange } from "react-day-picker"
-import {
-  Sidebar as SidebarPrimitive,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarInset,
-} from "@/components/ui/sidebar"
+
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -284,8 +276,155 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
 
     fetchShopData()
-  }, [userEmail,dateRange])
+  }, [userEmail])
+  useEffect(() => {
+    const fetchShopData = async () => {
+      setLoading(true)
+      if (!shopData.id) {
+        console.log("No shop provided")
+        setLoading(false)
+        return
+      }
 
+      try {
+        
+        const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail))
+        const shopDocs = await getDocs(shopsQuery)
+console.log("hello mama");
+
+        if (shopDocs.empty) {
+          console.log("No shop data found")
+          setError("No shop data found")
+          setLoading(false)
+          return
+        }
+
+        const fetchedShops = []
+        
+          const shopRef = doc(db, "Shops", shopData.id)
+
+          // Convert dateRange to Firestore timestamps
+          const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
+          const toTimestamp = dateRange?.to ? dateToTimestamp(dateRange.to) : null
+
+          // Firestore query conditions for SMS and Tracking collections
+          const smsQuery =
+            fromTimestamp && toTimestamp
+              ? query(
+                  collection(shopRef, "SMS"),
+                  where("createdAt", ">=", fromTimestamp),
+                  where("createdAt", "<=", toTimestamp),
+                )
+              : collection(shopRef, "SMS")
+
+          const trackingQuery =
+            fromTimestamp && toTimestamp
+              ? query(
+                  collection(shopRef, "Tracking"),
+                  where("lastUpdated", ">=", fromTimestamp),
+                  where("lastUpdated", "<=", toTimestamp),
+                )
+              : collection(shopRef, "Tracking")
+
+          // Add query for OrdersRetrieved collection with timestamp handling
+          const ordersQuery =
+            fromTimestamp && toTimestamp
+              ? query(
+                  collection(shopRef, "OrdersRetrieved"),
+                  where("timestamp", ">=", fromTimestamp),
+                  where("timestamp", "<=", toTimestamp),
+                )
+              : collection(shopRef, "OrdersRetrieved")
+
+          // Fetch subcollections in parallel
+          const [smsDocs, trackingDocs,ordersDocs] = await Promise.all([
+            getDocs(smsQuery),
+            getDocs(trackingQuery),
+            getDocs(ordersQuery),
+          ])
+
+          const trackingMap = {}
+          const smsData = []
+          const trackingData = []
+          const ordersData = []
+
+
+          // Process orders data - convert timestamps to dates
+          ordersDocs.docs.forEach((orderDoc) => {
+            const orderData = orderDoc.data()
+
+            // Convert timestamp fields to JavaScript Date objects
+            if (orderData.timestamp) {
+              orderData.timestamp = timestampToDate(orderData.timestamp)
+            }
+
+            // Handle nested timestamp fields in orderData
+            if (orderData.orderData && orderData.orderData.message_time) {
+              orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
+            }
+
+            ordersData.push({
+              ...orderData,
+              id: orderDoc.id,
+            })
+          })
+
+
+
+          // Process tracking data
+          trackingDocs.docs.forEach((trackingDoc) => {
+            const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
+
+            // Convert timestamp fields
+            if (trackingInfo.lastUpdated) {
+              trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
+            }
+
+            trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
+
+            // Find related SMS documents
+            const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
+            const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
+
+            trackingInfo.messageTypes = messageTypes
+            trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
+            trackingInfo.deliveryType =
+              trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
+
+            trackingData.push(trackingInfo)
+          })
+
+          // Process SMS data
+          smsDocs.docs.forEach((smsDoc) => {
+            const smsInfo = smsDoc.data()
+
+            // Convert timestamp fields
+            if (smsInfo.createdAt) {
+              smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
+            }
+
+            smsData.push({
+              ...smsInfo,
+              id: smsDoc.id,
+              lastStatus: trackingMap[smsInfo.trackingId] || null,
+            })
+          })
+
+  
+
+
+        setShopData((prev)=>({...prev,orders:ordersData,sms:smsData,tracking:trackingData}))
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching shop data when chaning time:", err)
+        setError("Error fetching shop data when chaning time")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchShopData()
+  }, [shopData.id,dateRange])
   // Set up real-time listener for OrdersRetrieved collection
   useEffect(() => {
     if (!shopData.id) return
@@ -374,7 +513,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     })
 
     return () => unsubscribe()
-  }, [shopData.id])
+  }, [])
 
 
   // Set up real-time listener for SMScampaign collection
@@ -486,7 +625,42 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     })
 
     return () => unsubscribe()
-  }, [shopData.id])
+  }, [])
+
+
+  const [progress, setProgress] = useState(0)
+  const [loadingText, setLoadingText] = useState("Initializing...")
+
+  useEffect(() => {
+    const texts = [
+      "Initializing...",
+      "Loading delivery analytics...",
+      "Preparing optimization tools...",
+      "Setting up tracking dashboard...",
+      "Almost ready...",
+    ]
+
+    let interval: NodeJS.Timeout
+
+    // Simulate loading progress
+    interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+
+        // Update loading text based on progress
+        const textIndex = Math.min(Math.floor(prev / 20), texts.length - 1)
+        setLoadingText(texts[textIndex])
+
+        return prev + 1
+      })
+    }, 40)
+
+    return () => clearInterval(interval)
+  }, [])
+
 
   if (!loading && shopData.id) {
     return (
@@ -506,69 +680,68 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         {children}
       </ShopContext.Provider>
     )
+
+
   }
 
   // Show loading UI when data is not yet available
   return (
-    <div className="flex h-screen overflow-hidden w-full">
-      <SidebarPrimitive>
-        <SidebarHeader className="p-4">
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {[...Array(5)].map((_, index) => (
-              <SidebarMenuItem key={index}>
-                <SidebarMenuButton asChild>
-                  <div className="flex items-center">
-                    <Skeleton className="h-4 w-4 mr-2" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter className="p-4">
-          <SidebarMenuButton asChild className="w-full">
-            <div className="flex items-center">
-              <Skeleton className="h-4 w-4 mr-2" />
-              <Skeleton className="h-4 w-16" />
-            </div>
-          </SidebarMenuButton>
-        </SidebarFooter>
-      </SidebarPrimitive>
-      <SidebarInset className="flex-1 overflow-auto">
-        <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
-          <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <Skeleton className="h-8 w-64" />
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-8 w-24" />
-                <Skeleton className="h-8 w-8 rounded-md" />
-              </div>
-            </div>
-            <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
-              {[...Array(4)].map((_, index) => (
-                <Card
-                  key={index}
-                  className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:bg-primary/5"
-                >
-                  <CardContent className="p-2 sm:p-4 md:p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Skeleton className="h-4 w-20 mb-2" />
-                        <Skeleton className="h-6 w-24" />
-                      </div>
-                      <Skeleton className="h-8 w-8 rounded-full" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+    <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
+      <div className="w-full max-w-md">
+        {/* Logo and Name */}
+        <div className="mb-8 flex items-center justify-center">
+          <div className="relative mr-3">
+            <div className="absolute inset-0 animate-ping rounded-full bg-indigo-400 opacity-20"></div>
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white">
+              <Package className="h-6 w-6" />
             </div>
           </div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-800">
+            Coli<span className="text-indigo-500">track</span>
+          </h1>
         </div>
-      </SidebarInset>
+
+        {/* Description */}
+        <div className="mb-8 text-center">
+          <h2 className="mb-2 text-xl font-medium text-slate-700">Elevate Your E-Commerce Delivery Performance</h2>
+          <p className="text-slate-600">
+            Comprehensive tools to optimize delivery rates, track packages, and enhance customer satisfaction
+          </p>
+        </div>
+
+        {/* Features */}
+        <div className="mb-8 grid grid-cols-2 gap-4">
+          {[
+            { icon: Truck, text: "Delivery Optimization" },
+            { icon: CheckCircle, text: "Success Rate Analytics" },
+            { icon: Clock, text: "Real-time Tracking" },
+            { icon: Box, text: "Inventory Management" },
+          ].map((feature, index) => (
+            <div
+              key={index}
+              className="flex items-center rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-all hover:shadow"
+            >
+              <feature.icon className="mr-2 h-5 w-5 text-indigo-500" />
+              <span className="text-sm font-medium text-slate-700">{feature.text}</span>
+              <ArrowUpRight className="ml-auto h-4 w-4 text-slate-400" />
+            </div>
+          ))}
+        </div>
+
+        {/* Loading Bar */}
+        <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-indigo-500 transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* Loading Text */}
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-600">{loadingText}</span>
+          <span className="font-medium text-slate-700">{progress}%</span>
+        </div>
+      </div>
     </div>
   )
 }

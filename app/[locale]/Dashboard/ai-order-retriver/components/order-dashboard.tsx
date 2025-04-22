@@ -12,6 +12,7 @@ import { orders as initialOrders, type Order } from "../data/sample-orders"
 import { validateRegionData } from "./validation-utils"
 import { uploadOrders } from "../data/shipping-availability"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from "next-intl"
 
 // Lazy load heavy components
 const OrderViewModal = lazy(() => import("./order-view-modal").then((mod) => ({ default: mod.OrderViewModal })))
@@ -53,14 +54,18 @@ export const useOrders = () => {
 }
 
 // Loading fallback component
-const LoadingFallback = () => (
-  <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
-      <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
-      <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">Loading...</p>
+const LoadingFallback = () => {
+  const t = useTranslations("ai-order-retriever")
+
+  return (
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
+        <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">{t("loading")}</p>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 // Helper function to get center by ID
 const getCenterById = (id: string, deliveryCompany: string) => {
@@ -81,8 +86,10 @@ const findNoestCommuneId = (wilayaName: string): number | undefined => {
 
 // Update the OrderDashboard component to handle the beta request state
 export function OrderDashboard() {
+  const t = useTranslations("ai-order-retriever")
+
   // Use orders from shopData if available, otherwise use initialOrders
-  const { shopData, dateRange, setDateRange,setShopData} = useShop()
+  const { shopData, dateRange, setDateRange, setShopData } = useShop()
   const [orders, setOrders] = useState<Order[]>(() => shopData.orders || initialOrders)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -92,7 +99,7 @@ export function OrderDashboard() {
   const [isRetrieving, setIsRetrieving] = useState(false)
   const [isFacebookConnected, setIsFacebookConnected] = useState(false)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
-  const [hasRequestedBeta, setHasRequestedBeta] = useState(shopData.hasRequestedBeta?true:false)
+  const [hasRequestedBeta, setHasRequestedBeta] = useState(shopData.hasRequestedBeta ? true : false)
   const [isExporting, setIsExporting] = useState(false)
   const { toast } = useToast()
 
@@ -155,7 +162,7 @@ export function OrderDashboard() {
               break
             case "deliveryPrice":
             case "deliveryCost":
-              updatedOrder.orderData.delivery_cost.value = value 
+              updatedOrder.orderData.delivery_cost.value = value
               // Also update the total price
               updatedOrder.orderData.total_price.value =
                 (updatedOrder.orderData.articles[0]?.total_article_price.value || 0) +
@@ -229,11 +236,11 @@ export function OrderDashboard() {
 
       // Show toast notification
       toast({
-        title: "Order Updated",
-        description: `Order #${order.id} has been updated.`,
+        title: t("orderUpdated"),
+        description: t("orderUpdatedDescription", { id: order.id }),
       })
     },
-    [toast, shopData.deliveryCompany],
+    [toast, shopData.deliveryCompany, t],
   )
 
   const showFacebookAuth = useCallback(() => {
@@ -247,8 +254,8 @@ export function OrderDashboard() {
 
     // Simulate authentication process
     toast({
-      title: "Connecting to Meta",
-      description: "Authenticating with Meta Business...",
+      title: t("connectingToMeta"),
+      description: t("authenticatingWithMeta"),
     })
 
     // Simulate a delay for authentication
@@ -259,44 +266,43 @@ export function OrderDashboard() {
     setIsFacebookAuthOpen(false)
 
     toast({
-      title: "Meta Connected",
-      description: "Successfully connected to Meta. Auto-retrieve is now active.",
+      title: t("metaConnected"),
+      description: t("autoRetrieveActive"),
     })
 
     // Simulate initial retrieval
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     toast({
-      title: "Initial Scan Complete",
-      description: "Found 3 orders with ✅ emoji markers.",
+      title: t("initialScanComplete"),
+      description: t("foundOrdersWithEmoji"),
     })
 
     setIsRetrieving(false)
-  }, [toast])
+  }, [toast, t])
 
   // Handle beta request sent
   const handleBetaRequestSent = useCallback(() => {
     console.log("Beta request sent, updating state")
     setHasRequestedBeta(true)
     // Store in localStorage to persist across sessions
-    setShopData(prev=>({...prev,hasRequestedBeta:true}))
-  }, [])
-
+    setShopData((prev) => ({ ...prev, hasRequestedBeta: true }))
+  }, [setShopData])
 
   const handleExcelExport = useCallback(() => {
     // In a real app, this would generate and download an Excel file
     toast({
-      title: "Exporting to Excel",
-      description: "Your export will download shortly.",
+      title: t("exportingToExcel"),
+      description: t("exportWillDownload"),
     })
-  }, [toast])
+  }, [toast, t])
 
   // Update the handleShippingExport function to use the improved wilaya matching
   const handleShippingExport = useCallback(async () => {
     if (selectedRows.length === 0) {
       toast({
-        title: "No Orders Selected",
-        description: "Please select at least one order to export.",
+        title: t("noOrdersSelected"),
+        description: t("pleaseSelectOrders"),
         variant: "destructive",
       })
       return
@@ -307,8 +313,8 @@ export function OrderDashboard() {
 
     // Show loading toast
     toast({
-      title: "Checking with shipping provider",
-      description: "Verifying delivery availability for selected orders...",
+      title: t("checkingWithShippingProvider"),
+      description: t("verifyingDeliveryAvailability"),
     })
 
     try {
@@ -352,8 +358,8 @@ export function OrderDashboard() {
       // If no valid orders, show error and return
       if (validOrders.length === 0) {
         toast({
-          title: "Cannot Export Orders",
-          description: "All selected orders have validation issues. Please fix them before exporting.",
+          title: t("cannotExportOrders"),
+          description: t("allOrdersHaveValidationIssues"),
           variant: "destructive",
         })
         setIsExporting(false)
@@ -492,14 +498,14 @@ export function OrderDashboard() {
             return order
           })
         })
-        setShopData(prev => ({
+        setShopData((prev) => ({
           ...prev,
-          tokens: uploadResult.tokens
-        }));
+          tokens: uploadResult.tokens,
+        }))
 
         toast({
-          title: "Export Successful",
-          description: `Successfully exported ${validOrders.length} orders to shipping provider.`,
+          title: t("exportSuccessful"),
+          description: t("successfullyExportedOrders", { count: validOrders.length }),
         })
       } else {
         // Some orders failed on the backend
@@ -510,7 +516,7 @@ export function OrderDashboard() {
         const successfulOrders = validOrders.filter((order) => !backendFailedIds.includes(order.id))
 
         // Update status in Firestore for successful orders
-       // const updatePromises = successfulOrders.map((order) => updateOrderStatus(order.id, "confirmed"))
+        // const updatePromises = successfulOrders.map((order) => updateOrderStatus(order.id, "confirmed"))
         //await Promise.all(updatePromises)
 
         // Update local state
@@ -526,8 +532,11 @@ export function OrderDashboard() {
         // Show success message for successful orders
         if (successfulOrders.length > 0) {
           toast({
-            title: "Partial Export Successful",
-            description: `Successfully exported ${successfulOrders.length} out of ${validOrders.length} orders.`,
+            title: t("partialExportSuccessful"),
+            description: t("partialExportSuccessfulDescription", {
+              successCount: successfulOrders.length,
+              totalCount: validOrders.length,
+            }),
           })
         }
 
@@ -535,8 +544,11 @@ export function OrderDashboard() {
         if (backendFailedOrders.length > 0) {
           const orderIds = backendFailedOrders.map((order) => `#${order.id}`).join(", ")
           toast({
-            title: "Some Orders Failed Backend Validation",
-            description: `${backendFailedOrders.length} orders were rejected by the shipping provider: ${orderIds}`,
+            title: t("someOrdersFailedBackendValidation"),
+            description: t("ordersRejectedByShippingProvider", {
+              count: backendFailedOrders.length,
+              orderIds,
+            }),
             variant: "warning",
           })
         }
@@ -548,24 +560,24 @@ export function OrderDashboard() {
         const stopDeskIssues = missingStopDeskOrders.length
         const otherIssues = invalidOrders.length - stopDeskIssues
 
-        let warningMessage = `${invalidOrders.length} orders were skipped due to validation issues: `
+        let warningMessage = t("ordersSkippedDueToValidation", { count: invalidOrders.length })
 
         if (stopDeskIssues > 0) {
-          warningMessage += `${stopDeskIssues} missing stop desk selection`
+          warningMessage += t("missingStopDeskSelection", { count: stopDeskIssues })
         }
 
         if (otherIssues > 0) {
           warningMessage +=
             stopDeskIssues > 0
-              ? `, ${otherIssues} with other validation issues`
-              : `${otherIssues} with validation issues`
+              ? t("otherValidationIssuesWithPrevious", { count: otherIssues })
+              : t("otherValidationIssues", { count: otherIssues })
         }
 
         const orderIds = invalidOrders.map((order) => `#${order.id}`).join(", ")
-        warningMessage += `. Skipped orders: ${orderIds}`
+        warningMessage += t("skippedOrders", { orderIds })
 
         toast({
-          title: "Some Orders Were Skipped",
+          title: t("someOrdersWereSkipped"),
           description: warningMessage,
           variant: "warning",
         })
@@ -576,15 +588,15 @@ export function OrderDashboard() {
     } catch (error) {
       console.error("Error exporting orders:", error)
       toast({
-        title: "Export Failed",
-        description: "An error occurred while exporting orders. Please try again.",
+        title: t("exportFailed"),
+        description: t("errorExportingOrders"),
         variant: "destructive",
       })
     } finally {
       // Set loading state back to false
       setIsExporting(false)
     }
-  }, [orders, selectedRows, toast, shopData])
+  }, [orders, selectedRows, toast, shopData, t])
 
   const toggleHistorySheet = useCallback(() => {
     setIsHistorySheetOpen((prev) => !prev)
@@ -697,7 +709,7 @@ export function OrderDashboard() {
               {hasRequestedBeta && !isFacebookConnected && (
                 <Badge className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 py-2 px-3">
                   <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                  Beta Access Requested
+                  {t("betaAccessRequested")}
                 </Badge>
               )}
               <Button
@@ -706,7 +718,7 @@ export function OrderDashboard() {
                 className="border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20"
               >
                 <History className="mr-2 h-4 w-4" />
-                Order History
+                {t("orderHistory")}
               </Button>
             </div>
           </div>

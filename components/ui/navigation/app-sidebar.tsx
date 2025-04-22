@@ -54,6 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         url: "/dashboard/ai-order-retriver",
         icon: Squirrel,
+        isActive: pathname[1] === "Ai Order Retriver",
         title: (
           <div className="flex items-center gap-2">
             {t("nav.ai-order-retriver")}
@@ -62,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </span>
           </div>
         ),
-        isActive: pathname[1] === "ai-order-retriver",
+        
       },
       { url: "/dashboard/orders", icon: Brain, title: t("nav.ai-orders"), isActive: pathname[1] === "orders" },
       //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },

@@ -1,9 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-
 import type React from "react"
-
 import { useState, useCallback, memo } from "react"
 import { Download, TruckIcon, HelpCircle, RefreshCw, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,6 +9,7 @@ import { LearnMoreDialog } from "./learn-more-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 import { useShop } from "@/app/context/ShopContext"
+import { useTranslations } from "next-intl"
 
 interface TableActionButtonsProps {
   onExcelExport: () => void
@@ -34,29 +33,23 @@ const ValidationTooltipContent = memo(function ValidationTooltipContent({
   selectedCount: number
   requiresStopDesk: boolean
 }) {
+  const t = useTranslations("ai-order-retriever")
+
   return (
     <TooltipContent className="max-w-xs">
-      <p>
-        {invalidCount} of {selectedCount} selected orders have validation issues:
-      </p>
+      <p>{t("validationIssuesCount", { invalidCount, selectedCount })}</p>
       <ul className="mt-1 list-disc list-inside text-sm">
-        <li>Missing or invalid region data</li>
-        <li>Invalid delivery type for the selected commune</li>
+        <li>{t("missingOrInvalidRegionData")}</li>
+        <li>{t("invalidDeliveryType")}</li>
         {requiresStopDesk && (
-          <li className="font-semibold text-amber-600 dark:text-amber-400">
-            Missing stop desk selection (required for stop desk delivery)
-          </li>
+          <li className="font-semibold text-amber-600 dark:text-amber-400">{t("missingStopDeskRequired")}</li>
         )}
       </ul>
       <p className="mt-1 text-sm">
-        {invalidCount === selectedCount
-          ? "Please fix these issues before exporting."
-          : "Only valid orders will be exported."}
+        {invalidCount === selectedCount ? t("fixIssuesBeforeExporting") : t("onlyValidOrdersExported")}
       </p>
       {requiresStopDesk && (
-        <p className="mt-1 text-sm font-medium text-amber-600 dark:text-amber-400">
-          Note: Orders with stop desk delivery MUST have a stop desk selected to be exported.
-        </p>
+        <p className="mt-1 text-sm font-medium text-amber-600 dark:text-amber-400">{t("stopDeskSelectionRequired")}</p>
       )}
     </TooltipContent>
   )
@@ -74,6 +67,7 @@ export const TableActionButtons = memo(function TableActionButtons({
   validationStatus = { valid: true, invalidCount: 0 },
   hasRequestedBeta = false, // Add default value
 }: TableActionButtonsProps) {
+  const t = useTranslations("ai-order-retriever")
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false)
   const { shopData } = useShop()
 
@@ -104,14 +98,14 @@ export const TableActionButtons = memo(function TableActionButtons({
         {isRetrieving ? (
           <span className="flex items-center">
             <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-            Retrieving Orders...
+            {t("retrievingOrders")}
           </span>
         ) : (
-          "Auto-Retrieve Active"
+          t("autoRetrieveActive")
         )}
       </Badge>
     )
-  }, [isFacebookConnected, isRetrieving])
+  }, [isFacebookConnected, isRetrieving, t])
 
   // Memoize the export button
   const ExportButton = useMemo(() => {
@@ -135,12 +129,12 @@ export const TableActionButtons = memo(function TableActionButtons({
         {isExporting ? (
           <>
             <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            Exporting...
+            {t("exporting")}
           </>
         ) : (
           <>
             <TruckIcon className="mr-2 h-4 w-4" />
-            Export to Shipping Provider
+            {t("exportToShippingProvider")}
           </>
         )}
         {selectedCount > 0 && !isExporting && (
@@ -159,7 +153,7 @@ export const TableActionButtons = memo(function TableActionButtons({
         )}
       </Button>
     )
-  }, [selectedCount, hasInvalidOrders, isExporting, onShippingExport, validationStatus])
+  }, [selectedCount, hasInvalidOrders, isExporting, onShippingExport, validationStatus, t])
 
   // Pass requiresStopDesk to ValidationTooltipContent
   return (
@@ -178,17 +172,17 @@ export const TableActionButtons = memo(function TableActionButtons({
                   onClick={handleLearnMoreOpen}
                 >
                   <HelpCircle className="h-4 w-4" />
-                  <span className="sr-only">Learn more about automatic retrieval</span>
+                  <span className="sr-only">{t("learnMoreAboutAutoRetrieval")}</span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Learn how automatic retrieval works</TooltipContent>
+              <TooltipContent>{t("learnHowAutoRetrievalWorks")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
 
         <Button onClick={onExcelExport} variant="outline" className="w-full sm:w-auto">
           <Download className="mr-2 h-4 w-4" />
-          Excel Export
+          {t("excelExport")}
         </Button>
 
         <TooltipProvider>

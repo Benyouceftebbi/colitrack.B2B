@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress"
 import { MetaLogo } from "./meta-logo"
 import { useToast } from "@/hooks/use-toast"
 import { useShop } from "@/app/context/ShopContext"
+import { useTranslations } from "next-intl"
 
 interface DashboardHeaderProps {
   dateRange: {
@@ -45,7 +46,9 @@ export function DashboardHeader({
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [progress, setProgress] = useState(0)
   const { toast } = useToast()
-  const {shopData} = useShop()
+  const { shopData } = useShop()
+  const t = useTranslations("ai-order-retriever")
+
   const handleLogoutClick = () => {
     setIsLogoutDialogOpen(true)
     setLogoutStep(1)
@@ -57,8 +60,8 @@ export function DashboardHeader({
   const handleNextStep = () => {
     if (logoutStep === 1 && !confirmDisconnect) {
       toast({
-        title: "Confirmation required",
-        description: "Please confirm that you understand the consequences of disconnecting",
+        title: t("confirmationRequired"),
+        description: t("confirmDisconnectingConsequences"),
         variant: "destructive",
       })
       return
@@ -66,8 +69,8 @@ export function DashboardHeader({
 
     if (logoutStep === 2 && !confirmDataLoss) {
       toast({
-        title: "Confirmation required",
-        description: "Please confirm that you understand the data loss implications",
+        title: t("confirmationRequired"),
+        description: t("confirmDataLossImplications"),
         variant: "destructive",
       })
       return
@@ -88,8 +91,8 @@ export function DashboardHeader({
       if (currentProgress >= 100) {
         clearInterval(interval)
         toast({
-          title: "Logged out successfully",
-          description: "You have been disconnected from Meta. Auto-retrieve is now disabled.",
+          title: t("loggedOutSuccessfully"),
+          description: t("disconnectedFromMeta"),
         })
         setIsLoggingOut(false)
         setIsLogoutDialogOpen(false)
@@ -111,15 +114,11 @@ export function DashboardHeader({
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-              AI Order Retriever
+              {t("aiOrderRetriever")}
             </h1>
             <div className="space-y-0.5">
-              <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-                Enhance your parcels creation experience with automated order retrieval
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                from your Meta conversations and append them all in one click to your shipping company
-              </p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">{t("enhanceParcelCreation")}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{t("fromMetaConversations")}</p>
             </div>
           </div>
         </div>
@@ -172,7 +171,7 @@ export function DashboardHeader({
                 className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 flex items-center gap-1.5 px-2 h-8"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="text-xs font-medium">Disconnect</span>
+                <span className="text-xs font-medium">{t("disconnect")}</span>
               </Button>
             </div>
           ) : (
@@ -182,7 +181,7 @@ export function DashboardHeader({
               className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 w-full sm:w-auto ml-auto md:ml-0"
             >
               <MetaLogo className="mr-2 h-4 w-4" />
-              Connect Meta
+              {t("connectMeta")}
             </Button>
           )}
         </div>
@@ -193,16 +192,14 @@ export function DashboardHeader({
           <DialogHeader>
             <DialogTitle className="text-red-600 dark:text-red-400 flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
-              {logoutStep === 1 && "Disconnect from Meta?"}
-              {logoutStep === 2 && "Confirm Data Loss"}
-              {logoutStep === 3 && "Final Confirmation"}
+              {logoutStep === 1 && t("disconnectFromMeta")}
+              {logoutStep === 2 && t("confirmDataLoss")}
+              {logoutStep === 3 && t("finalConfirmation")}
             </DialogTitle>
             <DialogDescription>
-              {logoutStep === 1 && "Disconnecting will disable automatic order retrieval from your Meta conversations."}
-              {logoutStep === 2 &&
-                "All pending retrievals will be lost and you'll need to reconnect to restore functionality."}
-              {logoutStep === 3 &&
-                "This is your final chance to cancel. Disconnection will take some time to complete."}
+              {logoutStep === 1 && t("disconnectingWillDisable")}
+              {logoutStep === 2 && t("allPendingRetrievalsLost")}
+              {logoutStep === 3 && t("finalChanceToCancel")}
             </DialogDescription>
           </DialogHeader>
 
@@ -211,11 +208,8 @@ export function DashboardHeader({
               <div className="flex items-start space-x-3">
                 <MetaLogo className="h-10 w-10 text-blue-600 dark:text-blue-400 mt-1" />
                 <div className="space-y-2">
-                  <h4 className="font-medium">Connected to Meta Business</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Your account is currently connected and actively retrieving orders from Facebook Messenger and
-                    Instagram.
-                  </p>
+                  <h4 className="font-medium">{t("connectedToMetaBusiness")}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t("accountCurrentlyConnected")}</p>
                 </div>
               </div>
 
@@ -226,11 +220,9 @@ export function DashboardHeader({
                     htmlFor="confirm-disconnect"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I understand that disconnecting will stop automatic order retrieval
+                    {t("understandDisconnecting")}
                   </label>
-                  <p className="text-sm text-muted-foreground">
-                    You'll need to reconnect your Meta account to restore this functionality
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("needToReconnect")}</p>
                 </div>
               </div>
             </div>
@@ -241,13 +233,13 @@ export function DashboardHeader({
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md p-4">
                 <h4 className="font-medium text-amber-800 dark:text-amber-400 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
-                  Warning: Data Loss
+                  {t("warningDataLoss")}
                 </h4>
                 <ul className="mt-2 space-y-2 text-sm text-amber-700 dark:text-amber-300">
-                  <li>• Any pending order retrievals will be canceled</li>
-                  <li>• Your connection settings will be reset</li>
-                  <li>• You'll need to go through the connection process again</li>
-                  <li>• This may affect your order processing workflow</li>
+                  <li>• {t("pendingOrdersCanceled")}</li>
+                  <li>• {t("connectionSettingsReset")}</li>
+                  <li>• {t("connectionProcessAgain")}</li>
+                  <li>• {t("affectWorkflow")}</li>
                 </ul>
               </div>
 
@@ -258,11 +250,9 @@ export function DashboardHeader({
                     htmlFor="confirm-data-loss"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I understand and accept the data loss implications
+                    {t("understandDataLoss")}
                   </label>
-                  <p className="text-sm text-muted-foreground">
-                    This action cannot be undone and may require manual intervention
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("actionCannotBeUndone")}</p>
                 </div>
               </div>
             </div>
@@ -270,19 +260,14 @@ export function DashboardHeader({
 
           {logoutStep === 3 && (
             <div className="space-y-4 py-4">
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                This is your final chance to cancel the disconnection process. Are you absolutely sure you want to
-                proceed?
-              </p>
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400">{t("finalChanceToCancel")}</p>
 
               {isLoggingOut && (
                 <div className="space-y-2">
-                  <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                    Disconnecting from Meta services...
-                  </p>
+                  <p className="text-xs text-center text-gray-500 dark:text-gray-400">{t("disconnectingFromMeta")}</p>
                   <Progress value={progress} className="h-2" />
                   <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                    Please do not close this window ({progress}%)
+                    {t("doNotCloseWindow", { progress })}
                   </p>
                 </div>
               )}
@@ -296,7 +281,7 @@ export function DashboardHeader({
               onClick={() => setIsLogoutDialogOpen(false)}
               disabled={isLoggingOut}
             >
-              Cancel
+              {t("cancel")}
             </Button>
 
             {logoutStep < 3 ? (
@@ -306,11 +291,11 @@ export function DashboardHeader({
                 onClick={handleNextStep}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
-                Continue
+                {t("continue")}
               </Button>
             ) : (
               <Button type="button" variant="destructive" onClick={handleFinalLogout} disabled={isLoggingOut}>
-                {isLoggingOut ? "Disconnecting..." : "Disconnect from Meta"}
+                {isLoggingOut ? t("disconnecting") : t("disconnectFromMeta")}
               </Button>
             )}
           </DialogFooter>
@@ -319,4 +304,3 @@ export function DashboardHeader({
     </>
   )
 }
-
