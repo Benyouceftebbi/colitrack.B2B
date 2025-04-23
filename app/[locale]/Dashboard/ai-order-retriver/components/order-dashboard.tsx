@@ -430,6 +430,7 @@ export function OrderDashboard() {
           commune: order.orderData.commune.name_fr.value || wilayaName, // Use wilaya name if commune is undefined
           communeId: communeId, // Add commune ID
           deliveryType: order.orderData.delivery_type.value,
+          delivery_cost:order.orderData.delivery_cost.value,
           totalPrice: order.orderData.total_price.value,
           status: "confirmed", // New status after export
           // Include stop desk information if applicable

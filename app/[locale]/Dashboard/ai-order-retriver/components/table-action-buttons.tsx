@@ -180,10 +180,7 @@ export const TableActionButtons = memo(function TableActionButtons({
           </TooltipProvider>
         </div>
 
-        <Button onClick={onExcelExport} variant="outline" className="w-full sm:w-auto">
-          <Download className="mr-2 h-4 w-4" />
-          {t("excelExport")}
-        </Button>
+       
 
         <TooltipProvider>
           <Tooltip>
