@@ -22,7 +22,7 @@ const t = useTranslations("ai-order-retriever")
 
 return (
   <Dialog open={isOpen} onOpenChange={onClose}>
-    <DialogContent className="max-w-2xl dark:border-gray-700" dir="rtl">
+    <DialogContent className="max-w-2xl dark:border-gray-700" >
       <DialogHeader>
         <DialogTitle className="text-xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
           <Bot className="h-5 w-5" /> {t("automaticOrderRetrieval")}

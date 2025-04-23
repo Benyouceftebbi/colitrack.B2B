@@ -473,7 +473,7 @@ Best regards,
                   </div>
                 ) : null}
                 { 
-  (provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 2 ? (
+  (provider === "ZR express") && currentStep === steps.length - 2 ? (
     <div className="flex items-center space-x-2">
       <Input
         value={email}
