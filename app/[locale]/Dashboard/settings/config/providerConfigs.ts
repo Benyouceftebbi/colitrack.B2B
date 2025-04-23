@@ -70,11 +70,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
         description: "Enter the required configuration details for Yalidine Express (You can get those info from the previous step ).",
         image: webhookConfig,
       },
-      {
-        title: "Send Email to the Development team ",
-        description: "Use this text and send it to Yalidine development team to ensure the webhook is setted correctly : developer@yalidine.com",
-
-      },
+     
       {
         title: "Finalize Setup",
         description: "Review your information and finalize the setup.",
@@ -123,11 +119,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
         description: "Enter the required configuration details for Guepex (You can get those info from the previous step).",
         image: webhookConfig,
       },
-      {
-        title: "Send Email to the Development team ",
-        description: "Use this text and send it to Guepex development team to ensure the webhook is setted correctly : developer@guepex.com",
-
-      },
+    
       {
         title: "Finalize Setup",
         description: "Review your information and finalize the setup.",
