@@ -1293,7 +1293,9 @@
     "totalOrders": "Commandes totales",
     "deliveredOrders": "Commandes livrées",
     "totalRevenue": "Revenu total",
-    "successRate": "Taux de réussite"
+    "successRate": "Taux de réussite",
+    "pendingOrders": "Commandes en attente",
+    "confirmedOrders": "Commandes confirmées"
   }
   }
   

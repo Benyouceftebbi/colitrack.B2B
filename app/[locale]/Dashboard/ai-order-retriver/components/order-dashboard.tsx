@@ -688,7 +688,7 @@ export function OrderDashboard() {
           onDisconnect={handleDisconnect}
         />
 
-        <StatsCards orders={filteredOrders} dateRange={dateRange} />
+        <StatsCards orders={orders} dateRange={dateRange} />
 
         <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow p-4 md:p-6 border dark:border-gray-700">
           <div className="flex flex-wrap justify-between items-center mb-4 gap-3">

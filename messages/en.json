@@ -1255,6 +1255,8 @@
       "totalOrders": "Total Orders",
       "deliveredOrders": "Delivered Orders",
       "totalRevenue": "Total Revenue",
-      "successRate": "Success Rate"
+      "successRate": "Success Rate",
+      "pendingOrders": "Pending Orders",
+      "confirmedOrders": "Confirmed Orders"
     }
 }

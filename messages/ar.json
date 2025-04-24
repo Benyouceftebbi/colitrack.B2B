@@ -1269,7 +1269,9 @@
     "totalOrders": "إجمالي الطلبات",
     "deliveredOrders": "الطلبات المُسلّمة",
     "totalRevenue": "إجمالي الإيرادات",
-    "successRate": "نسبة النجاح"
+    "successRate": "نسبة النجاح",
+    "pendingOrders": "الطلبات المعلقة",
+    "confirmedOrders": "الطلبات المؤكدة"
   }
   }
   
