@@ -572,6 +572,7 @@
 },
 
 "settings": {
+  "cle":"Clé",
   "token":"Token",
   "guid":"GUID",
   "current-step":"Étape actuelle",

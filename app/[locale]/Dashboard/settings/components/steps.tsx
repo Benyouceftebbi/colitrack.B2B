@@ -52,7 +52,7 @@ export function Steps({
   provider,
   onComplete,
   shopData,
-  setShopData
+  setShopData,
 }: {
   provider: string
   onComplete: (provider: string, data: FormData) => void
@@ -63,7 +63,7 @@ export function Steps({
     apiId?: string
     id?: string
   }
-  setShopData:any
+  setShopData: any
 }) {
   const { toast } = useToast()
   const t = useTranslations("settings")
@@ -72,7 +72,7 @@ export function Steps({
   const [imageLoading, setImageLoading] = useState(true)
   const [isZoomed, setIsZoomed] = useState(false)
   const [copiedName, setCopiedName] = useState(false)
-  const [copiedtextEmail,setCopidTextEamil] = useState(false)
+  const [copiedtextEmail, setCopidTextEamil] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [language, setLanguage] = useState<string | null>(shopData.lng || null)
@@ -80,7 +80,7 @@ export function Steps({
   const {
     register,
     handleSubmit,
-    formState: { errors,isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>()
 
   const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
@@ -134,7 +134,11 @@ export function Steps({
       }
       submissionData.lng = language
 
-      if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express") {
+      if (provider === "ZR express" || provider === "E-COM Delivery") {
+        if (!data.apiId || !data.apiToken) {
+          throw new Error("Token and Clé are required for ZR Express")
+        }
+      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ) {
         if (!data.apiId || !data.apiToken) {
           throw new Error(t("yalidin-credentials-required"))
         }
@@ -145,8 +149,15 @@ export function Steps({
         submissionData.accessKey = data.apiKey
       }
 
-      const requiredFields =
-        provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ? ["apiId", "apiToken", "lng"] : ["apiKey", "lng"]
+      // Determine required fields based on provider
+      let requiredFields: string[] = []
+      if (provider === "ZR express" || provider === "E-COM Delivery") {
+        requiredFields = ["apiId", "apiToken", "lng"]
+      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express") {
+        requiredFields = ["apiId", "apiToken", "lng"]
+      } else {
+        requiredFields = ["apiKey", "lng"]
+      }
 
       const missingFields = requiredFields.filter((field) => !submissionData[field])
       if (missingFields.length > 0) {
@@ -154,20 +165,25 @@ export function Steps({
       }
 
       // Call Firebase Cloud Function to store delivery credentials
-      await storeDeliveryToken({
-        deliveryCompany: provider,
-        apiToken: submissionData.apiToken || null,
-        apiKey: submissionData.apiId || submissionData.apiKey,
-        lng: submissionData.lng,
-        shopId:shopData.id
-      })
-      setShopData(prev => ({
-        ...prev,
-        deliveryCompany: provider,
-        apiToken: submissionData.apiToken || null,
-        apiKey: submissionData.apiId || submissionData.apiKey,
-        lng: submissionData.lng,
-      }))
+      
+        // For other providers, use the existing logic
+        await storeDeliveryToken({
+          deliveryCompany: provider,
+          apiToken: submissionData.apiToken || null,
+          apiKey: submissionData.apiId || submissionData.apiKey,
+          lng: submissionData.lng,
+          shopId: shopData.id,
+        })
+
+        setShopData((prev) => ({
+          ...prev,
+          deliveryCompany: provider,
+          apiToken: submissionData.apiToken || null,
+          apiKey: submissionData.apiId || submissionData.apiKey,
+          lng: submissionData.lng,
+        }))
+      
+      
       onComplete(provider, submissionData)
 
       toast({
@@ -175,7 +191,7 @@ export function Steps({
         description: t("setup-success"),
       })
     } catch (error) {
-      // console.error("Error updating shipping information:", error)
+      console.error("Error updating shipping information:", error)
 
       toast({
         title: t("error"),
@@ -184,6 +200,7 @@ export function Steps({
       })
     }
   }
+  
 
   const copyToClipboard = (text: string, setCopiedState: (value: boolean) => void) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -228,8 +245,7 @@ Please let me know if you need any additional information from my side. Looking 
 Best regards,
 **${shopData.companyName},**
 **${shopData.firstName},**
-`;
-
+`
 
   return (
     <SidebarProvider>
@@ -380,7 +396,7 @@ Best regards,
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {(provider === "Yalidin Express" || provider === "Guepex" ) && currentStep === steps.length - 4 ? (
+                {(provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 4 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input
@@ -472,33 +488,17 @@ Best regards,
                     </Button>
                   </div>
                 ) : null}
-                { 
-  (provider === "ZR express") && currentStep === steps.length - 2 ? (
-    <div className="flex items-center space-x-2">
-      <Input
-        value={email}
-        readOnly
-        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
-      />
-      <Button
-        onClick={() => copyToClipboard(email, setCopidTextEamil)}
-        className="flex items-center justify-center"
-        size="icon"
-        type="button"
-      >
-        {copiedtextEmail ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-      </Button>
-    </div>
-  ) : null }
+              
 
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    {provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ? (
+                    {provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" || provider === "ZR express" || provider === "E-COM Delivery"? (
                       <>
                         <div>
-                        <label htmlFor="apiId" className="block text-lg font-medium mb-2">
-                        {provider === "NOEST Express" ? t("token") : t("api-token")}
-                      </label>
+                          <label htmlFor="apiId" className="block text-lg font-medium mb-2">
+                            {provider === "NOEST Express" ? t("token") : ''}
+                            {provider === "ZR express" || provider ==="E-COM Delivery" ? t("token") : ''}
+                          </label>
                           <Input
                             id={"apiId"}
                             type="text"
@@ -509,9 +509,11 @@ Best regards,
                           {errors.apiId && <p className="mt-1 text-sm text-red-500">{t("api-id-required")}</p>}
                         </div>
                         <div>
-                        <label htmlFor="apiId" className="block text-lg font-medium mb-2">
-                        {provider === "NOEST Express" ? t("guid") : t("api-token")}
-                      </label>
+                          <label htmlFor="apiToken" className="block text-lg font-medium mb-2">
+                            {provider === "NOEST Express" ? t("guid") : ''}
+                            {provider === "ZR express" || provider ==="E-COM Delivery" ? t("cle") : ''}
+
+                          </label>
                           <Input
                             id="apiToken"
                             type="text"
@@ -578,7 +580,11 @@ Best regards,
                       <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
                     </Button>
                   ) : (
-                    <LoadingButton loading={isSubmitting} type="submit" className="bg-primary hover:bg-primary/90 text-sm md:text-lg">
+                    <LoadingButton
+                      loading={isSubmitting}
+                      type="submit"
+                      className="bg-primary hover:bg-primary/90 text-sm md:text-lg"
+                    >
                       {t("finish-setup")}
                     </LoadingButton>
                   )}

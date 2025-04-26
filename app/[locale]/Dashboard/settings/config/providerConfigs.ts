@@ -10,6 +10,13 @@ import submitDhd from "../components/dhd-screens/submition-step-dhd.png"
 import pending from "../components/dhd-screens/pending-step-dhd.png"
 import activated from "../components/dhd-screens/activated-step-dhd.png"
 import noestlast from "../components/dhd-screens/noest-last-step.png"
+
+
+import copyinfo from "../components/zr-screens/copy-info.png"
+import navigateDevelopment from "../components/zr-screens/navigate-to-development.png"
+import openhamburger from "../components/zr-screens/open-hamburger.png"
+import loginZr from "../components/zr-screens/loginZr.png"
+import loginEcom from "../components/zr-screens/loginEcom.png"
 export interface ProviderConfig {
   name: string
   fields: {
@@ -883,27 +890,80 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     ],
   },
 
-  ZR: {
+  "ZR express": {
     name: "ZR express",
     fields: {
-     
+      apiId: { label: "Token", type: "text", placeholder: "Enter Tokem" },
+      apiToken: { label: "Clé", type: "text", placeholder: "Clé" },
     },
     languageOptions: [
-     
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
     ],
     steps: [
       {
-        title: "Send Email to the Development team ",
-        description: "Use this text and send it to ZR development team to ask them to provide the getDoc() fucntion on their api",
-
+        title: "Log in to ZR Express",
+        description:
+          "Visit https://zrexpress.com and log in to your account. If you don't have an account, please register first.",
+          image: loginZr,
       },
       {
-        title: "Comming Soon .......",
-        description: "Comming Soon ....",
-      
+        title: "Access the Development Section",
+        description:
+          "Open the Hamburger menu and click on 'Development' to access the developer options.",
+        image: navigateDevelopment,
       },
-     
+      {
+        title: "Copy the Token and Clé",
+        description:
+          "Locate and copy both the Token and Clé provided in the Development section.",
+        image: copyinfo,
+      },
+      {
+        title: "Paste the Token and Clé",
+        description:
+          "Paste the copied Token and Clé into the required input fields.",
+      },
     ],
+    
+  },
+
+  "E-COM Delivery": {
+    name: "E-COM Delivery",
+    fields: {
+      apiId: { label: "Token", type: "text", placeholder: "Enter Tokem" },
+      apiToken: { label: "Clé", type: "text", placeholder: "Clé" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Log in to ECOM Delivery",
+        description:
+          "Visit https://ecom-dz.com and log in to your account. If you don't have an account, please register first.",
+          image: loginEcom,
+      },
+      {
+        title: "Access the Development Section",
+        description:
+          "Open the Hamburger menu and click on 'Development' to access the developer options.",
+        image: navigateDevelopment,
+      },
+      {
+        title: "Copy the Token and Clé",
+        description:
+          "Locate and copy both the Token and Clé provided in the Development section.",
+        image: copyinfo,
+      },
+      {
+        title: "Paste the Token and Clé",
+        description:
+          "Paste the copied Token and Clé into the required input fields.",
+      },
+    ],
+    
   },
 
 }
