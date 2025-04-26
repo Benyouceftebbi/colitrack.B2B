@@ -5,7 +5,7 @@ import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import { useTranslations } from "next-intl"
 import { ExcelImportButton } from "./excel-import-button"
-import { NEWExcelImportButton } from "./new-excel-import-button"
+
 // Sample parcel data with message types
 const sampleParcelData = [
   {
@@ -79,9 +79,8 @@ export function SMSHistory() {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold glow">{t("recent-parcels") || "Recent Parcels"}</h3>
         {shopData.deliveryCompany === "NOEST Express" && <ExcelImportButton />}  
-        {(shopData.deliveryCompany === "E-COM Delivery" || shopData.deliveryCompany === "ZR express") && (
-          <NEWExcelImportButton />
-        )}
+        {shopData.deliveryCompany === "E-COM Delivery" || shopData.deliveryCompany === "ZR express" && <NEWExcelImportButton />}  
+
             </div>
       <DataTable columns={columns} data={shopData.tracking} />
     </div>
