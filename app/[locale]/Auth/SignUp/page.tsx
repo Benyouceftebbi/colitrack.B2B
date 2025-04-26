@@ -355,7 +355,7 @@ export default function SignUp() {
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
       setIsModalOpen(true)
-      router.push("/dashboard/settings")
+    //  router.push("/dashboard/settings")
       if (typeof window !== "undefined" && window.fbq) {
         window.fbq("track", "CompleteRegistration", {
           value: 0,
