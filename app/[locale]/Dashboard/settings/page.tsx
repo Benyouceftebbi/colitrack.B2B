@@ -88,8 +88,9 @@ export default function Component() {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
     Guepex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
+    Yalitec:"https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-6/282808249_131726106126538_5020857691934777434_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=XdjpYaDWNxEQ7kNvwEOH7Bn&_nc_oc=Admnc8HhnunybSu7cDeDrpk58h29HUci7l8t_fTSAnxu_1VaIxlz8q7jwcFp1Je8s-s&_nc_zt=23&_nc_ht=scontent.falg7-1.fna&_nc_gid=Ic81mCkTw8AhaLhqCDELIQ&oh=00_AfEVgHnriRzsglBtYyzms64IOeQ0Bi7aUFTtflF4wBT6qg&oe=681C597E",
     "ZR express": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-bMOgnI9-8ouSZ3YXAKcdPVMKfElvleuonQ&s",
-    "E-COM Delivery":"https://scontent.falg6-1.fna.fbcdn.net/v/t39.30808-6/366707195_281986314582684_2066889253023140481_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=7dmtPks_YMkQ7kNvwE3Ykha&_nc_oc=AdlYFaSKZQmT5KQXYBtNiO_N_7QEouEqsjbENOoaHaLxBoF-PrYDzcxPAabd5mE2v-s&_nc_zt=23&_nc_ht=scontent.falg6-1.fna&_nc_gid=YQzoc6Ue2UxDASlM5X24xA&oh=00_AfFARB_fY1A_Z2FB-AvCwuxOQ8ZDUGRwaVSfVrB8SpuOlg&oe=6812D35A",
+    "E-COM Delivery":"https://scontent.falg6-1.fna.fbcdn.net/v/t39.30808-6/366707195_281986314582684_2066889253023140481_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aLFaIQ8420AQ7kNvwGB6AU7&_nc_oc=AdlwM1-Vijo6H_6NG4cw89XX5Hf-brYKE9KRTIDoTQyzqFIW-SKkyDrTCvwgYYeSSkM&_nc_zt=23&_nc_ht=scontent.falg6-1.fna&_nc_gid=GQDmiKP3zlYAdFjtO7RSYw&oh=00_AfGKgk74eQL-FRpdJVC3dBMeZUlVblV59JrX6EKh-6Ze7w&oe=681C461A",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
     "Go livri":"https://www.golivri.dz/assets/img/logo.png",
     "Maystero Delivery":"https://maystro-delivery.com/img/logo.svg",
@@ -305,6 +306,7 @@ export default function Component() {
                 {[
                   "Yalidin Express",
                   "Guepex",
+                  "Yalitec",
                   "ZR express",
                   "E-COM Delivery",
                   "DHD",

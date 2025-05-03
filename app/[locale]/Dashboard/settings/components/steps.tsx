@@ -138,7 +138,7 @@ export function Steps({
         if (!data.apiId || !data.apiToken) {
           throw new Error("Token and Clé are required for ZR Express")
         }
-      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" ) {
+      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" || provider === "Maystero Delivery" || provider === "Yalitec" ) {
         if (!data.apiId || !data.apiToken) {
           throw new Error(t("yalidin-credentials-required"))
         }
@@ -153,7 +153,7 @@ export function Steps({
       let requiredFields: string[] = []
       if (provider === "ZR express" || provider === "E-COM Delivery") {
         requiredFields = ["apiId", "apiToken", "lng"]
-      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express") {
+      } else if (provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" || provider === "Maystero Delivery" || provider === "Yalitec") {
         requiredFields = ["apiId", "apiToken", "lng"]
       } else {
         requiredFields = ["apiKey", "lng"]
@@ -223,29 +223,24 @@ export function Steps({
   const webhookEmail = "colitrackdz@gmail.com"
   const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`
 
-  const email = `Subject: Urgent: Webhook Not Triggering Issue
+  const email = `Subject: Request for API ID and Store ID
 
-Dear Yalidine Support Team,
-
-I hope this email finds you well. I am reaching out regarding an issue with the webhook setup on my Yalidine account. While the webhook has been successfully created and activated, it is not being triggered when expected.
-
-Here are the details of my setup:
-
-Account Name/ID: ${shopData.id}
-
-
-Expected Events: parcel_status_updated
-
-Issue Faced: The webhook is not being triggered despite being activated. I have tested the endpoint separately, and it is receiving requests correctly from other sources.
-
-Despite these steps, the webhook is still not triggering. I would appreciate your assistance in resolving this issue as soon as possible.
-
-Please let me know if you need any additional information from my side. Looking forward to your prompt response.
-
-Best regards,
-**${shopData.companyName},**
-**${shopData.firstName},**
-`
+  Dear Maystro Delivery Support Team,
+  
+  I hope this message finds you well.
+  
+  I am reaching out to kindly request the API ID and Store ID associated with my account in order to integrate your delivery services with our system.
+  
+  Store Name: [Your Store Name]
+  Registered Email: [Your Registered Email with Maystro]
+  Phone Number: [Your Phone Number, if applicable]
+  
+  Please let me know if any additional information is required to process this request.
+  
+  Thank you in advance for your support, and I look forward to your response.
+  
+  Best regards,
+  [Your Full Name]`
 
   return (
     <SidebarProvider>
@@ -396,7 +391,7 @@ Best regards,
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {(provider === "Yalidin Express" || provider === "Guepex") && currentStep === steps.length - 4 ? (
+                {(provider === "Yalidin Express" || provider === "Guepex" || provider === "Yalitec" ) && currentStep === steps.length - 4 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div className="flex items-center space-x-2">
                       <Input
@@ -488,16 +483,62 @@ Best regards,
                     </Button>
                   </div>
                 ) : null}
+
+
+{provider === "Maystero Delivery" && currentStep === steps.length - 3 && (
+  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
+    {/* Webhook Email */}
+    
+    {/* Webhook Link */}
+    <div className="flex items-center space-x-2">
+      <Input
+        value={webhookLink}
+        readOnly
+        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+      />
+      <Button
+        onClick={() => copyToClipboard(webhookLink, setCopiedLink)}
+        className="flex items-center justify-center"
+        size="icon"
+        type="button"
+      >
+        {copiedLink ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+      </Button>
+    </div>
+  </div>
+)}
+
+{provider === "Maystero Delivery" && currentStep === steps.length - 2 && (
+  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
+    {/* Webhook Email */}
+    
+    <div className="flex items-center space-x-2">
+      <Input
+        value={email}
+        readOnly
+        className="bg-muted dark:bg-muted/30 flex-grow text-base md:text-lg"
+      />
+      <Button
+        onClick={() => copyToClipboard(email, setCopiedEmail)}
+        className="flex items-center justify-center"
+        size="icon"
+        type="button"
+      >
+        {copiedEmail ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+      </Button>
+    </div>
+  </div>
+)}
               
 
                 {currentStep === steps.length - 1 && (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    {provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" || provider === "ZR express" || provider === "E-COM Delivery"? (
+                    {provider === "Yalidin Express" || provider === "Guepex" || provider === "NOEST Express" || provider === "ZR express" || provider === "E-COM Delivery" || provider === "Maystero Delivery" || provider === "Yalitec"? (
                       <>
                         <div>
                           <label htmlFor="apiId" className="block text-lg font-medium mb-2">
                             {provider === "NOEST Express" ? t("token") : ''}
-                            {provider === "ZR express" || provider ==="E-COM Delivery" ? t("token") : ''}
+                            {provider === "ZR express" || provider ==="E-COM Delivery" ? t("token") : 'API ID'}
                           </label>
                           <Input
                             id={"apiId"}
@@ -512,6 +553,7 @@ Best regards,
                           <label htmlFor="apiToken" className="block text-lg font-medium mb-2">
                             {provider === "NOEST Express" ? t("guid") : ''}
                             {provider === "ZR express" || provider ==="E-COM Delivery" ? t("cle") : ''}
+                            {provider === "Maystero Delivery" ? "Store ID":''}
 
                           </label>
                           <Input

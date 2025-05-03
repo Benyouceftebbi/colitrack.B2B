@@ -135,18 +135,18 @@ export function NEWExcelImportModal({ isOpen, onClose }: NEWExcelImportModalProp
 
       console.log("Tracking IDs to import:", trackingIds)
 
-      // Create a more detailed data structure with tracking IDs
+      // Create a more detailed data structure with tracking IDs using uppercase "Tracking" property
       const importedData = jsonData
         .map((row) => {
           return {
-            tracking: row[selectedColumn],
+            Tracking: row[selectedColumn],
           }
         })
-        .filter((entry) => entry.tracking !== undefined && entry.tracking !== null && entry.tracking !== "")
+        .filter((entry) => entry.Tracking !== undefined && entry.Tracking !== null && entry.Tracking !== "")
 
-      // Log the tracking IDs as an array
-      console.log("Tracking IDs array:", trackingIds)
-      console.log(`Found ${trackingIds.length} tracking IDs`)
+      // Log the tracking IDs as an array of objects with Tracking property
+      console.log("Tracking IDs array:", importedData)
+      console.log(`Found ${importedData.length} tracking IDs`)
 
       // Determine which function to call based on the delivery company
       let functionName = ""

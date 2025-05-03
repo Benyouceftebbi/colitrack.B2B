@@ -17,6 +17,11 @@ import navigateDevelopment from "../components/zr-screens/navigate-to-developmen
 import openhamburger from "../components/zr-screens/open-hamburger.png"
 import loginZr from "../components/zr-screens/loginZr.png"
 import loginEcom from "../components/zr-screens/loginEcom.png"
+
+import loginMs from "../components/maysetro-delivery/logIN.png"
+import navigatWebHook from "../components/maysetro-delivery/maystro2nd.png"
+import selectEvent from "../components/maysetro-delivery/selectEvent.png"
+
 export interface ProviderConfig {
   name: string
   fields: {
@@ -75,6 +80,55 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       {
         title: "Enter Configuration Details",
         description: "Enter the required configuration details for Yalidine Express (You can get those info from the previous step ).",
+        image: webhookConfig,
+      },
+     
+      {
+        title: "Finalize Setup",
+        description: "Review your information and finalize the setup.",
+      },
+    ],
+  },
+  "Yalitec": {
+    name: "Yalitec",
+    fields: {
+      apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
+      apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Login to Yalitec",
+        description:
+          "Visit https://yalitec.app and log in to your account. If you don't have an account yet, you'll need to register first.",
+        image: yalidineLoginImage,
+      },
+      {
+        title: "Navigate to Development",
+        description: "Open the hamburger menu, then click on 'Development' to access developer options.",
+        image: yalidineDevelopmentImage,
+      },
+      {
+        title: "Access Webhook Settings",
+        description: "Click on 'Gérer les webhooks' to navigate to the webhook creation screen.",
+        image: yalidineDevelopmentImage2,
+      },
+      {
+        title: "Create New Webhook",
+        description:
+          "Follow the on-screen instructions to create a new webhook. Fill in the required information in the input fields.",
+      },
+      {
+        title: "Copy Webhook Information",
+        description:
+          "Copy the name, email and link provided below and use them to set up your webhook in the Yalitec interface, Set the 'Type d'évènement' to the option parcel_status_updated ",
+      },
+      {
+        title: "Enter Configuration Details",
+        description: "Enter the required configuration details for Yalitec (You can get those info from the previous step ).",
         image: webhookConfig,
       },
      
@@ -872,23 +926,7 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
     ],
   },
-  "Maystero Delivery": {
-    name: "Maystero Delivery",
-    fields: {
-     
-    },
-    languageOptions: [
-     
-    ],
-    steps: [
-      {
-        title: "Comming Soon .......",
-        description: "Comming Soon ....",
-      
-      },
-     
-    ],
-  },
+ 
 
   "ZR express": {
     name: "ZR express",
@@ -965,6 +1003,50 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     ],
     
   },
+  "Maystero Delivery":{
+    name: "Maystero Delivery",
+    fields: {
+      apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
+      apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Log in",
+        description: "Login to the Maystero Delivery beta web app",
+        image: loginMs,
+      },
+      {
+        title: "Access Webhook Settings",
+        description: "Navigate to the Webhooks section in the Settings page.",
+        image: navigatWebHook,
+      },
+      {
+        title: "Add a New Webhook",
+        description: "Click the '+' icon to create a new webhook entry.",
+        image: navigatWebHook,
+      },
+     
+      {
+        title: "Select Events",
+        description: "Choose one or more events you'd like to listen to, all.",
+        image: selectEvent,
+      },
+      {
+        title: "Get you API Key and Store ID",
+        description: "In the meantime, please contact Maystro support at: support@maystro-delivery.com , to request your API ID and Store ID. You will need this information in the next step of the integration process.",
+      },
+      {
+        title: "Save and Activate",
+        description: "Save the webhook settings to start receiving data. Make sure your endpoint is ready to decode the base64 payload.",
+      }
+    ]
+  },
 
-}
+  }
+
+
 
