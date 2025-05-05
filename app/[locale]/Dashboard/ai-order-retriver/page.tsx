@@ -37,7 +37,7 @@ const t = useTranslations("ai-order-retriever")
                   <iframe
                     width="100%"
                     height="100%"
-                    src="https://www.youtube.com/embed/NZ-DOz5WYGo"
+                    src="https://www.youtube.com/embed/ri_KCngsaYc"
                     title="Delivery Update Video"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
