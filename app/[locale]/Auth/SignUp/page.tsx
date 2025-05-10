@@ -355,14 +355,14 @@ export default function SignUp() {
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
       setIsModalOpen(true)
-    //  router.push("/dashboard/settings")
+      //  router.push("/dashboard/settings")
       if (typeof window !== "undefined" && window.fbq) {
         window.fbq("track", "CompleteRegistration", {
           value: 0,
           currency: "USD",
           content_name: "User Signup",
           email: user.email,
-        });
+        })
       }
       return
     } else {
@@ -408,7 +408,7 @@ export default function SignUp() {
       {isLoading && <LoadingOverlay />}
 
       <div className="max-w-2xl w-full">
-        <Button variant="ghost" onClick={() => router.replace('/')} className="mb-8 group">
+        <Button variant="ghost" onClick={() => router.replace("/")} className="mb-8 group">
           <ArrowLeft className="w-4 h-4 mr-2 transform transition-transform group-hover:-translate-x-1" />
           {t("backToSignIn")}
         </Button>
@@ -453,6 +453,7 @@ export default function SignUp() {
                             {...field}
                             type="email"
                             className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
+                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
                           />
                         </FormControl>
                         <FormMessage />
@@ -691,21 +692,19 @@ export default function SignUp() {
                 >
                   {t("createAccountButton")}
                 </LoadingButton>
-
-               
               </form>
             </Form>
             <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-            <p className="text-gray-600 dark:text-gray-300">
-      {t("alreadyHaveAccount")}
-      <button
-        onClick={() => router.replace('/')}
-        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
-      >
-        {t("signIn")}
-      </button>
-      </p>
-    </div>
+              <p className="text-gray-600 dark:text-gray-300">
+                {t("alreadyHaveAccount")}
+                <button
+                  onClick={() => router.replace("/")}
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+                >
+                  {t("signIn")}
+                </button>
+              </p>
+            </div>
           </div>
         </div>
         {isModalOpen && (
@@ -720,4 +719,3 @@ export default function SignUp() {
     </div>
   )
 }
-

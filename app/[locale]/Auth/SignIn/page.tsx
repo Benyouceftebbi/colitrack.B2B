@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { Link, useRouter } from "@/i18n/routing"
 import { useAuth } from "../../../context/AuthContext"
 import { useTranslations } from "next-intl"
@@ -111,7 +111,7 @@ export default function SignIn() {
                     type="email"
                     id="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     className={inputClassName(error)}
                     placeholder="you@example.com"
                     required
