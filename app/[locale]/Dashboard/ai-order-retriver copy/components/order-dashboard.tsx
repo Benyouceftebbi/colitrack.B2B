@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { History, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { orders as initialOrders, type Order } from "../data/sample-orders"
-import { validateRegionData, findNoestCommuneId, findZrExpressCommuneId } from "./validation-utils"
+import { validateRegionData } from "./validation-utils"
 import { uploadOrders } from "../data/shipping-availability"
 import { Badge } from "@/components/ui/badge"
 import { useTranslations } from "next-intl"
@@ -31,9 +31,6 @@ import { getYalidinCenterById } from "../data/yalidin-centers"
 
 // Add the import for Noast centers:
 import { getNoastCenterById } from "../data/noast-centers"
-
-// Add import for ZR/ECOM centers
-import { getZrEcomCenterByKey } from "../data/zr-ecom-centers"
 
 // Import the useShop hook
 import { useShop } from "@/app/context/ShopContext"
@@ -70,16 +67,21 @@ const LoadingFallback = () => {
   )
 }
 
-// Update the getCenterById function to include ZR/ECOM centers
+// Helper function to get center by ID
 const getCenterById = (id: string, deliveryCompany: string) => {
-  if (deliveryCompany && deliveryCompany.toUpperCase() === "YALIDIN EXPRESS" || deliveryCompany && deliveryCompany.toUpperCase() === "GUEPEX" || deliveryCompany && deliveryCompany.toUpperCase() === "YALITEC") {
+  if (deliveryCompany && deliveryCompany.toUpperCase() === "YALIDIN EXPRESS") {
     return getYalidinCenterById(id)
   } else if (deliveryCompany && deliveryCompany.toUpperCase() === "NOEST EXPRESS") {
     return getNoastCenterById(id)
-  } else if (deliveryCompany && deliveryCompany.toUpperCase() === "ZR EXPRESS" || deliveryCompany && deliveryCompany.toUpperCase() === "E-COM DELIVERY") {
-    return getZrEcomCenterByKey(id)
   }
   return undefined
+}
+
+// Update the findNoestCommuneId function to use the new getNoestCommuneId function
+const findNoestCommuneId = (wilayaName: string): number | undefined => {
+  // Use the getNoestCommuneId function that returns the numeric ID directly
+  const { getNoestCommuneId } = require("../data/noast-centers")
+  return getNoestCommuneId(wilayaName)
 }
 
 // Update the OrderDashboard component to handle the beta request state
@@ -88,7 +90,7 @@ export function OrderDashboard() {
 
   // Use orders from shopData if available, otherwise use initialOrders
   const { shopData, dateRange, setDateRange, setShopData } = useShop()
-  const [orders, setOrders] = useState<Order[]>(() => shopData.orders || null)
+  const [orders, setOrders] = useState<Order[]>(() => shopData.orders || initialOrders)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
@@ -102,7 +104,7 @@ export function OrderDashboard() {
   const { toast } = useToast()
 
   // Update orders when shopData.orders changes
- useEffect(() => {
+  useEffect(() => {
     if (shopData.orders && shopData.orders.length > 0) {
       setOrders(shopData.orders)
     }
@@ -200,19 +202,12 @@ export function OrderDashboard() {
               if (value) {
                 const center = getCenterById(value, shopData.deliveryCompany)
                 if (center) {
-                  // Handle different structures for different providers
-                  if (shopData.deliveryCompany.toUpperCase() === "NOEST EXPRESS") {
+                  // Handle different structures for Yalidin and Noast
+                  if (shopData.deliveryCompany === "NOEST EXPRESS") {
                     updatedOrder.orderData.stop_desk = {
                       id: value,
                       name: center.name,
                       code: center.code,
-                    }
-                  } else if (shopData.deliveryCompany.toUpperCase() === "ZR EXPRESS" || shopData.deliveryCompany.toUpperCase() === "E-COM DELIVERY") {
-                    updatedOrder.orderData.stop_desk = {
-                      id: value,
-                      name: center.name,
-                      code: center.code,
-                      key: center.key,
                     }
                   } else {
                     updatedOrder.orderData.stop_desk = {
@@ -336,17 +331,16 @@ export function OrderDashboard() {
         })
 
         // CRITICAL: Check for missing stop desk when delivery type is stopdesk
-        // Only for shipping providers that require stop desk (NOEST Express, Yalidin Express, and ZR Express)
+        // Only for shipping providers that require stop desk (NOEST Express and Yalidin Express)
         const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-        const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "E-COM DELIVERY"
-        const requiresStopDesk = isNoestExpress || isYalidinExpress || isZrExpress
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+        const requiresStopDesk = isNoestExpress || isYalidinExpress
 
         const missingStopDesk =
           order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
 
-        // For NOEST Express or ZR Express with stopdesk, we only validate wilaya and stop desk
-        if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
+        // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+        if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
           return !validation.wilayaValid || !validation.stopDeskValid || missingStopDesk
         } else {
           return (
@@ -375,9 +369,8 @@ export function OrderDashboard() {
       // Count orders with missing stop desk
       const missingStopDeskOrders = invalidOrders.filter((order) => {
         const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-        const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "E-COM DELIVERY"
-        const requiresStopDesk = isNoestExpress || isYalidinExpress || isZrExpress
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+        const requiresStopDesk = isNoestExpress || isYalidinExpress
 
         return order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
       })
@@ -395,8 +388,7 @@ export function OrderDashboard() {
         // Get commune ID based on delivery type and shipping provider
         let communeId
         const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-        const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "E-COM DELIVERY"
+        const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
 
         if (order.orderData.delivery_type.value === "home") {
           // For home delivery, get commune ID from algeria-regions data
@@ -421,15 +413,6 @@ export function OrderDashboard() {
               communeId = commune?.id
             }
           }
-        } else if (isZrExpress && order.orderData.delivery_type.value === "stopdesk") {
-          // For ZR Express with stopdesk, get commune ID from the wilaya
-          communeId = findZrExpressCommuneId(wilayaName)
-
-          // If we have a stop desk selected, use its key as the center ID
-          if (order.orderData.stop_desk?.key) {
-            // Include the center key in the exported data
-            order.orderData.stop_desk.center_key = order.orderData.stop_desk.key
-          }
         } else {
           // For other cases, try to find commune by name
           const commune = findCommuneByNameAcrossWilayas(communeName)
@@ -447,7 +430,7 @@ export function OrderDashboard() {
           commune: order.orderData.commune.name_fr.value || wilayaName, // Use wilaya name if commune is undefined
           communeId: communeId, // Add commune ID
           deliveryType: order.orderData.delivery_type.value,
-          delivery_cost: order.orderData.delivery_cost.value,
+          delivery_cost:order.orderData.delivery_cost.value,
           totalPrice: order.orderData.total_price.value,
           status: "confirmed", // New status after export
           // Include stop desk information if applicable
@@ -457,7 +440,6 @@ export function OrderDashboard() {
                   id: order.orderData.stop_desk?.id,
                   name: order.orderData.stop_desk?.name,
                   code: order.orderData.stop_desk?.code,
-                  key: order.orderData.stop_desk?.key,
                 }
               : undefined,
         }
@@ -490,7 +472,6 @@ export function OrderDashboard() {
                   id: order.orderData.stop_desk?.id,
                   name: order.orderData.stop_desk?.name,
                   code: order.orderData.stop_desk?.code,
-                  key: order.orderData.stop_desk?.key,
                 }
               : undefined,
         }
@@ -638,15 +619,14 @@ export function OrderDashboard() {
 
       // CRITICAL: Check for missing stop desk when delivery type is stopdesk
       const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-      const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-      const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS" || shopData?.deliveryCompany?.toUpperCase() ==="E-COM DELIVERY"
-      const requiresStopDesk = isNoestExpress || isYalidinExpress || isZrExpress
+      const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+      const requiresStopDesk = isNoestExpress || isYalidinExpress
 
       const missingStopDesk =
         order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
 
-      // For NOEST Express or ZR Express with stopdesk, we only validate wilaya and stop desk
-      if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
+      // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+      if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
         return !validation.wilayaValid || !validation.stopDeskValid || missingStopDesk
       } else {
         return (
@@ -746,10 +726,6 @@ export function OrderDashboard() {
 
           <div className="overflow-x-auto">
             <OrdersTable orders={filteredOrders} onViewOrder={handleViewOrder} dateRange={dateRange} />
-          </div>
-        </div>
-
-        {/* Lazy  dateRange={dateRange} />
           </div>
         </div>
 

@@ -2,38 +2,33 @@ import type { Order } from "../data/sample-orders"
 import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data/algeria-regions"
 import { isDeliveryTypeValid } from "../data/shipping-availability"
 import { getNoastCommuneIdByWilaya } from "../data/noast-centers"
-import { getZrEcomCommuneIdByWilaya } from "../data/zr-ecom-centers"
 
-// Update the validateRegionData function to include ZR Express
+// Update the validateRegionData function to completely ignore commune for NOEST Express with stopdesk
 export function validateRegionData(order: Order, shopData?: any) {
   const wilayaName = order.orderData.wilaya.name_fr.value
   const communeName = order.orderData.commune.name_fr.value
   const deliveryType = order.orderData.delivery_type.value
   const shippingProvider = shopData?.deliveryCompany?.toUpperCase()
   const isNoastExpress = shippingProvider === "NOEST EXPRESS"
-  const isYalidinExpress = shippingProvider === "YALIDIN EXPRESS" || shippingProvider === "GUEPEX" || shippingProvider === "YALITEC"
-  const isZrExpress = shippingProvider === "ZR EXPRESS" || shippingProvider === "E-COM DELIVERY"
-  const requiresStopDesk = isNoastExpress || isYalidinExpress || isZrExpress
+  const isYalidinExpress = shippingProvider === "YALIDIN EXPRESS"
+  const requiresStopDesk = isNoastExpress || isYalidinExpress
 
   // Check if wilaya exists
   const allWilayas = getAllWilayas()
   const wilayaExists = allWilayas.some((wilaya) => normalizeString(wilaya.name_ascii) === normalizeString(wilayaName))
 
-  // Check if commune exists - for NOAST Express or ZR Express with stopdesk, commune is not required
+  // Check if commune exists - for NOAST Express with stopdesk, commune is not required
   let communeExists = true // Default to true
 
-  // For NOAST Express or ZR Express with stopdesk, commune validation is skipped entirely
-  if ((isNoastExpress || isZrExpress) && deliveryType === "stopdesk") {
-    communeExists = true // Always valid for these providers with stopdesk, regardless of value
+  // For NOAST Express with stopdesk, commune validation is skipped entirely
+  if (isNoastExpress && deliveryType === "stopdesk") {
+    communeExists = true // Always valid for NOEST Express with stopdesk, regardless of value
   }
-  // For NOAST Express or ZR Express with home delivery OR any other shipping provider, validate commune
-  else if ((!isNoastExpress && !isZrExpress) || ((isNoastExpress || isZrExpress) && deliveryType === "home")) {
+  // For NOAST Express with home delivery OR any other shipping provider, validate commune
+  else if (!isNoastExpress || (isNoastExpress && deliveryType === "home")) {
     if (wilayaExists) {
-      // For NOAST Express or ZR Express, if commune is undefined or same as wilaya, consider it valid
-      if (
-        (isNoastExpress || isZrExpress) &&
-        (!communeName || normalizeString(communeName) === normalizeString(wilayaName))
-      ) {
+      // For NOAST Express, if commune is undefined or same as wilaya, consider it valid
+      if (isNoastExpress && (!communeName || normalizeString(communeName) === normalizeString(wilayaName))) {
         communeExists = true
       } else {
         const communes = getCommunesByWilayaName(wilayaName)
@@ -47,10 +42,10 @@ export function validateRegionData(order: Order, shopData?: any) {
   }
 
   // Check if delivery type is valid for the commune
-  // For NOEST Express or ZR Express with stopdesk, we skip commune-based validation
+  // For NOEST Express with stopdesk, we skip commune-based validation
   let isDeliveryValid = true
-  if ((isNoastExpress || isZrExpress) && deliveryType === "stopdesk") {
-    isDeliveryValid = true // Always valid for these providers with stopdesk
+  if (isNoastExpress && deliveryType === "stopdesk") {
+    isDeliveryValid = true // Always valid for NOEST Express with stopdesk
   } else {
     isDeliveryValid = isDeliveryTypeValid(communeName, deliveryType, shippingProvider)
   }
@@ -58,7 +53,7 @@ export function validateRegionData(order: Order, shopData?: any) {
   // Check if stop desk center is required and selected
   let stopDeskValid = true
   if (deliveryType === "stopdesk" && requiresStopDesk) {
-    // For all providers that require stop desk, selection is REQUIRED
+    // Only for NOEST Express and Yalidin Express, stop desk selection is REQUIRED
     stopDeskValid = !!order.orderData.stop_desk?.id
   }
 
@@ -150,7 +145,7 @@ export async function checkOrdersForIssues(orders: Order[], shopData?: any) {
 
 /**
  * Asynchronously checks delivery availability with the shipping provider
- * @param communeName The name of the commune
+ * @param communeName The commune name
  * @param deliveryType The delivery type
  * @param shippingProvider The shipping provider
  * @returns Promise that resolves to true if delivery is available
@@ -166,11 +161,8 @@ export async function checkDeliveryAvailability(
   // Home delivery is always available
   if (deliveryType === "home") return true
 
-  // For NOEST Express or ZR Express with stopdesk, always return true
-  if (
-    (shippingProvider?.toUpperCase() === "NOEST EXPRESS" || shippingProvider?.toUpperCase() === "ZR EXPRESS" || shippingProvider?.toUpperCase() === "E-COM DELIVERY" ) &&
-    deliveryType === "stopdesk"
-  ) {
+  // For NOEST Express with stopdesk, always return true
+  if (shippingProvider?.toUpperCase() === "NOEST EXPRESS" && deliveryType === "stopdesk") {
     return true
   }
 
@@ -183,25 +175,24 @@ export function findNoestCommuneId(wilayaName: string): string | undefined {
   return getNoastCommuneIdByWilaya(wilayaName)
 }
 
-// Helper function to find commune ID for ZR Express
-export function findZrExpressCommuneId(wilayaName: string): number | undefined {
-  return getZrEcomCommuneIdByWilaya(wilayaName)
-}
-
-// Update isOrderValidForExport to include ZR Express
+/**
+ * Checks if an order is valid for export based on shipping provider
+ * @param order The order to check
+ * @param shopData Shop data containing shipping provider information
+ * @returns True if the order is valid for export, false otherwise
+ */
 export function isOrderValidForExport(order: Order, shopData?: any): boolean {
   const validation = validateRegionData(order, shopData)
 
-  const isNoastExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-  const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-  const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "E-COM DELIVERY"
-  const requiresStopDesk = isNoastExpress || isYalidinExpress || isZrExpress
+  const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
+  const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
+  const requiresStopDesk = isNoestExpress || isYalidinExpress
 
   const missingStopDesk =
     order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk && !order.orderData.stop_desk?.id
 
-  // For NOEST Express or ZR Express with stopdesk, we don't need to validate commune at all
-  if ((isNoastExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
+  // For NOEST Express with stopdesk, we don't need to validate commune at all
+  if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
     return validation.wilayaValid && validation.stopDeskValid && !missingStopDesk
   } else {
     return (

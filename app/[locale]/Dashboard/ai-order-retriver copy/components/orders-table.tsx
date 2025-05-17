@@ -18,8 +18,6 @@ import { useOrders } from "./order-dashboard"
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
 import { getNoastCentersByWilaya } from "../data/noast-centers"
-// Add import for ZR Express centers
-import { getZrEcomCentersByWilaya } from "../data/zr-ecom-centers"
 // At the top of the file, add the import for useTranslations
 import { useTranslations } from "next-intl"
 
@@ -32,7 +30,7 @@ interface OrdersTableProps {
   }
 }
 
-// Update the TableRowMemo component to handle ZR Express with stopdesk
+// Update the TableRowMemo component to handle NOEST Express with stopdesk
 const TableRowMemo = memo(function TableRowComponent({
   order,
   editingRow,
@@ -47,7 +45,6 @@ const TableRowMemo = memo(function TableRowComponent({
   selectedRows,
   handleSelectRow,
   isNoestExpress,
-  isZrExpress,
   requiresStopDesk,
 }: {
   order: Order
@@ -63,7 +60,6 @@ const TableRowMemo = memo(function TableRowComponent({
   selectedRows: string[]
   handleSelectRow: (orderId: string) => void
   isNoestExpress: boolean
-  isZrExpress: boolean
   requiresStopDesk: boolean
 }) {
   // Inside the TableRowMemo component, add this line near the top:
@@ -115,8 +111,8 @@ const TableRowMemo = memo(function TableRowComponent({
 
   // Check for validation issues based on delivery type
   const hasIssues = useMemo(() => {
-    // For NOEST Express or ZR Express with stopdesk, we only validate wilaya and stop desk
-    if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
+    // For NOEST Express with stopdesk, we only validate wilaya and stop desk
+    if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
       return !validation.wilayaValid || !validation.stopDeskValid
     } else if (order.orderData.delivery_type.value === "home") {
       // For home delivery, we need valid wilaya and commune
@@ -130,7 +126,7 @@ const TableRowMemo = memo(function TableRowComponent({
         (requiresStopDesk && !validation.stopDeskValid)
       )
     }
-  }, [validation, order.orderData.delivery_type.value, isNoestExpress, isZrExpress, requiresStopDesk])
+  }, [validation, order.orderData.delivery_type.value, isNoestExpress, requiresStopDesk])
 
   const stopDeskValid = useMemo(() => {
     if (order.orderData.delivery_type.value !== "stopdesk") return true
@@ -262,23 +258,23 @@ const TableRowMemo = memo(function TableRowComponent({
             disabled={
               !editValues.wilaya ||
               availableCommunes.length === 0 ||
-              ((isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk")
+              (isNoestExpress && editValues.deliveryType === "stopdesk")
             }
           >
             <SelectTrigger className="h-8 w-full dark:bg-slate-700/70 dark:border-gray-700">
               <SelectValue placeholder={t("selectCommune")}>
-                {(isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk"
-                  ? "Not required for this provider"
+                {isNoestExpress && editValues.deliveryType === "stopdesk"
+                  ? "Not required for NOEST"
                   : editValues.commune || "Select commune"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {(isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk" ? (
+              {isNoestExpress && editValues.deliveryType === "stopdesk" ? (
                 <SelectItem value="placeholder-value" disabled>
-                  {t("notRequired")}
+                  {t("notRequiredForNoestExpress")}
                 </SelectItem>
-              ) : isNoestExpress || isZrExpress ? (
-                // For NOEST Express or ZR Express, add the wilaya as a commune option
+              ) : isNoestExpress ? (
+                // For NOEST Express, add the wilaya as a commune option
                 <>
                   <SelectItem value={editValues.wilaya}>{editValues.wilaya} (Same as Wilaya)</SelectItem>
                   {availableCommunes.length > 0 ? (
@@ -352,8 +348,8 @@ const TableRowMemo = memo(function TableRowComponent({
           </Select>
         ) : (
           <div className="flex items-center gap-1">
-            {(isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk" ? (
-              <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequired")}</span>
+            {isNoestExpress && order.orderData.delivery_type.value === "stopdesk" ? (
+              <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequiredForNoest")}</span>
             ) : (
               <>
                 {order.orderData.commune.name_fr.value || (
@@ -378,7 +374,7 @@ const TableRowMemo = memo(function TableRowComponent({
               <SelectItem value="home">{t("homeDelivery")}</SelectItem>
               <SelectItem value="stopdesk">
                 {t("stopDesk")}
-                {!(isNoestExpress || isZrExpress) && editValues.commune && !isStopDeskAvailable(editValues.commune) && (
+                {!isNoestExpress && editValues.commune && !isStopDeskAvailable(editValues.commune) && (
                   <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
                     {t("notAvailable")}
                   </span>
@@ -390,20 +386,18 @@ const TableRowMemo = memo(function TableRowComponent({
           <div className="flex items-center gap-1">
             {order.orderData.delivery_type.value === "home" ? t("homeDelivery") : t("stopDesk")}
 
-            {order.orderData.delivery_type.value === "stopdesk" &&
-              !stopDeskValid &&
-              !(isNoestExpress || isZrExpress) && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AlertTriangle className="h-4 w-4 text-amber-500" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t("stopDeskNotAvailable")}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+            {order.orderData.delivery_type.value === "stopdesk" && !stopDeskValid && !isNoestExpress && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("stopDeskNotAvailable")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         )}
       </TableCell>
@@ -428,11 +422,11 @@ const TableRowMemo = memo(function TableRowComponent({
                   {availableStopDesks
                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
                     .map((desk) => {
-                      // Use key for NOEST/ZR centers and center_id for Yalidin centers
-                      const centerId = isNoestExpress || isZrExpress ? desk.key : desk.center_id
+                      // Use key for NOEST centers and center_id for Yalidin centers
+                      const centerId = isNoestExpress ? desk.key : desk.center_id
                       return (
                         <SelectItem key={centerId} value={centerId?.toString() || ""}>
-                          {desk.name} {(isNoestExpress || isZrExpress) && desk.code ? `(${desk.code})` : ""}
+                          {desk.name} {isNoestExpress && desk.code ? `(${desk.code})` : ""}
                         </SelectItem>
                       )
                     })}
@@ -571,7 +565,7 @@ const TableRowMemo = memo(function TableRowComponent({
   )
 })
 
-// Update the OrdersTable component to pass isZrExpress to TableRowMemo
+// Update the OrdersTable component to pass requiresStopDesk to TableRowMemo
 export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, dateRange }: OrdersTableProps) {
   // Inside the OrdersTable component, add this line near the top:
   const t = useTranslations("ai-order-retriever")
@@ -586,11 +580,10 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
 
   // Check if NOEST Express is the delivery company
   const isNoestExpress = shopData?.deliveryCompany?.toUpperCase() === "NOEST EXPRESS"
-  const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS" || shopData?.deliveryCompany?.toUpperCase() === "GUEPEX" || shopData?.deliveryCompany?.toUpperCase() === "YALITEC"
-  const isZrExpress = shopData?.deliveryCompany?.toUpperCase() === "ZR EXPRESS"
+  const isYalidinExpress = shopData?.deliveryCompany?.toUpperCase() === "YALIDIN EXPRESS"
 
   // Check if a shipping provider that requires stop desk is being used
-  const requiresStopDesk = isNoestExpress || isYalidinExpress || isZrExpress
+  const requiresStopDesk = isNoestExpress || isYalidinExpress
 
   const shippingProvider = shopData?.deliveryCompany?.toUpperCase()
 
@@ -599,18 +592,13 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     if (editingRow && editValues.deliveryType === "stopdesk" && requiresStopDesk) {
       let stopDesks = []
 
-      // For NOEST Express or ZR Express, load centers based on wilaya, not commune
+      // For NOEST Express, load centers based on wilaya, not commune
       if (isNoestExpress) {
         if (editValues.wilaya) {
           // Get centers directly by wilaya
           stopDesks = getNoastCentersByWilaya(editValues.wilaya)
         }
-      } else if (isZrExpress) {
-        if (editValues.wilaya) {
-          // Get centers directly by wilaya for ZR Express
-          stopDesks = getZrEcomCentersByWilaya(editValues.wilaya)
-        }
-      } else if (shippingProvider === "YALIDIN EXPRESS" || shippingProvider === "GUEPEX" || shippingProvider=== "YALITEC") {
+      } else if (shippingProvider === "YALIDIN EXPRESS") {
         // For Yalidin, continue using commune-based centers
         if (editValues.commune) {
           stopDesks = getYalidinCentersForCommune(editValues.commune)
@@ -637,7 +625,6 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     requiresStopDesk,
     shippingProvider,
     isNoestExpress,
-    isZrExpress,
   ])
 
   // Fix the commune property in the availableCommunes array
@@ -645,8 +632,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     if (
       editingRow &&
       editValues.wilaya &&
-      (!isNoestExpress || (isNoestExpress && editValues.deliveryType === "home")) &&
-      (!isZrExpress || (isZrExpress && editValues.deliveryType === "home"))
+      (!isNoestExpress || (isNoestExpress && editValues.deliveryType === "home"))
     ) {
       // Get communes for this wilaya using the normalized string comparison
       const communes = getCommunesByWilayaName(editValues.wilaya)
@@ -673,11 +659,11 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         setAvailableCommunes([])
       }
     }
-  }, [editingRow, editValues.wilaya, editValues.deliveryType, isNoestExpress, isZrExpress])
+  }, [editingRow, editValues.wilaya, editValues.deliveryType, isNoestExpress])
 
   // Don't automatically change delivery type, just update stop desk availability
   useEffect(() => {
-    if (editingRow && editValues.commune && !(isNoestExpress || isZrExpress)) {
+    if (editingRow && editValues.commune && !isNoestExpress) {
       // Check stop desk availability but don't automatically change delivery type
       const stopDeskAvailable = isStopDeskAvailable(editValues.commune)
 
@@ -689,7 +675,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         }))
       }
     }
-  }, [editingRow, editValues.commune, isNoestExpress, isZrExpress])
+  }, [editingRow, editValues.commune, isNoestExpress])
 
   // Memoize handler functions with useCallback
   const handleSelectRow = useCallback(
@@ -705,7 +691,7 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
     setSelectedRows(selectedRows.length === orders.length ? [] : orders.map((order) => order.id))
   }, [selectedRows, orders, setSelectedRows])
 
-  // Update the startEditing function to handle commune selection for NOEST Express and ZR Express with home delivery
+  // Update the startEditing function to handle commune selection for NOEST Express with home delivery
   const startEditing = useCallback(
     (order: Order) => {
       // Get the exact wilaya name as it appears in the data
@@ -724,12 +710,11 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
       // Get communes for this wilaya
       const communes = getCommunesByWilayaName(exactWilayaName)
 
-      // For NOEST Express or ZR Express with stopdesk, we don't need commune
-      // For all other cases (including NOEST Express or ZR Express with home delivery), we need commune
+      // For NOEST Express with stopdesk, we don't need commune
+      // For all other cases (including NOEST Express with home delivery), we need commune
       if (
         communes.length > 0 &&
-        ((!isNoestExpress && !isZrExpress) ||
-          ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "home"))
+        (!isNoestExpress || (isNoestExpress && order.orderData.delivery_type.value === "home"))
       ) {
         // Find the matching commune to get the exact name format
         const matchingCommune = communes.find(
@@ -776,18 +761,14 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
           let stopDesks = []
 
-          if (isNoestExpress) {
-            stopDesks = getNoastCentersByWilaya(exactWilayaName)
-          } else if (isZrExpress) {
-            stopDesks = getZrEcomCentersByWilaya(exactWilayaName)
-          } else if (shippingProvider === "YALIDIN EXPRESS" || shippingProvider  === "GUEPEX" || shippingProvider  === "YALITEC") {
+          if (shippingProvider === "YALIDIN EXPRESS") {
             stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
           }
 
           setAvailableStopDesks(stopDesks)
         }
       } else {
-        // For NOEST Express or ZR Express with stopdesk or if no communes found, use the original values
+        // For NOEST Express with stopdesk or if no communes found, use the original values
         // Add stop desk information
         const stopDeskId = order.orderData.stop_desk?.id || ""
 
@@ -809,19 +790,14 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
         setEditingRow(order.id)
         setEditValues(editValuesWithoutCenter)
 
-        // For NOEST Express or ZR Express, load centers based on wilaya
-        if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
-          let stopDesks = []
-          if (isNoestExpress) {
-            stopDesks = getNoastCentersByWilaya(wilayaName)
-          } else if (isZrExpress) {
-            stopDesks = getZrEcomCentersByWilaya(wilayaName)
-          }
+        // For NOEST Express, load centers based on wilaya
+        if (isNoestExpress && order.orderData.delivery_type.value === "stopdesk") {
+          const stopDesks = getNoastCentersByWilaya(wilayaName)
           setAvailableStopDesks(stopDesks)
         }
       }
     },
-    [requiresStopDesk, shippingProvider, isNoestExpress, isZrExpress],
+    [requiresStopDesk, shippingProvider, isNoestExpress],
   )
 
   const cancelEditing = useCallback(() => {
@@ -971,7 +947,6 @@ export const OrdersTable = memo(function OrdersTable({ orders, onViewOrder, date
                 selectedRows={selectedRows}
                 handleSelectRow={handleSelectRow}
                 isNoestExpress={isNoestExpress}
-                isZrExpress={isZrExpress}
                 requiresStopDesk={requiresStopDesk}
               />
             ))

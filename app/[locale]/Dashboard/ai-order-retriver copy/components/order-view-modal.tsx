@@ -33,8 +33,6 @@ import { getAllWilayas, getCommunesByWilayaName, normalizeString } from "../data
 import { getYalidinCentersForCommune } from "../data/yalidin-centers"
 import { useShop } from "@/app/context/ShopContext"
 import { getNoastCentersByWilaya } from "../data/noast-centers"
-// Add import for ZR Express centers
-import { getZrEcomCentersByWilaya } from "../data/zr-ecom-centers"
 
 // At the top of the file, add the import for useTranslations
 import { useTranslations } from "next-intl"
@@ -155,29 +153,23 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   const [availableStopDesks, setAvailableStopDesks] = useState([])
 
   // Check if a shipping provider that requires stop desk is being used
-  const shippingProvider = shopData?.deliveryCompany?.toUpperCase()
-  const isNoestExpress = shippingProvider === "NOEST EXPRESS"
-  const isYalidinExpress = shippingProvider === "YALIDIN EXPRESS" || shippingProvider === "GUEPEX" || shippingProvider === "YALITEC"
-  const isZrExpress = shippingProvider === "ZR EXPRESS" || shippingProvider === "E-COM DELIVERY"
-  const requiresStopDesk = isNoestExpress || isYalidinExpress || isZrExpress
+  const shippingProvider = shopData?.deliveryCompany
+  const isNoastExpress = shippingProvider?.toUpperCase() === "NOEST EXPRESS"
+  const isYalidinExpress = shippingProvider?.toUpperCase() === "YALIDIN EXPRESS"
+  const requiresStopDesk = isNoastExpress || isYalidinExpress
 
   // Update available stop desks when wilaya or commune changes
   useEffect(() => {
     if (isEditing && editValues.deliveryType === "stopdesk" && requiresStopDesk) {
       let stopDesks = []
 
-      // For NOEST Express or ZR Express, load centers based on wilaya, not commune
-      if (isNoestExpress) {
+      // For NOEST Express, load centers based on wilaya, not commune
+      if (isNoastExpress) {
         if (editValues.wilaya) {
           // Get centers directly by wilaya
           stopDesks = getNoastCentersByWilaya(editValues.wilaya)
         }
-      } else if (isZrExpress) {
-        if (editValues.wilaya) {
-          // Get centers directly by wilaya for ZR Express
-          stopDesks = getZrEcomCentersByWilaya(editValues.wilaya)
-        }
-      } else if (shippingProvider === "YALIDIN EXPRESS" || shippingProvider === "GUEPEX" || shippingProvider === "YALITEC" ) {
+      } else if (shippingProvider === "Yalidin Express") {
         // For Yalidin, continue using commune-based centers
         if (editValues.commune) {
           stopDesks = getYalidinCentersForCommune(editValues.commune)
@@ -203,18 +195,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     editValues.deliveryType,
     requiresStopDesk,
     shippingProvider,
-    isNoestExpress,
+    isNoastExpress,
     isYalidinExpress,
-    isZrExpress,
   ])
 
   // Add this useEffect to update available communes when wilaya changes
   useEffect(() => {
-    if (
-      isEditing &&
-      editValues.wilaya &&
-      ((!isNoestExpress && !isZrExpress) || ((isNoestExpress || isZrExpress) && editValues.deliveryType === "home"))
-    ) {
+    if (isEditing && editValues.wilaya && (!isNoastExpress || (isNoastExpress && editValues.deliveryType === "home"))) {
       // Get communes for this wilaya
       const communes = getCommunesByWilayaName(editValues.wilaya)
 
@@ -240,7 +227,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
         setAvailableCommunes([])
       }
     }
-  }, [isEditing, editValues.wilaya, editValues.deliveryType, isNoestExpress, isZrExpress])
+  }, [isEditing, editValues.wilaya, editValues.deliveryType, isNoastExpress])
 
   // Memoize expensive calculations
   const validation = useMemo(() => validateRegionData(order), [order])
@@ -344,18 +331,13 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       stopDeskId: order.orderData.stop_desk?.id || "",
     }
 
-    // For NOEST Express or ZR Express with stopdesk, commune is not required
-    if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
+    // For NOEST Express with stopdesk, commune is not required
+    if (isNoastExpress && order.orderData.delivery_type.value === "stopdesk") {
       // No need to set available communes
       setEditValues(initialValues)
 
-      // Load centers based on wilaya
-      let stopDesks = []
-      if (isNoestExpress) {
-        stopDesks = getNoastCentersByWilaya(wilayaName)
-      } else if (isZrExpress) {
-        stopDesks = getZrEcomCentersByWilaya(wilayaName)
-      }
+      // Load NOEST centers based on wilaya
+      const stopDesks = getNoastCentersByWilaya(wilayaName)
       setAvailableStopDesks(stopDesks)
     }
     // For other cases, load communes if available
@@ -387,10 +369,8 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
       if (order.orderData.delivery_type.value === "stopdesk" && requiresStopDesk) {
         let stopDesks = []
 
-        if (isNoestExpress) {
+        if (isNoastExpress) {
           stopDesks = getNoastCentersByWilaya(wilayaName)
-        } else if (isZrExpress) {
-          stopDesks = getZrEcomCentersByWilaya(wilayaName)
         } else if (isYalidinExpress) {
           stopDesks = getYalidinCentersForCommune(exactCommuneName || communeName)
         }
@@ -402,14 +382,9 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     else {
       setEditValues(initialValues)
 
-      // For NOEST Express or ZR Express, load centers based on wilaya
-      if ((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") {
-        let stopDesks = []
-        if (isNoestExpress) {
-          stopDesks = getNoastCentersByWilaya(wilayaName)
-        } else if (isZrExpress) {
-          stopDesks = getZrEcomCentersByWilaya(wilayaName)
-        }
+      // For NOEST Express, load centers based on wilaya
+      if (isNoastExpress && order.orderData.delivery_type.value === "stopdesk") {
+        const stopDesks = getNoastCentersByWilaya(wilayaName)
         setAvailableStopDesks(stopDesks)
       } else if (isYalidinExpress && order.orderData.delivery_type.value === "stopdesk") {
         // For Yalidin, try to get centers for the commune
@@ -419,7 +394,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
     }
 
     setIsEditing(true)
-  }, [order, requiresStopDesk, isNoestExpress, isYalidinExpress, isZrExpress])
+  }, [order, requiresStopDesk, isNoastExpress, isYalidinExpress])
 
   const cancelEditing = useCallback(() => {
     setIsEditing(false)
@@ -500,14 +475,14 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
   // Function to check if stop desk is available for a commune
   const isStopDeskAvailableForCommune = useCallback(
     (communeName: string) => {
-      if (isNoestExpress || isZrExpress) return true // For NOEST Express or ZR Express, stop desks are always available
+      if (isNoastExpress) return true // For NOEST Express, stop desks are always available
       if (!requiresStopDesk) return true // If not a provider that requires stop desk, stop desks are always "available"
 
       // For Yalidin Express, check if the commune has stop desks
       const stopDesks = getYalidinCentersForCommune(communeName)
       return stopDesks.length > 0
     },
-    [requiresStopDesk, isNoestExpress, isZrExpress],
+    [requiresStopDesk, isNoastExpress],
   )
 
   // Don't render if not open to improve performance
@@ -817,7 +792,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                             <SelectItem value="home">{t("homeDelivery")}</SelectItem>
                             <SelectItem value="stopdesk">
                               {t("stopDesk")}
-                              {!(isNoestExpress || isZrExpress) &&
+                              {!isNoastExpress &&
                                 editValues.commune &&
                                 !isStopDeskAvailableForCommune(editValues.commune) && (
                                   <span className="ml-2 text-amber-500 text-xs font-medium px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded">
@@ -874,12 +849,11 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                                   {availableStopDesks
                                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
                                     .map((desk) => {
-                                      // Use key for NOEST/ZR centers and center_id for Yalidin centers
-                                      const centerId = isNoestExpress || isZrExpress ? desk.key : desk.center_id
+                                      // Use key for NOEST centers and center_id for Yalidin centers
+                                      const centerId = isNoastExpress ? desk.key : desk.center_id
                                       return (
                                         <SelectItem key={centerId} value={centerId?.toString() || ""}>
-                                          {desk.name}{" "}
-                                          {(isNoestExpress || isZrExpress) && desk.code ? `(${desk.code})` : ""}
+                                          {desk.name} {isNoastExpress && desk.code ? `(${desk.code})` : ""}
                                         </SelectItem>
                                       )
                                     })}
@@ -959,23 +933,23 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                           disabled={
                             !editValues.wilaya ||
                             availableCommunes.length === 0 ||
-                            ((isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk")
+                            (isNoastExpress && editValues.deliveryType === "stopdesk")
                           }
                         >
                           <SelectTrigger className="h-8 dark:bg-slate-700/70 dark:border-gray-700">
                             <SelectValue placeholder={t("selectCommune")}>
-                              {(isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk"
-                                ? "Not required for this provider"
+                              {isNoastExpress && editValues.deliveryType === "stopdesk"
+                                ? "Not required for NOEST"
                                 : editValues.commune || "Select commune"}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {(isNoestExpress || isZrExpress) && editValues.deliveryType === "stopdesk" ? (
+                            {isNoastExpress && editValues.deliveryType === "stopdesk" ? (
                               <SelectItem value="placeholder-value" disabled>
-                                {t("notRequiredForThisProvider")}
+                                {t("notRequiredForNoestExpress")}
                               </SelectItem>
-                            ) : isNoestExpress || isZrExpress ? (
-                              // For NOEST Express or ZR Express, add the wilaya as a commune option
+                            ) : isNoastExpress ? (
+                              // For NOEST Express, add the wilaya as a commune option
                               <>
                                 <SelectItem value={editValues.wilaya}>{editValues.wilaya} (Same as Wilaya)</SelectItem>
                                 {availableCommunes.length > 0 ? (
@@ -1051,10 +1025,8 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         </Select>
                       ) : (
                         <p className="font-medium dark:text-gray-200">
-                          {(isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk" ? (
-                            <span className="text-gray-500 dark:text-gray-400 italic">
-                              {t("notRequiredForThisProvider")}
-                            </span>
+                          {isNoastExpress && order.orderData.delivery_type.value === "stopdesk" ? (
+                            <span className="text-gray-500 dark:text-gray-400 italic">{t("notRequiredForNoest")}</span>
                           ) : order.orderData.commune.name_fr.value ? (
                             order.orderData.commune.name_fr.value
                           ) : (
@@ -1063,7 +1035,7 @@ export function OrderViewModal({ order, isOpen, onClose, readOnly = false, onEdi
                         </p>
                       )}
                       {!validation.communeValid &&
-                        !((isNoestExpress || isZrExpress) && order.orderData.delivery_type.value === "stopdesk") && (
+                        !(isNoastExpress && order.orderData.delivery_type.value === "stopdesk") && (
                           <div className="flex items-center text-red-500 dark:text-red-400 text-sm mt-1">
                             <AlertTriangle className="h-4 w-4 mr-1" />
                             {t("invalidCommune")}
