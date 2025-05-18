@@ -181,6 +181,7 @@
    try {
      const failedOrders: any[] = []
      let tokens = 0
+
  
      // Simulate some random failures (about 10% of orders)
      const randomFail = Math.random() < 0.1
@@ -227,7 +228,7 @@
        }
      } else if (shopdata.deliveryCompany.toUpperCase() === "ZR EXPRESS"|| shopdata.deliveryCompany.toUpperCase() ==="E-COM DELIVERY") {
        // For ZR Express, use a similar approach as other providers
-       const uploadZrExpress = httpsCallable(functions, "uploadZrExpressOrders")
+       const uploadZrExpress = httpsCallable(functions, "uploadZrOrders")
        const result = await uploadZrExpress({
          rawOrders: orders,
          apiKey: shopdata.apiKey,

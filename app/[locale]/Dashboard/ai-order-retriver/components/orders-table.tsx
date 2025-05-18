@@ -528,7 +528,7 @@ const TableRowMemo = memo(function TableRowComponent({
         )}
       </TableCell>
       <TableCell>
-        {order.source === "messenger" ? (
+        {order.platfrom === "messenger" || order.platfrom === "facebook"? (
           <Badge
             variant="outline"
             className="bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800"
