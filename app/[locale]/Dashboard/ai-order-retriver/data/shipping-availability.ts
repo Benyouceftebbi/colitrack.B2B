@@ -185,7 +185,7 @@
  
      // Simulate some random failures (about 10% of orders)
      const randomFail = Math.random() < 0.1
- 
+ console.log("or",orders);
      // Check for specific validation issues based on shipping provider
      if (shopdata.deliveryCompany === "NOEST Express") {
        // For NOEST Express, check if commune ID is valid
