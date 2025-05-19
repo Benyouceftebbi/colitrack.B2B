@@ -15,9 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/app/context/AuthContext"
 import { LoadingButton } from "@/components/ui/LoadingButton"
-import Link from "next/link"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
+import { PrivacyPolicy } from "./components/privacy-policy"
+import { TermsConditions } from "./components/terms-conditions"
 
 const formSchema = z
   .object({
@@ -206,6 +207,8 @@ export default function SignUp() {
   const [tokenAmount, setTokenAmount] = useState(50)
   const [promoApplied, setPromoApplied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -666,19 +669,27 @@ export default function SignUp() {
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm text-gray-700 dark:text-gray-300">
                           {t("termsAgreement")}
-                          <Link
-                            href="/terms"
-                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setShowTerms(true)
+                            }}
+                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 underline"
                           >
                             {t("termsLink")}
-                          </Link>
+                          </button>
                           {t("and")}
-                          <Link
-                            href="/privacy"
-                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setShowPrivacyPolicy(true)
+                            }}
+                            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 underline"
                           >
                             {t("privacyLink")}
-                          </Link>
+                          </button>
                         </FormLabel>
                       </div>
                     </FormItem>
@@ -715,6 +726,8 @@ export default function SignUp() {
             isSuccess={modalContent.title.includes("Success")}
           />
         )}
+        <PrivacyPolicy open={showPrivacyPolicy} onOpenChange={setShowPrivacyPolicy} />
+        <TermsConditions open={showTerms} onOpenChange={setShowTerms} />
       </div>
     </div>
   )
