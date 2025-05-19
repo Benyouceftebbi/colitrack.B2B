@@ -328,6 +328,54 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
     ],
   },
+  "WeeWee Delivery":{
+    name: "WeeWee Delivery",
+    fields: {
+      accessKey: { label: "Access Key", type: "text", placeholder: "Enter WeeWee Delivery Access Key" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Start WeeWee Delivery Integration",
+        description:
+          "Begin the WeeWee Delivery integration process by accessing the integration page. visit the follwing link https://weewee.ecotrack.dz/login",
+        image: stepOne,
+      },
+      {
+        title: "Enter Integration Details",
+        description: "Fill in the required integration details, including your company information.",
+        image: stepTwo,
+      },
+      {
+        title: "Provide Additional Information",
+        description: "Enter any additional information required for the WeeWee Delivery integration.",
+        image: stepThree,
+      },
+      {
+        title: "Submit Integration Request",
+        description: "Review your information and submit the WeeWee Delivery integration request.",
+        image: submitDhd,
+      },
+      {
+        title: "Await Approval",
+        description: "Your integration request is pending. Wait for WeeWee Delivery to review and approve it.",
+        image: pending,
+      },
+      {
+        title: "Integration Activated",
+        description: "Congratulations! Your WeeWee Delivery integration has been activated.",
+        image: activated,
+      },
+      {
+        title: "View API Token",
+        description: "Access your API token, which you'll need to configure the integration in your system.",
+      },
+    ],
+  },
+
   UPS: {
     name: "UPS",
     fields: {
