@@ -38,6 +38,9 @@ const formSchema = z
       message: "Please select a business type.",
     }),
     otherBusinessType: z.string().optional(),
+    dailyOrderVolume: z.string().min(1, {
+      message: "Please select your daily order volume.",
+    }),
     password: z.string().min(8, {
       message: "Password must be at least 8 characters.",
     }),
@@ -219,6 +222,7 @@ export default function SignUp() {
       companyName: "",
       businessType: "",
       otherBusinessType: "",
+      dailyOrderVolume: "",
       password: "",
       confirmPassword: "",
       terms: false,
@@ -337,6 +341,15 @@ export default function SignUp() {
     t("businessTypes.marketplace"),
     t("businessTypes.socialCommerce"),
     t("businessTypes.other"),
+  ]
+
+  // Daily order volume options
+  const orderVolumeOptions = [
+    { value: "1-10", label: "1-10 orders per day" },
+    { value: "11-50", label: "11-50 orders per day" },
+    { value: "51-100", label: "51-100 orders per day" },
+    { value: "101-500", label: "101-500 orders per day" },
+    { value: "500+", label: "500+ orders per day" },
   ]
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -512,6 +525,32 @@ export default function SignUp() {
                             {businessTypes.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Daily Order Volume Field */}
+                  <FormField
+                    control={form.control}
+                    name="dailyOrderVolume"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Daily Order Volume</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
+                              <SelectValue placeholder="Select order volume" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {orderVolumeOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
                               </SelectItem>
                             ))}
                           </SelectContent>

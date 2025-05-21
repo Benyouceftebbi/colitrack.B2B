@@ -409,6 +409,7 @@
   },
   
   "signin":{
+    "daily-order-volume": "حجم الطلبات اليومي",
     "checkYourEmail": "تحقق من بريدك الإلكتروني",
     "checkSpam": "تحقق من مجلد البريد العشوائي",
     "close": "إغلاق",
@@ -861,6 +862,9 @@
   },
 
   "table": {
+    "send-to-selected": "إرسال إلى المحددين",
+"multiple-reminder-description": "تذكير متعدد",
+"selected-recipients": "المستلمون المحددون",
     "lastUpdated": "آخر تحديث",
     "message-type": "نوع الرسالة",
     "recent-parcels": "الطرود الحديثة",

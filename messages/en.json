@@ -408,6 +408,7 @@
     ]
   },
   "signin":{
+    "daily-order-volume":"Daily Order Volume",
     "checkYourEmail":"Check your email",
     "checkSpam":"Check Spam",
     "close":"Close",
@@ -857,6 +858,9 @@
       "select-date": "Select a date"
     },
     "table": {
+      "send-to-selected":"Send to Selected",
+      "multiple-reminder-description":"Multiple Reminder",
+      "selected-recipients":"Selected recipients",
       "lastUpdated":"Last update",
       "message-type":"Message Type",
       "recent-parcels": "Recent Parcels",
@@ -1109,6 +1113,7 @@
       }
     },
     "ai-order-retriever": {
+      "notRequiredForThisProvider":"not required",
       "loading": "Loading...",
       "orderUpdated": "Order Updated",
       "orderUpdatedDescription": "Order #{id} has been updated.",

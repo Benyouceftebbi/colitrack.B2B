@@ -1,8 +1,7 @@
 "use client"
 import type { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { Search, SlidersHorizontal, X, Send } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,15 +11,26 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { useTranslations } from "next-intl"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 interface TableToolbarProps<TData> {
   table: Table<TData>
+  setGlobalFilter: (value: string) => void
+  globalFilter: string
+  onSendMultipleReminders?: () => void
 }
 
 // Update the filter to work with parcel status and message types
-export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
+export function TableToolbar<TData>({
+  table,
+  setGlobalFilter,
+  globalFilter,
+  onSendMultipleReminders,
+}: TableToolbarProps<TData>) {
   const t = useTranslations("messages.table")
   const isFiltered = table.getState().columnFilters.length > 0 || table.getState().globalFilter !== ""
+  const selectedCount = table.getSelectedRowModel().rows.length
 
   // Helper function to get unique values from table data
   const getUniqueValues = (columnId: string): string[] => {
@@ -54,15 +64,15 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder={t("search-placeholder") || "Search parcels..."}
-          value={table.getState().globalFilter ?? ""}
-          onChange={(e) => table.setGlobalFilter(e.target.value)}
+          value={globalFilter ?? ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
           className="pl-9 bg-background/50"
         />
-        {table.getState().globalFilter && (
+        {globalFilter && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => table.setGlobalFilter("")}
+            onClick={() => setGlobalFilter("")}
             className="absolute right-0 top-0 h-full px-2 py-0"
           >
             <X className="h-4 w-4" />
@@ -72,6 +82,21 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
       </div>
 
       <div className="flex items-center gap-2 self-end">
+        {selectedCount > 0 && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onSendMultipleReminders}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {t("send-to-selected") || "Send to selected"}
+            <Badge variant="secondary" className="ml-2 bg-primary-foreground text-primary">
+              {selectedCount}
+            </Badge>
+          </Button>
+        )}
+
         {/* Status Filter Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -142,7 +167,7 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
             size="sm"
             onClick={() => {
               table.resetColumnFilters()
-              table.setGlobalFilter("")
+              setGlobalFilter("")
             }}
             className="h-8 px-2 lg:px-3"
           >
@@ -153,4 +178,3 @@ export function TableToolbar<TData>({ table }: TableToolbarProps<TData>) {
     </div>
   )
 }
-

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { Info } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
 
 // Update the Message type to be parcel-based with message types
 type Message = {
@@ -21,6 +22,25 @@ type Message = {
 }
 
 export const columns: ColumnDef<Message>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "trackingId",
     header: ({ t }) => t("tracking"),
@@ -57,7 +77,7 @@ export const columns: ColumnDef<Message>[] = [
   {
     accessorKey: "messageTypes",
     header: ({ t }) => t("message-types"),
-    cell: ({ row,t }) => {
+    cell: ({ row, t }) => {
       const messageTypes = row.getValue("messageTypes") as string[] | undefined
       return (
         <div className="flex flex-wrap gap-1">
@@ -67,11 +87,11 @@ export const columns: ColumnDef<Message>[] = [
                 key={index}
                 variant="outline"
                 className={
-                  type === "shipped" ||  type === "out-for-delivery" ||  type === "ready-for-pickup"
+                  type === "shipped" || type === "out-for-delivery" || type === "ready-for-pickup"
                     ? "bg-blue-500/10 text-blue-500"
                     : "bg-emerald-500/10 text-emerald-500"
-                      //? 
-                      //: "bg-amber-500/10 text-amber-500"
+                  //?
+                  //: "bg-amber-500/10 text-amber-500"
                 }
               >
                 {t(`sms.${type}`)}
@@ -88,46 +108,46 @@ export const columns: ColumnDef<Message>[] = [
     accessorKey: "deliveryType",
     header: ({ t }) => t("deliveryTypes.delivery"),
     cell: ({ row, t }) => {
-      const deliveryType = row.getValue("deliveryType") as string;
-      const icon = deliveryType === "stopdesk" ? "🏢" : deliveryType === "domicile" ? "🏠" : "❓"; // Default icon for unknown types
+      const deliveryType = row.getValue("deliveryType") as string
+      const icon = deliveryType === "stopdesk" ? "🏢" : deliveryType === "domicile" ? "🏠" : "❓" // Default icon for unknown types
       return (
         <span className="flex items-center">
           <span className="mr-1">{icon}</span>
           {t(`deliveryTypes.${deliveryType}`)}
         </span>
-      );
+      )
     },
   },
   {
     accessorKey: "lastUpdated",
-    header: ({t}) => t("lastUpdated"),
+    header: ({ t }) => t("lastUpdated"),
     cell: ({ row, locale }) => {
-      const createdAtTimestamp = row.getValue("lastUpdated");
-      if (!createdAtTimestamp) return null;
-      
+      const createdAtTimestamp = row.getValue("lastUpdated")
+      if (!createdAtTimestamp) return null
+
       // Handle both Date objects and Firestore Timestamps
-      let date;
+      let date
       if (createdAtTimestamp instanceof Date) {
-        date = createdAtTimestamp;
+        date = createdAtTimestamp
       } else if (createdAtTimestamp?.toDate) {
         // Handle Firestore Timestamp
-        date = createdAtTimestamp.toDate();
-      } else if (typeof createdAtTimestamp === 'string') {
+        date = createdAtTimestamp.toDate()
+      } else if (typeof createdAtTimestamp === "string") {
         // Handle string dates
-        date = new Date(createdAtTimestamp);
+        date = new Date(createdAtTimestamp)
       } else {
-        console.warn('Invalid date format:', createdAtTimestamp);
-        return null;
+        console.warn("Invalid date format:", createdAtTimestamp)
+        return null
       }
-      
+
       return (
         <span className="text-sm text-muted-foreground">
           {formatDistanceToNow(date, { addSuffix: true, locale: locale })}
         </span>
-      );
+      )
     },
     enableSorting: true,
-},
+  },
   {
     id: "sendReminder",
     header: ({ t }) => (
@@ -158,4 +178,3 @@ export const columns: ColumnDef<Message>[] = [
     ),
   },
 ]
-

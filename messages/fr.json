@@ -415,6 +415,7 @@
     ]
   },
   "signin":{
+    "daily-order-volume": "Volume de commandes quotidien",
     "checkYourEmail": "Vérifiez votre e-mail",
     "checkSpam": "Vérifiez le dossier spam",
     "close": "Fermer",
@@ -864,6 +865,9 @@
     "select-date": "Sélectionner une date"
   },
   "table": {
+    "send-to-selected": "Envoyer aux sélectionnés",
+"multiple-reminder-description": "Rappel multiple",
+"selected-recipients": "Destinataires sélectionnés",
     "recent-parcels": "Colis récents",
     "tracking": "ID de suivi",
     "recipient": "Destinataire",
