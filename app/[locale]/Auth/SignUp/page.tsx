@@ -537,10 +537,10 @@ export default function SignUp() {
                   {/* Daily Order Volume Field */}
                   <FormField
                     control={form.control}
-                    name="dailyOrderVolume"
+                    name={t("daily-order-volume")}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Daily Order Volume</FormLabel>
+                        <FormLabel>{t("daily-order-volume")}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
