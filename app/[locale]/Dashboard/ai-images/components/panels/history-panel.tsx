@@ -19,12 +19,13 @@ import {
   Star,
   Grid3X3,
   Wand2,
+  Cpu,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { HistoryItem } from "../components/types"
+import type { HistoryItem } from "../types"
 
 interface HistoryPanelProps {
   history: HistoryItem[]
@@ -73,27 +74,28 @@ export function HistoryPanel({
 
   if (history.length === 0) {
     return (
-      <div className="flex-1 bg-white/90 backdrop-blur-xl flex items-center justify-center p-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/30 to-blue-50/30 -z-10" />
+      <div className="flex-1 bg-white dark:bg-slate-950 flex items-center justify-center p-8 relative">
         <div className="text-center max-w-lg">
           <div className="relative mb-8">
-            <div className="p-8 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full w-32 h-32 mx-auto flex items-center justify-center border-2 border-emerald-500/30 relative">
+            <div className="p-8 bg-slate-100 dark:bg-slate-900 rounded-full w-32 h-32 mx-auto flex items-center justify-center border-2 border-emerald-500/30 relative">
               <History className="h-16 w-16 text-emerald-500" />
               <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce" />
               <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-bounce delay-300" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-4">Your Creative Journey Starts Here</h3>
-          <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-slate-50 mb-4">
+            Your Creative Journey Starts Here
+          </h3>
+          <p className="text-gray-600 dark:text-slate-400 mb-8 text-lg leading-relaxed">
             Generate your first images or reels to see them appear in your history. Track your creative evolution and
             revisit your favorite generations.
           </p>
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <h4 className="font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg dark:bg-slate-900/70 dark:border-slate-800">
+            <h4 className="font-bold text-gray-900 dark:text-slate-50 mb-4 flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5 text-emerald-500" />
               What You'll See Here
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-slate-400">
               <div className="flex items-start gap-2">
                 <ImageIcon className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 <span>All your generated images</span>
@@ -118,19 +120,17 @@ export function HistoryPanel({
   }
 
   return (
-    <div className="flex-1 bg-white/90 backdrop-blur-xl p-8 relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/30 to-blue-50/30 -z-10" />
-
+    <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative">
       <div className="h-full flex flex-col">
         {/* Header with Search and Filters */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
                 <History className="h-6 w-6 text-emerald-500" />
                 Generation History
               </h3>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 dark:text-slate-400 mt-1">
                 {history.length} generations • {filteredHistory.length} shown
               </p>
             </div>
@@ -144,16 +144,16 @@ export function HistoryPanel({
                 placeholder="Search your generations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl"
+                className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50"
               />
             </div>
 
             <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-              <SelectTrigger className="w-40 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl">
+              <SelectTrigger className="w-40 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-300 rounded-xl">
+              <SelectContent className="bg-white border-gray-300 rounded-xl dark:bg-slate-800 dark:border-slate-700">
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="image">Images Only</SelectItem>
                 <SelectItem value="reel">Reels Only</SelectItem>
@@ -161,11 +161,11 @@ export function HistoryPanel({
             </Select>
 
             <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-40 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl">
+              <SelectTrigger className="w-40 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50">
                 <Calendar className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-300 rounded-xl">
+              <SelectContent className="bg-white border-gray-300 rounded-xl dark:bg-slate-800 dark:border-slate-700">
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="oldest">Oldest First</SelectItem>
               </SelectContent>
@@ -179,7 +179,7 @@ export function HistoryPanel({
             {filteredHistory.map((item) => (
               <div
                 key={item.id}
-                className="bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 group"
+                className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 group dark:bg-slate-900 dark:border-slate-800"
               >
                 <div className="flex gap-4">
                   {/* Preview Thumbnails */}
@@ -188,10 +188,10 @@ export function HistoryPanel({
                       {item.results.slice(0, 4).map((result, index) => (
                         <div
                           key={index}
-                          className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative group-hover:scale-105 transition-transform duration-200"
+                          className="bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-gray-200 dark:border-slate-700 relative group-hover:scale-105 transition-transform duration-200"
                         >
                           {item.type === "reel" ? (
-                            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                               <Play className="h-3 w-3 text-blue-500" />
                             </div>
                           ) : (
@@ -223,10 +223,13 @@ export function HistoryPanel({
                           )}
                           {item.type === "reel" ? "Reel" : "Image"}
                         </Badge>
-                        <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
+                        <Badge
+                          variant="outline"
+                          className="text-xs border-gray-300 text-gray-600 dark:border-slate-700 dark:text-slate-400"
+                        >
                           {item.results.length} result{item.results.length > 1 ? "s" : ""}
                         </Badge>
-                        <span className="text-xs text-gray-500">{formatDate(item.timestamp)}</span>
+                        <span className="text-xs text-gray-500 dark:text-slate-500">{formatDate(item.timestamp)}</span>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -256,14 +259,20 @@ export function HistoryPanel({
                       </div>
                     </div>
 
-                    <h4 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.prompt}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-slate-50 mb-2 line-clamp-2">{item.prompt}</h4>
 
                     {/* Metadata */}
-                    <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                      {item.metadata?.model && (
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
+                      {item.metadata?.model && item.type === "image" && (
                         <span className="flex items-center gap-1">
                           <Sparkles className="h-3 w-3" />
                           {item.metadata.model}
+                        </span>
+                      )}
+                      {item.metadata?.reelModel && item.type === "reel" && (
+                        <span className="flex items-center gap-1">
+                          <Cpu className="h-3 w-3" />
+                          {item.metadata.reelModel.charAt(0).toUpperCase() + item.metadata.reelModel.slice(1)} Model
                         </span>
                       )}
                       {item.metadata?.quality && (
@@ -272,7 +281,7 @@ export function HistoryPanel({
                           {item.metadata.quality}
                         </span>
                       )}
-                      {item.metadata?.duration && (
+                      {item.metadata?.duration && ( // Conditionally render duration
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {item.metadata.duration}s
@@ -299,7 +308,7 @@ export function HistoryPanel({
                       variant="outline"
                       size="sm"
                       onClick={() => onOpenHistoryItem(item)}
-                      className="border-gray-300 text-gray-700 hover:bg-gray-100 group-hover:border-emerald-300 group-hover:text-emerald-700"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-100 group-hover:border-emerald-300 group-hover:text-emerald-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       Open
                       <ChevronRight className="h-3 w-3 ml-1" />

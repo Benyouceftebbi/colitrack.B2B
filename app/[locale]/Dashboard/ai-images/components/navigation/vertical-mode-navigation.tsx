@@ -38,10 +38,7 @@ export function VerticalModeNavigation({ activeMode, onModeChange }: VerticalMod
   ]
 
   return (
-    <div className="w-12 bg-background/90 backdrop-blur-xl border-r border-border flex flex-col items-center justify-center py-6 gap-3 relative">
-      {/* Floating gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-accent/5 -z-10" />
-
+    <div className="w-12 bg-white dark:bg-slate-950 border-r border-border flex flex-col items-center justify-center py-6 gap-3 relative">
       {/* Mode Icons - centered */}
       {modes.map((mode) => (
         <button
@@ -50,8 +47,8 @@ export function VerticalModeNavigation({ activeMode, onModeChange }: VerticalMod
           className={cn(
             "relative p-2 rounded-lg transition-all duration-300 transform hover:scale-110 group",
             activeMode === mode.id
-              ? `${mode.activeBg} ${mode.color} shadow-lg border-2 ${mode.borderColor}`
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border-2 border-transparent",
+              ? `${mode.activeBg} ${mode.color} shadow-lg border-2 ${mode.borderColor} dark:bg-primary/30 dark:border-primary-600`
+              : "text-muted-foreground hover:text-foreground hover:bg-accent/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 border-2 border-transparent",
           )}
         >
           <mode.icon className="h-4 w-4" />

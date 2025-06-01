@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Sparkles,
   Download,
@@ -54,13 +54,6 @@ export function OutputPanel({
   const [isEnhancing, setIsEnhancing] = useState(false)
 
   const isReel = mode === "reel"
-
-  // Auto-open first image after generation
-  useEffect(() => {
-    if (generatedImages.length > 0 && !isGenerating) {
-      setViewerImage({ image: generatedImages[0], index: 0 })
-    }
-  }, [generatedImages, isGenerating])
 
   const handleImageClick = (image: string, index: number) => {
     setViewerImage({ image, index })
@@ -175,24 +168,19 @@ export function OutputPanel({
 
   if (isGenerating) {
     return (
-      <div className="flex-1 bg-white/90 backdrop-blur-xl p-8 relative">
-        {/* Floating gradient background */}
-        <div
-          className={`absolute inset-0 ${isReel ? "bg-gradient-to-br from-blue-50/30 to-purple-50/30" : "bg-gradient-to-br from-purple-50/30 to-pink-50/30"} -z-10`}
-        />
-
+      <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative">
         <div className="h-full flex flex-col">
           <div className="mb-8 text-center">
             <div className="mb-4">
               <ProgressRing progress={generationProgress} size={80} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">
               {isReel ? "Creating Your Reel" : "Creating Your Masterpiece"}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-400">
               {isReel ? "AI is bringing your image to life..." : "AI is painting your vision into reality..."}
             </p>
-            <div className="mt-4 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 inline-block border border-gray-200">
+            <div className="mt-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-full px-4 py-2 inline-block border border-gray-200 dark:border-slate-700">
               <span className={`text-sm font-medium ${isReel ? "text-blue-600" : "text-purple-600"}`}>
                 {Math.round(generationProgress)}% Complete
               </span>
@@ -203,24 +191,24 @@ export function OutputPanel({
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl animate-pulse flex items-center justify-center border-2 border-gray-200 relative overflow-hidden"
+                className="aspect-video bg-slate-100 dark:bg-slate-900 rounded-2xl animate-pulse flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden"
               >
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-white/50 rounded-full flex items-center justify-center mb-3 mx-auto">
+                  <div className="w-12 h-12 bg-white/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 mx-auto">
                     {isReel ? (
-                      <Play className="h-6 w-6 text-gray-400" />
+                      <Play className="h-6 w-6 text-gray-400 dark:text-slate-500" />
                     ) : (
-                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                      <ImageIcon className="h-6 w-6 text-gray-400 dark:text-slate-500" />
                     )}
                   </div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
                     {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
                   </p>
-                  <p className="text-xs text-gray-500">Processing...</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
                 </div>
 
                 {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-slate-700/20 to-transparent -translate-x-full animate-pulse" />
               </div>
             ))}
           </div>
@@ -231,18 +219,13 @@ export function OutputPanel({
 
   if (generatedImages.length === 0) {
     return (
-      <div className="flex-1 bg-white/90 backdrop-blur-xl relative overflow-hidden">
-        {/* Floating gradient background */}
-        <div
-          className={`absolute inset-0 ${isReel ? "bg-gradient-to-br from-blue-50/30 to-purple-50/30" : "bg-gradient-to-br from-purple-50/30 to-pink-50/30"} -z-10`}
-        />
-
+      <div className="flex-1 bg-white dark:bg-slate-950 relative overflow-hidden">
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="p-8 pb-4">
             <div className="relative mb-6">
               <div
-                className={`p-6 ${isReel ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-2 border-blue-500/30" : "bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/30"} rounded-full w-20 h-20 mx-auto flex items-center justify-center relative`}
+                className={`p-6 bg-slate-100 dark:bg-slate-900 ${isReel ? "border-2 border-blue-500/30" : "border-2 border-purple-500/30"} rounded-full w-20 h-20 mx-auto flex items-center justify-center relative`}
               >
                 {isReel ? (
                   <Play className="h-10 w-10 text-blue-500" />
@@ -255,21 +238,21 @@ export function OutputPanel({
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2 text-center">
               {isReel ? "Ready to Create Amazing Reels?" : "Ready to Create Magic?"}
             </h3>
-            <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-slate-400 mb-6 text-center max-w-2xl mx-auto">
               {isReel
                 ? "Upload an image and describe the motion you want. Watch your static images come to life with AI-powered animation."
                 : "Transform your imagination into stunning visuals with the power of AI. Describe your vision and watch it come to life."}
             </p>
 
             <div className="text-center mb-6">
-              <h4 className="font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
+              <h4 className="font-bold text-gray-900 dark:text-slate-50 mb-2 flex items-center justify-center gap-2">
                 <Users className="h-5 w-5 text-purple-500" />
                 Community Creations
               </h4>
-              <p className="text-sm text-gray-600">Discover what our community has been creating</p>
+              <p className="text-sm text-gray-600 dark:text-slate-400">Discover what our community has been creating</p>
             </div>
           </div>
 
@@ -280,8 +263,11 @@ export function OutputPanel({
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <ImageIcon className="h-5 w-5 text-purple-500" />
-                  <h5 className="font-semibold text-gray-900">Generated Images</h5>
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                  <h5 className="font-semibold text-gray-900 dark:text-slate-50">Generated Images</h5>
+                  <Badge
+                    variant="secondary"
+                    className="bg-purple-100 dark:bg-purple-900/50 dark:text-purple-300 text-purple-700"
+                  >
                     {userImages.length} creations
                   </Badge>
                 </div>
@@ -290,7 +276,7 @@ export function OutputPanel({
                     <div
                       key={creation.id}
                       onClick={() => handleCreationClick(creation)}
-                      className="group relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
+                      className="group relative bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
                     >
                       <div className="aspect-square relative overflow-hidden">
                         <img
@@ -298,11 +284,7 @@ export function OutputPanel({
                           alt={creation.prompt}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-
-                        {/* Overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
-
-                        {/* Before/After indicator */}
                         {creation.beforeImage && (
                           <div className="absolute top-2 left-2">
                             <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
@@ -310,8 +292,6 @@ export function OutputPanel({
                             </Badge>
                           </div>
                         )}
-
-                        {/* Hover Actions */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="flex gap-2">
                             <Button
@@ -329,7 +309,6 @@ export function OutputPanel({
                           </div>
                         </div>
                       </div>
-
                       <div className="p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <img
@@ -337,15 +316,20 @@ export function OutputPanel({
                             alt={creation.user}
                             className="w-5 h-5 rounded-full"
                           />
-                          <span className="text-xs font-medium text-gray-700 truncate">{creation.user}</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-slate-300 truncate">
+                            {creation.user}
+                          </span>
                         </div>
-                        <p className="text-xs text-gray-600 line-clamp-2 mb-2">{creation.prompt}</p>
+                        <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-2 mb-2">{creation.prompt}</p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             <Heart className="h-3 w-3 text-red-500" />
-                            <span className="text-xs text-gray-500">{creation.likes}</span>
+                            <span className="text-xs text-gray-500 dark:text-slate-500">{creation.likes}</span>
                           </div>
-                          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-purple-100 dark:bg-purple-900/50 dark:text-purple-300 text-purple-700"
+                          >
                             Image
                           </Badge>
                         </div>
@@ -359,8 +343,11 @@ export function OutputPanel({
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Video className="h-5 w-5 text-blue-500" />
-                  <h5 className="font-semibold text-gray-900">Generated Reels</h5>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                  <h5 className="font-semibold text-gray-900 dark:text-slate-50">Generated Reels</h5>
+                  <Badge
+                    variant="secondary"
+                    className="bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 text-blue-700"
+                  >
                     {userReels.length} creations
                   </Badge>
                 </div>
@@ -369,20 +356,16 @@ export function OutputPanel({
                     <div
                       key={creation.id}
                       onClick={() => handleCreationClick(creation)}
-                      className="group relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
+                      className="group relative bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
                     >
                       <div className="aspect-square relative overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative">
+                        <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
                           <Play className="h-8 w-8 text-blue-500" />
                           <div className="absolute top-2 right-2 bg-black/70 text-white px-1.5 py-0.5 rounded text-xs">
                             {creation.duration}
                           </div>
                         </div>
-
-                        {/* Overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
-
-                        {/* Before/After indicator */}
                         {creation.beforeImage && (
                           <div className="absolute top-2 left-2">
                             <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
@@ -390,8 +373,6 @@ export function OutputPanel({
                             </Badge>
                           </div>
                         )}
-
-                        {/* Hover Actions */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="flex gap-2">
                             <Button
@@ -409,7 +390,6 @@ export function OutputPanel({
                           </div>
                         </div>
                       </div>
-
                       <div className="p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <img
@@ -417,15 +397,20 @@ export function OutputPanel({
                             alt={creation.user}
                             className="w-5 h-5 rounded-full"
                           />
-                          <span className="text-xs font-medium text-gray-700 truncate">{creation.user}</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-slate-300 truncate">
+                            {creation.user}
+                          </span>
                         </div>
-                        <p className="text-xs text-gray-600 line-clamp-2 mb-2">{creation.prompt}</p>
+                        <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-2 mb-2">{creation.prompt}</p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             <Heart className="h-3 w-3 text-red-500" />
-                            <span className="text-xs text-gray-500">{creation.likes}</span>
+                            <span className="text-xs text-gray-500 dark:text-slate-500">{creation.likes}</span>
                           </div>
-                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 text-blue-700"
+                          >
                             Reel
                           </Badge>
                         </div>
@@ -438,7 +423,6 @@ export function OutputPanel({
           </div>
         </div>
 
-        {/* Creation Detail Modal */}
         {selectedCreation && (
           <CreationDetailModal
             creation={selectedCreation}
@@ -454,53 +438,49 @@ export function OutputPanel({
   }
 
   return (
-    <div className="flex-1 bg-white/90 backdrop-blur-xl p-8 relative">
-      {/* Floating gradient background */}
-      <div
-        className={`absolute inset-0 ${isReel ? "bg-gradient-to-br from-blue-50/30 to-purple-50/30" : "bg-gradient-to-br from-purple-50/30 to-pink-50/30"} -z-10`}
-      />
-
+    <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative">
       <div className="h-full flex flex-col">
-        {/* Enhanced Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
               {isReel ? <Play className="h-6 w-6 text-blue-500" /> : <Sparkles className="h-6 w-6 text-purple-500" />}
               {isReel ? "Generated Reels" : "Generated Creatives"}
             </h3>
-            <p className="text-gray-600 mt-1">{generatedImages.length} stunning results • Ready to download</p>
+            <p className="text-gray-600 dark:text-slate-400 mt-1">
+              {generatedImages.length} stunning results • Ready to download
+            </p>
           </div>
-
           <div className="flex gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-              className="border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100"
             >
               <Grid3X3 className="h-4 w-4 mr-2" />
               {viewMode === "grid" ? "List View" : "Grid View"}
             </Button>
-
-            <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-100">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100"
+            >
               <Download className="h-4 w-4 mr-2" />
               Download All
             </Button>
           </div>
         </div>
-
-        {/* Enhanced Images Grid */}
         <div className="flex-1 overflow-y-auto">
           <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
             {generatedImages.map((image, index) => (
               <div
                 key={index}
-                className={`group relative bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden hover:shadow-2xl ${isReel ? "hover:border-blue-300" : "hover:border-purple-300"} transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`}
+                className={`group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${isReel ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"} transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`}
                 onClick={() => handleImageClick(image, index)}
               >
-                <div className="aspect-video bg-gray-100 overflow-hidden relative">
+                <div className="aspect-video bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                   {isReel ? (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative">
+                    <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
                       <Play className="h-16 w-16 text-blue-500" />
                       <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                         5s
@@ -513,16 +493,12 @@ export function OutputPanel({
                       className="w-full h-full object-cover"
                     />
                   )}
-
-                  {/* Quality badge */}
                   <div className="absolute top-3 right-3">
                     <Badge className={`${isReel ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm`}>
                       <Star className="h-3 w-3 mr-1" />
                       {isReel ? "Pro" : "HD"}
                     </Badge>
                   </div>
-
-                  {/* Overlay Actions */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="flex gap-3">
                       <Button
@@ -568,9 +544,7 @@ export function OutputPanel({
                     </div>
                   </div>
                 </div>
-
-                {/* Enhanced Bottom Actions */}
-                <div className="p-4 bg-white border-t border-gray-100">
+                <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-t dark:border-slate-800">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Badge
@@ -581,10 +555,13 @@ export function OutputPanel({
                       >
                         {isReel ? `Reel ${index + 1}` : `Creative ${index + 1}`}
                       </Badge>
-                      <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
+                      <Badge
+                        variant="outline"
+                        className="text-xs border-gray-300 text-gray-600 dark:border-slate-700 dark:text-slate-400"
+                      >
                         {isReel ? "1080×1920" : "1024×576"}
                       </Badge>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-500">
                         <TrendingUp className="h-3 w-3" />
                         <span>98% quality</span>
                       </div>
@@ -593,12 +570,11 @@ export function OutputPanel({
                       <MoreHorizontal className="h-3 w-3" />
                     </Button>
                   </div>
-
                   <div className="flex gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`flex-1 h-8 text-xs text-gray-600 ${isReel ? "hover:text-blue-700 hover:bg-blue-50" : "hover:text-purple-700 hover:bg-purple-50"}`}
+                      className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${isReel ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50" : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"}`}
                       onClick={(e) => {
                         e.stopPropagation()
                         onRegenerateVariation(index)
@@ -610,7 +586,7 @@ export function OutputPanel({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1 h-8 text-xs text-gray-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50"
                       onClick={(e) => {
                         e.stopPropagation()
                         onImageAction("share", index)
@@ -627,7 +603,6 @@ export function OutputPanel({
         </div>
       </div>
 
-      {/* Image Viewer Modal */}
       {viewerImage && (
         <ImageViewerModal
           image={viewerImage.image}
@@ -641,7 +616,6 @@ export function OutputPanel({
         />
       )}
 
-      {/* Enhancement Modal */}
       {enhancementModal && (
         <ImageEnhancementModal
           image={enhancementModal.image}

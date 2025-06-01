@@ -9,9 +9,10 @@ export interface HistoryItem {
   timestamp: Date
   status: "completed" | "failed"
   metadata?: {
-    model?: string
+    model?: string // For images
+    reelModel?: "normal" | "expert" // For reels
     quality?: string
-    duration?: string
+    duration?: string // Made optional
     aspectRatio?: string
     creativity?: number
   }
@@ -36,9 +37,10 @@ export interface CreationDetail {
   prompt: string
   likes: number
   type: "image" | "reel"
-  duration?: string
+  duration?: string // Made optional
   settings?: {
     model?: string
+    reelModel?: "normal" | "expert"
     aspectRatio?: string
     creativity?: number
     quality?: string

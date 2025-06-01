@@ -13,6 +13,8 @@ import type { CreativeMode, HistoryItem } from "./components/types"
 export default function AICreativePage() {
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
   const [prompt, setPrompt] = useState("")
+  const [promptReel, setPromptReel] = useState("")
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
@@ -296,8 +298,8 @@ export default function AICreativePage() {
         return (
           <div className="flex h-full">
             <ReelControlPanel
-              prompt={prompt}
-              onPromptChange={setPrompt}
+              prompt={promptReel}
+              onPromptChange={setPromptReel}
               settings={reelSettings}
               onSettingsChange={setReelSettings}
               onGenerate={handleGenerate}
@@ -316,7 +318,7 @@ export default function AICreativePage() {
               onRegenerateVariation={handleRegenerateVariation}
               generationProgress={generationProgress}
               mode="reel"
-              originalPrompt={prompt}
+              originalPrompt={promptReel}
             />
           </div>
         )

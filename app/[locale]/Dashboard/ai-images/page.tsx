@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react" // Added useEffect
 import { VerticalModeNavigation } from "./components/navigation/vertical-mode-navigation"
 import { ControlPanel } from "./components/panels/control-panel"
 import { ReelControlPanel } from "./components/panels/reel-control-panel"
@@ -12,6 +12,7 @@ import type { CreativeMode, HistoryItem } from "./components/types"
 
 export default function AICreativePage() {
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
+  const [previousMode, setPreviousMode] = useState<CreativeMode | null>(null) // To track mode changes
   const [prompt, setPrompt] = useState("")
   const [promptReel, setPromptReel] = useState("")
 
@@ -21,7 +22,6 @@ export default function AICreativePage() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([])
   const { toast } = useToast()
   const [history, setHistory] = useState<HistoryItem[]>([
-    // Sample history data
     {
       id: "1",
       type: "image",
@@ -32,8 +32,8 @@ export default function AICreativePage() {
         "/placeholder.svg?height=400&width=600&text=Cyberpunk+City+3",
         "/placeholder.svg?height=400&width=600&text=Cyberpunk+City+4",
       ],
-      settings: { aspectRatio: "16:9", creativity: [8], outputs: 4 },
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      settings: { aspectRatio: "16:9", creativity: [8], outputs: 4, model: "DALL-E 3" },
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       status: "completed",
       metadata: {
         model: "DALL-E 3",
@@ -49,10 +49,11 @@ export default function AICreativePage() {
         "/placeholder.svg?height=400&width=600&text=Dancing+Reel+1",
         "/placeholder.svg?height=400&width=600&text=Dancing+Reel+2",
       ],
-      settings: { quality: "pro", length: "10", creativity: [6], outputs: 2 },
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+      settings: { quality: "pro", creativity: [6], outputs: 2, model: "expert" },
+      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
       status: "completed",
       metadata: {
+        reelModel: "expert",
         quality: "Pro",
         duration: "10",
         creativity: 6,
@@ -66,8 +67,8 @@ export default function AICreativePage() {
         "/placeholder.svg?height=400&width=600&text=Magic+Forest+1",
         "/placeholder.svg?height=400&width=600&text=Magic+Forest+2",
       ],
-      settings: { aspectRatio: "9:16", creativity: [9], outputs: 2 },
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+      settings: { aspectRatio: "9:16", creativity: [9], outputs: 2, model: "Midjourney" },
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
       status: "completed",
       metadata: {
         model: "Midjourney",
@@ -80,10 +81,11 @@ export default function AICreativePage() {
       type: "reel",
       prompt: "Ocean waves crashing on rocks, dramatic slow motion, cinematic lighting",
       results: ["/placeholder.svg?height=400&width=600&text=Ocean+Waves+1"],
-      settings: { quality: "standard", length: "5", creativity: [4], outputs: 1 },
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      settings: { quality: "standard", creativity: [4], outputs: 1, model: "normal" },
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
       status: "completed",
       metadata: {
+        reelModel: "normal",
         quality: "Standard",
         duration: "5",
         creativity: 4,
@@ -110,22 +112,45 @@ export default function AICreativePage() {
     aspectRatio: "9:16",
     creativity: [7],
     outputs: 4,
+    model: "KOLORS 1.5",
   })
   const [reelSettings, setReelSettings] = useState({
     quality: "standard",
-    length: "5",
     creativity: [5],
     outputs: 2,
+    model: "normal" as "normal" | "expert",
   })
 
+  // Effect to clear generated images when mode changes (but not from history panel)
+  useEffect(() => {
+    if (previousMode !== null && previousMode !== activeMode && activeMode !== "history") {
+      // Only clear if it's a direct mode switch, not when loading from history
+      // or when initially loading the page.
+      // Also, don't clear if switching TO history, as history panel has its own display logic.
+      // And don't clear if switching FROM history to image/reel if we want to preserve loaded history item.
+      // The current handleOpenHistoryItem already sets generatedImages.
+      if (!(previousMode === "history" && (activeMode === "image" || activeMode === "reel"))) {
+        setGeneratedImages([])
+      }
+    }
+    setPreviousMode(activeMode)
+  }, [activeMode, previousMode])
+
   const handleGenerate = async () => {
-    if (!prompt.trim()) return
-    if (activeMode === "reel" && !uploadedFile) return
+    const currentPrompt = activeMode === "reel" ? promptReel : prompt
+    if (!currentPrompt.trim()) return
+    if (activeMode === "reel" && !uploadedFile) {
+      toast({
+        title: "Missing Source Image",
+        description: "Please upload a source image to generate a reel.",
+        variant: "destructive",
+      })
+      return
+    }
 
     setIsGenerating(true)
     setGenerationProgress(0)
 
-    // Simulate progressive generation
     const progressInterval = setInterval(() => {
       setGenerationProgress((prev) => {
         if (prev >= 100) {
@@ -143,11 +168,10 @@ export default function AICreativePage() {
         (_, i) => `/placeholder.svg?height=400&width=600&text=${activeMode === "reel" ? "Reel" : "Generated"}+${i + 1}`,
       )
 
-      // Add to history
       const newHistoryItem: HistoryItem = {
         id: Date.now().toString(),
         type: activeMode,
-        prompt: prompt,
+        prompt: currentPrompt,
         results: mockImages,
         settings: currentSettings,
         timestamp: new Date(),
@@ -155,19 +179,20 @@ export default function AICreativePage() {
         metadata:
           activeMode === "reel"
             ? {
+                reelModel: reelSettings.model,
                 quality: reelSettings.quality,
-                duration: reelSettings.length,
                 creativity: reelSettings.creativity[0],
+                duration: reelSettings.model === "expert" ? "10" : "5", // Example duration
               }
             : {
-                model: "KOLORS 1.5",
+                model: settings.model,
                 aspectRatio: settings.aspectRatio,
                 creativity: settings.creativity[0],
               },
       }
 
       setHistory((prev) => [newHistoryItem, ...prev])
-      setGeneratedImages(mockImages)
+      setGeneratedImages(mockImages) // Set generated images for the current mode
       setIsGenerating(false)
       setGenerationProgress(100)
       toast({
@@ -182,7 +207,7 @@ export default function AICreativePage() {
     setUploadedFile(file)
     toast({
       title: "Image uploaded!",
-      description: "Your image has been uploaded successfully.",
+      description: `${file.name} has been uploaded successfully.`,
     })
   }
 
@@ -195,37 +220,73 @@ export default function AICreativePage() {
   }
 
   const handleSuggestionClick = (suggestion: string) => {
-    setPrompt((prev) => prev + (prev ? " " : "") + suggestion.toLowerCase())
+    if (activeMode === "reel") {
+      setPromptReel((prev) => prev + (prev ? " " : "") + suggestion.toLowerCase())
+    } else {
+      setPrompt((prev) => prev + (prev ? " " : "") + suggestion.toLowerCase())
+    }
   }
 
   const handleImageAction = (action: string, imageIndex: number) => {
     console.log(`Action: ${action} on ${activeMode} ${imageIndex}`)
-    // Handle image/reel actions like download, view, etc.
+    // Example: Download
+    if (action === "download" && generatedImages[imageIndex]) {
+      const link = document.createElement("a")
+      link.href = generatedImages[imageIndex]
+      link.download = `${activeMode}_${imageIndex + 1}.svg` // Placeholder, ideally get real filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast({ title: "Download Started", description: `Downloading ${activeMode} ${imageIndex + 1}` })
+    }
   }
 
   const handleRegenerateVariation = (imageIndex: number) => {
     console.log(`Regenerate variation for ${activeMode} ${imageIndex}`)
-    // Handle variation generation
+    toast({ title: "Variation Requested", description: `Regenerating variation for ${activeMode} ${imageIndex + 1}` })
+    // Implement actual variation logic here
+  }
+
+  const handleModeChange = (newMode: CreativeMode) => {
+    // Clear generated images if switching between "image" and "reel" modes directly
+    // but not if switching to/from "history" or if the mode isn't actually changing.
+    if (
+      activeMode !== newMode &&
+      ((activeMode === "image" && newMode === "reel") || (activeMode === "reel" && newMode === "image"))
+    ) {
+      setGeneratedImages([])
+      // Optionally, you might want to clear the specific prompt for the mode you are leaving
+      // if (activeMode === "image") setPrompt("");
+      // if (activeMode === "reel") setPromptReel("");
+      // And uploaded file if it's only relevant to one mode (e.g. reels)
+      // if (newMode === "image" && activeMode === "reel") setUploadedFile(null);
+    }
+    setActiveMode(newMode)
   }
 
   const handleOpenHistoryItem = (item: HistoryItem) => {
-    // Switch to the appropriate mode
+    // Set active mode first, this will trigger the useEffect if mode changes
     setActiveMode(item.type)
 
-    // Load the prompt and settings
-    setPrompt(item.prompt)
+    // Then set the state based on the history item
     if (item.type === "reel") {
-      setReelSettings(item.settings)
+      setPromptReel(item.prompt)
+      const { length, ...restOfReelSettings } = item.settings as any
+      setReelSettings(restOfReelSettings as typeof reelSettings)
+      // Check if history item has an associated uploaded file concept (if applicable)
+      // For now, we assume reels might have had an uploaded file, but images might not.
+      // This part needs more robust logic if history items should restore uploaded files.
+      // setUploadedFile(null); // Or some logic to retrieve/restore it
     } else {
-      setSettings(item.settings)
+      setPrompt(item.prompt)
+      setSettings(item.settings as typeof settings)
+      // setUploadedFile(null); // Image mode might also use reference images
     }
 
-    // Load the generated results
-    setGeneratedImages(item.results)
-
+    setGeneratedImages(item.results) // Display results from history
     toast({
       title: "History item opened",
-      description: `Opened ${item.type} from history`,
+      description: `Opened ${item.type}: "${item.prompt.substring(0, 30)}..."`,
     })
   }
 
@@ -238,26 +299,38 @@ export default function AICreativePage() {
   }
 
   const handleRegenerateFromHistory = (item: HistoryItem) => {
-    // Switch to the appropriate mode
     setActiveMode(item.type)
 
-    // Load the prompt and settings
-    setPrompt(item.prompt)
     if (item.type === "reel") {
-      setReelSettings(item.settings)
+      setPromptReel(item.prompt)
+      const { length, ...restOfReelSettings } = item.settings as any
+      setReelSettings(restOfReelSettings as typeof reelSettings)
+      // Potentially setUploadedFile if the history item implies one was used
     } else {
-      setSettings(item.settings)
+      setPrompt(item.prompt)
+      setSettings(item.settings as typeof settings)
     }
 
-    // Clear current results and trigger generation
-    setGeneratedImages([])
-
+    setGeneratedImages([]) // Clear current output before regenerating
     toast({
       title: "Regenerating...",
-      description: `Regenerating ${item.type}...`,
+      description: `Regenerating ${item.type} from: "${item.prompt.substring(0, 30)}..."`,
     })
+    // Simulate delay then call handleGenerate
+    // Ensure uploadedFile is set if needed for reel regeneration from history
+    if (item.type === "reel" && !uploadedFile) {
+      // This is a tricky part: if history item for reel needs an image,
+      // we need a way to re-associate it or prompt the user.
+      // For now, let's assume the user needs to re-upload if not already present.
+      toast({
+        title: "Source Image Needed",
+        description: "Please ensure a source image is uploaded for reel regeneration if it was used.",
+        variant: "destructive",
+      })
+      // Potentially don't proceed with handleGenerate or make it conditional
+      // return;
+    }
 
-    // Auto-trigger generation after a short delay
     setTimeout(() => {
       handleGenerate()
     }, 500)
@@ -339,19 +412,9 @@ export default function AICreativePage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-background to-secondary/20 dark:from-background dark:to-secondary/10 flex relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 dark:bg-primary-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-300 dark:bg-accent-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000" />
-        <div className="absolute top-40 left-1/2 w-80 h-80 bg-secondary-300 dark:bg-secondary-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-500" />
-      </div>
-
-      <VerticalModeNavigation activeMode={activeMode} onModeChange={setActiveMode} />
-
+    <div className="h-screen bg-white dark:bg-slate-950 flex relative overflow-hidden border-t border-border">
+      <VerticalModeNavigation activeMode={activeMode} onModeChange={handleModeChange} />
       <div className="flex-1 overflow-hidden">{renderContent()}</div>
-
-      {/* Toast Notifications */}
       <Toaster />
     </div>
   )
