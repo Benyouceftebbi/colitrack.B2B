@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react" // Import useCallback, useMemo
 import {
   Sparkles,
   Download,
@@ -83,39 +83,62 @@ export function OutputPanel({
   const panelTitle = isReel ? "Reel Creations" : "Image Creations"
   const generateButtonText = isReel ? "Generate New Reel" : "Generate New Image"
 
-  const handleImageClick = (image: string, index: number) => {
+  const handleImageClick = useCallback((image: string, index: number) => {
     setViewerImage({ image, index })
-  }
+  }, [])
 
-  const handleEnhanceClick = (imageIndex: number) => {
-    setEnhancementModal({ image: generatedImages[imageIndex], index: imageIndex })
-    setViewerImage(null)
-  }
+  const handleEnhanceClick = useCallback(
+    (imageIndex: number) => {
+      setEnhancementModal({ image: generatedImages[imageIndex], index: imageIndex })
+      setViewerImage(null)
+    },
+    [generatedImages],
+  )
 
-  const handleEnhanceImage = async (enhancementPrompt: string) => {
+  const handleEnhanceImage = useCallback(async (enhancementPrompt: string) => {
     setIsEnhancing(true)
-    // Simulate enhancement process
+    // --- COMMENT: Backend Integration Point ---
+    // This is where you would call your backend API to enhance an image.
+    //
+    // Example:
+    // fetch('/api/enhance', {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     image: enhancementModal.image,
+    //     prompt: enhancementPrompt
+    //   })
+    // })
+    // .then(res => res.json())
+    // .then(data => {
+    //   // Update the image in the generatedOutputs array
+    // })
+    // .finally(() => {
+    //   setIsEnhancing(false);
+    //   setEnhancementModal(null);
+    // });
+
+    // Simulating enhancement process
     setTimeout(() => {
       setIsEnhancing(false)
       setEnhancementModal(null)
     }, 3000)
-  }
+  }, [])
 
-  const handleNextImage = () => {
+  const handleNextImage = useCallback(() => {
     if (viewerImage && viewerImage.index < generatedImages.length - 1) {
       const nextIndex = viewerImage.index + 1
       setViewerImage({ image: generatedImages[nextIndex], index: nextIndex })
     }
-  }
+  }, [viewerImage, generatedImages])
 
-  const handlePreviousImage = () => {
+  const handlePreviousImage = useCallback(() => {
     if (viewerImage && viewerImage.index > 0) {
       const prevIndex = viewerImage.index - 1
       setViewerImage({ image: generatedImages[prevIndex], index: prevIndex })
     }
-  }
+  }, [viewerImage, generatedImages])
 
-  const formatDate = (date: Date) => {
+  const formatDate = useCallback((date: Date) => {
     const now = new Date()
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
 
@@ -123,16 +146,20 @@ export function OutputPanel({
     if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
     return date.toLocaleDateString()
-  }
+  }, [])
 
-  const filteredUserHistory = userHistory
-    .filter((item) => item.prompt.toLowerCase().includes(historySearchQuery.toLowerCase()))
-    .sort((a, b) => {
-      if (historySortBy === "newest") {
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      }
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    })
+  const filteredUserHistory = useMemo(
+    () =>
+      userHistory
+        .filter((item) => item.prompt.toLowerCase().includes(historySearchQuery.toLowerCase()))
+        .sort((a, b) => {
+          if (historySortBy === "newest") {
+            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          }
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        }),
+    [userHistory, historySearchQuery, historySortBy],
+  )
 
   // STATE 1: Actively Generating
   if (isGenerating) {

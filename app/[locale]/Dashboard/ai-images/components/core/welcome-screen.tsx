@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "@/components/types"
-import { ImageIcon, Video, Sparkles, Users, Eye } from "lucide-react"
-import { cn } from "@/lib/utils" // Import cn
+import { ImageIcon, Video, Sparkles, Users, Eye, Heart } from "lucide-react" // Added Heart
+import { cn } from "@/lib/utils"
 
 interface WelcomeScreenProps {
   onStartCreation: (type: "image" | "reel") => void
@@ -68,7 +68,7 @@ export function WelcomeScreen({ onStartCreation, inspirationItems, onInspiration
       {/* Inspirations Section */}
       <div className="mt-8 border-t border-border pt-8 animate-in fade-in slide-in-from-bottom-8 delay-500 duration-500 ease-out">
         <div className="flex items-center gap-3 mb-6">
-          <Users className="h-6 w-6 text-indigo-500" />
+          <Users className="h-6 w-6 text-primary" /> {/* Changed icon color to primary */}
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-200">Community Inspirations</h2>
         </div>
         {inspirationItems.length > 0 ? (
@@ -78,33 +78,37 @@ export function WelcomeScreen({ onStartCreation, inspirationItems, onInspiration
                 key={creation.id}
                 onClick={() => onInspirationClick(creation)}
                 className={cn(
-                  "group relative bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105",
+                  "group relative bg-card dark:bg-slate-800/50 rounded-xl border border-border overflow-hidden transition-all duration-300 cursor-pointer",
+                  "hover:shadow-xl hover:border-primary/70 hover:-translate-y-1", // Enhanced hover effects
                   "animate-in fade-in zoom-in-95 ease-out",
                 )}
                 style={{ animationDelay: `${500 + index * 100}ms`, animationFillMode: "both" }}
               >
                 <div className="aspect-[4/3] relative overflow-hidden">
                   {creation.type === "reel" ? (
-                    <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-                      <Video className="h-12 w-12 text-blue-400" />
+                    <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
+                      <Video className="h-12 w-12 text-primary opacity-70 animate-pulse" /> {/* Pulsing video icon */}
                       {creation.duration && (
-                        <Badge variant="secondary" className="absolute bottom-2 right-2 bg-black/70 text-white text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5"
+                        >
                           {creation.duration}
                         </Badge>
                       )}
                     </div>
                   ) : (
                     <img
-                      src={creation.image || "/placeholder.svg"}
+                      src={creation.image || "/placeholder.svg?height=300&width=400&text=Inspiration"}
                       alt={creation.prompt}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" // Slightly reduced scale for subtlety
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="w-full bg-white/90 hover:bg-white text-gray-700 backdrop-blur-sm"
+                      className="w-full bg-white/90 hover:bg-white text-gray-800 dark:bg-slate-200/90 dark:hover:bg-slate-200 dark:text-slate-800 backdrop-blur-sm shadow-md"
                     >
                       <Eye className="h-4 w-4 mr-2" /> View Details
                     </Button>
@@ -113,32 +117,37 @@ export function WelcomeScreen({ onStartCreation, inspirationItems, onInspiration
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <img
-                      src={creation.avatar || "/placeholder.svg"}
+                      src={creation.avatar || "/placeholder.svg?height=24&width=24&text=U"}
                       alt={creation.user}
-                      className="w-6 h-6 rounded-full"
+                      className="w-6 h-6 rounded-full border border-border"
                     />
-                    <span className="text-sm font-medium text-gray-700 dark:text-slate-300 truncate">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 truncate">
                       {creation.user}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-2 mb-2 h-8">{creation.prompt}</p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-2 mb-3 h-8 leading-relaxed">
+                    {creation.prompt}
+                  </p>
+                  <div className="flex items-center justify-between text-xs">
                     <Badge
-                      variant={creation.type === "image" ? "default" : "outline"}
-                      className={
-                        creation.type === "image" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                      }
+                      variant="outline"
+                      className={cn(
+                        "border-transparent px-2 py-1",
+                        creation.type === "image"
+                          ? "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
+                          : "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+                      )}
                     >
                       {creation.type === "image" ? (
-                        <ImageIcon className="h-3 w-3 mr-1" />
+                        <ImageIcon className="h-3 w-3 mr-1.5" />
                       ) : (
-                        <Video className="h-3 w-3 mr-1" />
+                        <Video className="h-3 w-3 mr-1.5" />
                       )}
                       {creation.type.charAt(0).toUpperCase() + creation.type.slice(1)}
                     </Badge>
-                    <span className="flex items-center gap-1">
-                      <Sparkles className="h-3 w-3 text-yellow-500" />
-                      {creation.likes} Likes
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <Heart className="h-3.5 w-3.5 text-red-500/80" />
+                      {creation.likes}
                     </span>
                   </div>
                 </div>

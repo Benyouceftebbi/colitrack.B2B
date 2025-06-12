@@ -15,16 +15,7 @@ interface PromptBuilderModalProps {
   onPromptGenerated: (newPrompt: string) => void
 }
 
-const styleSuggestions = [
-  "Photorealistic",
-  "Oil Painting",
-  "Watercolor",
-  "Abstract",
-  "Cartoonish",
-  "Cyberpunk",
-  "Fantasy Art",
-  "Minimalist",
-]
+
 
 export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGenerated }: PromptBuilderModalProps) {
   const [description, setDescription] = useState("")
@@ -113,23 +104,7 @@ export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGen
           </div>
 
           <div>
-            <Label className="text-base font-semibold">Choose a style (Optional)</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {styleSuggestions.map((style) => (
-                <Button
-                  key={style}
-                  variant={selectedStyle === style ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedStyle(style === selectedStyle ? null : style)}
-                  className={cn(
-                    "transition-all",
-                    selectedStyle === style && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-                  )}
-                >
-                  {style}
-                </Button>
-              ))}
-            </div>
+          
           </div>
 
           <Button onClick={handleGeneratePrompt} disabled={isLoading || !description.trim()} className="w-full">
