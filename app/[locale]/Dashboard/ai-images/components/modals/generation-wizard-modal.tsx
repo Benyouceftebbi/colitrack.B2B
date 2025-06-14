@@ -24,6 +24,8 @@ import {
 import { cn } from "@/lib/utils"
 import type { Settings as ImageSettingsFromApp, ReelSettings as ReelSettingsFromApp } from "@/app/page"
 import { PromptBuilderModal } from "./prompt-builder-modal"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
 
 interface ImageSettings extends ImageSettingsFromApp {
   language: string
@@ -167,20 +169,44 @@ export function GenerationWizardModal({
       setInspirationImageFile(null)
     }
   }, [isOpen, generationType, initialPrompt, initialImageSettings, initialReelSettings])
+const fileToBase64 = (file:File) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result); // ⬅️ keeps "data:image/jpeg;base64,..."
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (currentStepIndex < steps.length - 1) {
       const nextStepId = steps[currentStepIndex + 1].id
       if (nextStepId === "adConceptBrief") {
-        const currentSettings = generationType === "image" ? imageSettings : reelSettings
-        const generatedConcept = generatePlaceholderAdConcept(
-          prompt,
-          currentSettings,
-          generationType,
-          productImageFile,
-          generationType === "image" ? inspirationImageFile : null,
-        )
-        setAdConcept(generatedConcept)
+          const productImageBase64 = await fileToBase64(productImageFile);
+          const adStyleImageBase64 = inspirationImageFile
+                ? await fileToBase64(inspirationImageFile)
+                : null;
+
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief");
+        
+
+        console.log("Calling with:", prompt, productImageFile);
+
+    const result = await generateAdBrief({
+      userPrompt: prompt,
+      productImageBase64,
+      adStyleImageBase64, // optional
+    });
+
+    if (result.data.success) {
+            console.log("Ad Brief:", result.data.brief);
+            setAdConcept(result.data.brief)
+    } else {
+             console.error("Failed to generate brief:", result.data.error);
+             setAdConcept("")
+    }
+      
       }
       setCurrentStepIndex(currentStepIndex + 1)
     } else {
