@@ -37,7 +37,7 @@ export interface CreationDetail {
   prompt: string
   likes: number
   type: "image" | "reel"
-  duration?: string // Made optional
+  duration?: string
   settings?: {
     model?: string
     reelModel?: "normal" | "expert"
@@ -45,4 +45,5 @@ export interface CreationDetail {
     creativity?: number
     quality?: string
   }
+  createdAt?: Date // Added for displaying creation time
 }

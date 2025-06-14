@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 
 import type React from "react"
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react" // Import useCallback, useMemo
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -15,60 +15,32 @@ import {
   ImageIcon as ImageIconLucide,
   VideoIcon as VideoIconLucide,
   ArrowRight,
+  ArrowLeft,
   Check,
   Sparkles,
   Lightbulb,
   FileText,
-  CopySlash,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-// import type { Settings as ImageSettingsFromApp, ReelSettings as ReelSettingsFromAppPage } from "@/app/page"
+import type { Settings as ImageSettingsFromApp, ReelSettings as ReelSettingsFromApp } from "@/app/page"
 import { PromptBuilderModal } from "./prompt-builder-modal"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
-import { useToast } from "@/hooks/use-toast"
 
-// Define ImageSettings based on the structure expected within this modal
-interface ImageSettings {
-  aspectRatio: string
-  outputs: number
-  model: string
-  creativity: number[]
+interface ImageSettings extends ImageSettingsFromApp {
   language: string
 }
-
-// Define ReelSettings based on the structure expected within this modal
-interface ReelSettings {
-  quality: string
-  creativity: number[]
-  outputs: number
-  model: "normal" | "expert" | "" // Allow empty string for "not selected"
-}
+type ReelSettings = ReelSettingsFromApp
 
 type GenerationType = "image" | "reel"
-
-const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
-  aspectRatio: "",
-  outputs: 0, // 0 signifies not selected
-  model: "KOLORS 1.5",
-  creativity: [7],
-  language: "", // Empty string signifies not selected
-}
-
-const DEFAULT_REEL_SETTINGS: ReelSettings = {
-  quality: "standard", // Can keep a default or make it mandatory too
-  outputs: 0, // 0 signifies not selected
-  model: "", // Empty string signifies not selected
-  creativity: [5],
-}
 
 interface GenerationWizardModalProps {
   isOpen: boolean
   onClose: () => void
   generationType: GenerationType
   onSubmit: (data: any) => void
-  initialImageSettings?: Partial<ImageSettings>
-  initialReelSettings?: Partial<ReelSettings>
+  initialImageSettings?: ImageSettings
+  initialReelSettings?: ReelSettings
   initialPrompt?: string
 }
 
@@ -97,6 +69,52 @@ const languageOptions = [
   { value: "zh", label: "中文 (Chinese)" },
 ]
 
+// Helper function to generate a placeholder Ad Concept
+const generatePlaceholderAdConcept = (
+  basePrompt: string,
+  settings: ImageSettings | ReelSettings,
+  type: GenerationType,
+  productFile?: File | null,
+  inspirationFile?: File | null,
+): string => {
+  let concept = `## Ad Concept Brief\n\n`
+  concept += `**Objective:** Create a compelling ${type} ad.\n\n`
+  concept += `**Core Message/Theme:** ${basePrompt || "To be defined by AI based on visual elements."}\n\n`
+
+  if (type === "image") {
+    const imgSettings = settings as ImageSettings
+    concept += `**Visual Style & Elements:**\n`
+    if (productFile) concept += `- Feature Product: ${productFile.name}\n`
+    if (inspirationFile) concept += `- Inspired by: ${inspirationFile.name}\n`
+    concept += `- Desired Aspect Ratio: ${imgSettings.aspectRatio}\n`
+    concept += `- Language for any text overlay (if applicable): ${languageOptions.find((l) => l.value === imgSettings.language)?.label || imgSettings.language}\n`
+    concept += `- Overall aesthetic should be [e.g., modern, minimalist, vibrant, luxurious] and align with the core message.\n\n`
+  } else {
+    const reelSettings = settings as ReelSettings
+    concept += `**Reel Specifics:**\n`
+    if (productFile) concept += `- Primary Subject (from source image): ${productFile.name}\n`
+    concept += `- Motion/Animation Style: ${basePrompt || "Dynamic and engaging, highlighting key features."}\n`
+    concept += `- Model Quality: ${reelSettings.model}\n`
+    concept += `- Desired reel outputs: ${reelSettings.outputs}\n\n`
+  }
+  concept += `**Key Considerations:**\n`
+  concept += `- The final output should be high-resolution and suitable for digital platforms.\n`
+  concept += `- Evoke a sense of [e.g., excitement, elegance, curiosity] in the viewer.\n`
+  concept += `- Ensure brand consistency if applicable (colors, fonts, logo placement - to be manually added post-generation if needed).\n\n`
+  concept += `**Generated Prompt Guidance (for AI):**\n`
+  concept += `Based on the above, construct a detailed prompt focusing on: ${basePrompt}. `
+  if (type === "image") {
+    const imgSettings = settings as ImageSettings
+    concept += `Incorporate elements like aspect ratio (${imgSettings.aspectRatio}), desired model (${imgSettings.model}), and ${imgSettings.outputs} variations. `
+  } else {
+    const reelSettings = settings as ReelSettings
+    concept += `Animate with ${reelSettings.model} model, producing ${reelSettings.outputs} variations. `
+  }
+  concept += `The creative level should be around ${settings.creativity[0]}/10.`
+
+  return concept
+}
+
 export function GenerationWizardModal({
   isOpen,
   onClose,
@@ -108,20 +126,22 @@ export function GenerationWizardModal({
 }: GenerationWizardModalProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [prompt, setPrompt] = useState(initialPrompt)
-  const [adConcept, setAdConcept] = useState("")
-  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
+  const [adConcept, setAdConcept] = useState("") // New state for Ad Concept
 
   const [productImageFile, setProductImageFile] = useState<File | null>(null)
   const [inspirationImageFile, setInspirationImageFile] = useState<File | null>(null)
 
-  const [imageSettings, setImageSettings] = useState<ImageSettings>(DEFAULT_IMAGE_SETTINGS)
-  const [reelSettings, setReelSettings] = useState<ReelSettings>(DEFAULT_REEL_SETTINGS)
+  const [imageSettings, setImageSettings] = useState<ImageSettings>(
+    initialImageSettings || { aspectRatio: "1:1", outputs: 1, model: "KOLORS 1.5", creativity: [7], language: "en" },
+  )
+  const [reelSettings, setReelSettings] = useState<ReelSettings>(
+    initialReelSettings || { quality: "standard", outputs: 1, model: "normal", creativity: [5] },
+  )
 
   const [isDragActiveProduct, setIsDragActiveProduct] = useState(false)
   const [isDragActiveInspiration, setIsDragActiveInspiration] = useState(false)
   const productFileInputRef = useRef<HTMLInputElement>(null)
   const inspirationFileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
   const [isPromptBuilderModalOpen, setIsPromptBuilderModalOpen] = useState(false)
 
   const steps = useMemo(() => STEPS[generationType], [generationType])
@@ -130,30 +150,67 @@ export function GenerationWizardModal({
     if (isOpen) {
       setCurrentStepIndex(0)
       setPrompt(initialPrompt)
-      setAdConcept("")
+      setAdConcept("") // Reset Ad Concept
       if (generationType === "image") {
-        setImageSettings({ ...DEFAULT_IMAGE_SETTINGS, ...(initialImageSettings || {}) })
+        setImageSettings(
+          initialImageSettings || {
+            aspectRatio: "1:1",
+            outputs: 1,
+            model: "KOLORS 1.5",
+            creativity: [7],
+            language: "en",
+          },
+        )
       }
       if (generationType === "reel") {
-        setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(initialReelSettings || {}) })
+        setReelSettings(initialReelSettings || { quality: "standard", outputs: 1, model: "normal", creativity: [5] })
       }
       setProductImageFile(null)
       setInspirationImageFile(null)
     }
   }, [isOpen, generationType, initialPrompt, initialImageSettings, initialReelSettings])
-
-  const fileToBase64 = (file: File) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        resolve(reader.result)
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
+const fileToBase64 = (file:File) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result); // ⬅️ keeps "data:image/jpeg;base64,..."
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
   const handleNext = useCallback(async () => {
-    if (currentStepIndex === steps.length - 1) {
+    if (currentStepIndex < steps.length - 1) {
+      const nextStepId = steps[currentStepIndex + 1].id
+      if (nextStepId === "adConceptBrief") {
+          const productImageBase64 = await fileToBase64(productImageFile);
+          const adStyleImageBase64 = inspirationImageFile
+                ? await fileToBase64(inspirationImageFile)
+                : null;
+
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief");
+        
+
+        console.log("Calling with:", prompt, productImageFile);
+
+    const result = await generateAdBrief({
+      userPrompt: prompt,
+      productImageBase64,
+      adStyleImageBase64, // optional
+    });
+
+    if (result.data.success) {
+            console.log("Ad Brief:", result.data.brief);
+            setAdConcept(result.data.brief)
+    } else {
+             console.error("Failed to generate brief:", result.data.error);
+             setAdConcept("")
+    }
+      
+      }
+      setCurrentStepIndex(currentStepIndex + 1)
+    } else {
+      // Final step (Review), prepare data for submission
       const data =
         generationType === "image"
           ? {
@@ -163,72 +220,8 @@ export function GenerationWizardModal({
               inspirationImage: inspirationImageFile,
               originalUserPrompt: prompt,
             }
-          : {
-              prompt: adConcept,
-              settings: reelSettings,
-              productImage: productImageFile,
-              originalUserPrompt: prompt,
-            }
+          : { prompt: adConcept, settings: reelSettings, productImage: productImageFile, originalUserPrompt: prompt }
       onSubmit(data)
-      return
-    }
-
-    const isMovingToAdConcept = steps[currentStepIndex + 1].id === "adConceptBrief"
-
-    if (isMovingToAdConcept) {
-      setIsGeneratingBrief(true)
-      try {
-        const productImageBase64 = productImageFile ? await fileToBase64(productImageFile) : null
-        // For image generation, product image is mandatory for brief generation at this stage
-        if (generationType === "image" && !productImageBase64) {
-          toast({
-            title: "Product Image Required",
-            description: "Please upload a product image to generate the ad brief.",
-            variant: "destructive",
-          })
-          setIsGeneratingBrief(false)
-          return
-        }
-        // For reel generation, product image is optional for brief generation
-        // If not provided, the brief will be based on the prompt alone.
-
-        const adStyleImageBase64 = inspirationImageFile ? await fileToBase64(inspirationImageFile) : null
-
-        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
-
-        const result = await generateAdBrief({
-          userPrompt: prompt,
-          productImageBase64, // Can be null for reels
-          adStyleImageBase64,
-        })
-
-        if (result.data.success) {
-          setAdConcept(result.data.brief)
-          toast({
-            title: "Brief Generated",
-            description: "The AI has created an ad concept brief for you to review.",
-          })
-          setCurrentStepIndex(currentStepIndex + 1)
-        } else {
-          console.error("Failed to generate brief:", result.data.error)
-          toast({
-            title: "Error Generating Brief",
-            description: result.data.error || "An unknown error occurred. Please try again.",
-            variant: "destructive",
-          })
-        }
-      } catch (error) {
-        console.error("Error calling Firebase function:", error)
-        toast({
-          title: "Generation Failed",
-          description: "Could not connect to the generation service. Please check your connection and try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsGeneratingBrief(false)
-      }
-    } else if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1)
     }
   }, [
     currentStepIndex,
@@ -241,8 +234,13 @@ export function GenerationWizardModal({
     inspirationImageFile,
     adConcept,
     onSubmit,
-    toast,
   ])
+
+  const handleBack = useCallback(() => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1)
+    }
+  }, [currentStepIndex])
 
   const FileUploadArea = useCallback(
     ({
@@ -339,16 +337,6 @@ export function GenerationWizardModal({
     [],
   )
 
-  const handleAdConceptInteraction = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    e.preventDefault()
-    toast({
-      title: "Action Disabled",
-      description: "Copying and cutting text from the Ad Concept Brief is not allowed.",
-      variant: "default",
-      icon: <CopySlash className="h-5 w-5" />,
-    })
-  }
-
   const renderStepContent = useCallback(() => {
     const stepId = steps[currentStepIndex].id
     switch (stepId) {
@@ -362,7 +350,7 @@ export function GenerationWizardModal({
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
               title="Product Picture"
-              isRequired // Mandatory for image brief generation
+              isRequired
               idPrefix="product"
             />
             <FileUploadArea
@@ -376,13 +364,13 @@ export function GenerationWizardModal({
             />
           </div>
         )
-      case "detailsSettings":
+      case "detailsSettings": // Image or Reel Generation - Step 2
         if (generationType === "image") {
           return (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="prompt-wizard" className="text-md font-semibold">
-                  Describe Your Vision (Initial Prompt) <span className="text-destructive">*</span>
+                  Describe Your Vision (Initial Prompt)
                 </Label>
                 <Textarea
                   id="prompt-wizard"
@@ -403,15 +391,13 @@ export function GenerationWizardModal({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="language-wizard">
-                    Language <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="language-wizard">Language</Label>
                   <Select
                     value={imageSettings.language}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, language: value }))}
                   >
                     <SelectTrigger id="language-wizard" className="mt-1">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {languageOptions.map((lang) => (
@@ -423,15 +409,13 @@ export function GenerationWizardModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="outputs-wizard">
-                    Number of Pictures <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="outputs-wizard">Number of Pictures</Label>
                   <Select
-                    value={imageSettings.outputs > 0 ? String(imageSettings.outputs) : ""}
+                    value={String(imageSettings.outputs)}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, outputs: Number(value) }))}
                   >
                     <SelectTrigger id="outputs-wizard" className="mt-1">
-                      <SelectValue placeholder="Select count" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4, 6, 8].map((n) => (
@@ -443,15 +427,13 @@ export function GenerationWizardModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="aspectRatio-wizard">
-                    Aspect Ratio <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="aspectRatio-wizard">Aspect Ratio</Label>
                   <Select
                     value={imageSettings.aspectRatio}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, aspectRatio: value }))}
                   >
                     <SelectTrigger id="aspectRatio-wizard" className="mt-1">
-                      <SelectValue placeholder="Select ratio" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5"].map((r) => (
@@ -471,7 +453,7 @@ export function GenerationWizardModal({
             <div className="space-y-6">
               <div>
                 <Label htmlFor="prompt-wizard-reel" className="text-md font-semibold">
-                  Describe Desired Motion/Style (Initial Prompt) <span className="text-destructive">*</span>
+                  Describe Desired Motion/Style (Initial Prompt)
                 </Label>
                 <Textarea
                   id="prompt-wizard-reel"
@@ -492,17 +474,13 @@ export function GenerationWizardModal({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="model-wizard-reel">
-                    Model Type <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="model-wizard-reel">Model Type</Label>
                   <Select
                     value={reelSettings.model}
-                    onValueChange={(value: "normal" | "expert" | "") =>
-                      setReelSettings((s) => ({ ...s, model: value }))
-                    }
+                    onValueChange={(value: "normal" | "expert") => setReelSettings((s) => ({ ...s, model: value }))}
                   >
                     <SelectTrigger id="model-wizard-reel" className="mt-1">
-                      <SelectValue placeholder="Select model type" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="normal">Normal Model</SelectItem>
@@ -511,15 +489,13 @@ export function GenerationWizardModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="outputs-wizard-reel">
-                    Number of Reels <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="outputs-wizard-reel">Number of Reels</Label>
                   <Select
-                    value={reelSettings.outputs > 0 ? String(reelSettings.outputs) : ""}
+                    value={String(reelSettings.outputs)}
                     onValueChange={(value) => setReelSettings((s) => ({ ...s, outputs: Number(value) }))}
                   >
                     <SelectTrigger id="outputs-wizard-reel" className="mt-1">
-                      <SelectValue placeholder="Select count" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4].map((n) => (
@@ -534,7 +510,7 @@ export function GenerationWizardModal({
             </div>
           )
         }
-      case "sourceImage": // Reel Generation - Step 1 (Source image is optional for reels)
+      case "sourceImage": // Reel Generation - Step 1
         return (
           <div className="space-y-6">
             <FileUploadArea
@@ -543,34 +519,32 @@ export function GenerationWizardModal({
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="Source Picture (Optional for Reels)"
+              title="Source Picture (Optional)"
               idPrefix="reel-source"
             />
             <p className="text-sm text-muted-foreground">
               Upload an image if you want the reel to be based on a specific product. Otherwise, the AI will generate
-              the brief and reel based on the prompt alone.
+              based on the prompt alone.
             </p>
           </div>
         )
-      case "adConceptBrief":
+      case "adConceptBrief": // New Step
         return (
           <div className="space-y-3">
             <Label htmlFor="ad-concept-brief" className="text-md font-semibold flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Refine Ad Concept Brief <span className="text-destructive">*</span>
+              Refine Ad Concept Brief
             </Label>
             <p className="text-sm text-muted-foreground">
-              Review and edit the auto-generated brief. This final brief will be used for generation. (Copy/Cut
-              disabled)
+              Below is an auto-generated detailed brief based on your inputs. Review and edit it as needed. This final
+              brief will be used for generation.
             </p>
             <Textarea
               id="ad-concept-brief"
               value={adConcept}
               onChange={(e) => setAdConcept(e.target.value)}
-              onCopy={handleAdConceptInteraction}
-              onCut={handleAdConceptInteraction}
               placeholder="Detailed ad concept brief will appear here..."
-              className="h-80 resize-none text-sm mt-1 leading-relaxed"
+              className="h-80 resize-none text-sm mt-1 leading-relaxed" // Increased height
             />
             <p className="text-xs text-muted-foreground text-right">Length: {adConcept.length} characters</p>
           </div>
@@ -618,10 +592,10 @@ export function GenerationWizardModal({
               {generationType === "reel" && (
                 <>
                   <p>
-                    <strong>Model:</strong> {reelSettings.model || "Not Selected"}
+                    <strong>Model:</strong> {reelSettings.model}
                   </p>
                   <p>
-                    <strong>Number of Reels:</strong> {reelSettings.outputs || "Not Selected"}
+                    <strong>Number of Reels:</strong> {reelSettings.outputs}
                   </p>
                 </>
               )}
@@ -650,28 +624,16 @@ export function GenerationWizardModal({
     const stepId = steps[currentStepIndex].id
     if (generationType === "image") {
       if (stepId === "uploadImages" && !productImageFile) return true
-      if (
-        stepId === "detailsSettings" &&
-        (!prompt.trim() || !imageSettings.language || !imageSettings.aspectRatio || imageSettings.outputs === 0)
-      ) {
-        return true
-      }
+      if (stepId === "detailsSettings" && !prompt.trim()) return true
       if (stepId === "adConceptBrief" && !adConcept.trim()) return true
     } else {
-      // Reel generation
-      // Source image is optional for reels, so no check in 'sourceImage' step.
-      if (
-        stepId === "detailsSettings" &&
-        (!prompt.trim() ||
-          !reelSettings.model || // Check for empty string
-          reelSettings.outputs === 0) // Check for 0
-      ) {
-        return true
-      }
+      // Reel
+      // sourceImage is optional
+      if (stepId === "detailsSettings" && !prompt.trim()) return true
       if (stepId === "adConceptBrief" && !adConcept.trim()) return true
     }
     return false
-  }, [steps, currentStepIndex, generationType, productImageFile, prompt, adConcept, imageSettings, reelSettings])
+  }, [steps, currentStepIndex, generationType, productImageFile, prompt, adConcept])
 
   return (
     <>
@@ -697,11 +659,13 @@ export function GenerationWizardModal({
               Create New {generationType === "image" ? "Image" : "Reel"}
             </DialogTitle>
             <div className="flex items-center justify-center space-x-1 sm:space-x-2 pt-4">
+              {" "}
+              {/* Reduced spacing for 4 steps */}
               {steps.map((step, index) => (
                 <div key={step.id} className="flex flex-col items-center">
                   <div
                     className={cn(
-                      "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-2 transition-all",
+                      "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-2 transition-all", // Slightly smaller for 4 steps
                       index === currentStepIndex
                         ? "bg-primary border-primary text-primary-foreground animate-in zoom-in-105 duration-200 ease-out"
                         : index < currentStepIndex
@@ -717,7 +681,7 @@ export function GenerationWizardModal({
                   </div>
                   <p
                     className={cn(
-                      "text-xs sm:text-sm mt-1.5 text-center w-20 sm:w-24 truncate",
+                      "text-xs sm:text-sm mt-1.5 text-center w-20 sm:w-24 truncate", // Ensure text fits
                       index === currentStepIndex ? "text-primary font-semibold" : "text-muted-foreground",
                     )}
                   >
@@ -727,29 +691,26 @@ export function GenerationWizardModal({
               ))}
             </div>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-[400px]">{renderStepContent()}</div>
-          <DialogFooter className="p-6 border-t flex justify-end items-center">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-[400px]">{renderStepContent()}</div>{" "}
+          {/* Increased min-height for ad concept */}
+          <DialogFooter className="p-6 border-t flex justify-between items-center">
+            <div>
+              {currentStepIndex > 0 && (
+                <Button variant="outline" onClick={handleBack} className="flex items-center gap-1">
+                  <ArrowLeft className="h-4 w-4" /> Back
+                </Button>
+              )}
+            </div>
             <div className="flex items-center gap-3">
-              <Button
-                onClick={handleNext}
-                disabled={isNextDisabled || isGeneratingBrief}
-                className="flex items-center gap-1"
-              >
-                {isGeneratingBrief ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    <span>Generating Brief...</span>
-                  </>
-                ) : currentStepIndex === steps.length - 1 ? (
+              <Button onClick={handleNext} disabled={isNextDisabled} className="flex items-center gap-1">
+                {currentStepIndex === steps.length - 1 ? (
                   <>
                     <Sparkles className="h-4 w-4" /> Generate
                   </>
                 ) : (
-                  <>
-                    <span>Next</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </>
+                  "Next"
                 )}
+                {currentStepIndex < steps.length - 1 && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </DialogFooter>
@@ -758,9 +719,9 @@ export function GenerationWizardModal({
       <PromptBuilderModal
         isOpen={isPromptBuilderModalOpen}
         onClose={() => setIsPromptBuilderModalOpen(false)}
-        currentPrompt={prompt}
+        currentPrompt={prompt} // Pass the initial short prompt to the builder
         onPromptGenerated={(newPrompt) => {
-          setPrompt(newPrompt)
+          setPrompt(newPrompt) // Update the initial short prompt
           setIsPromptBuilderModalOpen(false)
         }}
       />

@@ -56,6 +56,8 @@ export function ImageEnhancementModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
+
+            
             <div className="p-2 bg-primary/10 rounded-lg">
               <Edit3 className="h-5 w-5 text-primary" />
             </div>

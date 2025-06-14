@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react" // Import useCallback, useMemo
+import { useState, useCallback, useMemo } from "react"
 import {
   Sparkles,
   Download,
@@ -28,16 +28,17 @@ import {
   Clock,
   Search,
   Calendar,
+  Info,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { ImageViewerModal } from "../modals/image-viewer-modal"
 import { ImageEnhancementModal } from "../modals/image-enhancement-modal"
-import type { HistoryItem } from "@/types" // HistoryItem import
-import { Input } from "@/components/ui/input" // For history search
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // For history sort/filter
-import { cn } from "@/lib/utils" // Import cn
+import type { HistoryItem } from "@/components/types" // Corrected import path
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 interface OutputPanelProps {
   generatedImages: string[]
@@ -45,14 +46,14 @@ interface OutputPanelProps {
   onImageAction: (action: string, imageIndex: number) => void
   onRegenerateVariation: (imageIndex: number) => void
   generationProgress: number
-  mode: "image" | "reel" // Changed from optional
+  mode: "image" | "reel"
   originalPrompt: string
-  userHistory: HistoryItem[] // Added for displaying user's past generations
-  onOpenHistoryItem: (item: HistoryItem) => void // To handle click on a history item
+  userHistory: HistoryItem[]
+  onOpenHistoryItem: (item: HistoryItem) => void
   onDeleteHistoryItem: (id: string) => void
   onRegenerateFromHistory: (item: HistoryItem) => void
-  onInitiateNewGeneration: () => void // To open the wizard for new generation
-  onNavigateBack: () => void // To go back to welcome screen
+  onInitiateNewGeneration: () => void
+  onNavigateBack: () => void
 }
 
 export function OutputPanel({
@@ -70,12 +71,11 @@ export function OutputPanel({
   onInitiateNewGeneration,
   onNavigateBack,
 }: OutputPanelProps) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid") // For newly generated images
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [viewerImage, setViewerImage] = useState<{ image: string; index: number } | null>(null)
   const [enhancementModal, setEnhancementModal] = useState<{ image: string; index: number } | null>(null)
   const [isEnhancing, setIsEnhancing] = useState(false)
 
-  // State for history browsing within OutputPanel
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
 
@@ -97,27 +97,6 @@ export function OutputPanel({
 
   const handleEnhanceImage = useCallback(async (enhancementPrompt: string) => {
     setIsEnhancing(true)
-    // --- COMMENT: Backend Integration Point ---
-    // This is where you would call your backend API to enhance an image.
-    //
-    // Example:
-    // fetch('/api/enhance', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     image: enhancementModal.image,
-    //     prompt: enhancementPrompt
-    //   })
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //   // Update the image in the generatedOutputs array
-    // })
-    // .finally(() => {
-    //   setIsEnhancing(false);
-    //   setEnhancementModal(null);
-    // });
-
-    // Simulating enhancement process
     setTimeout(() => {
       setIsEnhancing(false)
       setEnhancementModal(null)
@@ -138,14 +117,26 @@ export function OutputPanel({
     }
   }, [viewerImage, generatedImages])
 
-  const formatDate = useCallback((date: Date) => {
+  const formatDate = useCallback((date: Date | string) => {
+    const d = new Date(date)
     const now = new Date()
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    const diffInHours = (now.getTime() - d.getTime()) / (1000 * 60 * 60)
 
     if (diffInHours < 1) return "Just now"
     if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
-    return date.toLocaleDateString()
+    return d.toLocaleDateString()
+  }, [])
+
+  const formatFullDateTime = useCallback((date: Date | string | undefined) => {
+    if (!date) return ""
+    return new Date(date).toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }, [])
 
   const filteredUserHistory = useMemo(
@@ -161,7 +152,15 @@ export function OutputPanel({
     [userHistory, historySearchQuery, historySortBy],
   )
 
-  // STATE 1: Actively Generating
+  const currentBatchTimestamp = useMemo(() => {
+    if (generatedImages.length > 0 && userHistory.length > 0) {
+      // Assuming userHistory is sorted with the newest item first
+      // and the generation just completed, so the first item is the current batch.
+      return userHistory[0].timestamp
+    }
+    return undefined
+  }, [generatedImages, userHistory])
+
   if (isGenerating) {
     return (
       <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
@@ -214,7 +213,6 @@ export function OutputPanel({
     )
   }
 
-  // STATE 2: Displaying Freshly Generated Outputs
   if (generatedImages.length > 0) {
     return (
       <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
@@ -226,7 +224,12 @@ export function OutputPanel({
                 {isReel ? "Generated Reels" : "Generated Creatives"}
               </h3>
               <p className="text-gray-600 dark:text-slate-400 mt-1">
-                {generatedImages.length} stunning results • Ready to download
+                {generatedImages.length} stunning results.
+                {currentBatchTimestamp && (
+                  <span className="block text-xs text-gray-500 dark:text-slate-500 mt-0.5">
+                    Created: {formatFullDateTime(currentBatchTimestamp)}
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex gap-3">
@@ -275,7 +278,7 @@ export function OutputPanel({
                       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
                         <Play className="h-16 w-16 text-blue-500" />
                         <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                          5s {/* TODO: Get actual duration */}
+                          5s
                         </div>
                       </div>
                     ) : (
@@ -288,7 +291,7 @@ export function OutputPanel({
                     <div className="absolute top-3 right-3">
                       <Badge className={`${isReel ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm`}>
                         <Star className="h-3 w-3 mr-1" />
-                        {isReel ? "Pro" : "HD"} {/* TODO: Get actual quality */}
+                        {isReel ? "Pro" : "HD"}
                       </Badge>
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -301,8 +304,7 @@ export function OutputPanel({
                             handleImageClick(image, index)
                           }}
                         >
-                          {" "}
-                          <Maximize className="h-4 w-4" />{" "}
+                          <Maximize className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
@@ -312,8 +314,7 @@ export function OutputPanel({
                             handleEnhanceClick(index)
                           }}
                         >
-                          {" "}
-                          <Edit3 className="h-4 w-4" />{" "}
+                          <Edit3 className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
@@ -323,8 +324,7 @@ export function OutputPanel({
                             onImageAction("download", index)
                           }}
                         >
-                          {" "}
-                          <Download className="h-4 w-4" />{" "}
+                          <Download className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
@@ -334,8 +334,7 @@ export function OutputPanel({
                             onImageAction("favorite", index)
                           }}
                         >
-                          {" "}
-                          <Heart className="h-4 w-4" />{" "}
+                          <Heart className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -353,11 +352,11 @@ export function OutputPanel({
                           variant="outline"
                           className="text-xs border-gray-300 text-gray-600 dark:border-slate-700 dark:text-slate-400"
                         >
-                          {isReel ? "1080×1920" : "1024×576"} {/* TODO: Get actual dimensions */}
+                          {isReel ? "1080×1920" : "1024×576"}
                         </Badge>
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-500">
                           <TrendingUp className="h-3 w-3" />
-                          <span>98% quality</span> {/* TODO: Get actual quality score */}
+                          <span>98% quality</span>
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
@@ -374,8 +373,7 @@ export function OutputPanel({
                           onRegenerateVariation(index)
                         }}
                       >
-                        {" "}
-                        <RefreshCw className="h-3 w-3 mr-1" /> Variation{" "}
+                        <RefreshCw className="h-3 w-3 mr-1" /> Variation
                       </Button>
                       <Button
                         variant="ghost"
@@ -386,8 +384,7 @@ export function OutputPanel({
                           onImageAction("share", index)
                         }}
                       >
-                        {" "}
-                        <Share2 className="h-3 w-3 mr-1" /> Share{" "}
+                        <Share2 className="h-3 w-3 mr-1" /> Share
                       </Button>
                     </div>
                   </div>
@@ -406,6 +403,7 @@ export function OutputPanel({
             onPrevious={handlePreviousImage}
             onEnhance={handleEnhanceClick}
             originalPrompt={originalPrompt}
+            createdAt={currentBatchTimestamp} // Pass batch creation time
           />
         )}
         {enhancementModal && (
@@ -421,11 +419,9 @@ export function OutputPanel({
     )
   }
 
-  // STATE 3: History Hub / Generate New
   return (
     <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
       <div className="h-full flex flex-col">
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
           <div className="flex items-center gap-3">
             <Button
@@ -460,7 +456,6 @@ export function OutputPanel({
           </Button>
         </div>
 
-        {/* History Search and Filter Controls */}
         <div className="flex gap-4 mb-6 animate-in fade-in slide-in-from-top-4 delay-100 duration-500 ease-out">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -483,7 +478,6 @@ export function OutputPanel({
           </Select>
         </div>
 
-        {/* User's Past Generations */}
         <div className="flex-1 overflow-y-auto">
           {filteredUserHistory.length > 0 ? (
             <div className="space-y-4">
@@ -497,11 +491,8 @@ export function OutputPanel({
                   style={{ animationDelay: `${100 + index * 75}ms`, animationFillMode: "both" }}
                 >
                   <div className="flex gap-4 items-start">
-                    {/* Preview Thumbnails */}
                     <div className="flex-shrink-0">
                       <div className="grid grid-cols-2 gap-1.5 w-28 h-28">
-                        {" "}
-                        {/* Slightly larger thumbnails */}
                         {item.results.slice(0, 4).map((result, thumbIndex) => (
                           <div
                             key={thumbIndex}
@@ -523,7 +514,6 @@ export function OutputPanel({
                       </div>
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -544,7 +534,8 @@ export function OutputPanel({
                           >
                             {item.results.length} result{item.results.length > 1 ? "s" : ""}
                           </Badge>
-                          <span className="text-xs text-gray-500 dark:text-slate-500">
+                          <span className="text-xs text-gray-500 dark:text-slate-500 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
                             {formatDate(item.timestamp)}
                           </span>
                         </div>
@@ -605,12 +596,13 @@ export function OutputPanel({
                             {item.metadata.quality}
                           </span>
                         )}
-                        {item.metadata?.duration && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {item.metadata.duration}
-                          </span>
-                        )}
+                        {item.metadata?.duration &&
+                          item.type === "reel" && ( // Only show duration for reels
+                            <span className="flex items-center gap-1">
+                              <Info className="h-3 w-3" /> {/* Changed icon for duration */}
+                              {item.metadata.duration}
+                            </span>
+                          )}
                         {item.metadata?.aspectRatio && (
                           <span className="flex items-center gap-1">
                             <Grid3X3 className="h-3 w-3" />
