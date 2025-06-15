@@ -60,6 +60,9 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
   const [shops, setShops] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [creativeAiItems, setCreativeAiItems] = useState<any[]>([])
+  const [creativeAiLoading, setCreativeAiLoading] = useState<boolean>(true)
+  const [creativeAiError, setCreativeAiError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
@@ -530,6 +533,48 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
   }, [shopData.id]) // Add shopData.id as a dependency
 
+   //creative ai 
+
+   useEffect(() => {
+    const fetchCreativeAiInspirations = async () => {
+      setCreativeAiLoading(true)
+      setCreativeAiError(null)
+      try {
+        const creativeAiCollectionRef = collection(db, "CreativeAi")
+        const querySnapshot = await getDocs(creativeAiCollectionRef)
+        const fetchedItems: any[] = []
+        querySnapshot.forEach((doc) => {
+          const data = doc.data()
+          if (data.prompt && data.image && data.type && data.user) {
+            fetchedItems.push({
+              id: doc.id,
+              image: data.image as string,
+              beforeImage: data.beforeImage as string | undefined,
+              user: data.user as string,
+             // avatar:
+             //   data.avatar ||
+              //  `/placeholder.svg?height=32&width=32&text=${(data.user as string)?.[0]?.toUpperCase() || "U"}`,
+              
+              prompt: data.prompt as string,
+              //likes: (data.likes as number) || Math.floor(Math.random() * 1500),
+              type: data.type as "image" | "reel",
+              duration: data.duration as string | undefined,
+              //settings: data.settings as any,
+              createdAt: data.createdAt ? timestampToDate(data.createdAt) : new Date(),
+            })
+          }
+        })
+        setCreativeAiItems(fetchedItems)
+      } catch (error) {
+        console.error("Error fetching CreativeAI inspirations:", error)
+        setCreativeAiError("Could not load community inspirations.")
+      } finally {
+        setCreativeAiLoading(false)
+      }
+    }
+    fetchCreativeAiInspirations()
+
+  }, []) // Empty dependency array ensures this runs only once on mount
   // Set up real-time listener for SMScampaign collection
   useEffect(() => {
     if (!shopData.id) return
@@ -641,6 +686,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     return () => unsubscribe()
   }, [])
 
+ 
   const [progress, setProgress] = useState(0)
   const [loadingText, setLoadingText] = useState("Initializing...")
 
@@ -686,6 +732,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           shops,
           dateRange,
           setDateRange,
+          creativeAiItems,
           //  updateOrderStatus,
         }}
       >

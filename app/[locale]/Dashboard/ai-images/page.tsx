@@ -8,7 +8,7 @@ import type { CreativeMode, HistoryItem, CreationDetail } from "./components/typ
 import { GenerationWizardModal } from "./components/modals/generation-wizard-modal"
 import { WelcomeScreen } from "./components/core/welcome-screen"
 import { CreationDetailModal } from "./components/modals/creation-detail-modal"
-
+import { useShop } from "@/app/context/ShopContext"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 const getDefaultImageSettings = (): any => {
     // Return default settings for image
@@ -87,6 +87,7 @@ const getDefaultImageSettings = (): any => {
   ]
   
   export default function AICreativePage() {
+    const { creativeAiItems, creativeAiLoading, creativeAiError } = useShop()
     const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
     const [activeMode, setActiveMode] = useState<CreativeMode>("image")
     const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
@@ -319,7 +320,7 @@ const getDefaultImageSettings = (): any => {
             {currentView === "welcome" ? (
               <WelcomeScreen
                 onStartCreation={handleStartCreation}
-                inspirationItems={sampleInspirationItems}
+                inspirationItems={creativeAiItems}
                 onInspirationClick={handleInspirationClick}
               />
             ) : (

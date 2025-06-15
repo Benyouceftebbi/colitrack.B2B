@@ -29,11 +29,11 @@ export interface ChatMessage {
 }
 
 export interface CreationDetail {
-  id: number
+  id: string
   image: string
   beforeImage?: string
   user: string
-  avatar: string
+  avatar?: string
   prompt: string
   likes: number
   type: "image" | "reel"
