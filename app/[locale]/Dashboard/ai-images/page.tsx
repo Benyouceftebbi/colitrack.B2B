@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react" // Import useCallback and useMemo
+import { useState, useCallback, useMemo, useEffect } from "react" // Import useCallback and useMemo
 import { OutputPanel } from "./components/panels/output-panel"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
@@ -9,6 +9,9 @@ import { GenerationWizardModal } from "./components/modals/generation-wizard-mod
 import { WelcomeScreen } from "./components/core/welcome-screen"
 import { CreationDetailModal } from "./components/modals/creation-detail-modal"
 import { useShop } from "@/app/context/ShopContext"
+import { doc, onSnapshot } from "firebase/firestore"
+import { db, functions } from "@/firebase/firebase"
+import { httpsCallable } from "firebase/functions"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 const getDefaultImageSettings = (): any => {
     // Return default settings for image
@@ -91,7 +94,8 @@ const getDefaultImageSettings = (): any => {
     const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
     const [activeMode, setActiveMode] = useState<CreativeMode>("image")
     const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
-  
+  const [pendingImageId, setPendingImageId] = useState<string | null>(null);
+const { shopData } = useShop()
     const [isGenerating, setIsGenerating] = useState(false)
     const [generationProgress, setGenerationProgress] = useState(0)
     const [generatedOutputs, setGeneratedOutputs] = useState<string[]>([])
@@ -151,70 +155,106 @@ const getDefaultImageSettings = (): any => {
       }
       setIsWizardOpen(true)
     }, [currentGenerationType])
-  
-    const handleWizardSubmit = useCallback(
-      (data: any) => {
-        if (!currentGenerationType) return
-  
-        setIsWizardOpen(false)
-        setIsGenerating(true)
-        setGeneratedOutputs([])
-        setGenerationProgress(0)
-        setCurrentPromptForOutput(data.prompt)
-        setActiveMode(currentGenerationType)
-        setCurrentView("output")
-  
-        const progressInterval = setInterval(() => {
-          setGenerationProgress((prev) => (prev >= 100 ? 100 : prev + Math.random() * 15))
-        }, 200)
-  
-        setTimeout(() => {
-          clearInterval(progressInterval)
-          setGenerationProgress(100)
-          const numOutputs = data.settings.outputs || 1
-          const mockResults = Array.from(
-            { length: numOutputs },
-            (_, i) =>
-              `/placeholder.svg?height=400&width=600&text=${currentGenerationType}+Res+${i + 1}&query=${encodeURIComponent(data.originalUserPrompt)}`,
-          )
-          setGeneratedOutputs(mockResults)
-  
-          const newHistoryItemTimestamp = new Date()
-          const newHistoryItem: HistoryItem = {
-            id: `hist_${Date.now()}`,
-            type: currentGenerationType,
-            prompt: data.prompt,
-            results: mockResults,
-            settings: data.settings,
-            timestamp: newHistoryItemTimestamp, // Use consistent timestamp
-            status: "completed",
-            metadata:
-              currentGenerationType === "image"
-                ? {
-                    model: data.settings.model,
-                    aspectRatio: data.settings.aspectRatio,
-                    creativity: Array.isArray(data.settings.creativity)
-                      ? data.settings.creativity[0]
-                      : data.settings.creativity,
-                    language: data.settings.language,
-                  }
-                : {
-                    reelModel: data.settings.model,
-                    quality: data.settings.quality,
-                    creativity: Array.isArray(data.settings.creativity)
-                      ? data.settings.creativity[0]
-                      : data.settings.creativity,
-                    duration: "5s", // Placeholder
-                  },
-          }
-          setUserHistory((prev) => [newHistoryItem, ...prev])
-          setIsGenerating(false)
-          toast({ title: "Success!", description: `${currentGenerationType} generation completed!` })
-        }, 3000)
-      },
-      [currentGenerationType, toast],
-    )
-  
+   function fileToDataUrlObject(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      resolve({
+        name: file.name,
+        type: file.type,
+        base64: reader.result, // full data:image/...;base64,xxx
+      });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+} 
+const handleWizardSubmit = useCallback(
+  async (data: any) => {
+    if (!currentGenerationType) return;
+
+    setIsWizardOpen(false);
+    setIsGenerating(true);
+    setGeneratedOutputs([]);
+    setGenerationProgress(0);
+    setCurrentPromptForOutput(data.prompt);
+    setActiveMode(currentGenerationType);
+    setCurrentView("output");
+
+    const progressInterval = setInterval(() => {
+      setGenerationProgress((prev) => (prev >= 100 ? 100 : prev + Math.random() * 1));
+    }, 200);
+
+    const generateImageAd = httpsCallable(functions, "generateImageAd");
+
+    const productData = await fileToDataUrlObject(data.productImage);
+    const adStyleData = data.inspirationImage ? await fileToDataUrlObject(data.inspirationImage) : null;
+
+    const result = await generateImageAd({
+      productFile: productData,
+      adInsiprationFile: adStyleData,
+      prompt: data.prompt,
+      shopId: shopData.id,
+      n: data.settings.outputs || 1,
+      size: "1024x1024",
+      language: "English",
+    });
+
+    setPendingImageId(result.data.imageId);
+  },
+  [currentGenerationType, toast]
+);
+useEffect(() => {
+  if (!pendingImageId) return;
+
+  const imageDocRef = doc(db, "Shops", shopData.id, "ImageAi", pendingImageId);
+  const unsubscribe = onSnapshot(imageDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.imagesUrl?.length) {
+        console.log("🎉 Image Ad Ready:", data);
+        setGeneratedOutputs(data.imagesUrl);
+        setGenerationProgress(100);
+        setIsGenerating(false);
+        setPendingImageId(null);
+
+        const newHistoryItem: HistoryItem = {
+          id: pendingImageId,
+          type: currentGenerationType,
+          prompt: data.prompt,
+          results: data.imagesUrl,
+          settings: data.settings,
+          timestamp: new Date(),
+          status: "completed",
+          metadata:
+            currentGenerationType === "image"
+              ? {
+                  model: data.settings.model,
+                  aspectRatio: data.settings.aspectRatio,
+                  creativity: Array.isArray(data.settings.creativity)
+                    ? data.settings.creativity[0]
+                    : data.settings.creativity,
+                  language: data.settings.language,
+                }
+              : {
+                  reelModel: data.settings.model,
+                  quality: data.settings.quality,
+                  creativity: Array.isArray(data.settings.creativity)
+                    ? data.settings.creativity[0]
+                    : data.settings.creativity,
+                  duration: "5s",
+                },
+        };
+
+        setUserHistory((prev) => [newHistoryItem, ...prev]);
+        toast({ title: "Success!", description: `${currentGenerationType} generation completed!` });
+
+        unsubscribe(); // Stop listening once complete
+      }
+    }
+  });
+
+  return () => unsubscribe(); // Clean up on unmount
+}, [pendingImageId]);
     const handleOpenHistoryItemDetail = useCallback((item: HistoryItem) => {
       const creationDetail: CreationDetail = {
         id: Number.parseInt(item.id.replace("hist_", ""), 10) || Date.now(),

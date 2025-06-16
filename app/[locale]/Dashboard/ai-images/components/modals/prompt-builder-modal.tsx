@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Lightbulb, Wand2, Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { httpsCallable } from "firebase/functions"
+import { functions } from "@/firebase/firebase"
+import { useShop } from "@/app/context/ShopContext"
 
 interface PromptBuilderModalProps {
   isOpen: boolean
@@ -23,7 +26,7 @@ export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGen
   const [generatedPrompt, setGeneratedPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
-
+const { shopData } = useShop()
   useEffect(() => {
     if (isOpen) {
       setDescription(currentPrompt) // Pre-fill with current prompt if any
@@ -32,38 +35,29 @@ export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGen
     }
   }, [isOpen, currentPrompt])
 
-  const handleGeneratePrompt = () => {
+  const handleGeneratePrompt = async () => {
     setIsLoading(true)
     let basePrompt = description.trim()
-    if (!basePrompt) {
-      basePrompt = "A stunning image" // Default if description is empty
-    }
 
-    let enhancedPrompt = basePrompt
-    if (selectedStyle) {
-      enhancedPrompt += `, ${selectedStyle.toLowerCase()} style`
-    }
+     const generateAdBrief = httpsCallable(functions, "promptAdEnhancer")
+     const result = await generateAdBrief({
+          userPrompt: basePrompt,
+          shopId:shopData.id
+      })
 
-    // Add some common enhancers if not already present
-    if (!enhancedPrompt.toLowerCase().includes("detailed")) {
-      enhancedPrompt += ", highly detailed"
-    }
-    if (
-      !enhancedPrompt.toLowerCase().includes("resolution") &&
-      !enhancedPrompt.toLowerCase().includes("4k") &&
-      !enhancedPrompt.toLowerCase().includes("8k")
-    ) {
-      enhancedPrompt += ", 4k resolution"
-    }
-    if (!enhancedPrompt.toLowerCase().includes("lighting") && Math.random() > 0.5) {
-      enhancedPrompt += ", cinematic lighting"
-    }
+        if (result.data.success) {
+      setGeneratedPrompt(result.data.prompt)
+      //set tokens {result.data.tokens}
+      setIsLoading(false)
+        } else {
+               setIsLoading(false)
+        }
 
     // Simulate API call / processing time
-    setTimeout(() => {
-      setGeneratedPrompt(enhancedPrompt)
-      setIsLoading(false)
-    }, 700)
+
+     
+
+
   }
 
   const handleUsePrompt = () => {
