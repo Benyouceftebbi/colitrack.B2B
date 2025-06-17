@@ -3,19 +3,15 @@
 import type React from "react"
 
 import { useEffect, useState } from "react" // Added useState
-import { X, ArrowLeft, ArrowRight, Video, ImageIcon, Heart, Play, Wand2, Clock } from "lucide-react"
+import { X, Video, ImageIcon, Heart, Wand2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "../types"
-import { cn } from "@/lib/utils"
 
 interface CreationDetailModalProps {
   creation: CreationDetail
   onClose: () => void
-  onNext?: () => void
-  onPrevious?: () => void
-  hasNext?: boolean
-  hasPrevious?: boolean
+  // Removed: onNext, onPrevious, hasNext, hasPrevious
 }
 
 // Helper to handle image errors and switch to placeholder
@@ -49,27 +45,19 @@ const ImageWithFallback = ({
 export function CreationDetailModal({
   creation,
   onClose,
-  onNext,
-  onPrevious,
-  hasNext,
-  hasPrevious,
+  // Removed: onNext, onPrevious, hasNext, hasPrevious
 }: CreationDetailModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose()
       }
-      if (e.key === "ArrowRight" && hasNext && onNext) {
-        onNext()
-      }
-      if (e.key === "ArrowLeft" && hasPrevious && onPrevious) {
-        onPrevious()
-      }
+      // Removed keyboard navigation for next/previous as it's for single item
     }
 
     document.addEventListener("keydown", handleEscape)
     return () => document.removeEventListener("keydown", handleEscape)
-  }, [onClose, onNext, onPrevious, hasNext, hasPrevious])
+  }, [onClose]) // Dependency array updated
 
   const formattedCreationDate = creation.createdAt
     ? new Date(creation.createdAt).toLocaleString(undefined, {
@@ -81,41 +69,40 @@ export function CreationDetailModal({
       })
     : null
 
-    const renderReelContent = (videoUrl: string | undefined, baseAltText: string) => {
-        if (!videoUrl) {
-          return (
-            <ImageWithFallback
-              src="/placeholder.svg"
-              alt="Missing video"
-              fallbackText="Video Missing"
-              className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-              style={{ maxWidth: "600px", maxHeight: "600px" }}
-            />
-          )
-        }
-      
-        return (
-          <div className="relative w-full h-full flex items-center justify-center bg-black">
-            <video
-              controls
-              playsInline
-              preload="metadata"
-              className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-              style={{ maxWidth: "600px", maxHeight: "600px" }}
-            >
-              <source src={videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-      
-            {creation.duration && (
-              <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                {creation.duration}
-              </div>
-            )}
+  const renderReelContent = (videoUrl: string | undefined, baseAltText: string) => {
+    if (!videoUrl) {
+      return (
+        <ImageWithFallback
+          src="/placeholder.svg"
+          alt="Missing video"
+          fallbackText="Video Missing"
+          className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
+          style={{ maxWidth: "600px", maxHeight: "600px" }}
+        />
+      )
+    }
+
+    return (
+      <div className="relative w-full h-full flex items-center justify-center bg-black">
+        <video
+          controls
+          playsInline
+          preload="metadata"
+          className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
+          style={{ maxWidth: "600px", maxHeight: "600px" }}
+        >
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {creation.duration && (
+          <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
+            {creation.duration}
           </div>
-        )
-      }
-      
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -161,26 +148,7 @@ export function CreationDetailModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {hasPrevious && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onPrevious}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            {hasNext && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNext}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            )}
+            {/* Removed navigation buttons */}
             <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </Button>
@@ -199,15 +167,14 @@ export function CreationDetailModal({
                       Before
                     </Badge>
                   </div>
-                 
-                    <ImageWithFallback
-                      src={creation.beforeImage || "/placeholder.svg"}
-                      alt="Before"
-                      className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-                      style={{ maxWidth: "400px", maxHeight: "400px" }}
-                      fallbackText="Before Image"
-                    />
-                
+
+                  <ImageWithFallback
+                    src={creation.beforeImage || "/placeholder.svg"}
+                    alt="Before"
+                    className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
+                    style={{ maxWidth: "400px", maxHeight: "400px" }}
+                    fallbackText="Before Image"
+                  />
                 </div>
 
                 {/* After Image - Right Side */}
@@ -218,7 +185,7 @@ export function CreationDetailModal({
                     </Badge>
                   </div>
                   {creation.type === "reel" ? (
-                    renderReelContent(creation.image, true, creation.prompt)
+                    renderReelContent(creation.image, creation.prompt) // Removed extra boolean arg
                   ) : (
                     <ImageWithFallback
                       src={creation.image || "/placeholder.svg"}
@@ -234,7 +201,7 @@ export function CreationDetailModal({
               /* Single Image - Full Width */
               <div className="flex-1 relative bg-muted flex items-center justify-center p-4">
                 {creation.type === "reel" ? (
-                  renderReelContent(creation.image, true, creation.prompt)
+                  renderReelContent(creation.image, creation.prompt) // Removed extra boolean arg
                 ) : (
                   <ImageWithFallback
                     src={creation.image || "/placeholder.svg"}

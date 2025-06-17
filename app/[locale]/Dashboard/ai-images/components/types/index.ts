@@ -1,21 +1,16 @@
+import type { Settings, ReelSettings } from "@/app/page" // Import these types
+
 export type CreativeMode = "image" | "reel" | "history"
 
 export interface HistoryItem {
   id: string
+  productUrl?: string
   type: "image" | "reel"
   prompt: string
   results: string[]
-  settings: any
-  timestamp: Date
+  settings: Settings | ReelSettings // Use specific types
+  createdAt: Date // Use createdAt consistently
   status: "completed" | "failed"
-  metadata?: {
-    model?: string // For images
-    reelModel?: "normal" | "expert" // For reels
-    quality?: string
-    duration?: string // Made optional
-    aspectRatio?: string
-    creativity?: number
-  }
 }
 
 export interface ChatMessage {
@@ -42,8 +37,10 @@ export interface CreationDetail {
     model?: string
     reelModel?: "normal" | "expert"
     aspectRatio?: string
-    creativity?: number
+    creativity?: number | number[]
     quality?: string
+    language?: string
+    outputs?: number
   }
   createdAt?: Date // Added for displaying creation time
 }

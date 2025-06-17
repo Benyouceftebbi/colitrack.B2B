@@ -142,6 +142,15 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
                 )
               : collection(shopRef, "SMS")
 
+          const imageAiQuery =
+              fromTimestamp && toTimestamp
+                ? query(
+                    collection(shopRef, "ImageAi"),
+                    where("createdAt", ">=", fromTimestamp),
+                    where("createdAt", "<=", toTimestamp),
+                  )
+                : collection(shopRef, "ImageAi")
+
           const trackingQuery =
             fromTimestamp && toTimestamp
               ? query(
@@ -164,17 +173,19 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           const smsCampaignQuery = collection(shopRef, "SMScampaign")
 
           // Fetch subcollections in parallel
-          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs] = await Promise.all([
+          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs,imageAiDocs] = await Promise.all([
             getDocs(smsQuery),
             getDocs(trackingQuery),
             getDocs(smsCampaignQuery),
             getDocs(ordersQuery),
+            getDocs(imageAiQuery)
           ])
 
           const trackingMap = {}
           const smsData = []
           const trackingData = []
           const ordersData = []
+          const imageAiData = []
 
           // Process orders data - convert timestamps to dates
           ordersDocs.docs.forEach((orderDoc) => {
@@ -219,6 +230,22 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             trackingData.push(trackingInfo)
           })
 
+
+          imageAiDocs.docs.forEach((imageAiDoc)=> {
+            const imageAiInfo = imageAiDoc.data()
+
+            // Convert timestamp fields
+            if (imageAiInfo.createdAt) {
+              imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
+            }
+
+            imageAiData.push({
+              ...imageAiInfo,
+              id: imageAiDoc.id,
+            })
+          })
+
+          
           // Process SMS data
           smsDocs.docs.forEach((smsDoc) => {
             const smsInfo = smsDoc.data()
@@ -254,6 +281,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           shopData.sms = smsData
           shopData.tracking = trackingData
           shopData.smsCampaign = smsCampaignData
+          shopData.imageai = imageAiData
 
           // Combine both types of orders
           shopData.orders = ordersData
@@ -332,17 +360,28 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
               )
             : collection(shopRef, "OrdersRetrieved")
 
+        const imageAiQuery =
+            fromTimestamp && toTimestamp
+              ? query(
+                  collection(shopRef, "ImageAi"),
+                  where("timestamp", ">=", fromTimestamp),
+                  where("timestamp", "<=", toTimestamp),
+                )
+              : collection(shopRef, "ImageAi")    
+
         // Fetch subcollections in parallel
-        const [smsDocs, trackingDocs, ordersDocs] = await Promise.all([
+        const [smsDocs, trackingDocs, ordersDocs,imageAiDocs] = await Promise.all([
           getDocs(smsQuery),
           getDocs(trackingQuery),
           getDocs(ordersQuery),
+          getDocs(imageAiQuery),
         ])
 
         const trackingMap = {}
         const smsData = []
         const trackingData = []
         const ordersData = []
+        const imageAiData = []
 
         // Process orders data - convert timestamps to dates
         ordersDocs.docs.forEach((orderDoc) => {
@@ -403,7 +442,21 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           })
         })
 
-        setShopData((prev) => ({ ...prev, orders: ordersData, sms: smsData, tracking: trackingData }))
+        imageAiDocs.docs.forEach((imageAi) => {
+          const imageAiInfo = imageAi.data()
+
+          // Convert timestamp fields
+          if (imageAiInfo.createdAt) {
+            imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
+          }
+
+          imageAiData.push({
+            ...imageAiInfo,
+            id: imageAiDocs.id,
+          })
+        })
+
+        setShopData((prev) => ({ ...prev, orders: ordersData, sms: smsData, tracking: trackingData ,imageAi: imageAiData }))
         setLoading(false)
       } catch (err) {
         console.error("Error fetching shop data when chaning time:", err)

@@ -28,13 +28,10 @@ import {
   Clock,
   Search,
   Calendar,
-  Info,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProgressRing } from "@/components/ui/progress-ring"
-import { ImageViewerModal } from "../modals/image-viewer-modal"
-import { ImageEnhancementModal } from "../modals/image-enhancement-modal"
 import type { HistoryItem } from "@/components/types" // Corrected import path
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -46,7 +43,7 @@ interface OutputPanelProps {
   onImageAction: (action: string, imageIndex: number) => void
   onRegenerateVariation: (imageIndex: number) => void
   generationProgress: number
-  mode: "image" | "reel"
+  mode: "image" | "reel" // This prop determines the context (image or reel)
   originalPrompt: string
   userHistory: HistoryItem[]
   onOpenHistoryItem: (item: HistoryItem) => void
@@ -62,7 +59,7 @@ export function OutputPanel({
   onImageAction,
   onRegenerateVariation,
   generationProgress,
-  mode,
+  mode, // Use this 'mode' prop to filter history
   originalPrompt,
   userHistory,
   onOpenHistoryItem,
@@ -78,9 +75,11 @@ export function OutputPanel({
 
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
+  // Removed historyFilterType state
 
   const isReel = mode === "reel"
-  const panelTitle = isReel ? "Reel Creations" : "Image Creations"
+  // The panelTitle will now correctly reflect the current mode for history view
+  const panelTitle = isReel ? "Reel History" : "Image History"
   const generateButtonText = isReel ? "Generate New Reel" : "Generate New Image"
 
   const handleImageClick = useCallback((image: string, index: number) => {
@@ -142,24 +141,31 @@ export function OutputPanel({
   const filteredUserHistory = useMemo(
     () =>
       userHistory
-        .filter((item) => item.prompt.toLowerCase().includes(historySearchQuery.toLowerCase()))
+        .filter((item) => {
+          const matchesSearch = item.prompt.toLowerCase().includes(historySearchQuery.toLowerCase())
+          const matchesType = item.type === mode // Filter by the current mode
+          return matchesSearch && matchesType
+        })
         .sort((a, b) => {
+          const dateA = new Date(a.createdAt)
+          const dateB = new Date(b.createdAt)
           if (historySortBy === "newest") {
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            return dateB.getTime() - dateA.getTime()
           }
-          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          return dateA.getTime() - dateB.getTime()
         }),
-    [userHistory, historySearchQuery, historySortBy],
+    [userHistory, historySearchQuery, historySortBy, mode], // Added mode to dependency array
   )
 
   const currentBatchTimestamp = useMemo(() => {
     if (generatedImages.length > 0 && userHistory.length > 0) {
-      // Assuming userHistory is sorted with the newest item first
-      // and the generation just completed, so the first item is the current batch.
-      return userHistory[0].timestamp
+      const currentBatchHistoryItem = userHistory.find(
+        (item) => item.results.includes(generatedImages[0]) && item.type === mode,
+      )
+      return currentBatchHistoryItem?.createdAt
     }
     return undefined
-  }, [generatedImages, userHistory])
+  }, [generatedImages, userHistory, mode])
 
   if (isGenerating) {
     return (
@@ -214,14 +220,20 @@ export function OutputPanel({
   }
 
   if (generatedImages.length > 0) {
+    // This block is for when new images/reels are generated and displayed
+    const currentOutputTitle = mode === "reel" ? "Generated Reels" : "Generated Creatives"
     return (
       <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
         <div className="h-full flex flex-col">
           <div className="mb-8 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
             <div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
-                {isReel ? <Play className="h-6 w-6 text-blue-500" /> : <Sparkles className="h-6 w-6 text-purple-500" />}
-                {isReel ? "Generated Reels" : "Generated Creatives"}
+                {mode === "reel" ? (
+                  <Play className="h-6 w-6 text-blue-500" />
+                ) : (
+                  <Sparkles className="h-6 w-6 text-purple-500" />
+                )}
+                {currentOutputTitle}
               </h3>
               <p className="text-gray-600 dark:text-slate-400 mt-1">
                 {generatedImages.length} stunning results.
@@ -267,14 +279,14 @@ export function OutputPanel({
                 <div
                   key={index}
                   className={cn(
-                    `group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${isReel ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"} transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`,
+                    `group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${mode === "reel" ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"} transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`,
                     "animate-in fade-in zoom-in-95 ease-out",
                   )}
                   style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
                   onClick={() => handleImageClick(image, index)}
                 >
                   <div className="aspect-video bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
-                    {isReel ? (
+                    {mode === "reel" ? (
                       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
                         <Play className="h-16 w-16 text-blue-500" />
                         <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
@@ -289,9 +301,11 @@ export function OutputPanel({
                       />
                     )}
                     <div className="absolute top-3 right-3">
-                      <Badge className={`${isReel ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm`}>
+                      <Badge
+                        className={`${mode === "reel" ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm`}
+                      >
                         <Star className="h-3 w-3 mr-1" />
-                        {isReel ? "Pro" : "HD"}
+                        {mode === "reel" ? "Pro" : "HD"}
                       </Badge>
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -344,15 +358,15 @@ export function OutputPanel({
                       <div className="flex items-center gap-2">
                         <Badge
                           variant="secondary"
-                          className={`text-xs font-medium ${isReel ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}
+                          className={`text-xs font-medium ${mode === "reel" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}
                         >
-                          {isReel ? `Reel ${index + 1}` : `Creative ${index + 1}`}
+                          {mode === "reel" ? `Reel ${index + 1}` : `Creative ${index + 1}`}
                         </Badge>
                         <Badge
                           variant="outline"
                           className="text-xs border-gray-300 text-gray-600 dark:border-slate-700 dark:text-slate-400"
                         >
-                          {isReel ? "1080×1920" : "1024×576"}
+                          {mode === "reel" ? "1080×1920" : "1024×576"}
                         </Badge>
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-500">
                           <TrendingUp className="h-3 w-3" />
@@ -367,7 +381,7 @@ export function OutputPanel({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${isReel ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50" : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"} transition-all`}
+                        className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${mode === "reel" ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50" : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"} transition-all`}
                         onClick={(e) => {
                           e.stopPropagation()
                           onRegenerateVariation(index)
@@ -393,32 +407,11 @@ export function OutputPanel({
             </div>
           </div>
         </div>
-        {viewerImage && (
-          <ImageViewerModal
-            image={viewerImage.image}
-            imageIndex={viewerImage.index}
-            images={generatedImages}
-            onClose={() => setViewerImage(null)}
-            onNext={handleNextImage}
-            onPrevious={handlePreviousImage}
-            onEnhance={handleEnhanceClick}
-            originalPrompt={originalPrompt}
-            createdAt={currentBatchTimestamp} // Pass batch creation time
-          />
-        )}
-        {enhancementModal && (
-          <ImageEnhancementModal
-            image={enhancementModal.image}
-            originalPrompt={originalPrompt}
-            onClose={() => setEnhancementModal(null)}
-            onEnhance={handleEnhanceImage}
-            isEnhancing={isEnhancing}
-          />
-        )}
       </div>
     )
   }
 
+  // This block is for when no new images are generated, showing history
   return (
     <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
       <div className="h-full flex flex-col">
@@ -434,15 +427,15 @@ export function OutputPanel({
             </Button>
             <div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
-                {isReel ? (
+                {mode === "reel" ? (
                   <Video className="h-6 w-6 text-blue-500" />
                 ) : (
                   <ImageIcon className="h-6 w-6 text-purple-500" />
                 )}
-                {panelTitle}
+                {panelTitle} {/* Uses the mode-dependent panelTitle */}
               </h3>
               <p className="text-sm text-gray-500 dark:text-slate-400">
-                Review your past creations or start a new one.
+                Review your past {mode} creations or start a new one.
               </p>
             </div>
           </div>
@@ -460,12 +453,13 @@ export function OutputPanel({
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder={`Search your ${mode}s...`}
+              placeholder={`Search your ${mode}s...`} // Placeholder text reflects current mode
               value={historySearchQuery}
               onChange={(e) => setHistorySearchQuery(e.target.value)}
               className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50"
             />
           </div>
+          {/* Removed the history type filter Select dropdown */}
           <Select value={historySortBy} onValueChange={(value: any) => setHistorySortBy(value)}>
             <SelectTrigger className="w-48 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50">
               <Calendar className="h-4 w-4 mr-2" />
@@ -536,7 +530,7 @@ export function OutputPanel({
                           </Badge>
                           <span className="text-xs text-gray-500 dark:text-slate-500 flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {formatDate(item.timestamp)}
+                            {formatDate(item.createdAt)}
                           </span>
                         </div>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -578,41 +572,45 @@ export function OutputPanel({
                       </h4>
 
                       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
-                        {item.metadata?.model && item.type === "image" && (
+                        {item.type === "image" && item.settings?.model && (
                           <span className="flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
-                            {item.metadata.model}
+                            {item.settings.model}
                           </span>
                         )}
-                        {item.metadata?.reelModel && item.type === "reel" && (
+                        {item.type === "reel" && item.settings?.model && (
                           <span className="flex items-center gap-1">
                             <Cpu className="h-3 w-3" />
-                            {item.metadata.reelModel.charAt(0).toUpperCase() + item.metadata.reelModel.slice(1)} Model
+                            {String(item.settings.model).charAt(0).toUpperCase() + String(item.settings.model).slice(1)}{" "}
+                            Model
                           </span>
                         )}
-                        {item.metadata?.quality && (
+                        {item.settings?.quality && (
                           <span className="flex items-center gap-1">
                             <Star className="h-3 w-3" />
-                            {item.metadata.quality}
+                            {item.settings.quality}
                           </span>
                         )}
-                        {item.metadata?.duration &&
-                          item.type === "reel" && ( // Only show duration for reels
-                            <span className="flex items-center gap-1">
-                              <Info className="h-3 w-3" /> {/* Changed icon for duration */}
-                              {item.metadata.duration}
-                            </span>
-                          )}
-                        {item.metadata?.aspectRatio && (
+                        {item.settings?.aspectRatio && (
                           <span className="flex items-center gap-1">
                             <Grid3X3 className="h-3 w-3" />
-                            {item.metadata.aspectRatio}
+                            {item.settings.aspectRatio}
                           </span>
                         )}
-                        {item.metadata?.creativity && (
+                        {item.settings?.creativity && (
                           <span className="flex items-center gap-1">
                             <Wand2 className="h-3 w-3" />
-                            Creativity {item.metadata.creativity}/10
+                            Creativity{" "}
+                            {Array.isArray(item.settings.creativity)
+                              ? item.settings.creativity[0]
+                              : item.settings.creativity}
+                            /10
+                          </span>
+                        )}
+                        {item.settings?.outputs && (
+                          <span className="flex items-center gap-1">
+                            <ImageIcon className="h-3 w-3" /> {/* Or appropriate icon */}
+                            {item.settings.outputs} output{Number(item.settings.outputs) > 1 ? "s" : ""}
                           </span>
                         )}
                       </div>
@@ -636,7 +634,7 @@ export function OutputPanel({
             <div className="text-center py-16 animate-in fade-in duration-500 delay-200">
               <History className="h-16 w-16 text-gray-300 dark:text-slate-700 mx-auto mb-4 animate-bounce" />
               <h4 className="text-xl font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                No {mode}s in your history yet.
+                No {mode}s in your history yet. {/* Message reflects current mode */}
               </h4>
               <p className="text-gray-500 dark:text-slate-400">
                 Click the "{generateButtonText}" button above to create your first one!

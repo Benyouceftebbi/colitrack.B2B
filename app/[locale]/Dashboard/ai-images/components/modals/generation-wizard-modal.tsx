@@ -39,6 +39,7 @@ interface ImageSettings {
 
 // Define ReelSettings based on the structure expected within this modal
 interface ReelSettings {
+  aspectRatio: string
   quality: string
   creativity: number[]
   outputs: number
@@ -56,6 +57,7 @@ const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
 }
 
 const DEFAULT_REEL_SETTINGS: ReelSettings = {
+  aspectRatio: "",
   quality: "standard", // Can keep a default or make it mandatory too
   outputs: 0, // 0 signifies not selected
   model: "", // Empty string signifies not selected
@@ -454,7 +456,7 @@ export function GenerationWizardModal({
                       <SelectValue placeholder="Select ratio" />
                     </SelectTrigger>
                     <SelectContent>
-                      {["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5"].map((r) => (
+                      {["1024x1024", "1024x1536", "1536x1024"].map((r) => (
                         <SelectItem key={r} value={r}>
                           {r}
                         </SelectItem>
@@ -490,7 +492,7 @@ export function GenerationWizardModal({
                   Need help with the prompt? Click here!
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="model-wizard-reel">
                     Model Type <span className="text-destructive">*</span>
@@ -507,6 +509,26 @@ export function GenerationWizardModal({
                     <SelectContent>
                       <SelectItem value="normal">Normal Model</SelectItem>
                       <SelectItem value="expert">Expert Model (Higher Quality)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="aspectRatio-wizard">
+                    Aspect Ratio <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={reelSettings.aspectRatio} // Use reelSettings.aspectRatio
+                    onValueChange={(value) => setReelSettings((s) => ({ ...s, aspectRatio: value }))} // Update reelSettings
+                  >
+                    <SelectTrigger id="aspectRatio-wizard" className="mt-1">
+                      <SelectValue placeholder="Select ratio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["16:9", "9:16"].map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -543,7 +565,7 @@ export function GenerationWizardModal({
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="Source Picture (Optional for Reels)"
+              title="Refrence image (Optional for Reels)"
               idPrefix="reel-source"
             />
             <p className="text-sm text-muted-foreground">
@@ -623,6 +645,9 @@ export function GenerationWizardModal({
                   <p>
                     <strong>Number of Reels:</strong> {reelSettings.outputs || "Not Selected"}
                   </p>
+                  <p>
+                    <strong>Aspect Ratio:</strong> {reelSettings.aspectRatio}
+                  </p>
                 </>
               )}
             </div>
@@ -664,6 +689,7 @@ export function GenerationWizardModal({
         stepId === "detailsSettings" &&
         (!prompt.trim() ||
           !reelSettings.model || // Check for empty string
+          !reelSettings.aspectRatio || // Check for aspect ratio
           reelSettings.outputs === 0) // Check for 0
       ) {
         return true
