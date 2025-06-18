@@ -9,6 +9,8 @@ import {
   Play,
   ImageIcon,
   Star,
+  Maximize,
+  Edit3,
   Share2,
   TrendingUp,
   MoreHorizontal,
@@ -26,7 +28,6 @@ import {
   Clock,
   Search,
   Calendar,
-  Eye,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -50,8 +51,6 @@ interface OutputPanelProps {
   onRegenerateFromHistory: (item: HistoryItem) => void
   onInitiateNewGeneration: () => void
   onNavigateBack: () => void
-  onDownloadAll: () => void // New prop for downloading all
-  currentBatchTimestamp?: Date // New prop for timestamp
 }
 
 export function OutputPanel({
@@ -68,14 +67,11 @@ export function OutputPanel({
   onRegenerateFromHistory,
   onInitiateNewGeneration,
   onNavigateBack,
-  onDownloadAll, // Destructure new prop
-  currentBatchTimestamp, // Destructure new prop
 }: OutputPanelProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  // viewerImage and enhancementModal states are removed as ImageViewerModal will be used directly from page.tsx
-  // const [viewerImage, setViewerImage] = useState<{ image: string; index: number } | null>(null);
-  // const [enhancementModal, setEnhancementModal] = useState<{ image: string; index: number } | null>(null);
-  // const [isEnhancing, setIsEnhancing] = useState(false);
+  const [viewerImage, setViewerImage] = useState<{ image: string; index: number } | null>(null)
+  const [enhancementModal, setEnhancementModal] = useState<{ image: string; index: number } | null>(null)
+  const [isEnhancing, setIsEnhancing] = useState(false)
 
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
@@ -86,18 +82,39 @@ export function OutputPanel({
   const panelTitle = isReel ? "Reel History" : "Image History"
   const generateButtonText = isReel ? "Generate New Reel" : "Generate New Image"
 
-  // handleImageClick will now call onImageAction with "view"
-  const handleImageClick = useCallback(
+  const handleImageClick = useCallback((image: string, index: number) => {
+    setViewerImage({ image, index })
+  }, [])
+
+  const handleEnhanceClick = useCallback(
     (imageIndex: number) => {
-      onImageAction("view", imageIndex)
+      setEnhancementModal({ image: generatedImages[imageIndex], index: imageIndex })
+      setViewerImage(null)
     },
-    [onImageAction],
+    [generatedImages],
   )
 
-  // handleEnhanceClick and handleEnhanceImage are removed as enhancement modal is separate
-  // and not directly triggered from this panel's state in the same way.
+  const handleEnhanceImage = useCallback(async (enhancementPrompt: string) => {
+    setIsEnhancing(true)
+    setTimeout(() => {
+      setIsEnhancing(false)
+      setEnhancementModal(null)
+    }, 3000)
+  }, [])
 
-  // handleNextImage and handlePreviousImage are removed as this logic is now in page.tsx for the generatedItemViewerData
+  const handleNextImage = useCallback(() => {
+    if (viewerImage && viewerImage.index < generatedImages.length - 1) {
+      const nextIndex = viewerImage.index + 1
+      setViewerImage({ image: generatedImages[nextIndex], index: nextIndex })
+    }
+  }, [viewerImage, generatedImages])
+
+  const handlePreviousImage = useCallback(() => {
+    if (viewerImage && viewerImage.index > 0) {
+      const prevIndex = viewerImage.index - 1
+      setViewerImage({ image: generatedImages[prevIndex], index: prevIndex })
+    }
+  }, [viewerImage, generatedImages])
 
   const formatDate = useCallback((date: Date | string) => {
     const d = new Date(date)
@@ -140,11 +157,17 @@ export function OutputPanel({
     [userHistory, historySearchQuery, historySortBy, mode], // Added mode to dependency array
   )
 
-  // currentBatchTimestamp is now passed as a prop
-  // const currentBatchTimestamp = useMemo(() => { ... }) // Removed
+  const currentBatchTimestamp = useMemo(() => {
+    if (generatedImages.length > 0 && userHistory.length > 0) {
+      const currentBatchHistoryItem = userHistory.find(
+        (item) => item.results.includes(generatedImages[0]) && item.type === mode,
+      )
+      return currentBatchHistoryItem?.createdAt
+    }
+    return undefined
+  }, [generatedImages, userHistory, mode])
 
   if (isGenerating) {
-    // ... (isGenerating block remains the same)
     return (
       <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
         <div className="h-full flex flex-col">
@@ -165,41 +188,31 @@ export function OutputPanel({
             </div>
           </div>
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Array.from({
-              length:
-                mode === "reel"
-                  ? 1
-                  : userHistory.find((item) => item.prompt === originalPrompt)?.settings?.outputs || 4,
-            }).map(
-              (
-                _,
-                index, // Adjust length based on outputs
-              ) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "aspect-video bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden",
-                    "animate-in fade-in zoom-in-95 duration-500 ease-out",
-                  )}
-                  style={{ animationDelay: `${200 + index * 100}ms`, animationFillMode: "both" }}
-                >
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-white/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 mx-auto">
-                      {isReel ? (
-                        <Play className="h-6 w-6 text-gray-400 dark:text-slate-500" />
-                      ) : (
-                        <ImageIcon className="h-6 w-6 text-gray-400 dark:text-slate-500" />
-                      )}
-                    </div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
-                      {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "aspect-video bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden",
+                  "animate-in fade-in zoom-in-95 duration-500 ease-out",
+                )}
+                style={{ animationDelay: `${200 + index * 100}ms`, animationFillMode: "both" }}
+              >
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    {isReel ? (
+                      <Play className="h-6 w-6 text-gray-400 dark:text-slate-500" />
+                    ) : (
+                      <ImageIcon className="h-6 w-6 text-gray-400 dark:text-slate-500" />
+                    )}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-slate-700/10 to-transparent shimmer-animation" />
+                  <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+                    {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
                 </div>
-              ),
-            )}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-slate-700/10 to-transparent shimmer-animation" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -253,7 +266,6 @@ export function OutputPanel({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onDownloadAll} // Use the new prop
                 className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -267,23 +279,18 @@ export function OutputPanel({
                 <div
                   key={index}
                   className={cn(
-                    `group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${
-                      mode === "reel" ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"
-                    } transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`,
+                    `group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${mode === "reel" ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"} transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`,
                     "animate-in fade-in zoom-in-95 ease-out",
                   )}
                   style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
-                  onClick={() => handleImageClick(index)} // Pass index to new handler
+                  onClick={() => handleImageClick(image, index)}
                 >
                   <div className="aspect-video bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                     {mode === "reel" ? (
                       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
-                        <video key={image} className="w-full h-full object-cover" autoPlay loop muted playsInline>
-                          <source src={image} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Play className="h-16 w-16 text-white/80 drop-shadow-lg" />
+                        <Play className="h-16 w-16 text-blue-500" />
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                          5s
                         </div>
                       </div>
                     ) : (
@@ -303,27 +310,26 @@ export function OutputPanel({
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                       <div className="flex gap-3">
-                        <Button // This button now triggers the viewer
+                        <Button
                           size="sm"
                           className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleImageClick(index) // Open viewer
+                            handleImageClick(image, index)
                           }}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Maximize className="h-4 w-4" />
                         </Button>
-                        {/* Enhancement button removed as per previous logic, can be re-added if needed */}
-                        {/* <Button
-                            size="sm"
-                            className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // handleEnhanceClick(index); // This would need re-evaluation
-                            }}
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </Button> */}
+                        <Button
+                          size="sm"
+                          className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleEnhanceClick(index)
+                          }}
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="sm"
                           className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
@@ -339,7 +345,7 @@ export function OutputPanel({
                           className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            onImageAction("favorite", index) // Assuming 'favorite' is a valid action
+                            onImageAction("favorite", index)
                           }}
                         >
                           <Heart className="h-4 w-4" />
@@ -352,9 +358,7 @@ export function OutputPanel({
                       <div className="flex items-center gap-2">
                         <Badge
                           variant="secondary"
-                          className={`text-xs font-medium ${
-                            mode === "reel" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
-                          }`}
+                          className={`text-xs font-medium ${mode === "reel" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}
                         >
                           {mode === "reel" ? `Reel ${index + 1}` : `Creative ${index + 1}`}
                         </Badge>
@@ -377,11 +381,7 @@ export function OutputPanel({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${
-                          mode === "reel"
-                            ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50"
-                            : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"
-                        } transition-all`}
+                        className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${mode === "reel" ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50" : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"} transition-all`}
                         onClick={(e) => {
                           e.stopPropagation()
                           onRegenerateVariation(index)
@@ -395,7 +395,7 @@ export function OutputPanel({
                         className="flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-all"
                         onClick={(e) => {
                           e.stopPropagation()
-                          onImageAction("share", index) // Assuming 'share' is a valid action
+                          onImageAction("share", index)
                         }}
                       >
                         <Share2 className="h-3 w-3 mr-1" /> Share
@@ -513,11 +513,7 @@ export function OutputPanel({
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge
                             variant="secondary"
-                            className={`text-xs font-medium ${
-                              item.type === "reel"
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
-                                : "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
-                            }`}
+                            className={`text-xs font-medium ${item.type === "reel" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}
                           >
                             {item.type === "reel" ? (
                               <Video className="h-3 w-3 mr-1" />
@@ -613,7 +609,7 @@ export function OutputPanel({
                         )}
                         {item.settings?.outputs && (
                           <span className="flex items-center gap-1">
-                            <ImageIcon className="h-3 w-3" />
+                            <ImageIcon className="h-3 w-3" /> {/* Or appropriate icon */}
                             {item.settings.outputs} output{Number(item.settings.outputs) > 1 ? "s" : ""}
                           </span>
                         )}

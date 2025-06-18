@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
-import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info, Download } from "lucide-react"
+import { useEffect, useState } from "react"
+import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils" // Ensure cn is imported
+import { cn } from "@/lib/utils"
 
 interface ImageViewerModalProps {
   image: string
@@ -12,11 +12,11 @@ interface ImageViewerModalProps {
   onClose: () => void
   onNext?: () => void
   onPrevious?: () => void
+  onEnhance: (imageIndex: number) => void // Kept for prop consistency, but UI removed
   originalPrompt: string
   createdAt?: Date
   isReel?: boolean
-  productUrl?: string
-  onDownloadFile: (url: string, filename: string) => void
+  productUrl?: string // New prop for the original product image
 }
 
 export function ImageViewerModal({
@@ -26,16 +26,16 @@ export function ImageViewerModal({
   onClose,
   onNext,
   onPrevious,
+  // onEnhance, // Not used in UI anymore
   originalPrompt,
   createdAt,
   isReel,
   productUrl,
-  onDownloadFile,
 }: ImageViewerModalProps) {
-  const hasNext = onNext ? imageIndex < images.length - 1 : false
-  const hasPrevious = onPrevious ? imageIndex > 0 : false
-  const [isPromptTooltipVisible, setIsPromptTooltipVisible] = useState(false)
-  const [isProductImageTooltipVisible, setIsProductImageTooltipVisible] = useState(false)
+  const hasNext = imageIndex < images.length - 1
+  const hasPrevious = imageIndex > 0
+  const [showFullPrompt, setShowFullPrompt] = useState(false)
+  const [showFullProductImage, setShowFullProductImage] = useState(false)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -72,17 +72,8 @@ export function ImageViewerModal({
 
   const currentIsVideo = isReel || isVideoUrl(image)
 
-  const handleDownloadClick = useCallback(() => {
-    let extension = currentIsVideo ? ".mp4" : ".png"
-    if (image.includes(".svg")) extension = ".svg"
-    else if (image.includes(".jpg") || image.includes(".jpeg")) extension = ".jpg"
-
-    const filename = `${currentIsVideo ? "reel" : "image"}_view_${Date.now()}${extension}`
-    onDownloadFile(image, filename)
-  }, [image, currentIsVideo, onDownloadFile])
-
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="relative max-w-7xl w-full h-full flex flex-col items-center justify-center">
         {/* Close Button */}
         <Button
@@ -95,7 +86,7 @@ export function ImageViewerModal({
         </Button>
 
         {/* Navigation Buttons */}
-        {hasPrevious && onPrevious && (
+        {hasPrevious && (
           <Button
             variant="ghost"
             size="sm"
@@ -105,7 +96,7 @@ export function ImageViewerModal({
             <ArrowLeft className="h-6 w-6" />
           </Button>
         )}
-        {hasNext && onNext && (
+        {hasNext && (
           <Button
             variant="ghost"
             size="sm"
@@ -116,8 +107,8 @@ export function ImageViewerModal({
           </Button>
         )}
 
-        {/* Top Info: Counter, Date, Download */}
-        <div className="absolute top-4 left-4 flex flex-col items-start gap-2 z-[60]">
+        {/* Image Counter and Creation Date */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-[60]">
           <div className="bg-black/70 text-white px-3 py-1 rounded-lg text-sm">
             {imageIndex + 1} of {images.length}
           </div>
@@ -127,24 +118,15 @@ export function ImageViewerModal({
               {formattedCreationDate}
             </div>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadClick}
-            className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
         </div>
 
         {/* Main Image/Video */}
-        <div className="relative max-w-full max-h-[calc(100%-120px)]">
+        <div className="relative max-w-full max-h-[calc(100%-80px)]">
+          {" "}
+          {/* Adjusted max height for bottom bar */}
           {currentIsVideo ? (
             <video
-              key={image}
               controls
-              autoPlay
               playsInline
               preload="metadata"
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
@@ -161,21 +143,21 @@ export function ImageViewerModal({
           )}
         </div>
 
-        {/* Bottom Info Bar: Product Image (if any) & Prompt */}
+        {/* New Bottom Info Bar */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-auto max-w-[calc(100%-80px)] z-50">
           <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 shadow-xl">
             {productUrl && (
               <div
-                className="relative group"
-                onMouseEnter={() => setIsProductImageTooltipVisible(true)}
-                onMouseLeave={() => setIsProductImageTooltipVisible(false)}
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setShowFullProductImage(true)}
+                onMouseLeave={() => setShowFullProductImage(false)}
               >
                 <img
                   src={productUrl || "/placeholder.svg?height=40&width=40&text=Original"}
                   alt="Original product"
                   className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-md border-2 border-white/30 transition-transform group-hover:scale-110"
                 />
-                {isProductImageTooltipVisible && (
+                {showFullProductImage && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-1 bg-black/80 rounded-lg shadow-2xl w-48 h-48 sm:w-64 sm:h-64 z-[70]">
                     <img
                       src={productUrl || "/placeholder.svg"}
@@ -190,23 +172,24 @@ export function ImageViewerModal({
               </div>
             )}
             <div
-              className="relative group flex-1 min-w-0" // This is the trigger area
-              onMouseEnter={() => setIsPromptTooltipVisible(true)}
-              onMouseLeave={() => setIsPromptTooltipVisible(false)}
+              className="relative group flex-1 min-w-0 cursor-pointer"
+              onMouseEnter={() => setShowFullPrompt(true)}
+              onMouseLeave={() => setShowFullPrompt(false)}
             >
-              <p className="text-xs sm:text-sm text-slate-200 truncate cursor-default">{originalPrompt}</p>
-              {isPromptTooltipVisible && (
-                <div
-                  className={cn(
-                    "absolute bottom-full left-0 mb-2 p-3 bg-black/80 text-slate-100 rounded-lg shadow-2xl",
-                    "max-w-md w-max text-xs sm:text-sm z-[70]",
-                    "max-h-48 overflow-y-auto", // Added for scrolling
-                  )}
-                >
+              <p
+                className={cn(
+                  "text-xs sm:text-sm text-slate-200 transition-all duration-200",
+                  !showFullPrompt && "truncate",
+                )}
+              >
+                {originalPrompt}
+              </p>
+              {showFullPrompt && (
+                <div className="absolute bottom-full left-0 mb-2 p-3 bg-black/80 text-slate-100 rounded-lg shadow-2xl max-w-md w-max text-xs sm:text-sm z-[70] max-h-64 overflow-y-auto">
                   <p className="whitespace-pre-wrap">{originalPrompt}</p>
                 </div>
               )}
-              {!productUrl && (
+              {!productUrl && ( // Show info icon only if no product image
                 <div className="absolute -top-0.5 -left-0.5 bg-primary text-primary-foreground rounded-full p-0.5 w-4 h-4 flex items-center justify-center">
                   <Info className="h-2.5 w-2.5" />
                 </div>
