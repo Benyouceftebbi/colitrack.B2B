@@ -202,6 +202,7 @@ export function GenerationWizardModal({
           userPrompt: prompt,
           productImageBase64, // Can be null for reels
           adStyleImageBase64,
+          type: generationType=== "image" ? "image" : "video",
         })
 
         if (result.data.success) {

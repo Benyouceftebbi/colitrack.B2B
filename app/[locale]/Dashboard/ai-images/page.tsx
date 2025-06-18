@@ -254,7 +254,8 @@ export default function AICreativePage() {
           shopId: shopData.id,
           n: settingsForGeneration.outputs || 1,
           size: settingsForGeneration.aspectRatio || (typeToUse === "image" ? "1024x1024" : "1024x576"), // Default size if not in settings
-          language: settingsForGeneration.language || "en", // Default language
+          type:typeToUse === "image" ? "image" : "video",
+          language: settingsForGeneration.language || "en", // Default language,
           // Pass other settings if your function expects them
           // e.g. model: settingsForGeneration.model
         })
