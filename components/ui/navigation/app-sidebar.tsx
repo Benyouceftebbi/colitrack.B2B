@@ -42,10 +42,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         url: "/dashboard/ai-creative",
         icon: IceCreamCone,
-        isActive: pathname[1] === "Ai Creative",
+        isActive: pathname[1] === "Creative Ai ",
         title: (
           <div className="flex items-center gap-2">
-            Ai Creative
+            Creative Ai 
             <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm ring-1 ring-inset ring-primary/20 animate-pulse">
               NEW
             </span>
