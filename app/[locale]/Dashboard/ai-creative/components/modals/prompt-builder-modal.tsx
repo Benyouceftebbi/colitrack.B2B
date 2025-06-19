@@ -26,7 +26,7 @@ export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGen
   const [generatedPrompt, setGeneratedPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
-const { shopData } = useShop()
+const { shopData,setShopData } = useShop()
   useEffect(() => {
     if (isOpen) {
       setDescription(currentPrompt) // Pre-fill with current prompt if any
@@ -48,6 +48,10 @@ const { shopData } = useShop()
         if (result.data.success) {
       setGeneratedPrompt(result.data.prompt)
       //set tokens {result.data.tokens}
+      setShopData((prev: any) => ({
+        ...prev,
+        tokens: result.data.tokens, // assumes `tokens` is returned in response
+      }))
       setIsLoading(false)
         } else {
                setIsLoading(false)

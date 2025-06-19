@@ -91,13 +91,17 @@ const getDefaultImageSettings = (): any => {
   ]
   
   export default function AICreativePage() {
-    const { creativeAiItems, creativeAiLoading } = useShop()
+
+    const { creativeAiItems, creativeAiLoading,setShopData } = useShop()
     const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
     const [activeMode, setActiveMode] = useState<CreativeMode>("image")
     const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
     const [pendingImageId, setPendingImageId] = useState<string | null>(null)
     const { shopData } = useShop()
-  
+   
+    // Simulate API call to refresh tokens
+   
+   
     const [isGenerating, setIsGenerating] = useState(false)
     const [generationProgress, setGenerationProgress] = useState(0)
     const [generatedOutputs, setGeneratedOutputs] = useState<string[]>([])
@@ -260,7 +264,18 @@ const getDefaultImageSettings = (): any => {
             language: settingsForGeneration.language || "en",
           })
   
-          if (result.data && result.data.imageId) setPendingImageId(result.data.imageId)
+          if (result.data && result.data.imageId) {
+            setPendingImageId(result.data.imageId)
+
+            // ✅ Update the shop token count here
+            if (result.data.tokens !== undefined) {
+                setShopData((prev) => ({
+                ...prev,
+                tokens: result.data.tokens,
+                }))
+            }
+            } 
+
           else throw new Error("Image ID not returned from function")
         } catch (error) {
           console.error("Error during generation submission:", error)
@@ -274,6 +289,7 @@ const getDefaultImageSettings = (): any => {
           clearInterval(progressInterval)
         }
         setTimeout(() => clearInterval(progressInterval), TARGET_DURATION + 10000)
+       
       },
       [currentGenerationType, activeMode, toast, shopData.id, pendingImageId],
     )

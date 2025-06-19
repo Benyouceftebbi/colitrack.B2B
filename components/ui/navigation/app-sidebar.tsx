@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel } from "lucide-react"
+import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone  } from "lucide-react"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
 import { NavUser } from "@/components/ui/navigation/nav-user"
@@ -40,17 +40,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         isActive: pathname[0] === "dashboard" && !pathname[1],
       },
       {
-        url: "/dashboard/messages",
-        icon: MessageSquare,
-        title: t("nav.messages"),
-        isActive: pathname[1] === "messages",
+        url: "/dashboard/ai-creative",
+        icon: IceCreamCone,
+        isActive: pathname[1] === "Ai Creative",
+        title: (
+          <div className="flex items-center gap-2">
+            Ai Creative
+            <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm ring-1 ring-inset ring-primary/20 animate-pulse">
+              NEW
+            </span>
+          </div>
+        ),
+        
       },
-      {
-        url: "/dashboard/retargeting",
-        icon: Target,
-        title: t("nav.retargeting"),
-        isActive: pathname[1] === "retargeting",
-      },
+
       {
         url: "/dashboard/ai-order-retriver",
         icon: Squirrel,
@@ -65,6 +68,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ),
         
       },
+      {
+        url: "/dashboard/messages",
+        icon: MessageSquare,
+        title: t("nav.messages"),
+        isActive: pathname[1] === "messages",
+      },
+      {
+        url: "/dashboard/retargeting",
+        icon: Target,
+        title: t("nav.retargeting"),
+        isActive: pathname[1] === "retargeting",
+      },
+     
       { url: "/dashboard/orders", icon: Brain, title: t("nav.ai-orders"), isActive: pathname[1] === "orders" },
       //  { url: "/dashboard/billing", icon: CreditCard, title: t("nav.billing"), isActive: pathname[1] === "billing" },
       { url: "/dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
