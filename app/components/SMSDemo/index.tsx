@@ -35,21 +35,7 @@ export default function SMSDemo() {
   const [isMessageSent, setIsMessageSent] = useState(false);
   const [currentSenderId, setCurrentSenderId] = useState('Colitrack');
   const t=useTranslations('smsDemo')
-  const handleSendSms = async (sms,phoneNumber,senderId,smsToken) => {
-    try {
-      const res = await axios.get("/api/send-sms", {
-        params: {
-          sms,
-          phoneNumber,
-          senderId,
-          smsToken,
-        },
-      });
-return true
-    } catch (err) {
 
-    }
-  };
   const handlePrevious = () => {
     setActiveService((prev) => (prev - 1 + services.length) % services.length);
     setIsMessageSent(false);
@@ -71,7 +57,6 @@ return true
       newSms = "Bonjour, Profitez de -10% sur votre prochaine commande avec le code RETOUR10. Dépêchez-vous, l’offre expire bientôt ! 🌟 https://sabyange.com";
     }
 
-  await handleSendSms(newSms,phoneNumber,"SabyAnge","0379004fa017baa6016e3f62f388b832")
     setIsMessageSent(true);
     setCurrentSenderId(senderId);
   };

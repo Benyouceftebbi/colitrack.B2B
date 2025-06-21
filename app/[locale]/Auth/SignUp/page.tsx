@@ -370,16 +370,9 @@ export default function SignUp() {
         title: "Account Created Successfully!",
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
-      setIsModalOpen(true)
-      //  router.push("/dashboard/settings")
-      if (typeof window !== "undefined" && window.fbq) {
-        window.fbq("track", "CompleteRegistration", {
-          value: 0,
-          currency: "USD",
-          content_name: "User Signup",
-          email: user.email,
-        })
-      }
+      //setIsModalOpen(true)
+    router.push("/dashboard/settings")
+
       return
     } else {
       console.error("Sign up error:")
@@ -405,8 +398,8 @@ export default function SignUp() {
   const handleApplyPromoCode = () => {
     const promoCode = form.getValues("promoCode")
 
-    if (promoCode === "NEW10X") {
-      setTokenAmount(500)
+    if (promoCode === "STORK") {
+      setTokenAmount(1000)
       setValidatedPromoCode(promoCode)
       form.setValue("tokens", 500)
       setPromoApplied(true)
@@ -537,10 +530,10 @@ export default function SignUp() {
                   {/* Daily Order Volume Field */}
                   <FormField
                     control={form.control}
-                    name={t("daily-order-volume")}
+                    name="dailyOrderVolume"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("daily-order-volume")}</FormLabel>
+                        <FormLabel>Daily Order Volume</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
@@ -635,13 +628,13 @@ export default function SignUp() {
                   />
                 </div>
 
-                {/* Promo Code Section 
+            
                 <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">
                     {t("promoCodeSectionTitle")}
                   </h3>
                   <p className="text-xs text-indigo-600 dark:text-indigo-300 mb-2">
-                    {t("promoCodeSectionDescription")}
+                   
                   </p>
                   <FormField
                     control={form.control}
@@ -672,7 +665,7 @@ export default function SignUp() {
                             <p className="text-sm text-green-600 dark:text-green-400">
                               {validatedPromoCode
                                 ? `${t("promoCodeApplied", { promoCode: validatedPromoCode, tokenAmount: tokenAmount })}`
-                                : `${t("defaultBonusApplied", { tokenAmount: tokenAmount })}`}
+                                : ``}
                             </p>
                             <Button
                               type="button"
@@ -691,7 +684,7 @@ export default function SignUp() {
                       </FormItem>
                     )}
                   />
-                </div>*/}
+                </div>
 
                 <FormField
                   control={form.control}
