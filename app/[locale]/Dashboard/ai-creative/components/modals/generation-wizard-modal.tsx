@@ -721,7 +721,7 @@ export function GenerationWizardModal({
                   )}
                 />
               )}
-              Create New {generationType === "image" ? "Image" : "Reel"}
+              Create New {generationType === "image" ? "Image - 100 TKN" : "Reel - 500 TKN"}
             </DialogTitle>
             <div className="flex items-center justify-center space-x-1 sm:space-x-2 pt-4">
               {steps.map((step, index) => (

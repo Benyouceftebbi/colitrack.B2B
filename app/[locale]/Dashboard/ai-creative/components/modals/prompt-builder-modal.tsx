@@ -81,7 +81,7 @@ const { shopData,setShopData } = useShop()
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-primary" />
-            Prompt Assistant
+            Prompt Assistant - 50 TKN
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto pr-2 space-y-6 py-4">

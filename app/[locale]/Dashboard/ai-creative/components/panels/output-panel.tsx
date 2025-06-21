@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
+import { PricingModal } from "@/components/ui/pricingModal"
 import {
   Sparkles,
   Download,

@@ -12,6 +12,7 @@ import { useShop } from "@/app/context/ShopContext"
 import { doc, onSnapshot } from "firebase/firestore"
 import { db, functions } from "@/firebase/firebase"
 import { httpsCallable } from "firebase/functions"
+import { PricingModal } from "@/components/ui/pricingModal"
 // Add this import at the top of the file if it's missing
 import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
@@ -98,6 +99,7 @@ const getDefaultImageSettings = (): any => {
     const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
     const [pendingImageId, setPendingImageId] = useState<string | null>(null)
     const { shopData } = useShop()
+    const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
    
     // Simulate API call to refresh tokens
    
@@ -263,7 +265,15 @@ const getDefaultImageSettings = (): any => {
             type: typeToUse === "image" ? "image" : "video",
             language: settingsForGeneration.language || "en",
           })
+          console.log('rrr',result.data);
+          
   
+          if (result.data?.reason === "tokens") {
+            setIsGenerating(false)
+            setGenerationProgress(0)
+            setIsPricingModalOpen(true) // ✅ Open pricing modal
+            return // 🛑 Stop here to prevent further processing
+          }
           if (result.data && result.data.imageId) {
             setPendingImageId(result.data.imageId)
 
@@ -274,6 +284,9 @@ const getDefaultImageSettings = (): any => {
                 tokens: result.data.tokens,
                 }))
             }
+
+           
+           
             } 
 
           else throw new Error("Image ID not returned from function")
@@ -575,6 +588,9 @@ const getDefaultImageSettings = (): any => {
             onDownloadFile={downloadFile}
           />
         )}
+        {isPricingModalOpen && (
+  <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />
+)}
         <Toaster />
       </div>
     )

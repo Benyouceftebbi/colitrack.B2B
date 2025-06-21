@@ -13,11 +13,14 @@ import {
 import { PricingPlans } from "./pricingPlans"
 import { Crown, X } from "lucide-react"
 
-export function PricingModal() {
-  const [isOpen, setIsOpen] = useState(false)
+interface PricingModalProps {
+  isOpen: boolean
+  onClose: () => void
+}
+export function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTrigger asChild>
       <Button 
         className="bg-primary hover:bg-primary/90 text-primary-foreground"

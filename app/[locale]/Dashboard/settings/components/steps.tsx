@@ -221,7 +221,7 @@ export function Steps({
 
   const name = "ColiTrack"
   const webhookEmail = "colitrackdz@gmail.com"
-  const webhookLink = `https://statusupdate-owkdnzrr3a-uc.a.run.app/${shopData.id}`
+  const webhookLink = `https://statusupdatev2-owkdnzrr3a-uc.a.run.app/${shopData.id}`
 
   const email = `Subject: Request for API ID and Store ID
 
