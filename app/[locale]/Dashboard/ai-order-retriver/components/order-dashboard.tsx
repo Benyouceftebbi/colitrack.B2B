@@ -95,7 +95,7 @@ export function OrderDashboard() {
   const [isViewingFromHistory, setIsViewingFromHistory] = useState(false)
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [isRetrieving, setIsRetrieving] = useState(false)
-  const [isFacebookConnected, setIsFacebookConnected] = useState(false)
+  const [isFacebookConnected, setIsFacebookConnected] = useState(shopData.isFacebookConnected)
   const [isFacebookAuthOpen, setIsFacebookAuthOpen] = useState(false)
   const [hasRequestedBeta, setHasRequestedBeta] = useState(shopData.hasRequestedBeta ? true : false)
   const [isExporting, setIsExporting] = useState(false)

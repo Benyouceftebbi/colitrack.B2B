@@ -361,13 +361,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             : collection(shopRef, "OrdersRetrieved")
 
         const imageAiQuery =
-            fromTimestamp && toTimestamp
-              ? query(
-                  collection(shopRef, "ImageAi"),
-                  where("timestamp", ">=", fromTimestamp),
-                  where("timestamp", "<=", toTimestamp),
-                )
-              : collection(shopRef, "ImageAi")    
+            collection(shopRef, "ImageAi")    
 
         // Fetch subcollections in parallel
         const [smsDocs, trackingDocs, ordersDocs,imageAiDocs] = await Promise.all([

@@ -2,6 +2,7 @@
 
 import { CalendarIcon, LogOut, Squirrel, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
@@ -128,10 +129,10 @@ export function DashboardHeader({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full md:w-[200px] justify-start text-left font-normal border-indigo-200 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700"
+                className="w-full md:w-[140px] justify-start text-left font-normal border-indigo-200 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700"
               >
                 <CalendarIcon className="mr-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {format(dateRange.from, "MM/dd/yyyy")} - {format(dateRange.to, "MM/dd/yyyy")}
+                {format(dateRange.from, "dd/MM")} - {format(dateRange.to, "dd/MM")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -156,33 +157,47 @@ export function DashboardHeader({
             {shopData.deliveryCompany}
           </Button>
 
-          {isFacebookConnected ? (
-            <div className="flex items-center gap-3 ml-auto md:ml-0 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-md border border-gray-100 dark:border-gray-700 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                  SA
-                </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">SabyAnge Fashion</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogoutClick}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 flex items-center gap-1.5 px-2 h-8"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="text-xs font-medium">{t("disconnect")}</span>
-              </Button>
-            </div>
+          {shopData.isFacebookConnected ? (
+           <Tooltip>
+           <TooltipTrigger asChild>
+             <Button
+              onClick={handleLogoutClick}
+               variant="outline"
+               className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 w-full sm:w-auto ml-auto md:ml-0"
+             >
+               <LogOut className="mr-2 h-5 w-5" />
+               Disconnect Facebook
+             </Button>
+           </TooltipTrigger>
+           <TooltipContent>
+             This will disable Facebook-related features.
+           </TooltipContent>
+         </Tooltip>
           ) : (
-            <Button
-              onClick={showFacebookAuth}
-              variant="outline"
-              className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 w-full sm:w-auto ml-auto md:ml-0"
-            >
-              <MetaLogo className="mr-2 h-4 w-4" />
-              {t("connectMeta")}
-            </Button>
+            <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                href="https://your-facebook-connect-url.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto ml-auto md:ml-0"
+              >
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 w-full sm:w-auto"
+                >
+                  <span className="flex items-center">
+                    <MetaLogo className="mr-2 h-5 w-5" />
+                    {t("connectMeta")}
+                  </span>
+                </Button>
+              </a>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm text-sm">
+              Connect your Facebook Page to automatically retrieve and process customer orders from Messenger conversations using AI.
+            </TooltipContent>
+          </Tooltip>
           )}
         </div>
       </div>

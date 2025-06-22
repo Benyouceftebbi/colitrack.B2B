@@ -1,3 +1,4 @@
+/*
 "use client"
 
 import {
@@ -187,6 +188,7 @@ await sendRequest({shopId:shopId})
 
 
 
+*/
 
 
 
@@ -205,7 +207,6 @@ await sendRequest({shopId:shopId})
 
 
 
-/*
 "use client"
 
 import {
@@ -230,7 +231,7 @@ export function FacebookAuthDialog({ isOpen, onClose, onAuthenticate }: Facebook
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center">Connect to Meta</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-center">Continue with Facebook</DialogTitle>
           <DialogDescription className="text-center">
             Connect your Meta account to enable automatic order retrieval
           </DialogDescription>
@@ -261,7 +262,7 @@ export function FacebookAuthDialog({ isOpen, onClose, onAuthenticate }: Facebook
             onClick={onAuthenticate}
           >
             <MetaLogo className="h-4 w-4" />
-            Connect with Meta
+            Continue with Facebook
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -269,4 +270,3 @@ export function FacebookAuthDialog({ isOpen, onClose, onAuthenticate }: Facebook
   )
 }
 
-*/

@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-
+import { useShop } from "@/app/context/ShopContext"
 import type React from "react"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -27,6 +27,7 @@ import { PromptBuilderModal } from "./prompt-builder-modal"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useToast } from "@/hooks/use-toast"
+import { PricingModal } from "@/components/ui/pricingModal"
 
 // Define ImageSettings based on the structure expected within this modal
 interface ImageSettings {
@@ -112,13 +113,15 @@ export function GenerationWizardModal({
   const [prompt, setPrompt] = useState(initialPrompt)
   const [adConcept, setAdConcept] = useState("")
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
+
 
   const [productImageFile, setProductImageFile] = useState<File | null>(null)
   const [inspirationImageFile, setInspirationImageFile] = useState<File | null>(null)
 
   const [imageSettings, setImageSettings] = useState<ImageSettings>(DEFAULT_IMAGE_SETTINGS)
   const [reelSettings, setReelSettings] = useState<ReelSettings>(DEFAULT_REEL_SETTINGS)
-
+  const { shopData } = useShop()
   const [isDragActiveProduct, setIsDragActiveProduct] = useState(false)
   const [isDragActiveInspiration, setIsDragActiveInspiration] = useState(false)
   const productFileInputRef = useRef<HTMLInputElement>(null)
@@ -203,8 +206,22 @@ export function GenerationWizardModal({
           productImageBase64, // Can be null for reels
           adStyleImageBase64,
           type: generationType=== "image" ? "image" : "video",
+          shopId:shopData.id
         })
+console.log('zakamo',result.data?.reason);
 
+        if (result.data?.reason === "tokens") {
+          setIsGeneratingBrief(false) // ✅ stop loading
+          setIsPricingModalOpen(true) // ✅ Open pricing modal
+        
+          toast({
+            title: "Not Enough Tokens",
+            description: "Your token quota has been reached. Please upgrade your plan to continue.",
+            variant: "destructive",
+          })
+        
+          return // 🛑 Stop further processing
+        }
         if (result.data.success) {
           setAdConcept(result.data.brief)
           toast({
@@ -220,6 +237,7 @@ export function GenerationWizardModal({
             variant: "destructive",
           })
         }
+
       } catch (error) {
         console.error("Error calling Firebase function:", error)
         toast({
@@ -437,7 +455,7 @@ export function GenerationWizardModal({
                       <SelectValue placeholder="Select count" />
                     </SelectTrigger>
                     <SelectContent>
-                      {[1, 2, 3, 4, 6, 8].map((n) => (
+                      {[1, 2, 3, 4].map((n) => (
                         <SelectItem key={n} value={String(n)}>
                           {n} Picture{n > 1 ? "s" : ""}
                         </SelectItem>
@@ -721,7 +739,7 @@ export function GenerationWizardModal({
                   )}
                 />
               )}
-              Create New {generationType === "image" ? "Image - 100 TKN" : "Reel - 500 TKN"}
+              Create New {generationType === "image" ? "Image - 100 TKN" : "Reel - 1000 TKN"}
             </DialogTitle>
             <div className="flex items-center justify-center space-x-1 sm:space-x-2 pt-4">
               {steps.map((step, index) => (
@@ -791,6 +809,9 @@ export function GenerationWizardModal({
           setIsPromptBuilderModalOpen(false)
         }}
       />
+        {isPricingModalOpen && (
+  <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />
+)}
     </>
   )
 }

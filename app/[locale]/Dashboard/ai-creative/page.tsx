@@ -20,11 +20,11 @@ import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
 const getDefaultImageSettings = (): any => {
-    return { model: "DreamShaper XL", aspectRatio: "3:4", creativity: 8, quality: "Ultra", language: "en", outputs: 1 }
+    return { model: "DreamShaper XL", aspectRatio: "1024x1024", creativity: 8, quality: "Ultra", language: "en", outputs: 1 }
   }
   
   const getDefaultReelSettings = (): any => {
-    return { reelModel: "expert", quality: "Pro", creativity: 9, outputs: 1, model: "expert" }
+    return { reelModel: "expert", quality: "Pro", creativity: 9, outputs: 1, model: "expert",aspectRatio:"9:16" }
   }
   
   export interface Settings {
@@ -115,8 +115,8 @@ const getDefaultImageSettings = (): any => {
     const [userHistory, setUserHistory] = useState<HistoryItem[]>([])
   
     useEffect(() => {
-      if (shopData.imageai) {
-        const transformedHistory = shopData.imageai.map((item: any) => ({
+      if (shopData.imageAi) {
+        const transformedHistory = shopData.imageAi.map((item: any) => ({
           id: item.id || String(Date.now() + Math.random()),
           type: item.type || "image",
           prompt: item.prompt || "",
@@ -128,7 +128,7 @@ const getDefaultImageSettings = (): any => {
         }))
         setUserHistory(transformedHistory as HistoryItem[])
       }
-    }, [shopData.imageai])
+    }, [shopData.imageAi])
   
     const [isWizardOpen, setIsWizardOpen] = useState(false)
     const [wizardInitialPrompt, setWizardInitialPrompt] = useState("")
@@ -272,8 +272,14 @@ const getDefaultImageSettings = (): any => {
             setIsGenerating(false)
             setGenerationProgress(0)
             setIsPricingModalOpen(true) // ✅ Open pricing modal
+            toast({
+              title: "Generation Failed",
+              description: "Not enough tokens. Please upgrade your plan to continue.",
+              variant: "destructive",
+            })  
             return // 🛑 Stop here to prevent further processing
-          }
+              
+                }
           if (result.data && result.data.imageId) {
             setPendingImageId(result.data.imageId)
 
