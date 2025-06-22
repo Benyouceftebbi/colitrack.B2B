@@ -21,6 +21,7 @@ import { MetaLogo } from "./meta-logo"
 import { useToast } from "@/hooks/use-toast"
 import { useShop } from "@/app/context/ShopContext"
 import { useTranslations } from "next-intl"
+import FacebookConnect from "./FcebookConnect"
 
 interface DashboardHeaderProps {
   dateRange: {
@@ -36,8 +37,6 @@ interface DashboardHeaderProps {
 export function DashboardHeader({
   dateRange,
   onDateRangeChange,
-  isFacebookConnected,
-  showFacebookAuth,
   onDisconnect,
 }: DashboardHeaderProps) {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
@@ -47,7 +46,7 @@ export function DashboardHeader({
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [progress, setProgress] = useState(0)
   const { toast } = useToast()
-  const { shopData } = useShop()
+  const { shopData ,setShopData} = useShop()
   const t = useTranslations("ai-order-retriever")
 
   const handleLogoutClick = () => {
@@ -174,30 +173,7 @@ export function DashboardHeader({
            </TooltipContent>
          </Tooltip>
           ) : (
-            <Tooltip>
-            <TooltipTrigger asChild>
-              <a
-                href="https://your-facebook-connect-url.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto ml-auto md:ml-0"
-              >
-                <Button
-                  asChild
-                  variant="outline"
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 w-full sm:w-auto"
-                >
-                  <span className="flex items-center">
-                    <MetaLogo className="mr-2 h-5 w-5" />
-                    {t("connectMeta")}
-                  </span>
-                </Button>
-              </a>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-sm text-sm">
-              Connect your Facebook Page to automatically retrieve and process customer orders from Messenger conversations using AI.
-            </TooltipContent>
-          </Tooltip>
+      <FacebookConnect shopId={shopData.id} setShopData={setShopData} />
           )}
         </div>
       </div>
