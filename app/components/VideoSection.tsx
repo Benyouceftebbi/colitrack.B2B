@@ -7,8 +7,8 @@ export default function VideoSection() {
   const t = useTranslations("videoSection")
   const [isPlaying, setIsPlaying] = useState(false)
 
-  // Google Drive direct video link format
-  const videoId = "1rDs-CODGAfXJ_EZ9DrdCXPdHoo-vHhSX"
+  // Google Drive direct video link format https://drive.google.com/file/d/1igoCOn1TvALIcksn9nthVLbbdWk7lGiS/view
+  const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://drive.google.com/file/d/${videoId}/preview`
 
   const handlePlayClick = () => {

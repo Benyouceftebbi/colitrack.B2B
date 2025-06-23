@@ -90,7 +90,7 @@ export const TableActionButtons = memo(function TableActionButtons({
 
   // Memoize the badge component
   const ConnectionBadge = useMemo(() => {
-    if (!isFacebookConnected) return null
+    if (!shopData.isFacebookConnected) return null
 
     return (
       <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 flex items-center gap-1.5 py-1.5">
@@ -105,7 +105,7 @@ export const TableActionButtons = memo(function TableActionButtons({
         )}
       </Badge>
     )
-  }, [isFacebookConnected, isRetrieving, t])
+  }, [shopData.isFacebookConnected, isRetrieving, t])
 
   // Memoize the export button
   const ExportButton = useMemo(() => {

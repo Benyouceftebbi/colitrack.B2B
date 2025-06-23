@@ -294,6 +294,15 @@
           "before":  "Plus de 2 heures",
           "after":  "Moins de 1 minute"
         }
+      },
+      "solution4": {
+        "problem": "Créer des visuels attrayants prend du temps et coûte cher.",
+        "solution": "Automatisez vos visuels grâce à la génération d’images et de vidéos par IA.",
+        "description": "Avec nos outils d’IA créative, vous pouvez générer instantanément des visuels professionnels adaptés aux publicités, fiches produits et réseaux sociaux — en gagnant des heures de travail manuel.",
+        "stats": {
+          "before": "Temps moyen de création de contenu : 2 à 3 jours",
+          "after": "Prêt en moins de 10 minutes grâce à l’IA"
+        }
       }
     }
   },
@@ -321,7 +330,16 @@
       "feature4":{
         "title":"ID d'expéditeur personnalisé",
         "description":"Utilisez le nom de votre marque ou un ID d'expéditeur personnalisé pour les communications SMS, garantissant que les clients reconnaissent instantanément vos messages et se sentent connectés à votre marque."
+      },
+      "feature5": {
+        "title": "Générez des images et des vidéos pour votre boutique",
+        "description": "Créez des visuels produits impressionnants et des vidéos captivantes en quelques secondes, optimisées pour la performance e-commerce."
+      },
+      "feature6": {
+        "title": "Récupération automatique des commandes via Messenger",
+        "description": "Extrayez et traitez automatiquement les commandes depuis vos conversations Messenger grâce à l’IA — plus besoin de saisie manuelle."
       }
+      
     }
    },
    "comparisonTable": {
@@ -353,10 +371,10 @@
     "customerSupportTooltip": "Support 24/7"
   },
   "ai":{
-    "comingSoon": "Bientôt disponible",
+    "comingSoon": "Disponible!",
     "aiPoweredSocialCommerce": "Commerce social alimenté par l'IA",
     "transformSocialMedia": "Transformez vos conversations sur les réseaux sociaux en un traitement de commande fluide grâce à notre technologie avancée d'IA. Fini la saisie manuelle des commandes - laissez notre IA s'en occuper pour vous.",
-    "joinWaitlist": "Rejoindre la liste d'attente",
+    "joinWaitlist": "Essayez-le maintenant",
     "AI Order Processing": "Traitement des commandes par IA",
     "Smart Conversation Analysis": "Analyse intelligente des conversations",
     "Automated Order Creation": "Création de commandes automatisée",

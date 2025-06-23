@@ -287,9 +287,20 @@
           "before": "2+ hours",
           "after": "< 1 minute"
         }
+      },
+      "solution4": {
+        "problem": "Creating engaging product visuals takes time and budget.",
+        "solution": "Automate your visuals with AI-powered image and video generation.",
+        "description": "With our Creative AI tools, you can instantly generate professional visuals tailored for ads, product listings, and social media — saving hours of manual design work.",
+        "stats": {
+          "before": "Avg. content production time: 2-3 days",
+          "after": "Now ready in under 10 minutes with AI"
+        }
       }
     }
+
   },
+
   "videoSection": {
     "title": "Smart SMS Automation",
     "description": "Transform the way you engage with your customers. Watch our video to see how our SMS features streamline order updates, enhance customer satisfaction, and drive conversions. With real-time notifications and retargeting campaigns, you can revolutionize your communication strategy and keep customers informed, connected, and loyal."
@@ -314,6 +325,14 @@
       "feature4":{
         "title":"Custom Sender ID",
         "description": "Use your brand's name or a customized sender ID for SMS communications, ensuring that customers instantly recognize your messages and feel connected to your brand."
+      },
+      "feature5": {
+        "title": "Generate AI-Powered Images & Reels",
+        "description": "Create stunning product visuals and engaging video reels in seconds — optimized for e-commerce performance."
+      },
+      "feature6": {
+        "title": "AI Order Retriever from Messenger",
+        "description": "Automatically extract and process orders from your Messenger conversations using AI — no more manual work needed."
       }
    }
   },
@@ -346,10 +365,10 @@
     "customerSupportTooltip": "24/7 support"
   },
   "ai":{
-    "comingSoon": "Coming Soon",
+    "comingSoon": "Available",
   "aiPoweredSocialCommerce": "AI-Powered Social Commerce",
   "transformSocialMedia": "Transform your social media conversations into seamless order processing with our advanced AI technology. No more manual order entry - let our AI handle it for you.",
-  "joinWaitlist": "Join Waitlist",
+  "joinWaitlist": "Try it Now !",
   "AI Order Processing": "AI Order Processing",
   "Smart Conversation Analysis": "Smart Conversation Analysis",
   "Automated Order Creation": "Automated Order Creation",

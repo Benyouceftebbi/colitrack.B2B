@@ -5,6 +5,16 @@ import { useTranslations } from 'next-intl';
 
 const features = [
   {
+    title: "features.feature5.title",
+    description: "features.feature5.description",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/image%20AI%20colitrack.png?alt=media&token=35a70eac-e4e2-4cf7-96b6-4beff9b4386dhttps://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/feature-reels.jpg?alt=media&token=your-token-here",
+  },
+  {
+    title: "features.feature6.title",
+    description: "features.feature6.description",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/ai%20order%20retrival.png?alt=media&token=a9ebf96a-5ee7-4978-a15e-f70f3f7c1263https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/feature-reels.jpg?alt=media&token=your-token-here",
+  },
+  {
     title: "features.feature1.title",
     description:"features.feature1.description",
     image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/74a668d9-4004-4eef-a25e-5ef4051b18f7.jpg?alt=media&token=f52435d1-341f-472b-b930-f313cbc88eeb"

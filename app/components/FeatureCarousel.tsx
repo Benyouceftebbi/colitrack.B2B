@@ -5,6 +5,28 @@ import { ArrowRight, MessageSquare, TrendingUp, ShieldCheck } from 'lucide-react
 
 const solutions = [
   {
+    problem: "solutions.solution4.problem",
+    solution: "solutions.solution4.solution",
+    description: "solutions.solution4.description",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/creativeai_image.png?alt=media&token=4ee4588c-7331-45c5-9a13-dc76b39c8346https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/88561217-dd9f-4487-b8f5-9fbb643456eb.jpg?alt=media&token=7ff2ed8b-3487-4d4c-8d11-0067de7f6319",
+    icon: ShieldCheck,
+    stats: {
+      before: "solutions.solution4.stats.before",
+      after: "solutions.solution4.stats.after"
+    }
+  },
+  {
+    problem: "solutions.solution3.problem",
+    solution: "solutions.solution3.solution",
+    description: "solutions.solution3.description",
+    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/88561217-dd9f-4487-b8f5-9fbb643456eb.jpg?alt=media&token=7ff2ed8b-3487-4d4c-8d11-0067de7f6319",
+    icon: ShieldCheck,
+    stats: {
+      before: "solutions.solution3.stats.before",
+      after: "solutions.solution3.stats.after"
+    }
+  },
+  {
     problem: "solutions.solution1.problem",
     solution: "solutions.solution1.solution",
     description: "solutions.solution1.description",
@@ -25,18 +47,8 @@ const solutions = [
       before: "solutions.solution2.stats.before",
       after: "solutions.solution2.stats.after"
     }
-  },
-  {
-    problem: "solutions.solution3.problem",
-    solution: "solutions.solution3.solution",
-    description: "solutions.solution3.description",
-    image: "https://firebasestorage.googleapis.com/v0/b/test-swi3a.appspot.com/o/88561217-dd9f-4487-b8f5-9fbb643456eb.jpg?alt=media&token=7ff2ed8b-3487-4d4c-8d11-0067de7f6319",
-    icon: ShieldCheck,
-    stats: {
-      before: "solutions.solution3.stats.before",
-      after: "solutions.solution3.stats.after"
-    }
   }
+ 
 ];
 
 export default function FeatureSection() {

@@ -27,10 +27,12 @@ const handleGetStarted = () => {
     { label: t('features'), sectionId: 'features' },
     { label: t('smsAutomation'), sectionId: 'sms-automation' },
     { label: t('analytics'), sectionId: 'analytics' },
-    { label: t('demo'), sectionId: 'sms-demo' },
-    { label: t('comparison'), sectionId: 'comparison-table' },
+    
     { label: t('ai'), sectionId: 'ai' },
+    { label: t('demo'), sectionId: 'sms-demo' },
+
     { label: t('pricing'), sectionId: 'pricing' },
+    {label: t('comparison'), sectionId: 'comparison-table' },
     { label: t('testimonials'), sectionId: 'testimonials' },
   ];
 

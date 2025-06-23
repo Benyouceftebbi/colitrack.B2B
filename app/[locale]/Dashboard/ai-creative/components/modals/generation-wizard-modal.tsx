@@ -208,7 +208,6 @@ export function GenerationWizardModal({
           type: generationType=== "image" ? "image" : "video",
           shopId:shopData.id
         })
-console.log('zakamo',result.data?.reason);
 
         if (result.data?.reason === "tokens") {
           setIsGeneratingBrief(false) // ✅ stop loading

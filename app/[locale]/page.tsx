@@ -74,21 +74,21 @@ const t= useTranslations('header')
 <section id="analytics" className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
   <FeatureShowcase />
 </section>
-
+<section id="ai">
+<ComingSoon />
+</section>
 <section id="sms-demo" className="bg-white dark:bg-gray-900">
   <SMSDemo />
+</section>
+
+
+
+<section id="pricing" className="bg-gradient-to-b from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
+  <CTASection />
 </section>
 <section id="comparison-table" className="bg-gradient-to-b from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
 <ComparisonTable />
 </section>
-
-<section id="ai">
-<ComingSoon />
-</section>
-<section id="pricing" className="bg-gradient-to-b from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
-  <CTASection />
-</section>
-
 <section id="testimonials">
 <Testimonials />
 </section>
