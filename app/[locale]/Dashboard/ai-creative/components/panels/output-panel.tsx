@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
-import { PricingModal } from "@/components/ui/pricingModal"
 import {
   Sparkles,
   Download,
@@ -414,9 +413,9 @@ export function OutputPanel({
 
   // This block is for when no new images are generated, showing history
   return (
-    <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
-      <div className="h-full flex flex-col">
-        <div className="mb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
+    <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300 h-full">
+      <div className="h-full flex flex-col max-h-screen">
+        <div className="mb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out flex-shrink-0">
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -433,7 +432,7 @@ export function OutputPanel({
                 ) : (
                   <ImageIcon className="h-6 w-6 text-purple-500" />
                 )}
-                {panelTitle} {/* Uses the mode-dependent panelTitle */}
+                {panelTitle}
               </h3>
               <p className="text-sm text-gray-500 dark:text-slate-400">
                 Review your past {mode} creations or start a new one.
@@ -450,17 +449,16 @@ export function OutputPanel({
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-6 animate-in fade-in slide-in-from-top-4 delay-100 duration-500 ease-out">
+        <div className="flex gap-4 mb-6 animate-in fade-in slide-in-from-top-4 delay-100 duration-500 ease-out flex-shrink-0">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder={`Search your ${mode}s...`} // Placeholder text reflects current mode
+              placeholder={`Search your ${mode}s...`}
               value={historySearchQuery}
               onChange={(e) => setHistorySearchQuery(e.target.value)}
               className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50"
             />
           </div>
-          {/* Removed the history type filter Select dropdown */}
           <Select value={historySortBy} onValueChange={(value: any) => setHistorySortBy(value)}>
             <SelectTrigger className="w-48 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50">
               <Calendar className="h-4 w-4 mr-2" />
@@ -473,9 +471,9 @@ export function OutputPanel({
           </Select>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {filteredUserHistory.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 pb-4">
               {filteredUserHistory.map((item, index) => (
                 <div
                   key={item.id}
@@ -639,7 +637,7 @@ export function OutputPanel({
             <div className="text-center py-16 animate-in fade-in duration-500 delay-200">
               <History className="h-16 w-16 text-gray-300 dark:text-slate-700 mx-auto mb-4 animate-bounce" />
               <h4 className="text-xl font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                No {mode}s in your history yet. {/* Message reflects current mode */}
+                No {mode}s in your history yet.
               </h4>
               <p className="text-gray-500 dark:text-slate-400">
                 Click the "{generateButtonText}" button above to create your first one!
