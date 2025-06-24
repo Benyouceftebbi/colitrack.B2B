@@ -16,6 +16,7 @@
     "getStarted": "Get Started",
     "comparison":"Comparison",
     "ai":"AI",
+    "ai-images":"Creative AI",
     "testimonials":"Testimonials"
   },
   "smsDemo": {
@@ -982,6 +983,7 @@
         "ai-order-retriver":"Ai Order Retriver",
         "dashboard": "Dashboard",
         "messages": "Messages",
+        "ai-images":"Creative AI",
         "retargeting": "Retargeting",
         "ai-orders": "AI Orders",
         "billing": "Billing",

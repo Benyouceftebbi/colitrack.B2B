@@ -7,6 +7,7 @@ import FeatureSection from '../components/FeatureCarousel';
 import VideoSection from '../components/VideoSection';
 import FeatureShowcase from '../components/FeatureShowcase';
 import SMSDemo from '../components/SMSDemo';
+import  {HeroWithMediaBackground } from "../components/Ai-Images/hero-with-media-background";
 import CTASection from '../components/CTASection';
 import ComingSoon from '../components/ComingSoon';
 import ComparisonTable from '../components/ComparisonTable';
@@ -74,6 +75,9 @@ const t= useTranslations('header')
 <section id="analytics" className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
   <FeatureShowcase />
 </section>
+<section id="ai-images" className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <HeroWithMediaBackground />
+    </section>
 <section id="ai">
 <ComingSoon />
 </section>

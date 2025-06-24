@@ -11,6 +11,8 @@
     "smsAutomation": "أتمتة SMS",
     "analytics": "التحليلات",
     "demo": "تجربة",
+    "ai-images":"Creative AI",
+
     "pricing": "الأسعار",
     "signIn": "تسجيل الدخول",
     "getStarted": "ابدأ الآن",
@@ -114,7 +116,9 @@
       "startTrial": "ابدأ النسخة التجريبية",
       "comparison":"المقارنة",
       "ai":"الذكاء الاصطناعي",
-      "testimonials":"الشهادات"
+      "testimonials":"الشهادات",
+      "ai-images":"Creative AI"
+
      },
     "copyright": " كوليتراك. جميع الحقوق محفوظة."
   },
@@ -986,6 +990,7 @@
       "dashboard": "لوحة التحكم",
       "ai-order-retriver": "مسترجع الطلبات AI",
       "messages": "الرسائل",
+      "ai-images":"Creative AI",
       "retargeting": "إعادة الاستهداف",
       "ai-orders": "طلبات الذكاء الاصطناعي",
       "billing": "الفوترة",

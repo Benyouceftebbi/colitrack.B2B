@@ -9,6 +9,8 @@
   "nav": {
     "features": "Fonctionnalités",
     "smsAutomation": "Automatisation SMS",
+    "ai-images":"Creative AI",
+
     "analytics": "Analytique",
     "demo": "Démo",
     "pricing": "Tarifs",
@@ -107,6 +109,8 @@
     "nav": {
       "features": "Fonctionnalités",
       "smsAutomation": "Automatisation SMS",
+      "ai-images":"Creative AI",
+
       "analytics": "Analytique",
       "demo": "Démo",
       "pricing": "Tarifs",
@@ -1008,6 +1012,7 @@
       "dashboard": "Tableau de bord",
       "messages": "Messages",
       "retargeting": "Reciblage",
+      "ai-images":"Creative AI",
       "ai-orders": "Commandes IA",
       "ai-order-retriver": "Récupérateur IA",
       "billing": "Facturation",
