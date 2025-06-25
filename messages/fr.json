@@ -12,7 +12,7 @@
     "ai-images":"Creative AI",
 
     "analytics": "Analytique",
-    "demo": "Démo",
+    "demo": "SmS",
     "pricing": "Tarifs",
     "signIn": "Connexion",
     "getStarted": "Commencer",
@@ -104,6 +104,18 @@
   ]
   },
   "footer": {
+    "features": "Fonctionnalités",
+    "smsAutomation": "Automatisation SMS",
+    "ai-images":"Creative AI",
+
+    "analytics": "Analytique",
+    "demo": "Démo",
+    "pricing": "Tarifs",
+    "signIn": "Connexion",
+    "startTrial": "Essai Gratuit",
+    "comparison":"Comparaison",
+    "ai":"IA",
+    "testimonials":"Témoignages",
     "companyName": "Colitrack",
     "companyDescription": "Autonomiser les entreprises de commerce électronique avec une automatisation SMS intelligente et des solutions d'engagement client pilotées par l'IA.",
     "nav": {
@@ -302,7 +314,7 @@
       "solution4": {
         "problem": "Créer des visuels attrayants prend du temps et coûte cher.",
         "solution": "Automatisez vos visuels grâce à la génération d’images et de vidéos par IA.",
-        "description": "Avec nos outils d’IA créative, vous pouvez générer instantanément des visuels professionnels adaptés aux publicités, fiches produits et réseaux sociaux — en gagnant des heures de travail manuel.",
+        "description": "Avec nos outils d'IA créative, vous pouvez instantanément générer des visuels professionnels adaptés à vos publicités, fiches produits et réseaux sociaux — vous faisant gagner des heures de travail manuel. Notre plateforme est conçue pour les entrepreneurs, les créateurs de contenu et les marques qui souhaitent se démarquer facilement. Plus besoin de compétences en design ou de logiciels complexes : téléchargez votre contenu, choisissez un style et laissez l’IA faire le reste. Obtenez des résultats rapides, percutants et alignés avec l’image de votre marque.",
         "stats": {
           "before": "Temps moyen de création de contenu : 2 à 3 jours",
           "after": "Prêt en moins de 10 minutes grâce à l’IA"

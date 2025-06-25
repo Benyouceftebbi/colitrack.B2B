@@ -10,7 +10,7 @@
     "features": "Features",
     "smsAutomation": "SMS Automation",
     "analytics": "Analytics",
-    "demo": "Demo",
+    "demo": "SmS",
     "pricing": "Pricing",
     "signIn": "Sign in",
     "getStarted": "Get Started",
@@ -104,6 +104,17 @@
     ]
   },
   "footer": {
+    "features": "Features",
+    "smsAutomation": "SMS Automation",
+    "analytics": "Analytics",
+    "demo": "SmS",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "getStarted": "Get Started",
+    "comparison":"Comparison",
+    "ai":"AI",
+    "ai-images":"Creative AI",
+    "testimonials":"Testimonials",
     "companyName": "Colitrack",
     "companyDescription": "Empowering e-commerce businesses with smart SMS automation and AI-driven customer engagement solutions.",
     "nav": {
@@ -292,7 +303,7 @@
       "solution4": {
         "problem": "Creating engaging product visuals takes time and budget.",
         "solution": "Automate your visuals with AI-powered image and video generation.",
-        "description": "With our Creative AI tools, you can instantly generate professional visuals tailored for ads, product listings, and social media — saving hours of manual design work.",
+        "description": "With our Creative AI tools, you can instantly generate professional visuals tailored for ads, product listings, and social media — saving hours of manual design work. Whether you're a small business owner or a marketing expert, our platform empowers you to bring your ideas to life with just a few clicks. No need for expensive software or design experience — just choose your style, upload your content, and let our AI do the rest. Stay ahead of the competition with fast, high-quality visuals that truly capture your brand’s identity.",
         "stats": {
           "before": "Avg. content production time: 2-3 days",
           "after": "Now ready in under 10 minutes with AI"

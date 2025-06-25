@@ -10,14 +10,13 @@ const Footer = () => {
     {
       title: "Product",
       links: [
-        { label: t("nav.features"), sectionId: "features" },
-        { label: t("nav.smsAutomation"), sectionId: "sms-automation" },
-        { label: t("nav.analytics"), sectionId: "analytics" },
-        { label: t("nav.demo"), sectionId: "sms-demo" },
-        { label: t("nav.comparison"), sectionId: "comparison-table" },
-        { label: t("nav.ai"), sectionId: "ai" },
-        { label: t("nav.pricing"), sectionId: "pricing" },
-        { label: t("nav.testimonials"), sectionId: "testimonials" },
+        { label: t('features'), sectionId: 'features' },
+        { label: t('ai-images'), sectionId: 'ai-images' },
+        { label: t('ai'), sectionId: 'ai' },
+        { label: t('demo'), sectionId: 'sms-demo' },
+        { label: t('pricing'), sectionId: 'pricing' },
+        { label: t('analytics'), sectionId: 'analytics' },
+        { label: t('testimonials'), sectionId: 'testimonials' },
       ],
     },
     {
