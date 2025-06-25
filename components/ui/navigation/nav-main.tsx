@@ -28,7 +28,7 @@ export function NavMain({
          
             <SidebarMenuItem className="overflow-hidden pb-2">
                {item.isSpecial ? (
-                    <div className="relative group px-2">
+                    <div className="relative group">
                       {/* Animated background glow */}
                       <div
                         className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-20 rounded-md blur-sm group-hover:opacity-40 transition-all duration-300 animate-pulse group-data-[collapsible=icon]:rounded-full`}
