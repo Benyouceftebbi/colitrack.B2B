@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star, X, Eye } from "lucide-react"
+import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star, X, Eye, Sparkles, Bot } from "lucide-react"
 import * as React from "react"
 import { useRouter } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ import { db } from "@/firebase/firebase"
 import { DataTable } from "./messages/message-center/sms-history/data-table"
 import { columns } from "./messages/message-center/sms-history/columns"
 import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/ui/modal"
+import { AIFeatureCard } from "./dashboard/components/ai-hover-card"
 
 type AlgeriaDataItem = {
   name: string
@@ -491,7 +492,22 @@ const percentageChangereturn =
             </Button>
           </div>
         </div>
-
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <AIFeatureCard
+              title="Creative AI"
+              description="Generate amazing content with AI"
+              gradient="from-purple-500 via-pink-500 to-orange-500"
+              icon={Sparkles}
+              onClick={() => console.log("Creative AI clicked")}
+            />
+            <AIFeatureCard
+              title="Order AI Retrieval"
+              description="Smart order processing system"
+              gradient="from-blue-500 via-cyan-500 to-teal-500"
+              icon={Bot}
+              onClick={() => console.log("Order AI clicked")}
+            />
+          </div>
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
           <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">

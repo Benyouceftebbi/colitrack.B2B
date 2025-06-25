@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone  } from "lucide-react"
+import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone, Sparkles, Bot  } from "lucide-react"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
 import { NavUser } from "@/components/ui/navigation/nav-user"
@@ -41,32 +41,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         url: "/dashboard/ai-creative",
-        icon: IceCreamCone,
+        icon: Sparkles,
         isActive: pathname[1] === "Creative Ai ",
-        title: (
-          <div className="flex items-center gap-2">
-            Creative Ai 
-            <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm ring-1 ring-inset ring-primary/20 animate-pulse">
-              NEW
-            </span>
-          </div>
-        ),
-        
+         isSpecial: true,
+    gradient: "from-purple-500 via-pink-500 to-orange-500",
+          title: "Creative AI",
       },
 
       {
         url: "/dashboard/ai-order-retriver",
-        icon: Squirrel,
+  
         isActive: pathname[1] === "Ai Order Retriver",
-        title: (
-          <div className="flex items-center gap-2">
-            {t("nav.ai-order-retriver")}
-            <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm ring-1 ring-inset ring-primary/20 animate-pulse">
-              NEW
-            </span>
-          </div>
-        ),
-        
+title: "Order AI Retrieval",
+         icon: Bot,
+    isSpecial: true,
+    gradient: "from-blue-500 via-cyan-500 to-teal-500",
       },
       {
         url: "/dashboard/messages",

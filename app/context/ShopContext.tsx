@@ -462,6 +462,118 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
     fetchShopData()
   }, [shopData.id, dateRange])
+    useEffect(() => {
+    if (!shopData.id) return
+     
+    const unsubscribe = onSnapshot(collection(db, "Shops", shopData.id, "SMScampaign"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+          console.log("sadasasdasddasdsdashihihihiihihihi");
+ 
+        if (change.type === "added") {
+          const campaignData = change.doc.data()
+ 
+          
+          // Convert timestamp fields
+          if (campaignData.createdAt) {
+            campaignData.createdAt = timestampToDate(campaignData.createdAt)
+          }
+
+          const newCampaign = {
+            id: change.doc.id,
+            ...campaignData,
+          }
+         console.log("New SMS campaign added:", change.doc.id, campaignData);
+          // Update shopData only if campaign doesn't already exist
+          setShopData((prevShopData) => {
+            const campaignExists = prevShopData.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
+            if (campaignExists) return prevShopData
+
+            return {
+              ...prevShopData,
+              smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign],
+            }
+          })
+
+          // Update shops array only if campaign doesn't already exist
+          setShops((prevShops) =>
+            prevShops.map((shop) => {
+              if (shop.id !== shopData.id) return shop
+
+              const campaignExists = shop.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
+              if (campaignExists) return shop
+
+              return {
+                ...shop,
+                smsCampaign: [...(shop.smsCampaign || []), newCampaign],
+              }
+            }),
+          )
+        }
+
+        if (change.type === "modified") {
+          const campaignData = change.doc.data()
+
+          // Convert timestamp fields
+          if (campaignData.createdAt) {
+            campaignData.createdAt = timestampToDate(campaignData.createdAt)
+          }
+
+          const updatedCampaign = {
+            id: change.doc.id,
+            ...campaignData,
+          }
+
+          // Update shopData
+          setShopData((prevShopData) => ({
+            ...prevShopData,
+            smsCampaign:
+              prevShopData.smsCampaign?.map((campaign) =>
+                campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
+              ) || [],
+          }))
+
+          // Update shops array
+          setShops((prevShops) =>
+            prevShops.map((shop) =>
+              shop.id === shopData.id
+                ? {
+                    ...shop,
+                    smsCampaign:
+                      shop.smsCampaign?.map((campaign) =>
+                        campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
+                      ) || [],
+                  }
+                : shop,
+            ),
+          )
+        }
+
+        if (change.type === "removed") {
+          const removedCampaignId = change.doc.id
+
+          // Update shopData
+          setShopData((prevShopData) => ({
+            ...prevShopData,
+            smsCampaign: prevShopData.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
+          }))
+
+          // Update shops array
+          setShops((prevShops) =>
+            prevShops.map((shop) =>
+              shop.id === shopData.id
+                ? {
+                    ...shop,
+                    smsCampaign: shop.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
+                  }
+                : shop,
+            ),
+          )
+        }
+      })
+    })
+
+    return () => unsubscribe()
+  }, [shopData.id])
   // Set up real-time listener for OrdersRetrieved collection
   useEffect(() => {
     if (!shopData.id) {
@@ -623,115 +735,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
   }, []) // Empty dependency array ensures this runs only once on mount
   // Set up real-time listener for SMScampaign collection
-  useEffect(() => {
-    if (!shopData.id) return
 
-    const unsubscribe = onSnapshot(collection(db, "Shops", shopData.id, "SMScampaign"), (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const campaignData = change.doc.data()
-
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
-          }
-
-          const newCampaign = {
-            id: change.doc.id,
-            ...campaignData,
-          }
-
-          // Update shopData only if campaign doesn't already exist
-          setShopData((prevShopData) => {
-            const campaignExists = prevShopData.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-            if (campaignExists) return prevShopData
-
-            return {
-              ...prevShopData,
-              smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign],
-            }
-          })
-
-          // Update shops array only if campaign doesn't already exist
-          setShops((prevShops) =>
-            prevShops.map((shop) => {
-              if (shop.id !== shopData.id) return shop
-
-              const campaignExists = shop.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-              if (campaignExists) return shop
-
-              return {
-                ...shop,
-                smsCampaign: [...(shop.smsCampaign || []), newCampaign],
-              }
-            }),
-          )
-        }
-
-        if (change.type === "modified") {
-          const campaignData = change.doc.data()
-
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
-          }
-
-          const updatedCampaign = {
-            id: change.doc.id,
-            ...campaignData,
-          }
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign:
-              prevShopData.smsCampaign?.map((campaign) =>
-                campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-              ) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign:
-                      shop.smsCampaign?.map((campaign) =>
-                        campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-                      ) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-
-        if (change.type === "removed") {
-          const removedCampaignId = change.doc.id
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign: prevShopData.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign: shop.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-      })
-    })
-
-    return () => unsubscribe()
-  }, [])
 
  
   const [progress, setProgress] = useState(0)
