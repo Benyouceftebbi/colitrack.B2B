@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Lightbulb, Wand2, Copy, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
+import { useTranslations } from "next-intl"
 
 interface PromptBuilderModalProps {
   isOpen: boolean
@@ -18,15 +18,14 @@ interface PromptBuilderModalProps {
   onPromptGenerated: (newPrompt: string) => void
 }
 
-
-
 export function PromptBuilderModal({ isOpen, onClose, currentPrompt, onPromptGenerated }: PromptBuilderModalProps) {
   const [description, setDescription] = useState("")
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [generatedPrompt, setGeneratedPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
-const { shopData,setShopData } = useShop()
+  const { shopData, setShopData } = useShop()
+  const t = useTranslations("creativeAi")
   useEffect(() => {
     if (isOpen) {
       setDescription(currentPrompt) // Pre-fill with current prompt if any
@@ -37,15 +36,15 @@ const { shopData,setShopData } = useShop()
 
   const handleGeneratePrompt = async () => {
     setIsLoading(true)
-    let basePrompt = description.trim()
+    const basePrompt = description.trim()
 
-     const generateAdBrief = httpsCallable(functions, "promptAdEnhancer")
-     const result = await generateAdBrief({
-          userPrompt: basePrompt,
-          shopId:shopData.id
-      })
+    const generateAdBrief = httpsCallable(functions, "promptAdEnhancer")
+    const result = await generateAdBrief({
+      userPrompt: basePrompt,
+      shopId: shopData.id,
+    })
 
-        if (result.data.success) {
+    if (result.data.success) {
       setGeneratedPrompt(result.data.prompt)
       //set tokens {result.data.tokens}
       setShopData((prev: any) => ({
@@ -53,15 +52,11 @@ const { shopData,setShopData } = useShop()
         tokens: result.data.tokens, // assumes `tokens` is returned in response
       }))
       setIsLoading(false)
-        } else {
-               setIsLoading(false)
-        }
+    } else {
+      setIsLoading(false)
+    }
 
     // Simulate API call / processing time
-
-     
-
-
   }
 
   const handleUsePrompt = () => {
@@ -81,17 +76,15 @@ const { shopData,setShopData } = useShop()
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-primary" />
-            Prompt Assistant - 50 TKN
+            {t("promptAssistant")} - 50 TKN
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto pr-2 space-y-6 py-4">
           <div>
             <Label htmlFor="description" className="text-base font-semibold">
-              Describe your vision
+              {t("describeVision")}
             </Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              What are the key elements, subject, mood, and overall feel you're aiming for?
-            </p>
+            <p className="text-sm text-muted-foreground mb-2">{t("describeVisionHelperText")}</p>
             <Textarea
               id="description"
               value={description}
@@ -101,20 +94,18 @@ const { shopData,setShopData } = useShop()
             />
           </div>
 
-          <div>
-          
-          </div>
+          <div></div>
 
           <Button onClick={handleGeneratePrompt} disabled={isLoading || !description.trim()} className="w-full">
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Generating...
+                {t("generating")}
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
-                Generate Enhanced Prompt
+                {t("generateEnhancedPrompt")}
               </div>
             )}
           </Button>
@@ -122,7 +113,7 @@ const { shopData,setShopData } = useShop()
           {generatedPrompt && (
             <div>
               <Label htmlFor="generatedPrompt" className="text-base font-semibold">
-                Suggested Prompt
+                {t("suggestedPrompt")}
               </Label>
               <div className="mt-2 p-3 bg-muted rounded-md border relative">
                 <p className="text-sm text-foreground whitespace-pre-wrap">{generatedPrompt}</p>
@@ -141,10 +132,10 @@ const { shopData,setShopData } = useShop()
         </div>
         <DialogFooter className="mt-auto pt-4 border-t">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t("cancel")}</Button>
           </DialogClose>
           <Button onClick={handleUsePrompt} disabled={!generatedPrompt || isLoading}>
-            Use This Prompt
+            {t("useThisPrompt")}
           </Button>
         </DialogFooter>
       </DialogContent>

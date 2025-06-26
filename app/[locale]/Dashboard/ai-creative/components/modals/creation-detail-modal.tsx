@@ -7,6 +7,7 @@ import { X, Video, ImageIcon, Heart, Wand2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "../types"
+import { useTranslations } from "next-intl"
 
 interface CreationDetailModalProps {
   creation: CreationDetail
@@ -47,6 +48,7 @@ export function CreationDetailModal({
   onClose,
   // Removed: onNext, onPrevious, hasNext, hasPrevious
 }: CreationDetailModalProps) {
+  const t = useTranslations("creativeAi")
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -131,7 +133,7 @@ export function CreationDetailModal({
                   ) : (
                     <ImageIcon className="h-3 w-3 mr-1" />
                   )}
-                  {creation.type === "reel" ? "Reel" : "Image"}
+                  {creation.type === "reel" ? t("reel") : t("image")}
                 </Badge>
                 <div className="flex items-center gap-1">
                   <Heart className="h-3 w-3 text-destructive" />
@@ -164,7 +166,7 @@ export function CreationDetailModal({
                 <div className="flex-1 relative bg-muted flex flex-col items-center justify-center border-r border-border p-4">
                   <div className="absolute top-4 left-4 z-10">
                     <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                      Before
+                      {t("before")}
                     </Badge>
                   </div>
 
@@ -181,7 +183,7 @@ export function CreationDetailModal({
                 <div className="flex-1 relative bg-muted flex flex-col items-center justify-center p-4">
                   <div className="absolute top-4 left-4 z-10">
                     <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      After
+                      {t("after")}
                     </Badge>
                   </div>
                   {creation.type === "reel" ? (
@@ -219,7 +221,7 @@ export function CreationDetailModal({
           <div className="p-6 border-t border-border bg-background">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Wand2 className="h-4 w-4 text-primary" />
-              Prompt Used
+              {t("promptUsed")}
             </h4>
             <div className="bg-muted rounded-lg p-4">
               <p className="text-foreground leading-relaxed">{creation.prompt}</p>

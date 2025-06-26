@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils" // Ensure cn is imported
+import { useTranslations } from "next-intl"
 
 interface ImageViewerModalProps {
   image: string
@@ -32,6 +33,7 @@ export function ImageViewerModal({
   productUrl,
   onDownloadFile,
 }: ImageViewerModalProps) {
+  const t = useTranslations("creativeAi")
   const hasNext = onNext ? imageIndex < images.length - 1 : false
   const hasPrevious = onPrevious ? imageIndex > 0 : false
   const [isPromptTooltipVisible, setIsPromptTooltipVisible] = useState(false)
@@ -134,7 +136,7 @@ export function ImageViewerModal({
             className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
           >
             <Download className="h-4 w-4 mr-2" />
-            Download
+            {t("download")}
           </Button>
         </div>
 

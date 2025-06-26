@@ -28,6 +28,7 @@ import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useToast } from "@/hooks/use-toast"
 import { PricingModal } from "@/components/ui/pricingModal"
+import { useTranslations } from "next-intl"
 
 // Define ImageSettings based on the structure expected within this modal
 interface ImageSettings {
@@ -51,7 +52,7 @@ type GenerationType = "image" | "reel"
 
 const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
   aspectRatio: "",
-  outputs: 0, // 0 signifies not selected
+  outputs: 1, // 0 signifies not selected
   model: "KOLORS 1.5",
   creativity: [7],
   language: "", // Empty string signifies not selected
@@ -60,7 +61,7 @@ const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
 const DEFAULT_REEL_SETTINGS: ReelSettings = {
   aspectRatio: "",
   quality: "standard", // Can keep a default or make it mandatory too
-  outputs: 0, // 0 signifies not selected
+  outputs:1, // 0 signifies not selected
   model: "", // Empty string signifies not selected
   creativity: [5],
 }
@@ -77,16 +78,16 @@ interface GenerationWizardModalProps {
 
 const STEPS = {
   image: [
-    { id: "uploadImages", title: "Upload Images" },
-    { id: "detailsSettings", title: "Details & Settings" },
-    { id: "adConceptBrief", title: "Ad Concept Brief" },
-    { id: "review", title: "Review & Generate" },
+    { id: "uploadImages", title: "uploadImages" },
+    { id: "detailsSettings", title: "detailsSettings" },
+    { id: "adConceptBrief", title: "adConceptBrief" },
+    { id: "review", title: "review" },
   ],
   reel: [
-    { id: "sourceImage", title: "Source Image" },
-    { id: "detailsSettings", title: "Details & Settings" },
-    { id: "adConceptBrief", title: "Ad Concept Brief" },
-    { id: "review", title: "Review & Generate" },
+    { id: "sourceImage", title: "sourceImage" },
+    { id: "detailsSettings", title: "detailsSettings" },
+    { id: "adConceptBrief", title: "adConceptBrief" },
+    { id: "review", title: "review" },
   ],
 }
 
@@ -109,12 +110,12 @@ export function GenerationWizardModal({
   initialReelSettings,
   initialPrompt = "",
 }: GenerationWizardModalProps) {
+  const t = useTranslations("creativeAi")
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [prompt, setPrompt] = useState(initialPrompt)
   const [adConcept, setAdConcept] = useState("")
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
-
 
   const [productImageFile, setProductImageFile] = useState<File | null>(null)
   const [inspirationImageFile, setInspirationImageFile] = useState<File | null>(null)
@@ -187,8 +188,8 @@ export function GenerationWizardModal({
         // For image generation, product image is mandatory for brief generation at this stage
         if (generationType === "image" && !productImageBase64) {
           toast({
-            title: "Product Image Required",
-            description: "Please upload a product image to generate the ad brief.",
+            title: t("productImageRequired"),
+            description: t("uploadProductImage"),
             variant: "destructive",
           })
           setIsGeneratingBrief(false)
@@ -205,43 +206,42 @@ export function GenerationWizardModal({
           userPrompt: prompt,
           productImageBase64, // Can be null for reels
           adStyleImageBase64,
-          type: generationType=== "image" ? "image" : "video",
-          shopId:shopData.id
+          type: generationType === "image" ? "image" : "video",
+          shopId: shopData.id,
         })
 
         if (result.data?.reason === "tokens") {
           setIsGeneratingBrief(false) // ✅ stop loading
           setIsPricingModalOpen(true) // ✅ Open pricing modal
-        
+
           toast({
-            title: "Not Enough Tokens",
-            description: "Your token quota has been reached. Please upgrade your plan to continue.",
+            title: t("notEnoughTokens"),
+            description: t("upgradePlan"),
             variant: "destructive",
           })
-        
+
           return // 🛑 Stop further processing
         }
         if (result.data.success) {
           setAdConcept(result.data.brief)
           toast({
-            title: "Brief Generated",
-            description: "The AI has created an ad concept brief for you to review.",
+            title: t("briefGenerated"),
+            description: t("aiCreatedBrief"),
           })
           setCurrentStepIndex(currentStepIndex + 1)
         } else {
           console.error("Failed to generate brief:", result.data.error)
           toast({
-            title: "Error Generating Brief",
-            description: result.data.error || "An unknown error occurred. Please try again.",
+            title: t("errorGeneratingBrief"),
+            description: result.data.error || t("unknownError"),
             variant: "destructive",
           })
         }
-
       } catch (error) {
         console.error("Error calling Firebase function:", error)
         toast({
-          title: "Generation Failed",
-          description: "Could not connect to the generation service. Please check your connection and try again.",
+          title: t("generationFailed"),
+          description: t("couldNotConnect"),
           variant: "destructive",
         })
       } finally {
@@ -262,6 +262,7 @@ export function GenerationWizardModal({
     adConcept,
     onSubmit,
     toast,
+    t,
   ])
 
   const FileUploadArea = useCallback(
@@ -303,7 +304,7 @@ export function GenerationWizardModal({
       return (
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-upload`} className="text-md font-semibold">
-            {title} {isRequired && <span className="text-destructive">*</span>}
+            {t(title)} {isRequired && <span className="text-destructive">*</span>}
           </Label>
           {file ? (
             <div className="bg-muted border rounded-xl p-3 relative group">
@@ -340,10 +341,8 @@ export function GenerationWizardModal({
               )}
             >
               <Upload className={cn("h-8 w-8 text-muted-foreground mb-2", isDragActive && "text-primary")} />
-              <p className="text-sm font-medium mb-1">
-                {isDragActive ? "Drop image here" : "Drag & drop or click to upload"}
-              </p>
-              <p className="text-xs text-muted-foreground">PNG, JPG, up to 5MB</p>
+              <p className="text-sm font-medium mb-1">{isDragActive ? t("dropImageHere") : t("dragDropUpload")}</p>
+              <p className="text-xs text-muted-foreground">{t("pngJpgUpTo5mb")}</p>
             </div>
           )}
           <input
@@ -356,14 +355,14 @@ export function GenerationWizardModal({
         </div>
       )
     },
-    [],
+    [t],
   )
 
   const handleAdConceptInteraction = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault()
     toast({
-      title: "Action Disabled",
-      description: "Copying and cutting text from the Ad Concept Brief is not allowed.",
+      title: t("actionDisabled"),
+      description: t("copyCutNotAllowed"),
       variant: "default",
       icon: <CopySlash className="h-5 w-5" />,
     })
@@ -381,7 +380,7 @@ export function GenerationWizardModal({
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="Product Picture"
+              title="productPicture"
               isRequired // Mandatory for image brief generation
               idPrefix="product"
             />
@@ -391,7 +390,7 @@ export function GenerationWizardModal({
               isDragActive={isDragActiveInspiration}
               setIsDragActive={setIsDragActiveInspiration}
               inputRef={inspirationFileInputRef}
-              title="Inspiration Picture (Optional)"
+              title="inspirationPicture"
               idPrefix="inspiration"
             />
           </div>
@@ -402,13 +401,13 @@ export function GenerationWizardModal({
             <div className="space-y-6">
               <div>
                 <Label htmlFor="prompt-wizard" className="text-md font-semibold">
-                  Describe Your Vision (Initial Prompt) <span className="text-destructive">*</span>
+                  {t("describeYourVision")} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="prompt-wizard"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g., A vibrant studio shot of the product on a clean background..."
+                  placeholder={t("promptPlaceholder")}
                   className="h-28 resize-none text-sm mt-1"
                 />
                 <Button
@@ -418,20 +417,20 @@ export function GenerationWizardModal({
                   className="w-full justify-start text-left mt-2 text-sm"
                 >
                   <Lightbulb className="h-4 w-4 mr-2 text-yellow-400" />
-                  Need help with the prompt? Click here!
+                  {t("needHelpPrompt")}
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="language-wizard">
-                    Language <span className="text-destructive">*</span>
+                    {t("language")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={imageSettings.language}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, language: value }))}
                   >
                     <SelectTrigger id="language-wizard" className="mt-1">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t("selectLanguage")} />
                     </SelectTrigger>
                     <SelectContent>
                       {languageOptions.map((lang) => (
@@ -444,19 +443,19 @@ export function GenerationWizardModal({
                 </div>
                 <div>
                   <Label htmlFor="outputs-wizard">
-                    Number of Pictures <span className="text-destructive">*</span>
+                    {t("numberOfPictures")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={imageSettings.outputs > 0 ? String(imageSettings.outputs) : ""}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, outputs: Number(value) }))}
                   >
                     <SelectTrigger id="outputs-wizard" className="mt-1">
-                      <SelectValue placeholder="Select count" />
+                      <SelectValue placeholder={t("selectCount")} />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4].map((n) => (
                         <SelectItem key={n} value={String(n)}>
-                          {n} Picture{n > 1 ? "s" : ""}
+                          {n} {t("picture", { count: n })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -464,14 +463,14 @@ export function GenerationWizardModal({
                 </div>
                 <div>
                   <Label htmlFor="aspectRatio-wizard">
-                    Aspect Ratio <span className="text-destructive">*</span>
+                    {t("aspectRatio")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={imageSettings.aspectRatio}
                     onValueChange={(value) => setImageSettings((s) => ({ ...s, aspectRatio: value }))}
                   >
                     <SelectTrigger id="aspectRatio-wizard" className="mt-1">
-                      <SelectValue placeholder="Select ratio" />
+                      <SelectValue placeholder={t("selectRatio")} />
                     </SelectTrigger>
                     <SelectContent>
                       {["1024x1024", "1024x1536", "1536x1024"].map((r) => (
@@ -491,13 +490,13 @@ export function GenerationWizardModal({
             <div className="space-y-6">
               <div>
                 <Label htmlFor="prompt-wizard-reel" className="text-md font-semibold">
-                  Describe Desired Motion/Style (Initial Prompt) <span className="text-destructive">*</span>
+                  {t("describeDesiredMotion")} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="prompt-wizard-reel"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g., Product rotating slowly, dynamic zoom effects, particles appearing..."
+                  placeholder={t("reelPromptPlaceholder")}
                   className="h-28 resize-none text-sm mt-1"
                 />
                 <Button
@@ -507,13 +506,13 @@ export function GenerationWizardModal({
                   className="w-full justify-start text-left mt-2 text-sm"
                 >
                   <Lightbulb className="h-4 w-4 mr-2 text-yellow-400" />
-                  Need help with the prompt? Click here!
+                  {t("needHelpPrompt")}
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="model-wizard-reel">
-                    Model Type <span className="text-destructive">*</span>
+                    {t("modelType")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={reelSettings.model}
@@ -522,24 +521,24 @@ export function GenerationWizardModal({
                     }
                   >
                     <SelectTrigger id="model-wizard-reel" className="mt-1">
-                      <SelectValue placeholder="Select model type" />
+                      <SelectValue placeholder={t("selectModelType")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="normal">Normal Model</SelectItem>
-                      <SelectItem value="expert">Expert Model (Higher Quality)</SelectItem>
+                      <SelectItem value="normal">{t("normalModel")}</SelectItem>
+                      <SelectItem value="expert">{t("expertModel")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label htmlFor="aspectRatio-wizard">
-                    Aspect Ratio <span className="text-destructive">*</span>
+                    {t("aspectRatio")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={reelSettings.aspectRatio} // Use reelSettings.aspectRatio
                     onValueChange={(value) => setReelSettings((s) => ({ ...s, aspectRatio: value }))} // Update reelSettings
                   >
                     <SelectTrigger id="aspectRatio-wizard" className="mt-1">
-                      <SelectValue placeholder="Select ratio" />
+                      <SelectValue placeholder={t("selectRatio")} />
                     </SelectTrigger>
                     <SelectContent>
                       {["16:9", "9:16"].map((r) => (
@@ -552,19 +551,19 @@ export function GenerationWizardModal({
                 </div>
                 <div>
                   <Label htmlFor="outputs-wizard-reel">
-                    Number of Reels <span className="text-destructive">*</span>
+                    {t("numberOfReels")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={reelSettings.outputs > 0 ? String(reelSettings.outputs) : ""}
                     onValueChange={(value) => setReelSettings((s) => ({ ...s, outputs: Number(value) }))}
                   >
                     <SelectTrigger id="outputs-wizard-reel" className="mt-1">
-                      <SelectValue placeholder="Select count" />
+                      <SelectValue placeholder={t("selectCount")} />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4].map((n) => (
                         <SelectItem key={n} value={String(n)}>
-                          {n} Reel{n > 1 ? "s" : ""}
+                          {n} {t("reel", { count: n })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -583,13 +582,10 @@ export function GenerationWizardModal({
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="Refrence image (Optional for Reels)"
+              title="refrenceImageReels"
               idPrefix="reel-source"
             />
-            <p className="text-sm text-muted-foreground">
-              Upload an image if you want the reel to be based on a specific product. Otherwise, the AI will generate
-              the brief and reel based on the prompt alone.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("uploadImageReel")}</p>
           </div>
         )
       case "adConceptBrief":
@@ -597,74 +593,74 @@ export function GenerationWizardModal({
           <div className="space-y-3">
             <Label htmlFor="ad-concept-brief" className="text-md font-semibold flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Refine Ad Concept Brief <span className="text-destructive">*</span>
+              {t("refineAdConcept")} <span className="text-destructive">*</span>
             </Label>
-            <p className="text-sm text-muted-foreground">
-              Review and edit the auto-generated brief. This final brief will be used for generation. (Copy/Cut
-              disabled)
-            </p>
+            <p className="text-sm text-muted-foreground">{t("reviewEditBrief")}</p>
             <Textarea
               id="ad-concept-brief"
               value={adConcept}
               onChange={(e) => setAdConcept(e.target.value)}
               onCopy={handleAdConceptInteraction}
               onCut={handleAdConceptInteraction}
-              placeholder="Detailed ad concept brief will appear here..."
+              placeholder={t("detailedAdConcept")}
               className="h-80 resize-none text-sm mt-1 leading-relaxed"
             />
-            <p className="text-xs text-muted-foreground text-right">Length: {adConcept.length} characters</p>
+            <p className="text-xs text-muted-foreground text-right">
+              {t("length")} {adConcept.length} {t("characters")}
+            </p>
           </div>
         )
       case "review":
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Review Your Configuration</h3>
+            <h3 className="text-lg font-semibold">{t("reviewConfiguration")}</h3>
             <div className="p-4 bg-muted rounded-md space-y-2 text-sm border max-h-80 overflow-y-auto">
               <p>
-                <strong>Type:</strong> <Badge variant="outline">{generationType === "image" ? "Image" : "Reel"}</Badge>
+                <strong>{t("type")}:</strong>{" "}
+                <Badge variant="outline">{generationType === "image" ? t("image") : t("reel")}</Badge>
               </p>
               {productImageFile && (
                 <p>
-                  <strong>{generationType === "reel" ? "Source Picture:" : "Product Picture:"}</strong>{" "}
+                  <strong>{generationType === "reel" ? t("sourcePicture") : t("productPicture")}:</strong>{" "}
                   {productImageFile.name} ({(productImageFile.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
               {generationType === "image" && inspirationImageFile && (
                 <p>
-                  <strong>Inspiration Picture:</strong> {inspirationImageFile.name} (
+                  <strong>{t("inspirationPicture")}:</strong> {inspirationImageFile.name} (
                   {(inspirationImageFile.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
               <div>
-                <strong>Final Ad Concept Brief:</strong>
+                <strong>{t("finalAdConcept")}:</strong>
                 <pre className="mt-1 p-2 bg-background/50 rounded text-xs whitespace-pre-wrap font-sans leading-relaxed border">
-                  {adConcept || "(No ad concept provided)"}
+                  {adConcept || `(${t("noAdConceptProvided")})`}
                 </pre>
               </div>
               {generationType === "image" && (
                 <>
                   <p>
-                    <strong>Language:</strong>{" "}
+                    <strong>{t("language")}:</strong>{" "}
                     {languageOptions.find((l) => l.value === imageSettings.language)?.label || imageSettings.language}
                   </p>
                   <p>
-                    <strong>Number of Pictures:</strong> {imageSettings.outputs}
+                    <strong>{t("numberOfPictures")}:</strong> {imageSettings.outputs}
                   </p>
                   <p>
-                    <strong>Aspect Ratio:</strong> {imageSettings.aspectRatio}
+                    <strong>{t("aspectRatio")}:</strong> {imageSettings.aspectRatio}
                   </p>
                 </>
               )}
               {generationType === "reel" && (
                 <>
                   <p>
-                    <strong>Model:</strong> {reelSettings.model || "Not Selected"}
+                    <strong>{t("model")}:</strong> {reelSettings.model || t("notSelected")}
                   </p>
                   <p>
-                    <strong>Number of Reels:</strong> {reelSettings.outputs || "Not Selected"}
+                    <strong>{t("numberOfReels")}:</strong> {reelSettings.outputs || t("notSelected")}
                   </p>
                   <p>
-                    <strong>Aspect Ratio:</strong> {reelSettings.aspectRatio}
+                    <strong>{t("aspectRatio")}:</strong> {reelSettings.aspectRatio}
                   </p>
                 </>
               )}
@@ -687,6 +683,7 @@ export function GenerationWizardModal({
     imageSettings,
     reelSettings,
     adConcept,
+    t,
   ])
 
   const isNextDisabled = useMemo(() => {
@@ -738,7 +735,7 @@ export function GenerationWizardModal({
                   )}
                 />
               )}
-              Create New {generationType === "image" ? "Image - 100 TKN" : "Reel - 1000 TKN"}
+              {t("createNew")} {generationType === "image" ? t("imageCost") : t("reelCost")}
             </DialogTitle>
             <div className="flex items-center justify-center space-x-1 sm:space-x-2 pt-4">
               {steps.map((step, index) => (
@@ -765,7 +762,7 @@ export function GenerationWizardModal({
                       index === currentStepIndex ? "text-primary font-semibold" : "text-muted-foreground",
                     )}
                   >
-                    {step.title}
+                    {t(step.title)}
                   </p>
                 </div>
               ))}
@@ -782,15 +779,15 @@ export function GenerationWizardModal({
                 {isGeneratingBrief ? (
                   <>
                     <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    <span>Generating Brief...</span>
+                    <span>{t("generatingBrief")}</span>
                   </>
                 ) : currentStepIndex === steps.length - 1 ? (
                   <>
-                    <Sparkles className="h-4 w-4" /> Generate
+                    <Sparkles className="h-4 w-4" /> {t("generate")}
                   </>
                 ) : (
                   <>
-                    <span>Next</span>
+                    <span>{t("next")}</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -808,9 +805,7 @@ export function GenerationWizardModal({
           setIsPromptBuilderModalOpen(false)
         }}
       />
-        {isPricingModalOpen && (
-  <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />
-)}
+      {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
     </>
   )
 }

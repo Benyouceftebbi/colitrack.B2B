@@ -35,6 +35,7 @@ import type { HistoryItem } from "@/components/types" // Corrected import path
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 interface OutputPanelProps {
   generatedImages: string[]
@@ -76,6 +77,7 @@ export function OutputPanel({
   // const [viewerImage, setViewerImage] = useState<{ image: string; index: number } | null>(null);
   // const [enhancementModal, setEnhancementModal] = useState<{ image: string; index: number } | null>(null);
   // const [isEnhancing, setIsEnhancing] = useState(false);
+  const t = useTranslations("creativeAi")
 
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
@@ -152,15 +154,11 @@ export function OutputPanel({
             <div className="mb-4 inline-block">
               <ProgressRing progress={generationProgress} size={80} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">
-              {isReel ? "Creating Your Reel" : "Creating Your Masterpiece"}
-            </h3>
-            <p className="text-gray-600 dark:text-slate-400">
-              {isReel ? "AI is bringing your image to life..." : "AI is painting your vision into reality..."}
-            </p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">{t("creatingReel")}</h3>
+            <p className="text-gray-600 dark:text-slate-400">{t("aiCreatingReel")}</p>
             <div className="mt-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-full px-4 py-2 inline-block border border-gray-200 dark:border-slate-700">
               <span className={`text-sm font-medium ${isReel ? "text-blue-600" : "text-purple-600"}`}>
-                {Math.round(generationProgress)}% Complete
+                {Math.round(generationProgress)}%{t("percentComplete")}
               </span>
             </div>
           </div>
@@ -220,13 +218,13 @@ export function OutputPanel({
                 ) : (
                   <Sparkles className="h-6 w-6 text-purple-500" />
                 )}
-                {currentOutputTitle}
+                {t("generatedReels")}
               </h3>
               <p className="text-gray-600 dark:text-slate-400 mt-1">
-                {generatedImages.length} stunning results.
+                {generatedImages.length} {t("stunningResults")}
                 {currentBatchTimestamp && (
                   <span className="block text-xs text-gray-500 dark:text-slate-500 mt-0.5">
-                    Created: {formatFullDateTime(currentBatchTimestamp)}
+                    {t("created")}: {formatFullDateTime(currentBatchTimestamp)}
                   </span>
                 )}
               </p>
@@ -239,7 +237,7 @@ export function OutputPanel({
                 className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Welcome
+                {t("backToWelcome")}
               </Button>
               <Button
                 variant="outline"
@@ -248,7 +246,7 @@ export function OutputPanel({
                 className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
               >
                 <Grid3X3 className="h-4 w-4 mr-2" />
-                {viewMode === "grid" ? "List View" : "Grid View"}
+                {t("listView")}
               </Button>
               <Button
                 variant="outline"
@@ -257,7 +255,7 @@ export function OutputPanel({
                 className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download All
+                {t("downloadAll")}
               </Button>
             </div>
           </div>
@@ -435,7 +433,7 @@ export function OutputPanel({
                 {panelTitle}
               </h3>
               <p className="text-sm text-gray-500 dark:text-slate-400">
-                Review your past {mode} creations or start a new one.
+                {t("reviewPast")} {mode} {t("creationsOrStartNew")}
               </p>
             </div>
           </div>
@@ -453,7 +451,7 @@ export function OutputPanel({
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder={`Search your ${mode}s...`}
+              placeholder={`${t("searchYour")} ${mode}s...`}
               value={historySearchQuery}
               onChange={(e) => setHistorySearchQuery(e.target.value)}
               className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50"
@@ -465,8 +463,8 @@ export function OutputPanel({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white border-gray-300 rounded-xl dark:bg-slate-800 dark:border-slate-700">
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="newest">{t("newestFirst")}</SelectItem>
+              <SelectItem value="oldest">{t("oldestFirst")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -637,10 +635,10 @@ export function OutputPanel({
             <div className="text-center py-16 animate-in fade-in duration-500 delay-200">
               <History className="h-16 w-16 text-gray-300 dark:text-slate-700 mx-auto mb-4 animate-bounce" />
               <h4 className="text-xl font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                No {mode}s in your history yet.
+                {t("no")} {mode} {t("inHistoryYet")}
               </h4>
               <p className="text-gray-500 dark:text-slate-400">
-                Click the "{generateButtonText}" button above to create your first one!
+                {t("clickThe")} "{generateButtonText}" {t("buttonAboveToCreate")}
               </p>
             </div>
           )}
