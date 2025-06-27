@@ -9,7 +9,7 @@ export default function FloatingVideoPlayer() {
 
   // Google Drive direct video link
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
-  const videoUrl = `https://drive.google.com/file/d/${videoId}/preview`
+  const videoUrl = `https://www.youtube.com/embed/2H0C-mnBG48`
 
   // Prevent body scroll when modal is open
   useEffect(() => {

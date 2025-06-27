@@ -1498,7 +1498,28 @@
       "regenerate": "Régénérer",
       "delete": "Supprimer",
       "creativityLevel": "Créativité {level}/10",
-      "view": "Voir"
+      "view": "Voir",
+      "watchDemo": "Regarder la Démo",
+    "howToUseAI": "Comment utiliser la Suite IA Créative",
+    "aiCreativeDemo": "Démo de la Suite IA Créative"
+    },
+    "creativeAii": {
+      "availableNow": "Disponible maintenant !",
+      "aiPowered": "Alimenté par l'IA",
+      "creativeStudio": "Studio Créatif",
+      "description": "Transformez votre flux de travail créatif avec une technologie IA avancée. Générez des visuels époustouflants, créez du contenu engageant et donnez vie à vos idées avec notre plateforme créative intelligente.",
+      "tryItNow": "Essayez maintenant",
+      "scrollPaused": "Défilement en pause",
+      "aiGeneratedContent": "Contenu généré par IA",
+      "imagesGenerated": "Images générées",
+      "reelPreviews": "Aperçus de bobines",
+      "cheaper": "Moins cher",
+      "intelligentContentGeneration": "Génération de contenu intelligent",
+      "intelligentContentDescription": "Des algorithmes d'IA avancés créent des images et des bobines de haute qualité adaptées à vos besoins spécifiques et aux exigences de votre marque.",
+      "lightningFastProcessing": "Traitement ultra-rapide",
+      "lightningFastDescription": "Générez du contenu de qualité professionnelle en quelques secondes, pas en heures. Nos modèles d'IA optimisés offrent des résultats à une vitesse sans précédent.",
+      "precisionCustomization": "Précision et personnalisation",
+      "precisionDescription": "Affinez chaque aspect de votre contenu avec des contrôles avancés et des paramètres pour des résultats parfaits au pixel près."
     }
   
   

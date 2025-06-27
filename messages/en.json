@@ -1458,7 +1458,28 @@
         "regenerate": "Regenerate",
         "delete": "Delete",
         "creativityLevel": "Creativity {level}/10",
-        "view": "View"
+        "view": "View",
+        "watchDemo": "Watch Demo",
+    "howToUseAI": "How to use AI Creative Suite",
+    "aiCreativeDemo": "AI Creative Suite Demo"
+      },
+      "creativeAii": {
+        "availableNow": "Available Now!",
+        "aiPowered": "AI-Powered",
+        "creativeStudio": "Creative Studio",
+        "description": "Transform your creative workflow with advanced AI technology. Generate stunning visuals, create engaging content, and bring your ideas to life with our intelligent creative platform.",
+        "tryItNow": "Try It Now",
+        "scrollPaused": "Scroll paused",
+        "aiGeneratedContent": "AI Generated Content",
+        "imagesGenerated": "Images Generated",
+        "reelPreviews": "Reel Previews",
+        "cheaper": "Cheaper",
+        "intelligentContentGeneration": "Intelligent Content Generation",
+        "intelligentContentDescription": "Advanced AI algorithms create high-quality images and reels tailored to your specific needs and brand requirements.",
+        "lightningFastProcessing": "Lightning-Fast Processing",
+        "lightningFastDescription": "Generate professional-quality content in seconds, not hours. Our optimized AI models deliver results at unprecedented speed.",
+        "precisionCustomization": "Precision & Customization",
+        "precisionDescription": "Fine-tune every aspect of your content with advanced controls and parameters for pixel-perfect results."
       }
     
     
