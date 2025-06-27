@@ -117,14 +117,14 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = fals
 
     setIsSendingSms(true)
     try {
-      const signUpSMS = httpsCallable(functions, "signUpSMS")
-      const result = await signUpSMS({ phoneNumber: testPhoneNumber })
+      //const signUpSMS = httpsCallable(functions, "signUpSMS")
+      //const result = await signUpSMS({ phoneNumber: testPhoneNumber })
 
-      if (result.data?.status === "success") {
+     // if (result.data?.status === "success") {
         setSmsSent(true)
-      } else {
-        setPhoneError("Failed to send SMS. Please try again.")
-      }
+     // } else {
+        //setPhoneError("Failed to send SMS. Please try again.")
+     // }
     } catch (error) {
       setPhoneError("Failed to send test SMS. Please try again later.")
     } finally {
@@ -370,8 +370,8 @@ export default function SignUp() {
         title: "Account Created Successfully!",
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
-      //setIsModalOpen(true)
-    router.push("/dashboard/settings")
+      setIsModalOpen(true)
+    //router.push("/dashboard/settings")
 
       return
     } else {
