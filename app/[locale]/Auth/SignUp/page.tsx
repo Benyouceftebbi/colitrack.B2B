@@ -389,7 +389,7 @@ export default function SignUp() {
       setIsLoading(true)
       // Navigate to dashboard immediately
       setIsModalOpen(false)
-      router.push("/dashboard/settings")
+      router.push("/dashboard/ai-creative")
     } else {
       setIsModalOpen(false)
     }
