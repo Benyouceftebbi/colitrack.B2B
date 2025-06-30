@@ -158,7 +158,7 @@ export function PricingPlans({ className }: { className?: string }) {
       setLoadingStates((prev) => ({ ...prev, [id]: true }))
 
       try {
-        const checkoutSessionRef = collection(db, "Customers", "vihV8sIAWATRY2LvbNiPgsNmk132", "checkout_sessions")
+        const checkoutSessionRef = collection(db, "Customers",shopData.id, "checkout_sessions")
         const docRef = await addDoc(checkoutSessionRef, {
           mode: "payment",
           price: selectedTier.id,
