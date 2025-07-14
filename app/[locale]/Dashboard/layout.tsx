@@ -15,11 +15,10 @@ import { useLocale } from "next-intl";
 import { AppSidebar } from "@/components/ui/navigation/app-sidebar"
 import { Separator } from "@/components/ui/separator";
 import {usePathname} from "@/i18n/routing";
-import { LoadingOverlay } from "../Auth/SignUp/page";
+
 import React from "react";
 import TopHeader from "@/components/ui/navigation/TopHeader";
 import { ShopProvider} from "@/app/context/ShopContext";
-import { WhatsAppSupport } from "@/app/components/WhatsappButton";
 
 export default function DashboardLayout({
   children,
@@ -35,7 +34,9 @@ export default function DashboardLayout({
     return redirect({ href: "/Auth/SignIn", locale: locale });
   }
   if(isAuthenticated==undefined){
-    return <LoadingOverlay/>
+    return <div>
+      loading ...
+    </div>
   }
   return ( 
 
@@ -75,11 +76,6 @@ export default function DashboardLayout({
  
       </main>
       </SidebarInset>
-          {/* WhatsApp Support Button */}
-      <WhatsAppSupport
-        phoneNumber="+213561041724" // Replace with your actual WhatsApp number
-        message="Hi! I need help with your SaaS platform. Can you assist me?"
-      />
       </ShopProvider>
       </SidebarProvider>
 

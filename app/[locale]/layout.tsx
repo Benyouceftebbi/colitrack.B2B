@@ -61,7 +61,7 @@ export default async function RootLayout({
             `,
           }}
         />
-              <FacebookPixel pixelId="613067405045316" />
+  
             <AuthProvider>
               {children}
             <Toaster />

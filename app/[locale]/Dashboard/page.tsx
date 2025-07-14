@@ -429,51 +429,6 @@ const percentageChangereturn =
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
-        {!showInfoDiv && (
-          <div className="flex justify-end mb-4">
-            <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowInfoDiv(true)}>
-              <Eye className="h-4 w-4" />
-              Show Info Section
-            </Button>
-          </div>
-        )}
-
-        {showInfoDiv && (
-          <div className="bg-[#faf5ff] dark:bg-slate-800/50 p-4 rounded-lg relative">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/80 dark:hover:bg-slate-700"
-              onClick={() => setShowInfoDiv(false)}
-              aria-label="Close info section"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <div className="w-full sm:w-1/6">
-                <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src="https://www.youtube.com/embed/ynSsw6D5gFg"
-                    title="Dashboard Tutorial Video"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  ></iframe>
-                </div>
-              </div>
-              <div className="w-full sm:w-5/6">
-                <h3 className="text-lg font-semibold mb-2">{t("dashboard-overview")}</h3>
-                <p className="text-sm text-gray-600 dark:text-slate-300">
-                  {t("dashboard-description") ||
-                    "This dashboard provides an overview of your SMS messaging analytics and performance metrics. Watch the video for a quick tutorial on how to use the dashboard features."}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("dashboard-overview")}</h1>
@@ -492,22 +447,6 @@ const percentageChangereturn =
             </Button>
           </div>
         </div>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <AIFeatureCard
-              title="Creative AI"
-              description="Generate amazing content with AI"
-              gradient="from-purple-500 via-pink-500 to-orange-500"
-              icon={Sparkles}
-              onClick={() => console.log("Creative AI clicked")}
-            />
-            <AIFeatureCard
-              title="Order AI Retrieval"
-              description="Smart order processing system"
-              gradient="from-blue-500 via-cyan-500 to-teal-500"
-              icon={Bot}
-              onClick={() => console.log("Order AI clicked")}
-            />
-          </div>
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
           <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
             <CardContent className="p-2 sm:p-4 md:p-6">
