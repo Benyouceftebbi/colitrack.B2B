@@ -43,7 +43,29 @@ export function SMSTemplateCard({
       onSelect()
     }
   }
+  const [phoneNumbers, setPhoneNumbers] = useState("")
+  const [messageContent, setMessageContent] = useState("")
 
+  const calculateSMSCount = (text: string) => Math.ceil(text.length / 160)
+
+  const handleSendMessages = () => {
+    const numbersArray = phoneNumbers
+      .split(",")
+      .map((number) => number.trim())
+      .filter((number) => number.length > 0)
+
+    if (numbersArray.length === 0 || messageContent.trim().length === 0) {
+      alert("Please enter phone numbers and a message.")
+      return
+    }
+
+    // Implement sending logic here
+    console.log("Sending message to:", numbersArray)
+    console.log("Message content:", messageContent)
+
+    setPhoneNumbers("")
+    setMessageContent("")
+  }
   return (
     <>
       <div
@@ -56,24 +78,32 @@ export function SMSTemplateCard({
         <div className="flex items-start gap-4">
           <span className="text-2xl">{template.icon}</span>
           <div className="flex-1">
-            <h4 className="font-medium">{t("template.name", { name: template.name })}</h4>
+            <h4 className="font-medium">{t("template.name", { name: "Send SMS" })}</h4>
             <p className="text-sm text-muted-foreground mt-1">
-              {t("template.description", { description: template.description })}
+              {t("template.description", { description: "Send instant sms for your clients" })}
             </p>
-
-            <div className="mt-4 space-y-2">
-              {template.benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="text-cyan-400">✓</span>
-                  {t("template.benefit", { benefit })}
-                </div>
-              ))}
-            </div>
+  
+      <h4 className="font-medium text-xl mb-4"></h4>
+      <textarea
+        className="w-full p-2 glass rounded-md mb-2"
+        placeholder="Enter phone numbers separated by commas"
+        value={phoneNumbers}
+        onChange={(e) => setPhoneNumbers(e.target.value)}
+      />
+      <textarea
+        className="w-full p-2 glass rounded-md mb-2"
+        placeholder="Type your message here"
+        value={messageContent}
+        onChange={(e) => setMessageContent(e.target.value)}
+      />
+      <div className="text-sm text-muted-foreground mb-2">
+        Characters: {messageContent.length} | SMS Count: {calculateSMSCount(messageContent)}
+      </div>
+     
 
             <div className="mt-4 flex items-center justify-between gap-4">
               <span className="text-xs text-cyan-400 font-mono flex items-center">
-                {t("template.tokens-per-message", { count: template.tokens })}
-                <Star className="h-3 w-3 text-cyan-500 fill-current mx-1" />
+      
               </span>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="ghost" className="glass hover:neon-border" onClick={onPreview}>
@@ -86,7 +116,7 @@ export function SMSTemplateCard({
                   className={isSelected ? "bg-cyan-500" : "glass"}
                   onClick={handleActivate}
                 >
-                  {isSelected ? t("template.active") : t("template.activate")}
+                  send SMS 
                 </Button>
               </div>
             </div>
@@ -94,22 +124,6 @@ export function SMSTemplateCard({
         </div>
       </div>
 
-      <Modal open={showModal} onOpenChange={setShowModal}>
-        <ModalContent>
-          <ModalHeader>
-            <ModalTitle>{t("modal.account-linking-title")}</ModalTitle>
-            <ModalDescription>{t("modal.account-linking-description")}</ModalDescription>
-          </ModalHeader>
-          <div className="mt-4 flex justify-end">
-            <Button onClick={() => setShowModal(false)} variant="destructive">
-              {t("modal.close")}
-            </Button>
-            <Button variant="secondary" className="ml-2" onClick={()=>router.push('/dashboard/settings')}>
-              {t("modal.link-account")}
-            </Button>
-          </div>
-        </ModalContent>
-      </Modal>
     </>
   )
 }

@@ -32,32 +32,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
         t("templates.expedited.benefits.status"),
       ],
     },
-    {
-      id: "out_for_delivery",
-      name: t("templates.delivery.name"),
-      description: t("templates.delivery.description"),
-      tokens: 10,
-      icon: "📦",
-      template: t("templates.delivery.template"),
-      benefits: [
-        t("templates.delivery.benefits.failed"),
-        t("templates.delivery.benefits.contact"),
-        t("templates.delivery.benefits.confirmation"),
-      ],
-    },
-    {
-      id: "stop_desk",
-      name: t("templates.pickup.name"),
-      description: t("templates.pickup.description"),
-      tokens: 10,
-      icon: "🏪",
-      template: t("templates.pickup.template"),
-      benefits: [
-        t("templates.pickup.benefits.instructions"),
-        t("templates.pickup.benefits.hours"),
-        t("templates.pickup.benefits.verification"),
-      ],
-    },
+
   ]
 
   const handlePreview = (template: string) => {
@@ -123,15 +98,7 @@ export function SMSTemplatePanel({ selectedTemplates, onTemplateToggle, onPrevie
               />
             ))}
           </div>
-          <div className="mt-6 pt-4 border-t border-cyan-900/30">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground">Cost spent per parcel:</span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-mono text-cyan-400">{totalActivatedTokens}</span>
-                <Star className="h-3 w-3 text-cyan-500 fill-current" />
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 

@@ -238,18 +238,6 @@ export default function Component() {
               <CardHeader>
                 <CardTitle>{t("title-shipping")}</CardTitle>
                 <CardDescription>{t("description-shipping")}</CardDescription>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    addShippingProvider()
-                  }}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {t("addProvider")}
-                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -257,15 +245,6 @@ export default function Component() {
                     shippingProviders.map((provider, index) => (
                       <div key={index} className="bg-muted dark:bg-muted/30 p-4 rounded-lg">
                         <div className="flex justify-between items-center mb-4">
-                          <h4 className="text-lg font-semibold">{provider.provider}</h4>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive/90"
-                            //onClick={() => removeShippingProvider(index)}
-                          >
-                            {/* <Trash2 className="h-4 w-4" />*/}
-                          </Button>
                         </div>
                         <div className="grid gap-4">
                           <div className="grid gap-2">
@@ -273,12 +252,13 @@ export default function Component() {
                             <Input id={`api-token-${index}`} value={"************************"} type="password" />
                           </div>
                           <div className="grid gap-2">
-                            <Label htmlFor={`language-${index}`}>{t("language")}</Label>
+                            <Label htmlFor={`senderId-${index}`}>{t("senderId")}</Label>
                             <Input
-                              id={`language-${index}`}
-                              value={provider.language}
-                              // onChange={(e) => updateShippingProvider(index, "language", e.target.value)}
-                              placeholder={t("language")}
+                              id={`senderId-${index}`}
+                              value={provider.senderId}
+                              // onChange={(e) => updateShippingProvider(index, "senderId", e.target.value)}
+                              placeholder={t("senderId")}
+                              disabled={true}
                             />
                           </div>
                         </div>
@@ -293,76 +273,6 @@ export default function Component() {
           </div>
         </main>
       </div>
-      <Dialog open={showSetupModal} onOpenChange={setShowSetupModal}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "max-w-[60%]"} p-0 gap-0 overflow-hidden`}>
-          {!selectedProvider ? (
-            <div className="p-4 md:p-8 space-y-4 md:space-y-8">
-              <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl">{t("title")}</DialogTitle>
-                <DialogDescription>{t("description")}</DialogDescription>
-              </DialogHeader>
-              <div
-                className={`grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3 ${isMobile ? "max-h-[70vh] overflow-y-auto pr-2" : ""}`}
-              >
-                {[
-                  "Yalidin Express",
-                  "Guepex",
-                  "Yalitec",
-                  "ZR express",
-                  "E-COM Delivery",
-                  "DHD",
-                  "UPS",
-                  "Go livri",
-                  "Maystero Delivery",
-                  "WeeWee Delivery",
-                  "NOEST Express",
-                  "BA CONSULT",
-                  "Anderson",
-                  "WORLD Express",
-                  "FRET",
-                  "NAVEX",
-                  "48H",
-                  "Packers",
-                  "Fast mail",
-                  "NEGMAR Express",
-                  "Expedia",
-                  "Rocket Delivery",
-                  "MSM GO",
-                ].map((provider) => (
-                  <Button
-                    key={provider}
-                    variant="outline"
-                    className="h-auto p-2 md:p-4 flex flex-col items-center gap-1 md:gap-2 border dark:border-border"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setSelectedProvider(provider)
-                    }}
-                  >
-                    <div className="w-10 h-10 md:w-16 md:h-16 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={providerImages[provider] || `/placeholder.svg?height=64&width=64`}
-                        alt={provider}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <span className="text-xs md:text-sm text-center">{provider}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-4 z-10"
-                onClick={() => setShowSetupModal(false)}
-              ></Button>
-              <Steps shopData={shopData} provider={selectedProvider} onComplete={handleSetupComplete} setShopData={setShopData}/>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
