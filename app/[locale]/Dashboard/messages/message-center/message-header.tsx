@@ -101,15 +101,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
               </PopoverContent>
             </Popover>
             <HoverCard>
-              <HoverCardTrigger asChild>
-                <Badge
-                  variant={shopData.deliveryCompany ? "default" : "destructive"}
-                  className="slide-in hover:scale-105 transition-transform duration-200"
-                >
-                  <Truck className="h-4 w-4 mr-2" />
-                  {shopData.deliveryCompany ? shopData.deliveryCompany : t("no-delivery-company")}
-                </Badge>
-              </HoverCardTrigger>
+             
               <HoverCardContent className="glass w-80">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">

@@ -184,6 +184,10 @@
   }
 },
 "header": {
+  "messages-left": "الرسائل المتبقية",
+  "average-messages-per-day": "متوسط الرسائل يوميًا",
+  "messages-remaining": "الرسائل المتبقية",
+  "average-messages-per-day-change": "تغير متوسط الرسائل اليومية",
   "daily-target":"daily-target",
   "dashboard-description": "قم بإدارة رسائلك بسهولة وحسّن خدمة التوصيل الخاصة بك مع Colitack.",
   "badge": "عزّز نشاطك في التجارة الإلكترونية",
@@ -897,6 +901,17 @@
   },
 
   "table": {
+    "smsStatusLabels": {
+      "undefined": "غير معروف"
+    },
+    "average-messages-per-day-change": "تغير متوسط الرسائل اليومية",
+    "recent-sms": "الرسائل النصية الأخيرة",
+    "message-id": "معرف الرسالة",
+    "phone-number": "رقم الهاتف",
+    "sms-status": "حالة الرسالة",
+    "content": "المحتوى",
+    "date": "التاريخ",
+    "search-sms-placeholder": "ابحث حسب المحتوى أو رقم الهاتف أو الحالة...",
     "send-to-selected": "إرسال إلى المحددين",
 "multiple-reminder-description": "تذكير متعدد",
 "selected-recipients": "المستلمون المحددون",
@@ -1016,12 +1031,18 @@
     }
   },
   "navigation": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "senderId": "معرّف المرسل",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "charactersLimit": "الحد الأقصى للأحرف",
     "customBusinessType": "نوع النشاط التجاري المخصص",
   "customBusinessTypePlaceholder": "نوع النشاط التجاري المخصص",
   "firstName": "الاسم الأول",
   "firstNamePlaceholder": "الاسم الأول",
-    "addShop": "إضافة متجر",
-    "addNewShop": "إضافة متجر جديد",
+    "addShop": "إضافة شركة",
+    "addNewShop": "إضافة شركة جديد",
     "enterShopDetails": "أدخل تفاصيل متجرك لإضافته إلى حسابك.",
     "companyName": "اسم الشركة",
     "companyNamePlaceholder": "Acme Inc.",

@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star, X, Eye, Sparkles, Bot } from "lucide-react"
+import { ArrowDown, ArrowUp, MessageSquare, HelpCircle, Star } from "lucide-react"
 import * as React from "react"
 import { useRouter } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,6 @@ import { db } from "@/firebase/firebase"
 import { DataTable } from "./messages/message-center/sms-history/data-table"
 import { columns } from "./messages/message-center/sms-history/columns"
 import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/ui/modal"
-import { AIFeatureCard } from "./dashboard/components/ai-hover-card"
 
 type AlgeriaDataItem = {
   name: string
@@ -119,36 +118,59 @@ export default function Dashboard() {
   const [showInfoDiv, setShowInfoDiv] = React.useState(true)
   const { theme } = useTheme()
   const { shopData } = useShop()
-  const [showModal, setShowModal] = React.useState(!shopData.lng); // Show modal if shopData.lng is not present
+  const [showModal, setShowModal] = React.useState(!shopData.lng) // Show modal if shopData.lng is not present
 
+  // Helper function to get days in a month
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month + 1, 0).getDate() // month is 0-indexed
+  }
+
+  const currentDate = new Date()
+  const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
+
+  // Calculations for "Average Messages per Day" card
+  const currentMonthTotalSMS = shopData.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0
+  const daysPassedInCurrentMonth = currentDate.getDate() // Number of days passed in the current month
+  const currentAverageMessagesPerDay =
+    daysPassedInCurrentMonth > 0 ? currentMonthTotalSMS / daysPassedInCurrentMonth : 0
+
+  const prevDateForAvg = new Date(currentDate)
+  prevDateForAvg.setMonth(prevDateForAvg.getMonth() - 1)
+  const prevYearMonthForAvg = `${prevDateForAvg.getFullYear()}-${String(prevDateForAvg.getMonth() + 1).padStart(2, "0")}`
+  const previousMonthTotalSMS = shopData.analytics?.totalMessagesByMonth?.SMS?.[prevYearMonthForAvg] || 0
+  const daysInPreviousMonthForAvg = getDaysInMonth(prevDateForAvg.getFullYear(), prevDateForAvg.getMonth())
+  const previousAverageMessagesPerDay =
+    daysInPreviousMonthForAvg > 0 ? previousMonthTotalSMS / daysInPreviousMonthForAvg : 0
+
+  let percentageChangeAverage = 0
+  if (previousAverageMessagesPerDay > 0) {
+    percentageChangeAverage =
+      ((currentAverageMessagesPerDay - previousAverageMessagesPerDay) / previousAverageMessagesPerDay) * 100
+  } else if (currentAverageMessagesPerDay > 0) {
+    percentageChangeAverage = 100 // If previous was 0 and current is > 0, it's a 100% increase
+  }
 
   const chartData = React.useMemo<ChartData[]>(() => {
-    // Get the current date
-    const currentDate = new Date()
     const result: ChartData[] = []
-
     // Generate the last 6 months (including current month)
     for (let i = 5; i >= 0; i--) {
       const date = new Date(currentDate)
       date.setMonth(currentDate.getMonth() - i)
-
       // Get the month name for display
       const monthName = date.toLocaleString("default", { month: "long" })
-
       // Get the correct year and month for the data lookup
       const year = date.getFullYear()
       const monthNum = String(date.getMonth() + 1).padStart(2, "0") // +1 because getMonth() is 0-indexed
-      const yearMonth = `${year}-${monthNum}`
-
+      const yearMonthKey = `${year}-${monthNum}`
       result.push({
         month: monthName,
-        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.[yearMonth] || 0,
-        totalSmsSentInCampaign: shopData.analytics?.totalSMSComapignByMonth?.[yearMonth] || 0,
+        totalSmsOfOneTapLink: shopData.analytics?.totalMessagesByMonth?.SMS?.[yearMonthKey] || 0, // Corrected path
+        totalSmsSentInCampaign: shopData.analytics?.totalMessagesByMonth?.SMSComapign?.[yearMonthKey] || 0, // Corrected path
       })
     }
-
     return result
   }, [shopData.analytics])
+
   const chartConfig = {
     desktop: {
       label: "SMS Messages",
@@ -159,9 +181,9 @@ export default function Dashboard() {
       color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig
+
   const algeriaData: AlgeriaDataItem[] = React.useMemo(() => {
     if (!shopData.analytics?.totalMessagesByState) return []
-
     return Object.entries(shopData.analytics.totalMessagesByState)
       .map(([stateCode, count]) => ({
         name: algeriaStatesMap[stateCode] || stateCode,
@@ -169,10 +191,12 @@ export default function Dashboard() {
       }))
       .sort((a, b) => b.value - a.value)
   }, [shopData.analytics?.totalMessagesByState])
+
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
     return () => clearTimeout(timer)
   }, [])
+
   const table = useReactTable({
     data: algeriaData,
     columns: algeriaColumns,
@@ -184,63 +208,6 @@ export default function Dashboard() {
       },
     },
   })
-  const currentDate = new Date()
-  const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
-
-
-  
-
-
-  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
-  const currentMonth = React.useMemo(() => {
-    return new Date().toLocaleString("default", { month: "long" })
-  }, [])
-
-  const lastMonth = React.useMemo(() => {
-    return new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString("default", { month: "long" })
-  }, [])
-
-  const currentMonthSms = React.useMemo(() => {
-    return shopData.analytics?.[currentMonth]?.totalSmsSent || 0
-  }, [shopData.analytics, currentMonth])
-
-  const lastMonthSms = React.useMemo(() => {
-    return shopData.analytics?.[lastMonth]?.totalSmsSent || 0
-  }, [shopData.analytics, lastMonth])
-
-  const percentageChange = React.useMemo(() => {
-    return lastMonthSms > 0
-      ? ((shopData?.analytics?.totalMessagesByMonth?.[yearMonth] -
-          shopData?.analytics?.totalMessagesByMonth?.[
-            `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
-          ]) /
-          shopData?.analytics?.totalMessagesByMonth?.[
-            `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, "0")}`
-          ]) *
-          100
-      : 0;
-  }, [currentMonthSms, lastMonthSms]);
-  
-
-const previousWeek = `W${String(Math.ceil(currentDate.getDate() / 7) - 1).padStart(2, "0")}`;
-const currentYear = currentDate.getFullYear();
-
-
-
-const currentWeekKey = `${currentWeek}`;
-const previousWeekKey = `${currentYear}-${previousWeek}`;
-
-
-
-// Check if the keys exist in returnRateByWeek before accessing them
-const currentReturnRate = shopData?.analytics?.returnRateByWeek?.[currentWeekKey] || 0;
-const previousReturnRate = shopData?.analytics?.returnRateByWeek?.[previousWeekKey] || 0;
-
-
-const percentageChangereturn =
-  previousReturnRate === 0
-    ? currentReturnRate
-    : ((currentReturnRate - previousReturnRate) / previousReturnRate) * 100;
 
   const updateShopAnalytics = async (shopId: string) => {
     try {
@@ -264,7 +231,6 @@ const percentageChangereturn =
             "2024-06": 2800,
           },
         },
-
         // Weekly return rates (last 12 weeks)
         returnRateByWeek: {
           "2024-W01": 35.5,
@@ -280,7 +246,6 @@ const percentageChangereturn =
           "2024-W11": 43.7,
           "2024-W12": 45.2,
         },
-
         // Distribution by state (all 58 wilayas)
         totalMessagesByState: {
           "01": 1250, // Adrar
@@ -342,24 +307,15 @@ const percentageChangereturn =
           "57": 750, // In Salah
           "58": 450, // In Guezzam
         },
-
         // Daily metrics
         smsSentToday: 150,
         dailyTarget: 200,
         monthlyTarget: 3000,
         newThisWeek: 45,
       }
-
       // Update the document in Firebase
       const shopRef = doc(db, "Shops", shopId)
-      await setDoc(
-        shopRef,
-        {
-          analytics: analyticsData,
-        },
-        { merge: true },
-      ) // Using merge: true to only update the analytics field
-
+      await setDoc(shopRef, { analytics: analyticsData }, { merge: true }) // Using merge: true to only update the analytics field
       console.log("Analytics data updated successfully")
       return analyticsData
     } catch (error) {
@@ -367,81 +323,69 @@ const percentageChangereturn =
       throw error
     }
   }
+
   const fetchContactRates = async () => {
     try {
       // Query only shops that have a "deliveryCompany" field
-      const shopsQuery = query(collection(db, "Shops"), where("deliveryCompany", "!=", null));
-      const querySnapshot = await getDocs(shopsQuery);
-  
-      let totalContacts = 0;
-      let rateCounts = { Ooredoo: 0, Mobilis: 0, Djezzy: 0 };
-  
+      const shopsQuery = query(collection(db, "Shops"), where("deliveryCompany", "!=", null))
+      const querySnapshot = await getDocs(shopsQuery)
+      let totalContacts = 0
+      const rateCounts = { Ooredoo: 0, Mobilis: 0, Djezzy: 0 }
       // Fetch Tracking subcollections in parallel
       await Promise.all(
         querySnapshot.docs.map(async (shopDoc) => {
-          const trackingDocs = await getDocs(collection(shopDoc.ref, "Tracking"));
-         
-          
+          const trackingDocs = await getDocs(collection(shopDoc.ref, "Tracking"))
           trackingDocs.docs.forEach((trackingDoc) => {
-            const trackingData = trackingDoc.data().data;
-            const phone=trackingDoc.data().data.contact_phone
-            console.log("id",phone);
-
-                if (typeof phone === "string") {
-                  totalContacts++; // Count total contacts
-                  if (phone.startsWith("05")) {
-                    rateCounts.Ooredoo++;
-                  } else if (phone.startsWith("06")) {
-                    rateCounts.Mobilis++;
-                  } else if (phone.startsWith("07")) {
-                    rateCounts.Djezzy++;
-                  }
-                }
-              
-            
-          });
-        })
-      );
-  
+            const trackingData = trackingDoc.data().data
+            const phone = trackingDoc.data().data.contact_phone
+            console.log("id", phone)
+            if (typeof phone === "string") {
+              totalContacts++ // Count total contacts
+              if (phone.startsWith("05")) {
+                rateCounts.Ooredoo++
+              } else if (phone.startsWith("06")) {
+                rateCounts.Mobilis++
+              } else if (phone.startsWith("07")) {
+                rateCounts.Djezzy++
+              }
+            }
+          })
+        }),
+      )
       // Calculate percentages
       const ratePercentages = {
         Ooredoo: totalContacts ? ((rateCounts.Ooredoo / totalContacts) * 100).toFixed(2) + "%" : "0%",
         Mobilis: totalContacts ? ((rateCounts.Mobilis / totalContacts) * 100).toFixed(2) + "%" : "0%",
         Djezzy: totalContacts ? ((rateCounts.Djezzy / totalContacts) * 100).toFixed(2) + "%" : "0%",
-      };
-  
-      const smsCosts = { Ooredoo: 7, Mobilis: 4, Djezzy: 4 };
-
-    // Calculate average SMS cost
-    const totalSmsCost =
-      rateCounts.Ooredoo * smsCosts.Ooredoo +
-      rateCounts.Mobilis * smsCosts.Mobilis +
-      rateCounts.Djezzy * smsCosts.Djezzy;
-
-    const averageSmsCost = totalContacts ? (totalSmsCost / totalContacts).toFixed(2) : "0.00";
-
-    console.log({ totalContacts, rateCounts, ratePercentages, averageSmsCost });
-    return { totalContacts, rateCounts, ratePercentages, averageSmsCost };
+      }
+      const smsCosts = { Ooredoo: 7, Mobilis: 4, Djezzy: 4 }
+      // Calculate average SMS cost
+      const totalSmsCost =
+        rateCounts.Ooredoo * smsCosts.Ooredoo +
+        rateCounts.Mobilis * smsCosts.Mobilis +
+        rateCounts.Djezzy * smsCosts.Djezzy
+      const averageSmsCost = totalContacts ? (totalSmsCost / totalContacts).toFixed(2) : "0.00"
+      console.log({ totalContacts, rateCounts, ratePercentages, averageSmsCost })
+      return { totalContacts, rateCounts, ratePercentages, averageSmsCost }
     } catch (err) {
-      console.error("Error fetching contact rates:", err);
+      console.error("Error fetching contact rates:", err)
     }
-  };
+  }
+
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-8">
       <div className="container mx-auto space-y-4 sm:space-y-6 md:space-y-8">
-
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{t("dashboard-overview")}</h1>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="text-xs sm:text-sm w-full sm:w-auto"
+              className="text-xs sm:text-sm w-full sm:w-auto bg-transparent"
               //onClick={fetchContactRates}
             >
               {t("export-data")}
             </Button>
-
             <Button variant="outline" size="icon" aria-label={t("help")} onClick={() => setShowHelp(!showHelp)}>
               <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
@@ -453,9 +397,12 @@ const percentageChangereturn =
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
-                    {t("tokens-left")}
+                    {t("messages-left")}
                   </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold"> {Number(shopData.tokens).toFixed(2)}</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {" "}
+                    {Number(shopData.tokens).toFixed(2)}
+                  </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
@@ -464,7 +411,7 @@ const percentageChangereturn =
               <div className="mt-3 sm:mt-4 pt-2">
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
                   <span className="text-green-600 flex items-center">
-                    {t("sms-remaining", {
+                    {t("messages-remaining", {
                       min: Math.floor(shopData.tokens / 15),
                       max: Math.floor(shopData.tokens / 10),
                     })}
@@ -481,107 +428,27 @@ const percentageChangereturn =
                     {t("total-messages")}
                   </p>
                   <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold flex items-center space-x-2">
-  {(() => {
-    const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[yearMonth] || 0;
-
-    // Compute previous month string correctly
-    const prevDate = new Date(currentDate);
-    prevDate.setMonth(prevDate.getMonth() - 1);
-    const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
-
-    const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[prevYearMonth] || 0;
-    const difference = currentMonthMessages - previousMonthMessages;
-
-    return (
-      <>
-        <span>{currentMonthMessages}</span>
-        {difference > 0 ? (
-          <span className="text-green-500">▲</span> // Increase indicator
-        ) : difference < 0 ? (
-          <span className="text-red-500">▼</span> // Decrease indicator
-        ) : (
-          <span className="text-gray-500">➖</span> // No change
-        )}
-      </>
-    );
-  })()}
-</h2>
-
-
-                </div>
-                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
-                  <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
-                </div>
-              </div>
-              <div className="mt-3 sm:mt-4 pt-2">
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                <span
-   className={`flex items-center ${
-    percentageChange > 0
-      ? "text-green-600"  // Increase → Green
-      : percentageChange < 0
-      ? "text-red-600"    // Decrease → Red
-      : "text-gray-500"   // No change → Gray
-  }`}
->
-  {(() => {
-    const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[yearMonth] || 0;
-
-    // Compute previous month string correctly
-    const prevDate = new Date(currentDate);
-    prevDate.setMonth(prevDate.getMonth() - 1);
-    const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
-
-    const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.[prevYearMonth] || 0;
-    
-    let percentageChange = 0;
-
-    if (previousMonthMessages > 0) {
-      percentageChange = ((currentMonthMessages - previousMonthMessages) / previousMonthMessages) * 100;
-    } else if (currentMonthMessages > 0) {
-      percentageChange = 100; // Full increase if last month was 0
-    }
-
-    return (
-      <span
-      className={`flex items-center ${
-        percentageChange > 0
-          ? "text-green-600"  // Positive change → Green
-          : percentageChange < 0
-          ? "text-red-600"    // Negative change → Red
-          : "text-gray-500"   // No change → Gray
-      }`}
-    >
-      {percentageChange > 0 ? (
-        <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-      ) : percentageChange < 0 ? (
-        <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-      ) : (
-        <span>➖</span> // No change indicator
-      )}
-      {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
-    </span>
-    
-    );
-  })()}
-</span>
-
-
-
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
-            <CardContent className="p-2 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
-                    {t("total-sms-today")}
-                  </p>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    {shopData?.analytics?.totalSMSSentToday || 0}
+                    {(() => {
+                      const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0 // Corrected path
+                      // Compute previous month string correctly
+                      const prevDate = new Date(currentDate)
+                      prevDate.setMonth(prevDate.getMonth() - 1)
+                      const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`
+                      const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[prevYearMonth] || 0 // Corrected path
+                      const difference = currentMonthMessages - previousMonthMessages
+                      return (
+                        <>
+                          <span>{currentMonthMessages}</span>
+                          {difference > 0 ? (
+                            <span className="text-green-500">▲</span> // Increase indicator
+                          ) : difference < 0 ? (
+                            <span className="text-red-500">▼</span> // Decrease indicator
+                          ) : (
+                            <span className="text-gray-500">➖</span> // No change
+                          )}
+                        </>
+                      )
+                    })()}
                   </h2>
                 </div>
                 <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
@@ -590,95 +457,179 @@ const percentageChangereturn =
               </div>
               <div className="mt-3 sm:mt-4 pt-2">
                 <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                {(() => {
-  const currentMonth = currentDate.getMonth() + 1;
-  const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-  const previousYear =
-    currentMonth === 1 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
-
-  const previousYearMonth = `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
-  const previousMonthTotal = shopData?.analytics?.totalMessagesByMonth?.previousYearMonth || 0;
-  const dailyAverageLastMonth = previousMonthTotal / 30; // Assume 30 days for simplicity
-  const todayMessages = shopData?.analytics?.totalSMSSentToday || 0;
-
-  const percentageChange = ((todayMessages - dailyAverageLastMonth) / dailyAverageLastMonth) * 100;
-
-  return (
-    <span
-      className={`flex items-center ${
-        percentageChange > 0
-          ? "text-green-600"
-          : percentageChange < 0
-          ? "text-red-600"
-          : "text-gray-500"
-      }`}
-    >
-      {percentageChange > 0 ? (
-        <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-      ) : percentageChange < 0 ? (
-        <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-      ) : (
-        <span>➖</span>
-      )}
-      {t("daily-target", { value: todayMessages })}
-    </span>
-  );
-})()}
-
+                  <span
+                    className={`flex items-center ${(() => {
+                      const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0 // Corrected path
+                      const prevDate = new Date(currentDate)
+                      prevDate.setMonth(prevDate.getMonth() - 1)
+                      const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`
+                      const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[prevYearMonth] || 0 // Corrected path
+                      let percentageChange = 0
+                      if (previousMonthMessages > 0) {
+                        percentageChange =
+                          ((currentMonthMessages - previousMonthMessages) / previousMonthMessages) * 100
+                      } else if (currentMonthMessages > 0) {
+                        percentageChange = 100 // Full increase if last month was 0
+                      }
+                      return percentageChange > 0
+                        ? "text-green-600" // Positive change → Green
+                        : percentageChange < 0
+                          ? "text-red-600" // Negative change → Red
+                          : "text-gray-500" // No change → Gray
+                    })()}`}
+                  >
+                    {(() => {
+                      const currentMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[yearMonth] || 0 // Corrected path
+                      const prevDate = new Date(currentDate)
+                      prevDate.setMonth(prevDate.getMonth() - 1)
+                      const prevYearMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`
+                      const previousMonthMessages = shopData?.analytics?.totalMessagesByMonth?.SMS?.[prevYearMonth] || 0 // Corrected path
+                      let percentageChange = 0
+                      if (previousMonthMessages > 0) {
+                        percentageChange =
+                          ((currentMonthMessages - previousMonthMessages) / previousMonthMessages) * 100
+                      } else if (currentMonthMessages > 0) {
+                        percentageChange = 100 // Full increase if last month was 0
+                      }
+                      return (
+                        <span
+                          className={`flex items-center ${
+                            percentageChange > 0
+                              ? "text-green-600" // Positive change → Green
+                              : percentageChange < 0
+                                ? "text-red-600" // Negative change → Red
+                                : "text-gray-500" // No change → Gray
+                          }`}
+                        >
+                          {percentageChange > 0 ? (
+                            <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                          ) : percentageChange < 0 ? (
+                            <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                          ) : (
+                            <span>➖</span> // No change indicator
+                          )}
+                          {t("percentage-change", { value: Math.abs(percentageChange).toFixed(1) })}
+                        </span>
+                      )
+                    })()}
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
-
           <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
-    <CardContent className="p-2 sm:p-4 md:p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
-            {t("return-rate")}
-          </p>
-          <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
-            {currentReturnRate.toFixed(1)}%
-          </h2>
-        </div>
-        <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
-          {percentageChangereturn > 0 ? (
-            <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-green-600" />
-          ) : percentageChangereturn < 0 ? (
-            <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-red-600" />
-          ) : (
-            <span className="text-gray-500">➖</span>
-          )}
-        </div>
-      </div>
-      <div className="mt-3 sm:mt-4 pt-2">
-        <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-          <span
-            className={`flex items-center ${
-              percentageChangereturn > 0
-                ? "text-green-600"
-                : percentageChangereturn < 0
-                ? "text-red-600"
-                : "text-gray-500"
-            }`}
-          >
-            {percentageChangereturn > 0 ? (
-              <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-            ) : percentageChangereturn < 0 ? (
-              <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
-            ) : (
-              <span>➖</span>
-            )}
-            {t("return-rate-change", {
-              value: Math.abs(percentageChangereturn).toFixed(1),
-            })}
-          </span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-        </div>
+            <CardContent className="p-2 sm:p-4 md:p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("total-sms-today")}
+                  </p>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {shopData?.analytics?.smsSentToday || 0}
+                  </h2>
+                </div>
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
+                  <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-primary" />
+                </div>
+              </div>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  {(() => {
+                    const currentMonthNum = currentDate.getMonth() // 0-indexed
+                    const currentYearNum = currentDate.getFullYear()
 
+                    const previousMonthNum = currentMonthNum === 0 ? 11 : currentMonthNum - 1 // 0-indexed
+                    const previousYearNum = currentMonthNum === 0 ? currentYearNum - 1 : currentYearNum
+
+                    const previousYearMonthKey = `${previousYearNum}-${String(previousMonthNum + 1).padStart(2, "0")}` // YYYY-MM format
+
+                    const previousMonthTotal =
+                      shopData?.analytics?.totalMessagesByMonth?.SMS?.[previousYearMonthKey] || 0 // Corrected path and key
+                    const daysInPreviousMonthForDailyAvg = getDaysInMonth(previousYearNum, previousMonthNum) // Corrected month index for getDaysInMonth
+                    const dailyAverageLastMonth =
+                      daysInPreviousMonthForDailyAvg > 0 ? previousMonthTotal / daysInPreviousMonthForDailyAvg : 0 // Handle division by zero
+
+                    const todayMessages = shopData?.analytics?.smsSentToday || 0 // Changed from totalSMSSentToday to smsSentToday as per analyticsData structure
+                    let percentageChangeDaily = 0
+                    if (dailyAverageLastMonth > 0) {
+                      percentageChangeDaily = ((todayMessages - dailyAverageLastMonth) / dailyAverageLastMonth) * 100
+                    } else if (todayMessages > 0) {
+                      percentageChangeDaily = 100
+                    }
+
+                    return (
+                      <span
+                        className={`flex items-center ${
+                          percentageChangeDaily > 0
+                            ? "text-green-600"
+                            : percentageChangeDaily < 0
+                              ? "text-red-600"
+                              : "text-gray-500"
+                        }`}
+                      >
+                        {percentageChangeDaily > 0 ? (
+                          <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                        ) : percentageChangeDaily < 0 ? (
+                          <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                        ) : (
+                          <span>➖</span>
+                        )}
+                        {t("daily-target", { value: todayMessages })}
+                      </span>
+                    )
+                  })()}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="group transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5 hover:bg-primary/5">
+            <CardContent className="p-2 sm:p-4 md:p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground">
+                    {t("average-messages-per-day")}
+                  </p>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                    {currentAverageMessagesPerDay.toFixed(1)}
+                  </h2>
+                </div>
+                <div className="p-1 sm:p-2 md:p-3 bg-primary/10 rounded-full transition-all duration-300 ease-in-out group-hover:bg-primary/20">
+                  {percentageChangeAverage > 0 ? (
+                    <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-green-600" />
+                  ) : percentageChangeAverage < 0 ? (
+                    <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-red-600" />
+                  ) : (
+                    <span className="text-gray-500">➖</span>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 sm:mt-4 pt-2">
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+                  <span
+                    className={`flex items-center ${
+                      percentageChangeAverage > 0
+                        ? "text-green-600"
+                        : percentageChangeAverage < 0
+                          ? "text-red-600"
+                          : "text-gray-500"
+                    }`}
+                  >
+                    {percentageChangeAverage > 0 ? (
+                      <ArrowUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    ) : percentageChangeAverage < 0 ? (
+                      <ArrowDown className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 mr-1" />
+                    ) : (
+                      <span>➖</span>
+                    )}
+                    {t("average-messages-per-day-change", {
+                      value: Math.abs(percentageChangeAverage).toFixed(1),
+                    })}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -776,7 +727,6 @@ const percentageChangereturn =
             </CardContent>
           </Card>
         </div>
-
         <Card>
           <CardHeader className="p-2 sm:p-4 md:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
@@ -792,7 +742,7 @@ const percentageChangereturn =
             <CardDescription className="text-[10px] sm:text-xs md:text-sm">{t("track-message-status")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={shopData.tracking?.slice(0, 10) || []} />
+            <DataTable columns={columns} data={shopData.sms?.slice(0, 10) || []} />
           </CardContent>
         </Card>
       </div>
@@ -806,7 +756,11 @@ const percentageChangereturn =
             <Button onClick={() => setShowModal(false)} variant="destructive">
               {t("modal.close")}
             </Button>
-            <Button variant="secondary" className="ml-2" onClick={() => router.push({ pathname: '/dashboard/settings', query: { link:true } })}>
+            <Button
+              variant="secondary"
+              className="ml-2"
+              onClick={() => router.push({ pathname: "/dashboard/settings", query: { link: true } })}
+            >
               {t("modal.link-account")}
             </Button>
           </div>
@@ -815,4 +769,3 @@ const percentageChangereturn =
     </div>
   )
 }
-

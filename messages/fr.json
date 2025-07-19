@@ -185,6 +185,10 @@
     }
   },
   "header": {
+    "messages-left": "Messages restantes",
+    "average-messages-per-day": "Moyenne de messages par jour",
+    "messages-remaining": "Messages restants",
+    "average-messages-per-day-change": "Changement de la moyenne quotidienne des messages",
     "daily-target":"daily-target",
     "dashboard-description": "Gérez facilement vos messages et améliorez votre service de livraison avec Colitack.",
 
@@ -899,6 +903,16 @@
     "select-date": "Sélectionner une date"
   },
   "table": {
+    "smsStatusLabels": {
+      "undefined": "Inconnu"
+    },
+    "recent-sms": "SMS récents",
+  "message-id": "ID du message",
+  "phone-number": "Numéro de téléphone",
+  "sms-status": "Statut du SMS",
+  "content": "Contenu",
+  "date": "Date",
+  "search-sms-placeholder": "Rechercher par contenu, numéro de téléphone ou statut...",
     "send-to-selected": "Envoyer aux sélectionnés",
 "multiple-reminder-description": "Rappel multiple",
 "selected-recipients": "Destinataires sélectionnés",
@@ -1038,12 +1052,18 @@
     }
   },
   "navigation": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "senderId": "ID de l’expéditeur",
+    "emailPlaceholder": "Entrez votre email",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "charactersLimit": "Limite de caractères",
     "customBusinessType": "Type d'entreprise personnalisé",
     "customBusinessTypePlaceholder": "Type d'entreprise personnalisé",
     "firstName": "Prénom",
     "firstNamePlaceholder": "Prénom",
-    "addShop": "Ajouter une boutique",
-    "addNewShop": "Ajouter une nouvelle boutique",
+    "addShop": "Ajouter une entreprise",
+    "addNewShop": "Ajouter une nouvelle entreprise",
     "enterShopDetails": "Entrez les détails de votre boutique pour l'ajouter à votre compte.",
     "companyName": "Nom de l'entreprise",
     "companyNamePlaceholder": "Acme Inc.",

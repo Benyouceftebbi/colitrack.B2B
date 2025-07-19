@@ -51,7 +51,7 @@ export default function Header() {
           {shopData.senderId ? shopData.senderId : t("default-sender")}
         </span>
       </div>
-      <PricingModal />
+    
       <ThemeToggle />
       <LanguageSwitcher />
     </div>

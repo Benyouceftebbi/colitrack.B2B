@@ -4,7 +4,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Building2, Phone, Store, User } from "lucide-react"
+import { Building2, Phone, Store, User, Mail, Lock, Send, Eye, EyeOff } from "lucide-react" // Added Eye, EyeOff icons
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -39,15 +39,23 @@ const formSchema = z.object({
     message: "Please select a business type.",
   }),
   customBusinessType: z.string().optional(),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  }),
+  senderId: z.string().length(11, {
+    message: "Sender ID must be exactly 11 characters.",
+  }),
 })
 
 export function AddShopModal() {
   const t = useTranslations("navigation")
   const [open, setOpen] = React.useState(false)
-  const { shops, setShops, setShopData,shopData } = useShop()
-  const {
-    formState: { errors,isSubmitting },
-  } = useForm<FormData>()
+  const [showPassword, setShowPassword] = React.useState(false) // New state for password visibility
+  const { shops, setShops, setShopData, shopData } = useShop()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,18 +64,18 @@ export function AddShopModal() {
       phoneNumber: "",
       businessType: "",
       customBusinessType: "",
+      email: "",
+      password: "",
+      senderId: "",
     },
   })
 
-  // Watch the businessType field to conditionally show the custom business type input
   const businessType = form.watch("businessType")
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Determine the final business type (use custom if "other" was selected)
     const finalBusinessType =
       values.businessType === "other" && values.customBusinessType ? values.customBusinessType : values.businessType
 
-    // Create a new shop with the form values
     const newShop = {
       firstName: values.firstName,
       companyName: values.companyName,
@@ -76,22 +84,22 @@ export function AddShopModal() {
       sms: [],
       tracking: [],
       smsCampaign: [],
-      terms:true,
-      email:shopData.email,
-      tokens:0,
-     }
+      terms: true,
+      email: values.email,
+      password: values.password,
+      senderId: values.senderId,
+      tokens: 0,
+    }
+
     const addShop = httpsCallable(functions, "addShop")
     const response = await addShop({ newShop })
     const newShopWithId = { ...newShop, id: response.data.id }
 
-    // Add the new shop to the shops array
     const updatedShops = [...shops, newShopWithId]
     setShops(updatedShops)
 
-    // Set the new shop as the current shop
     setShopData(newShopWithId)
 
-    // Reset the form and close the dialog
     form.reset()
     setOpen(false)
   }
@@ -163,6 +171,75 @@ export function AddShopModal() {
             />
             <FormField
               control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("email")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input className="pl-10" type="email" placeholder={t("emailPlaceholder")} {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("password")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        className="pl-10 pr-10" // Added pr-10 for space for the icon
+                        type={showPassword ? "text" : "password"} // Toggle type
+                        placeholder={t("passwordPlaceholder")}
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 hover:bg-transparent"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="senderId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("senderId")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Send className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input className="pl-10" placeholder={t("senderIdPlaceholder")} maxLength={11} {...field} />
+                    </div>
+                  </FormControl>
+                  <span className="text-sm text-muted-foreground">
+                    {field.value.length}/{11} {t("charactersLimit")}
+                  </span>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="businessType"
               render={({ field }) => (
                 <FormItem>
@@ -205,7 +282,9 @@ export function AddShopModal() {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 {t("cancel")}
               </Button>
-              <LoadingButton loading={isSubmitting} type="submit">{t("addShop")}</LoadingButton>
+              <LoadingButton loading={form.formState.isSubmitting} type="submit">
+                {t("addShop")}
+              </LoadingButton>
             </DialogFooter>
           </form>
         </Form>
@@ -213,4 +292,3 @@ export function AddShopModal() {
     </Dialog>
   )
 }
-

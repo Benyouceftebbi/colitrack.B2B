@@ -85,4 +85,3 @@ export function TablePagination<TData>({ table }: TablePaginationProps<TData>) {
     </div>
   )
 }
-
