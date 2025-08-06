@@ -333,13 +333,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         // Firestore query conditions for SMS and Tracking collections
         const smsQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "SMS"),
-                where("createdAt", ">=", fromTimestamp),
-                where("createdAt", "<=", toTimestamp),
-              )
-            : collection(shopRef, "SMS")
+         collection(shopRef, "SMS")
 
         const trackingQuery =
           fromTimestamp && toTimestamp
@@ -435,6 +429,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             lastStatus: trackingMap[smsInfo.trackingId] || null,
           })
         })
+
 
         imageAiDocs.docs.forEach((imageAi) => {
           const imageAiInfo = imageAi.data()

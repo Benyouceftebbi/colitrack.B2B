@@ -25,24 +25,19 @@ export const columns: ColumnDef<SMSMessage>[] = [
     cell: ({ row }) => <span className="font-mono text-sm">{row.getValue("phoneNumber")}</span>,
   },
   {
-    accessorKey: "smsStatus",
+    accessorKey: "status",
     header: ({ t }) => t("sms-status"),
     cell: ({ row, t }) => {
-      const status = row.getValue("smsStatus") as string
+      const status = row.getValue("status") as string
       return (
         <Badge
           variant="outline"
-          className={
-            status === "delivered"
-              ? "bg-emerald-500/10 text-emerald-500"
-              : status === "sent"
-                ? "bg-blue-500/10 text-blue-500"
-                : status === "failed"
+          className={ status === "failed"
                   ? "bg-red-500/10 text-red-500"
-                  : "bg-yellow-500/10 text-yellow-500" // Default for other statuses
+                  : "bg-emerald-500/10 text-emerald-500" // Default for other statuses
           }
         >
-          {t(`smsStatusLabels.${status}`) || status} {/* Assuming translation keys like smsStatusLabels.sent */}
+          { status} {/* Assuming translation keys like smsStatusLabels.sent */}
         </Badge>
       )
     },
@@ -53,10 +48,10 @@ export const columns: ColumnDef<SMSMessage>[] = [
     cell: ({ row }) => <span className="text-sm line-clamp-2">{row.getValue("content")}</span>,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "date",
     header: ({ t }) => t("date"),
     cell: ({ row, locale }) => {
-      const createdAtTimestamp = row.getValue("createdAt")
+      const createdAtTimestamp = row.getValue("date")
       if (!createdAtTimestamp) return null
 
       let date
