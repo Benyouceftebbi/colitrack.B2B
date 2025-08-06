@@ -22,11 +22,7 @@ export default function MessageCenter() {
         <MessageHeader token={token} senderId={senderId} />
         {/*<MessageStats />*/}
 
-        <SMSTemplatePanel
-          selectedTemplates={selectedTemplates}
-          onTemplateToggle={toggleTemplate}
-          onPreviewTemplate={setPreviewTemplate}
-        />
+      
 
         <SMSHistory />
       </div>
