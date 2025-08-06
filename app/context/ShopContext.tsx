@@ -112,7 +112,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
       }
 
       try {
-        const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail))
+        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail))
         const shopDocs = await getDocs(shopsQuery)
 
         if (shopDocs.empty) {
@@ -126,7 +126,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         for (const shopDoc of shopDocs.docs) {
           const shopData = { ...shopDoc.data(), id: shopDoc.id }
-          const shopRef = doc(db, "Shops", shopDoc.id)
+          const shopRef = doc(db, "Clients", shopDoc.id)
 
           // Convert dateRange to Firestore timestamps
           const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
@@ -312,7 +312,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
       }
 
       try {
-        const shopsQuery = query(collection(db, "Shops"), where("email", "==", userEmail))
+        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail))
         const shopDocs = await getDocs(shopsQuery)
         console.log("hello mama")
 
@@ -325,7 +325,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         const fetchedShops = []
 
-        const shopRef = doc(db, "Shops", shopData.id)
+        const shopRef = doc(db, "Clients", shopData.id)
 
         // Convert dateRange to Firestore timestamps
         const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
@@ -465,7 +465,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     useEffect(() => {
     if (!shopData.id) return
      
-    const unsubscribe = onSnapshot(collection(db, "Shops", shopData.id, "SMScampaign"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "Clients", shopData.id, "SMScampaign"), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
           console.log("sadasasdasddasdsdashihihihiihihihi");
  
@@ -583,7 +583,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
     console.log("Setting up OrdersRetrieved listener for shop ID:", shopData.id)
 
-    const ordersRef = collection(db, "Shops", shopData.id, "OrdersRetrieved")
+    const ordersRef = collection(db, "Clients", shopData.id, "OrdersRetrieved")
 
     try {
       const unsubscribe = onSnapshot(

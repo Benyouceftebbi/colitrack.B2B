@@ -734,7 +734,7 @@ export default function Dashboard() {
               <Button
                 variant="link"
                 className="p-0 h-auto text-xs sm:text-sm"
-                onClick={() => router.push("/dashboard/messages")}
+                onClick={() => router.push("/Dashboard/messages")}
               >
                 {t("view-all")}
               </Button>
@@ -746,26 +746,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      <Modal open={showModal} onOpenChange={setShowModal}>
-        <ModalContent>
-          <ModalHeader>
-            <ModalTitle>{t("modal.account-linking-title")}</ModalTitle>
-            <ModalDescription>{t("modal.account-linking-description")}</ModalDescription>
-          </ModalHeader>
-          <div className="mt-4 flex justify-end">
-            <Button onClick={() => setShowModal(false)} variant="destructive">
-              {t("modal.close")}
-            </Button>
-            <Button
-              variant="secondary"
-              className="ml-2"
-              onClick={() => router.push({ pathname: "/dashboard/settings", query: { link: true } })}
-            >
-              {t("modal.link-account")}
-            </Button>
-          </div>
-        </ModalContent>
-      </Modal>
+
     </div>
   )
 }

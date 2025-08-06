@@ -34,26 +34,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     navMain: [
       {
-        url: "/dashboard",
+        url: "/Dashboard",
         icon: Home,
         title: t("nav.dashboard"),
         isActive: pathname[0] === "dashboard" && !pathname[1],
       },
       
       {
-        url: "/dashboard/messages",
+        url: "/Dashboard/messages",
         icon: MessageSquare,
         title: t("nav.messages"),
         isActive: pathname[1] === "messages",
       },
       {
-        url: "/dashboard/retargeting",
+        url: "/Dashboard/retargeting",
         icon: Target,
         title: t("nav.retargeting"),
         isActive: pathname[1] === "retargeting",
       },
      
-      { url: "/dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
+      { url: "/Dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],
   }
 

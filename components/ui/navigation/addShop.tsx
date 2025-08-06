@@ -89,11 +89,16 @@ export function AddShopModal() {
       password: values.password,
       senderId: values.senderId,
       tokens: 0,
+      email1:shopData.email
     }
 
-    const addShop = httpsCallable(functions, "addShop")
+    const addShop = httpsCallable(functions, "createCompanyUser")
     const response = await addShop({ newShop })
-    const newShopWithId = { ...newShop, id: response.data.id }
+    const newShopWithId = { ...newShop, id: response.data.id, createdAt: new Date(),
+      role: "Company",
+      senderIdRequest:values.senderId,
+
+      mainCompanyId:shopData.id }
 
     const updatedShops = [...shops, newShopWithId]
     setShops(updatedShops)
