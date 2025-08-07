@@ -43,6 +43,23 @@ export const columns: ColumnDef<SMSMessage>[] = [
     },
   },
   {
+    accessorKey: "senderId",
+    header: ({ t }) =>"senderID",
+    cell: ({ row, t }) => {
+      const senderId = row.getValue("senderId") as string
+      return (
+        <Badge
+          variant="outline"
+          className={ 
+                  "bg-emerald-500/10 text-emerald-500" // Default for other senderIdes
+          }
+        >
+          { senderId} {/* Assuming translation keys like smsStatusLabels.sent */}
+        </Badge>
+      )
+    },
+  },
+  {
     accessorKey: "content",
     header: ({ t }) => t("content"),
     cell: ({ row }) => <span className="text-sm line-clamp-2">{row.getValue("content")}</span>,
