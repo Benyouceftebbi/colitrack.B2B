@@ -71,7 +71,18 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-
+          <Button
+  variant="outline"
+  className="glass hover:neon-border transition-all duration-300"
+  onClick={() => {
+    const from = new Date(2025, 7, 1, 0, 0, 0, 0); // Aug is 7 (0-indexed) -> 07-08-2025 00:00
+    const to = new Date();
+    to.setHours(23, 59, 59, 999);
+    setDateRange({ from, to });
+  }}
+>
+  {t("all-time")}
+</Button>
             {/* Date Range Picker */}
             <Popover>
               <PopoverTrigger asChild>

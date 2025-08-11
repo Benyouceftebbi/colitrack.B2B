@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
-import { formatDistanceToNow } from "date-fns"
+import { format, formatDistanceToNow } from "date-fns"
 
 // Update the Message type to be SMS-based
 type SMSMessage = {
@@ -68,27 +68,24 @@ export const columns: ColumnDef<SMSMessage>[] = [
     accessorKey: "date",
     header: ({ t }) => t("date"),
     cell: ({ row, locale }) => {
-      const createdAtTimestamp = row.getValue("date")
-      if (!createdAtTimestamp) return null
-
-      let date
+      const createdAtTimestamp = row.getValue("date");
+      if (!createdAtTimestamp) return null;
+  
+      let date: Date | null = null;
       if (createdAtTimestamp instanceof Date) {
-        date = createdAtTimestamp
+        date = createdAtTimestamp;
       } else if (createdAtTimestamp?.toDate) {
-        date = createdAtTimestamp.toDate()
+        date = createdAtTimestamp.toDate(); // Firestore Timestamp
       } else if (typeof createdAtTimestamp === "string") {
-        date = new Date(createdAtTimestamp)
-      } else {
-        console.warn("Invalid date format:", createdAtTimestamp)
-        return null
+        const d = new Date(createdAtTimestamp);
+        date = isNaN(+d) ? null : d;
       }
-
-      return (
-        <span className="text-sm text-muted-foreground">
-          {formatDistanceToNow(date, { addSuffix: true, locale: locale })}
-        </span>
-      )
+  
+      if (!date) return null;
+  
+      const formatted = format(date, "dd-MM-yyyy HH:mm", { locale });
+      return <span className="text-sm text-muted-foreground">{formatted}</span>;
     },
     enableSorting: true,
-  },
+  }
 ]

@@ -137,113 +137,27 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             fromTimestamp && toTimestamp
               ? query(
                   collection(shopRef, "SMS"),
-                  where("createdAt", ">=", fromTimestamp),
-                  where("createdAt", "<=", toTimestamp),
+                  where("date", ">=", fromTimestamp),
+                  where("date", "<=", toTimestamp),
                 )
               : collection(shopRef, "SMS")
 
-          const imageAiQuery =
-              fromTimestamp && toTimestamp
-                ? query(
-                    collection(shopRef, "ImageAi"),
-                    where("createdAt", ">=", fromTimestamp),
-                    where("createdAt", "<=", toTimestamp),
-                  )
-                : collection(shopRef, "ImageAi")
 
-          const trackingQuery =
-            fromTimestamp && toTimestamp
-              ? query(
-                  collection(shopRef, "Tracking"),
-                  where("lastUpdated", ">=", fromTimestamp),
-                  where("lastUpdated", "<=", toTimestamp),
-                )
-              : collection(shopRef, "Tracking")
 
-          // Add query for OrdersRetrieved collection with timestamp handling
-          const ordersQuery =
-            fromTimestamp && toTimestamp
-              ? query(
-                  collection(shopRef, "OrdersRetrieved"),
-                  where("timestamp", ">=", fromTimestamp),
-                  where("timestamp", "<=", toTimestamp),
-                )
-              : collection(shopRef, "OrdersRetrieved")
 
           const smsCampaignQuery = collection(shopRef, "SMScampaign")
 
           // Fetch subcollections in parallel
-          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs,imageAiDocs] = await Promise.all([
+          const [smsDocs, smsCampaignDocs] = await Promise.all([
             getDocs(smsQuery),
-            getDocs(trackingQuery),
-            getDocs(smsCampaignQuery),
-            getDocs(ordersQuery),
-            getDocs(imageAiQuery)
+
+            getDocs(smsCampaignQuery)
+
           ])
 
           const trackingMap = {}
           const smsData = []
-          const trackingData = []
-          const ordersData = []
-          const imageAiData = []
 
-          // Process orders data - convert timestamps to dates
-          ordersDocs.docs.forEach((orderDoc) => {
-            const orderData = orderDoc.data()
-
-            // Convert timestamp fields to JavaScript Date objects
-            if (orderData.timestamp) {
-              orderData.timestamp = timestampToDate(orderData.timestamp)
-            }
-
-            // Handle nested timestamp fields in orderData
-            if (orderData.orderData && orderData.orderData.message_time) {
-              orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
-            }
-
-            ordersData.push({
-              ...orderData,
-              id: orderDoc.id,
-            })
-          })
-
-          // Process tracking data
-          trackingDocs.docs.forEach((trackingDoc) => {
-            const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
-
-            // Convert timestamp fields
-            if (trackingInfo.lastUpdated) {
-              trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
-            }
-
-            trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
-
-            // Find related SMS documents
-            const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
-            const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
-
-            trackingInfo.messageTypes = messageTypes
-            trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
-            trackingInfo.deliveryType =
-              trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
-
-            trackingData.push(trackingInfo)
-          })
-
-
-          imageAiDocs.docs.forEach((imageAiDoc)=> {
-            const imageAiInfo = imageAiDoc.data()
-
-            // Convert timestamp fields
-            if (imageAiInfo.createdAt) {
-              imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
-            }
-
-            imageAiData.push({
-              ...imageAiInfo,
-              id: imageAiDoc.id,
-            })
-          })
 
           
           // Process SMS data
@@ -279,13 +193,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
           // Attach subcollections
           shopData.sms = smsData
-          shopData.tracking = trackingData
           shopData.smsCampaign = smsCampaignData
-          shopData.imageai = imageAiData
-
-          // Combine both types of orders
-          shopData.orders = ordersData
-
           fetchedShops.push(shopData)
         }
 
@@ -331,88 +239,26 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
         const toTimestamp = dateRange?.to ? dateToTimestamp(dateRange.to) : null
 
-        // Firestore query conditions for SMS and Tracking collections
         const smsQuery =
-         collection(shopRef, "SMS")
+        fromTimestamp && toTimestamp
+          ? query(
+              collection(shopRef, "SMS"),
+              where("date", ">=", fromTimestamp),
+              where("date", "<=", toTimestamp),
+            )
+          : collection(shopRef, "SMS")
 
-        const trackingQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "Tracking"),
-                where("lastUpdated", ">=", fromTimestamp),
-                where("lastUpdated", "<=", toTimestamp),
-              )
-            : collection(shopRef, "Tracking")
-
-        // Add query for OrdersRetrieved collection with timestamp handling
-        const ordersQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "OrdersRetrieved"),
-                where("timestamp", ">=", fromTimestamp),
-                where("timestamp", "<=", toTimestamp),
-              )
-            : collection(shopRef, "OrdersRetrieved")
-
-        const imageAiQuery =
-            collection(shopRef, "ImageAi")    
 
         // Fetch subcollections in parallel
-        const [smsDocs, trackingDocs, ordersDocs,imageAiDocs] = await Promise.all([
+        const [smsDocs] = await Promise.all([
           getDocs(smsQuery),
-          getDocs(trackingQuery),
-          getDocs(ordersQuery),
-          getDocs(imageAiQuery),
+
         ])
 
         const trackingMap = {}
         const smsData = []
-        const trackingData = []
-        const ordersData = []
-        const imageAiData = []
 
-        // Process orders data - convert timestamps to dates
-        ordersDocs.docs.forEach((orderDoc) => {
-          const orderData = orderDoc.data()
 
-          // Convert timestamp fields to JavaScript Date objects
-          if (orderData.timestamp) {
-            orderData.timestamp = timestampToDate(orderData.timestamp)
-          }
-
-          // Handle nested timestamp fields in orderData
-          if (orderData.orderData && orderData.orderData.message_time) {
-            orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
-          }
-
-          ordersData.push({
-            ...orderData,
-            id: orderDoc.id,
-          })
-        })
-
-        // Process tracking data
-        trackingDocs.docs.forEach((trackingDoc) => {
-          const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
-
-          // Convert timestamp fields
-          if (trackingInfo.lastUpdated) {
-            trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
-          }
-
-          trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
-
-          // Find related SMS documents
-          const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
-          const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
-
-          trackingInfo.messageTypes = messageTypes
-          trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
-          trackingInfo.deliveryType =
-            trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
-
-          trackingData.push(trackingInfo)
-        })
 
         // Process SMS data
         smsDocs.docs.forEach((smsDoc) => {
@@ -431,21 +277,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         })
 
 
-        imageAiDocs.docs.forEach((imageAi) => {
-          const imageAiInfo = imageAi.data()
-
-          // Convert timestamp fields
-          if (imageAiInfo.createdAt) {
-            imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
-          }
-
-          imageAiData.push({
-            ...imageAiInfo,
-            id: imageAiDocs.id,
-          })
-        })
-
-        setShopData((prev) => ({ ...prev, orders: ordersData, sms: smsData, tracking: trackingData ,imageAi: imageAiData }))
+        setShopData((prev) => ({ ...prev,  sms: smsData }))
         setLoading(false)
       } catch (err) {
         console.error("Error fetching shop data when chaning time:", err)
@@ -462,7 +294,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
      
     const unsubscribe = onSnapshot(collection(db, "Clients", shopData.id, "SMScampaign"), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-          console.log("sadasasdasddasdsdashihihihiihihihi");
+      
  
         if (change.type === "added") {
           const campaignData = change.doc.data()
