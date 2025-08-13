@@ -154,25 +154,23 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             </div>
           </div>
 
-          <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{t("delivery-updates-count")}</p>
-                <p className="text-2xl font-bold text-primary">{deliveredCount}</p>
-              </div>
-              <Truck className="h-8 w-8 text-primary opacity-50" />
-            </div>
-          </div>
 
           <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("success-rate")}</p>
                 <p className="text-2xl font-bold text-primary">
-  {shopData?.analytics?.returnRateByWeek
-    ? shopData.analytics.returnRateByWeek[currentWeek] || 0
-    : 0}%
-</p>
+        {(() => {
+          const smsList = shopData?.sms || [];
+          const total = smsList.length;
+          if (total === 0) return "0%";
+
+          const sentCount = smsList.filter(sms => sms.status === "sent").length;
+          const successRate = (sentCount / total) * 100;
+
+          return `${successRate.toFixed(1)}%`; // one decimal, e.g., 92.3%
+        })()}
+      </p>
               </div>
               <Bell className="h-8 w-8 text-primary opacity-50" />
             </div>

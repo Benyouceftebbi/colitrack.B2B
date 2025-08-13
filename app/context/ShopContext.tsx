@@ -2,7 +2,7 @@
 import { ArrowUpRight, Box, CheckCircle, Clock, Package, Truck } from "lucide-react"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { doc, getDocs, collection, onSnapshot, query, where, Timestamp } from "firebase/firestore"
+import { doc, getDocs, collection, onSnapshot, query, where, Timestamp, orderBy } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import type { DateRange } from "react-day-picker"
 
@@ -138,7 +138,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
               ? query(
                   collection(shopRef, "SMS"),
                   where("date", ">=", fromTimestamp),
-                  where("date", "<=", toTimestamp),
+                  where("date", "<=", toTimestamp),orderBy('date','desc')
                 )
               : collection(shopRef, "SMS")
 
@@ -244,7 +244,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           ? query(
               collection(shopRef, "SMS"),
               where("date", ">=", fromTimestamp),
-              where("date", "<=", toTimestamp),
+              where("date", "<=", toTimestamp),orderBy('date','desc')
             )
           : collection(shopRef, "SMS")
 
