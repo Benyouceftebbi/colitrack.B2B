@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { format, formatDistanceToNow } from "date-fns"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 // Update the Message type to be SMS-based
 type SMSMessage = {
@@ -12,7 +13,23 @@ type SMSMessage = {
   content: string
   createdAt: Date
 }
-
+function calculateSmsUnits(text: string) {
+  let total = 0;
+  for (let char of text) {
+    const code = char.charCodeAt(0);
+    if (char === " ") {
+      total += 1;
+    } else if (
+      (code >= 0x0600 && code <= 0x06ff) ||
+      (code >= 0x0750 && code <= 0x077f)
+    ) {
+      total += 2; // Arabic characters
+    } else {
+      total += 1; // French, numbers, etc.
+    }
+  }
+  return total;
+}
 export const columns: ColumnDef<SMSMessage>[] = [
   {
     accessorKey: "id",
@@ -62,7 +79,41 @@ export const columns: ColumnDef<SMSMessage>[] = [
   {
     accessorKey: "content",
     header: ({ t }) => t("content"),
-    cell: ({ row }) => <span className="text-sm line-clamp-2">{row.getValue("content")}</span>,
+    size: 250,
+    maxSize: 300,
+    cell: ({ row }) => {
+      const text = row.getValue("content") as string;
+  
+      return (
+        <HoverCard openDelay={150}>
+          <HoverCardTrigger asChild>
+            <span className="block text-sm truncate max-w-[250px] cursor-help">
+              {text}
+            </span>
+          </HoverCardTrigger>
+          <HoverCardContent
+            side="top" // or "right"
+            align="center"
+            className="whitespace-pre-wrap text-sm leading-6"
+          >
+            {text}
+          </HoverCardContent>
+        </HoverCard>
+      );
+    },
+  },
+  {
+    id: "count",
+    header: ({ t }) => t("count"),
+    cell: ({ row }) => {
+      const text = row.getValue("content") as string;
+      const units = calculateSmsUnits(text);
+  
+      // SMS rules: 160 chars max = 1 SMS, then 153 chars per segment
+      const smsCount = units <= 160 ? 1 : Math.ceil(units / 153);
+  
+      return <span className="text-sm font-medium">{smsCount}</span>;
+    },
   },
   {
     accessorKey: "date",
