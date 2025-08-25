@@ -9,6 +9,7 @@ import { SMSHistory } from "./message-center/sms-history"
 import { useMessageCenter } from "@/hooks/use-message-center"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
+import { SMSAnalyzer } from "./message-center/message-analyzer"
 
 export default function MessageCenter() {
   const { token, senderId, selectedTemplates, toggleTemplate, previewTemplate, setPreviewTemplate } = useMessageCenter()
@@ -20,13 +21,9 @@ export default function MessageCenter() {
       <div className="container mx-auto space-y-6">
 
         <MessageHeader token={token} senderId={senderId} />
-        {/*<MessageStats />*/}
 
-       {/*<SMSTemplatePanel
-          selectedTemplates={selectedTemplates}
-          onTemplateToggle={toggleTemplate}
-          onPreviewTemplate={setPreviewTemplate}
-        />*/}
+        <SMSAnalyzer />
+
 
         <SMSHistory />
       </div>
