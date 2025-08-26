@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/routing"
 import { Settings, Info, Bell, MessageSquare, Truck, Package, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { HoverCard, HoverCardContent } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
 import { useTranslations } from "next-intl"
 
@@ -19,14 +19,15 @@ interface MessageHeaderProps {
 
 export function MessageHeader({ token, senderId }: MessageHeaderProps) {
   const t = useTranslations("messages")
-  const { shopData,dateRange,setDateRange} = useShop()
+  const { shopData, dateRange, setDateRange } = useShop()
   const router = useRouter()
-  const currentDate = new Date();
-  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`;
-  const deliveredCount = shopData?.tracking?.reduce((count, item) => 
-    item.lastStatus === "delivered" ? count + 1 : count, 0);
-  const smsCount = shopData?.sms?.reduce((count, item) =>  count + 1 , 0);
-
+  const currentDate = new Date()
+  const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
+  const deliveredCount = shopData?.tracking?.reduce(
+    (count, item) => (item.lastStatus === "delivered" ? count + 1 : count),
+    0,
+  )
+  const smsCount = shopData?.sms?.reduce((count, item) => count + 1, 0)
 
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
@@ -71,22 +72,22 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-          <Button
-  variant="outline"
-  className="glass hover:neon-border transition-all duration-300"
-  onClick={() => {
-    const from = new Date(2025, 7, 1, 0, 0, 0, 0); // Aug is 7 (0-indexed) -> 07-08-2025 00:00
-    const to = new Date();
-    to.setHours(23, 59, 59, 999);
-    setDateRange({ from, to });
-  }}
->
-  {t("all-time")}
-</Button>
+            <Button
+              variant="outline"
+              className="glass hover:neon-border transition-all duration-300 bg-transparent"
+              onClick={() => {
+                const from = new Date(2025, 7, 1, 0, 0, 0, 0) // Aug is 7 (0-indexed) -> 07-08-2025 00:00
+                const to = new Date()
+                to.setHours(23, 59, 59, 999)
+                setDateRange({ from, to })
+              }}
+            >
+              {t("all-time")}
+            </Button>
             {/* Date Range Picker */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="glass flex items-center gap-2">
+                <Button variant="outline" className="glass flex items-center gap-2 bg-transparent">
                   <Calendar className="h-4 w-4 text-primary" />
                   {dateRange?.from ? (
                     dateRange.to ? (
@@ -112,7 +113,6 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
               </PopoverContent>
             </Popover>
             <HoverCard>
-             
               <HoverCardContent className="glass w-80">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -154,25 +154,45 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
             </div>
           </div>
 
-
           <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t("success-rate")}</p>
                 <p className="text-2xl font-bold text-primary">
-        {(() => {
-          const smsList = shopData?.sms || [];
-          const total = smsList.length;
-          if (total === 0) return "0%";
+                  {(() => {
+                    const smsList = shopData?.sms || []
+                    const total = smsList.length
+                    if (total === 0) return "0%"
 
-          const sentCount = smsList.filter(sms => sms.status === "sent").length;
-          const successRate = (sentCount / total) * 100;
+                    const sentCount = smsList.filter((sms) => sms.status === "sent").length
+                    const successRate = (sentCount / total) * 100
 
-          return `${successRate.toFixed(1)}%`; // one decimal, e.g., 92.3%
-        })()}
-      </p>
+                    return `${successRate.toFixed(1)}%` // one decimal, e.g., 92.3%
+                  })()}
+                </p>
               </div>
               <Bell className="h-8 w-8 text-primary opacity-50" />
+            </div>
+          </div>
+
+          <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">{t("failed-messages")}</p>
+                <p className="text-2xl font-bold text-destructive">
+                  {(() => {
+                    const smsList = shopData?.sms || []
+                    const total = smsList.length
+                    if (total === 0) return "0 (0%)"
+
+                    const failedCount = smsList.filter((sms) => sms.status === "failed").length
+                    const failureRate = (failedCount / total) * 100
+
+                    return `${failedCount} (${failureRate.toFixed(1)}%)`
+                  })()}
+                </p>
+              </div>
+              <MessageSquare className="h-8 w-8 text-destructive opacity-50" />
             </div>
           </div>
         </div>
