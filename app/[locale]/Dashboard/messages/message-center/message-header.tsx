@@ -1,7 +1,6 @@
 "use client"
 
 import { useShop } from "@/app/context/ShopContext"
-import { Badge } from "@/components/ui/badge"
 import { useRouter } from "@/i18n/routing"
 import { Settings, Info, Bell, MessageSquare, Truck, Package, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,25 +8,44 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { HoverCard, HoverCardContent } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
 import { useTranslations } from "next-intl"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { DateRangePicker } from "@/components/ui/date-range-picker"
 
 interface MessageHeaderProps {
   token: string | null
   senderId: string | null
+  onSenderChange?: (senderId: string | null) => void
 }
 
-export function MessageHeader({ token, senderId }: MessageHeaderProps) {
+export function MessageHeader({ token, senderId, onSenderChange }: MessageHeaderProps) {
   const t = useTranslations("messages")
   const { shopData, dateRange, setDateRange } = useShop()
   const router = useRouter()
   const currentDate = new Date()
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
+
+  const filteredSms =
+    senderId && senderId !== "all"
+      ? shopData?.sms?.filter((sms) => sms.senderId === senderId) || []
+      : shopData?.sms || []
+
   const deliveredCount = shopData?.tracking?.reduce(
     (count, item) => (item.lastStatus === "delivered" ? count + 1 : count),
     0,
   )
-  const smsCount = shopData?.sms?.reduce((count, item) => count + 1, 0)
+  const smsCount = filteredSms.reduce((count, item) => count + 1, 0)
+
+  const handleSenderChange = (value: string) => {
+    let selectedSenderId: string | null = value === "all" ? null : value;
+
+    // إذا القيمة worldexpress نحذف آخر s
+    if (selectedSenderId === "worldexpress") {
+      selectedSenderId = "worldexpres";
+    }
+    
+    onSenderChange?.(selectedSenderId);
+  }
 
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
@@ -127,9 +145,27 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
               </HoverCardContent>
             </HoverCard>
 
-            <Badge variant="secondary" className="slide-in hover:scale-105 transition-transform duration-200">
-              {t("id")}: {senderId || "Colitrack"}
-            </Badge>
+            <Select value={senderId || "all"} onValueChange={handleSenderChange}>
+              <SelectTrigger className="glass w-[180px] bg-transparent">
+                <SelectValue placeholder="Select Sender" />
+              </SelectTrigger>
+              <SelectContent className="glass">
+                <SelectItem value="all">All Senders</SelectItem>
+                {shopData?.senders?.map((sender) => {
+  // نعدل القيمة للعرض والقيمة المخزنة
+  const value =
+    sender.senderId === "worldexpress"
+      ? "worldexpres"
+      : sender.senderId;
+
+  return (
+    <SelectItem key={sender.senderId} value={value}>
+      {value}
+    </SelectItem>
+  );
+})}
+              </SelectContent>
+            </Select>
 
             <Button
               variant="outline"
@@ -160,7 +196,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
                 <p className="text-sm text-muted-foreground">{t("success-rate")}</p>
                 <p className="text-2xl font-bold text-primary">
                   {(() => {
-                    const smsList = shopData?.sms || []
+                    const smsList = filteredSms
                     const total = smsList.length
                     if (total === 0) return "0%"
 
@@ -181,7 +217,7 @@ export function MessageHeader({ token, senderId }: MessageHeaderProps) {
                 <p className="text-sm text-muted-foreground">{t("failed-messages")}</p>
                 <p className="text-2xl font-bold text-destructive">
                   {(() => {
-                    const smsList = shopData?.sms || []
+                    const smsList = filteredSms
                     const total = smsList.length
                     if (total === 0) return "0 (0%)"
 

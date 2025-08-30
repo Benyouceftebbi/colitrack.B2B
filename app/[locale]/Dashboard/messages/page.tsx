@@ -15,17 +15,22 @@ export default function MessageCenter() {
   const { token, senderId, selectedTemplates, toggleTemplate, previewTemplate, setPreviewTemplate } = useMessageCenter()
   const t = useTranslations("messages")
   const [showInfoDiv, setShowInfoDiv] = React.useState(true)
+  const [senderIdd,setSenderId]=React.useState(senderId)
+  const onSenderChange=(sender:any)=>{
+    setSenderId(sender)
+  }
 
+  
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="container mx-auto space-y-6">
 
-        <MessageHeader token={token} senderId={senderId} />
+        <MessageHeader token={token} senderId={senderIdd} onSenderChange={onSenderChange}/>
 
         <SMSAnalyzer />
 
 
-        <SMSHistory />
+        <SMSHistory  senderId={senderIdd}/>
       </div>
     </div>
   )
