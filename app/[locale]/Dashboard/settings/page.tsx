@@ -1,18 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Eye, PlusCircle } from "lucide-react"
+import { X, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Steps } from "./components/steps"
 import { useShop } from "@/app/context/ShopContext"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
-import { getPathname, useRouter } from "@/i18n/routing"
-import { useSearchParams } from "next/navigation"
+import { useRouter } from "@/i18n/routing"
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
@@ -28,7 +25,7 @@ function useIsMobile() {
 }
 
 export default function Component() {
-  const { shopData,setShopData } = useShop()
+  const { shopData, setShopData } = useShop()
   const t = useTranslations("settings")
   const { toast } = useToast()
   const [showInfoDiv, setShowInfoDiv] = useState(false)
@@ -49,7 +46,7 @@ export default function Component() {
   const [showSetupModal, setShowSetupModal] = useState(false)
   const isMobile = useIsMobile()
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const router=useRouter()
+  const router = useRouter()
   useEffect(() => {
     if (shopData.deliveryCompany && shopData.lng) {
       setShippingProviders([
@@ -75,9 +72,7 @@ export default function Component() {
 
     mediaQuery.addEventListener("change", handleChange)
 
-
-    
-    if(!shopData.lng){
+    if (!shopData.lng) {
       setSelectedProvider("")
       setShowSetupModal(true)
     }
@@ -88,26 +83,30 @@ export default function Component() {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
     "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
     Guepex: "https://www.guepex.com/assets/images/logo/logo-dark.webp",
-    Yalitec:"https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-6/282808249_131726106126538_5020857691934777434_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=XdjpYaDWNxEQ7kNvwEOH7Bn&_nc_oc=Admnc8HhnunybSu7cDeDrpk58h29HUci7l8t_fTSAnxu_1VaIxlz8q7jwcFp1Je8s-s&_nc_zt=23&_nc_ht=scontent.falg7-1.fna&_nc_gid=Ic81mCkTw8AhaLhqCDELIQ&oh=00_AfEVgHnriRzsglBtYyzms64IOeQ0Bi7aUFTtflF4wBT6qg&oe=681C597E",
+    Yalitec:
+      "https://scontent.falg7-1.fna.fbcdn.net/v/t39.30808-6/282808249_131726106126538_5020857691934777434_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=XdjpYaDWNxEQ7kNvwEOH7Bn&_nc_oc=Admnc8HhnunybSu7cDeDrpk58h29HUci7l8t_fTSAnxu_1VaIxlz8q7jwcFp1Je8s-s&_nc_zt=23&_nc_ht=scontent.falg7-1.fna&_nc_gid=Ic81mCkTw8AhaLhqCDELIQ&oh=00_AfEVgHnriRzsglBtYyzms64IOeQ0Bi7aUFTtflF4wBT6qg&oe=681C597E",
     "ZR express": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-bMOgnI9-8ouSZ3YXAKcdPVMKfElvleuonQ&s",
-    "E-COM Delivery":"https://scontent.falg6-1.fna.fbcdn.net/v/t39.30808-6/366707195_281986314582684_2066889253023140481_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aLFaIQ8420AQ7kNvwGB6AU7&_nc_oc=AdlwM1-Vijo6H_6NG4cw89XX5Hf-brYKE9KRTIDoTQyzqFIW-SKkyDrTCvwgYYeSSkM&_nc_zt=23&_nc_ht=scontent.falg6-1.fna&_nc_gid=GQDmiKP3zlYAdFjtO7RSYw&oh=00_AfGKgk74eQL-FRpdJVC3dBMeZUlVblV59JrX6EKh-6Ze7w&oe=681C461A",
+    "E-COM Delivery":
+      "https://scontent.falg6-1.fna.fbcdn.net/v/t39.30808-6/366707195_281986314582684_2066889253023140481_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aLFaIQ8420AQ7kNvwGB6AU7&_nc_oc=AdlwM1-Vijo6H_6NG4cw89XX5Hf-brYKE9KRTIDoTQyzqFIW-SKkyDrTCvwgYYeSSkM&_nc_zt=23&_nc_ht=scontent.falg6-1.fna&_nc_gid=GQDmiKP3zlYAdFjtO7RSYw&oh=00_AfGKgk74eQL-FRpdJVC3dBMeZUlVblV59JrX6EKh-6Ze7w&oe=681C461A",
     UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
-    "Go livri":"https://www.golivri.dz/assets/img/logo.png",
-    "Maystero Delivery":"https://maystro-delivery.com/img/logo.svg",
+    "Go livri": "https://www.golivri.dz/assets/img/logo.png",
+    "Maystero Delivery": "https://maystro-delivery.com/img/logo.svg",
     weewee: "https://weeweedelivery.com/assets/weewee/logo/logo_horizontal_purple-tagline.png",
-    "NOEST Express":"https://noest-dz.com/assets/img/logo_colors_new.png",
-    "BA CONSULT":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2D63PFOQPrtLtQ2xZVR-BRByg9blYiqm4vA&s",
-    Anderson:"https://andersonlogistique.com/medias/logo.png",
-    "WORLD Express": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLZY6x8DaDX_SOfkyJX06QDjFdkZpL45vRwTdSPPqKROHsCQFqYC0o6B_IL0AJBmXJ6Uk&usqp=CAU",
+    "NOEST Express": "https://noest-dz.com/assets/img/logo_colors_new.png",
+    "BA CONSULT": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2D63PFOQPrtLtQ2xZVR-BRByg9blYiqm4vA&s",
+    Anderson: "https://andersonlogistique.com/medias/logo.png",
+    "WORLD Express":
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLZY6x8DaDX_SOfkyJX06QDjFdkZpL45vRwTdSPPqKROHsCQFqYC0o6B_IL0AJBmXJ6Uk&usqp=CAU",
     FRET: "https://www.fret.direct/images/logoFRETs.png",
-    NAVEX:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw8WbXWF7NuJKeikuhF98ZI58fJ5_kJLH_om3qE_HMRYayXZJxQXx2Qn56CpF6jTDfCzs&usqp=CAU",
-    "48H":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpvBI5915GAHfwbfd0K0cJkj7Ai5uAkVjLDA&s",
-    Packers:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ2VUy_Kw0lnmKeo-GgtTnsUy2NZvYkO86Dw&s",
+    NAVEX:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw8WbXWF7NuJKeikuhF98ZI58fJ5_kJLH_om3qE_HMRYayXZJxQXx2Qn56CpF6jTDfCzs&usqp=CAU",
+    "48H": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpvBI5915GAHfwbfd0K0cJkj7Ai5uAkVjLDA&s",
+    Packers: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ2VUy_Kw0lnmKeo-GgtTnsUy2NZvYkO86Dw&s",
     "Fast mail": "https://www.fastmaildz.com/images/logo.jpg",
-    "NEGMAR Express":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPLpbiZjfLvVR71s-OEV8iTbHJxuT02xQ26w&s",
-    Expedia:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRol7hWuJm6Szh9barkJdXuIJH_f_I8CYigg&s",
-    "Rocket Delivery":"https://www.rocket-dz.com/assets/img/logo_white.png",
-    "MSM GO":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYAQJ8l-R2I2lii4WQ6bkZ7dySXLgMflsivg&s",
+    "NEGMAR Express": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPLpbiZjfLvVR71s-OEV8iTbHJxuT02xQ26w&s",
+    Expedia: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRol7hWuJm6Szh9barkJdXuIJH_f_I8CYigg&s",
+    "Rocket Delivery": "https://www.rocket-dz.com/assets/img/logo_white.png",
+    "MSM GO": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYAQJ8l-R2I2lii4WQ6bkZ7dySXLgMflsivg&s",
   }
 
   const addShippingProvider = () => {
@@ -139,7 +138,7 @@ export default function Component() {
     setShippingProviders([...shippingProviders, { ...data, provider }])
     setShowSetupModal(false)
 
-    router.push('/dashboard/messages')
+    router.push("/dashboard/messages")
   }
 
   const handleApiTokenChange = (index, value) => {
@@ -159,7 +158,7 @@ export default function Component() {
               <div className="flex justify-end mb-2 md:mb-4">
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 text-sm md:text-base"
+                  className="flex items-center gap-2 text-sm md:text-base bg-transparent"
                   onClick={() => setShowInfoDiv(false)}
                 >
                   <Eye className="h-4 w-4" />
@@ -244,8 +243,7 @@ export default function Component() {
                   {shippingProviders.length > 0 ? (
                     shippingProviders.map((provider, index) => (
                       <div key={index} className="bg-muted dark:bg-muted/30 p-4 rounded-lg">
-                        <div className="flex justify-between items-center mb-4">
-                        </div>
+                        <div className="flex justify-between items-center mb-4"></div>
                         <div className="grid gap-4">
                           <div className="grid gap-2">
                             <Label htmlFor={`api-token-${index}`}>API Token</Label>
@@ -270,10 +268,53 @@ export default function Component() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="border dark:border-border">
+              <CardHeader>
+                <CardTitle>Transaction History</CardTitle>
+                <CardDescription>View all your credit topups and transaction history</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {shopData.transactions && shopData.transactions.length > 0 ? (
+                    <div className="space-y-3">
+                     {shopData.transactions.slice().reverse().map((transaction, index) => (
+     <div
+     key={index}
+     className="flex justify-between items-center p-4 bg-muted dark:bg-muted/30 rounded-lg"
+   >
+     <div className="flex flex-col">
+       <span className="font-medium text-green-600 dark:text-green-400">
+         +{transaction.credit} Credits
+       </span>
+       <span className="text-sm text-muted-foreground">Credit Topup</span>
+     </div>
+     <div className="flex flex-col items-center">
+       <span className="font-medium text-blue-600 dark:text-blue-400">
+       {Math.ceil(Number(transaction.credit.replace(/\s/g, "")) / 6.23)} SMS
+       </span>
+       <span className="text-sm text-muted-foreground">SMS Gained</span>
+     </div>
+     <div className="text-right">
+       <span className="text-sm font-mono text-muted-foreground">
+         {new Date(transaction.date.toDate()).toISOString().split("T")[0]}
+       </span>
+     </div>
+   </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No transactions found</p>
+                      <p className="text-sm text-muted-foreground mt-1">Your credit topups will appear here</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </main>
       </div>
     </div>
   )
 }
-
