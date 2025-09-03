@@ -24,6 +24,7 @@ import { db } from "@/firebase/firebase"
 import { DataTable } from "./messages/message-center/sms-history/data-table"
 import { columns } from "./messages/message-center/sms-history/columns"
 import { Modal, ModalContent, ModalDescription, ModalHeader, ModalTitle } from "@/components/ui/modal"
+import SmsAnalyticsChart from "./dashboard/components/sms-analytics-charts"
 
 type AlgeriaDataItem = {
   name: string
@@ -631,31 +632,7 @@ export default function Dashboard() {
           </Card>
         </div>
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-6">
-                <CardTitle className="text-base sm:text-lg md:text-xl">{t("message-analytics")}</CardTitle>
-              </div>
-              <div className="leading-none text-muted-foreground">{t("analytics-description")}</div>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="max-h-[200px] w-full mt-10">
-                <BarChart accessibilityLayer data={chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
-                  <Bar dataKey="totalSmsOfOneTapLink" fill="var(--color-desktop)" radius={4} />
-                  <Bar dataKey="totalSmsSentInCampaign" fill="var(--color-mobile)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+        <SmsAnalyticsChart smsData={shopData.sms}/>
           <Card className="w-full max-w-4xl mx-auto">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold mb-4">{t("algeria-map")}</h2>
