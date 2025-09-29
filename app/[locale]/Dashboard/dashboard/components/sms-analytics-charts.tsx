@@ -112,7 +112,7 @@ const generateColors = (senders: string[]) => {
   )
 }
 
-const MAX_SAMPLE_SIZE = 200000 // Process max 50k records for performance
+const MAX_SAMPLE_SIZE = 50000000 // Process max 50k records for performance
 const MAX_SENDERS_DISPLAY = 10 // Limit to top 10 senders
 const CHUNK_SIZE = 1000 // Process data in chunks
 
