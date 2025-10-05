@@ -632,7 +632,7 @@ export default function Dashboard() {
           </Card>
         </div>
         <div className="grid gap-2 sm:gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
-        <SmsAnalyticsChart smsData={shopData.sms}/>
+        <SmsAnalyticsChart smsAnalytics={shopData.smsAnalytics} />
           <Card className="w-full max-w-4xl mx-auto">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold mb-4">{t("algeria-map")}</h2>

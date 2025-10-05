@@ -8,51 +8,43 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart3, LineChartIcon, Loader2 } from "lucide-react"
 
-// Mock SMS data structure (replace with your actual shopData.sms)
-const mockSmsData = [
-  { senderId: "sender1", date: { seconds: 1704067200, nanoseconds: 0 } }, // Jan 1, 2024
-  { senderId: "sender2", date: { seconds: 1704153600, nanoseconds: 0 } }, // Jan 2, 2024
-  { senderId: "sender1", date: { seconds: 1704153600, nanoseconds: 0 } }, // Jan 2, 2024
-  { senderId: "sender3", date: { seconds: 1704240000, nanoseconds: 0 } }, // Jan 3, 2024
-  { senderId: "sender1", date: { seconds: 1704326400, nanoseconds: 0 } }, // Jan 4, 2024
-  { senderId: "sender2", date: { seconds: 1704326400, nanoseconds: 0 } }, // Jan 4, 2024
-  { senderId: "sender2", date: { seconds: 1704412800, nanoseconds: 0 } }, // Jan 5, 2024
-  { senderId: "sender1", date: { seconds: 1704499200, nanoseconds: 0 } }, // Jan 6, 2024
-  { senderId: "sender3", date: { seconds: 1704585600, nanoseconds: 0 } }, // Jan 7, 2024
-  { senderId: "sender1", date: { seconds: 1704672000, nanoseconds: 0 } }, // Jan 8, 2024
-]
-
 type TimePeriod = "day" | "week" | "month"
 type ChartType = "bar" | "line"
 
-interface SmsData {
-  senderId: string
-  date: {
-    seconds: number
-    nanoseconds: number
-  }
-}
+// 🔹 Aggregated analytics object saved in Firestore
+// Clients/{clientId} -> field: smsAnalytics
+type SmsAnalytics = Record<string /* yyyy-mm-dd */, Record<string /* senderId */, number>>
 
 interface ProcessedData {
   period: string
-  sortDate: Date // Added sortDate for proper chronological sorting
+  sortDate: Date
   [key: string]: string | number | Date
 }
 
-// Convert Firestore timestamp to Date
-const firestoreToDate = (timestamp: { seconds: number; nanoseconds: number }): Date => {
-  return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000)
+// --- Mock aggregated data (replace with your real shopData.smsAnalytics) ---
+const mockSmsAnalytics: SmsAnalytics = {
+  "2025-10-01": { SENDER_A: 120, SENDER_B: 56 },
+  "2025-10-02": { SENDER_A: 80, SENDER_C: 22 },
+  "2025-10-03": { SENDER_B: 140, SENDER_C: 12 },
+  "2025-10-04": { SENDER_A: 75, SENDER_B: 60, SENDER_C: 15 },
 }
 
-// Format date based on time period
+// --- Helpers ---
+const parseYYYYMMDD = (key: string): Date => {
+  // key is like "2025-10-02"
+  const [y, m, d] = key.split("-").map(Number)
+  return new Date(y, (m ?? 1) - 1, d ?? 1)
+}
+
 const formatDateByPeriod = (date: Date, period: TimePeriod): string => {
   switch (period) {
     case "day":
       return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    case "week":
+    case "week": {
       const weekStart = new Date(date)
-      weekStart.setDate(date.getDate() - date.getDay())
+      weekStart.setDate(date.getDate() - date.getDay()) // Sun as start
       return `Week of ${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+    }
     case "month":
       return date.toLocaleDateString("en-US", { year: "numeric", month: "short" })
     default:
@@ -60,37 +52,29 @@ const formatDateByPeriod = (date: Date, period: TimePeriod): string => {
   }
 }
 
-// Process SMS data for chart
-const processSmsData = (smsData: SmsData[], period: TimePeriod): ProcessedData[] => {
-  const groupedData: { [key: string]: { [senderId: string]: number } } = {}
-
-  smsData.forEach((sms) => {
-    const date = firestoreToDate(sms.date)
-    const periodKey = formatDateByPeriod(date, period)
-
-    if (!groupedData[periodKey]) {
-      groupedData[periodKey] = {}
-    }
-
-    if (!groupedData[periodKey][sms.senderId]) {
-      groupedData[periodKey][sms.senderId] = 0
-    }
-
-    groupedData[periodKey][sms.senderId]++
-  })
-
-  return Object.entries(groupedData).map(([period, senders]) => ({
-    period,
-    ...senders,
-  }))
+// Unique senders across the whole analytics object
+const getUniqueSendersFromAnalytics = (analytics: SmsAnalytics): string[] => {
+  const set = new Set<string>()
+  for (const day of Object.values(analytics)) {
+    for (const senderId of Object.keys(day)) set.add(senderId)
+  }
+  return Array.from(set)
 }
 
-// Get unique sender IDs for chart configuration
-const getUniqueSenders = (smsData: SmsData[]): string[] => {
-  return [...new Set(smsData.map((sms) => sms.senderId))]
+// Optionally cap to top N frequent senders
+const getTopSendersFromAnalytics = (analytics: SmsAnalytics, limit = 10): string[] => {
+  const counts = new Map<string, number>()
+  for (const day of Object.values(analytics)) {
+    for (const [senderId, n] of Object.entries(day)) {
+      counts.set(senderId, (counts.get(senderId) || 0) + (Number(n) || 0))
+    }
+  }
+  return Array.from(counts.entries())
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit)
+    .map(([id]) => id)
 }
 
-// Generate colors for senders
 const generateColors = (senders: string[]) => {
   const colors = [
     "hsl(var(--chart-1))",
@@ -99,132 +83,78 @@ const generateColors = (senders: string[]) => {
     "hsl(var(--chart-4))",
     "hsl(var(--chart-5))",
   ]
-
   return senders.reduce(
-    (acc, sender, index) => {
-      acc[sender] = {
-        label: sender,
-        color: colors[index % colors.length],
-      }
+    (acc, sender, i) => {
+      acc[sender] = { label: sender, color: colors[i % colors.length] }
       return acc
     },
-    {} as Record<string, { label: string; color: string }>,
+    {} as Record<string, { label: string; color: string }>
   )
 }
 
-const MAX_SAMPLE_SIZE = 50000000 // Process max 50k records for performance
-const MAX_SENDERS_DISPLAY = 10 // Limit to top 10 senders
-const CHUNK_SIZE = 1000 // Process data in chunks
-
-const sampleData = (data: SmsData[], maxSize: number): SmsData[] => {
-  if (data.length <= maxSize) return data
-
-  // Use systematic sampling to maintain temporal distribution
-  const step = Math.floor(data.length / maxSize)
-  const sampled: SmsData[] = []
-
-  for (let i = 0; i < data.length; i += step) {
-    sampled.push(data[i])
-    if (sampled.length >= maxSize) break
-  }
-
-  return sampled
-}
-
-const getTopSenders = (smsData: SmsData[], limit: number = MAX_SENDERS_DISPLAY): string[] => {
-  const senderCounts = new Map<string, number>()
-
-  // Count occurrences efficiently
-  for (const sms of smsData) {
-    senderCounts.set(sms.senderId, (senderCounts.get(sms.senderId) || 0) + 1)
-  }
-
-  // Return top senders by frequency
-  return Array.from(senderCounts.entries())
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit)
-    .map(([senderId]) => senderId)
-}
-
-const processSmsDataOptimized = (smsData: SmsData[], period: TimePeriod, topSenders: string[]): ProcessedData[] => {
-  const groupedData = new Map<string, { senderCounts: Map<string, number>; sortDate: Date }>()
+// 🔹 Core: roll up the daily analytics into day/week/month rows for Recharts
+const processAnalytics = (analytics: SmsAnalytics, period: TimePeriod, topSenders: string[]): ProcessedData[] => {
+  const grouped = new Map<string /* periodKey */, { counts: Map<string, number>; sortDate: Date }>()
   const senderSet = new Set(topSenders)
 
-  // Process in chunks to avoid blocking UI
-  for (let i = 0; i < smsData.length; i += CHUNK_SIZE) {
-    const chunk = smsData.slice(i, i + CHUNK_SIZE)
+  for (const [dateKey, senders] of Object.entries(analytics)) {
+    const date = parseYYYYMMDD(dateKey)
+    const periodKey = formatDateByPeriod(date, period)
 
-    for (const sms of chunk) {
-      // Only process top senders for performance
-      if (!senderSet.has(sms.senderId)) continue
-
-      const date = firestoreToDate(sms.date)
-      const periodKey = formatDateByPeriod(date, period)
-
-      if (!groupedData.has(periodKey)) {
-        groupedData.set(periodKey, {
-          senderCounts: new Map(),
-          sortDate: date, // Store the actual date for sorting
-        })
-      }
-
-      const periodData = groupedData.get(periodKey)!
-      periodData.senderCounts.set(sms.senderId, (periodData.senderCounts.get(sms.senderId) || 0) + 1)
-
-      if (date < periodData.sortDate) {
-        periodData.sortDate = date
-      }
+    if (!grouped.has(periodKey)) {
+      grouped.set(periodKey, { counts: new Map(), sortDate: date })
     }
+    const g = grouped.get(periodKey)!
+
+    // Sum only top senders (keeps charts readable)
+    for (const [senderId, n] of Object.entries(senders)) {
+      if (!senderSet.has(senderId)) continue
+      g.counts.set(senderId, (g.counts.get(senderId) || 0) + (Number(n) || 0))
+    }
+
+    // keep earliest date for stable chronological sort
+    if (date < g.sortDate) g.sortDate = date
   }
 
-  // Convert to array format and sort by actual date (oldest first)
-  return Array.from(groupedData.entries())
+  return Array.from(grouped.entries())
     .map(([period, data]) => {
-      const result: ProcessedData = { period, sortDate: data.sortDate }
-      for (const [senderId, count] of data.senderCounts) {
-        result[senderId] = count
-      }
-      return result
+      const row: ProcessedData = { period, sortDate: data.sortDate }
+      for (const [senderId, count] of data.counts) row[senderId] = count
+      return row
     })
-    .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime()) // Sort by actual date ascending (oldest first)
+    .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())
 }
 
 interface SmsAnalyticsChartProps {
-  smsData?: SmsData[]
+  smsAnalytics?: SmsAnalytics // <= pass your aggregated object here
 }
 
-export default function SmsAnalyticsChart({ smsData = mockSmsData }: SmsAnalyticsChartProps) {
+export default function SmsAnalyticsChart({ smsAnalytics = mockSmsAnalytics }: SmsAnalyticsChartProps) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("day")
   const [chartType, setChartType] = useState<ChartType>("bar")
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const { sampledData, topSenders, totalSms, isLargeDataset } = useMemo(() => {
-    const isLarge = smsData.length > MAX_SAMPLE_SIZE
-    const sampled = isLarge ? sampleData(smsData, MAX_SAMPLE_SIZE) : smsData
-    const senders = getTopSenders(sampled, MAX_SENDERS_DISPLAY)
-
-    return {
-      sampledData: sampled,
-      topSenders: senders,
-      totalSms: smsData.length,
-      isLargeDataset: isLarge,
+  // total messages across all days
+  const totalSms = useMemo(() => {
+    let sum = 0
+    for (const day of Object.values(smsAnalytics)) {
+      for (const n of Object.values(day)) sum += Number(n) || 0
     }
-  }, [smsData])
+    return sum
+  }, [smsAnalytics])
 
+  // choose senders (top 10 by default)
+  const topSenders = useMemo(() => getTopSendersFromAnalytics(smsAnalytics, 10), [smsAnalytics])
   const chartConfig = useMemo(() => generateColors(topSenders), [topSenders])
 
   const processedData = useMemo(() => {
-    if (sampledData.length === 0) return []
-
-    // For very large datasets, show loading state
-    if (sampledData.length > 10000) {
+    // tiny debounce for very large maps (optional)
+    if (Object.keys(smsAnalytics).length > 2000) {
       setIsProcessing(true)
-      // Use setTimeout to allow UI to update
-      setTimeout(() => setIsProcessing(false), 100)
+      setTimeout(() => setIsProcessing(false), 80)
     }
-
-    return processSmsDataOptimized(sampledData, timePeriod, topSenders)
-  }, [sampledData, timePeriod, topSenders])
+    return processAnalytics(smsAnalytics, timePeriod, topSenders)
+  }, [smsAnalytics, timePeriod, topSenders])
 
   return (
     <Card className="w-full">
@@ -237,19 +167,11 @@ export default function SmsAnalyticsChart({ smsData = mockSmsData }: SmsAnalytic
             </CardTitle>
             <CardDescription>
               SMS sent by sender ID over time • Total: {totalSms.toLocaleString()} messages
-              {isLargeDataset && (
-                <span className="text-orange-600 dark:text-orange-400">
-                  {" "}
-                  • Showing sample of {sampledData.length.toLocaleString()} records for performance
-                </span>
-              )}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={timePeriod} onValueChange={(value: TimePeriod) => setTimePeriod(value)}>
-              <SelectTrigger className="w-24">
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={timePeriod} onValueChange={(v: TimePeriod) => setTimePeriod(v)}>
+              <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="day">Day</SelectItem>
                 <SelectItem value="week">Week</SelectItem>
