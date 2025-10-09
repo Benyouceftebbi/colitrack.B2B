@@ -222,7 +222,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
       try {
         const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail))
         const shopDocs = await getDocs(shopsQuery)
-        console.log("hello mama")
+
 
         if (shopDocs.empty) {
           console.log("No shop data found")
@@ -244,7 +244,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           ? query(
               collection(shopRef, "SMS"),
               where("date", ">=", fromTimestamp),
-              where("date", "<=", toTimestamp),orderBy('date','desc')
+              where("date", "<", toTimestamp),orderBy('date','desc')
             )
           : collection(shopRef, "SMS")
 

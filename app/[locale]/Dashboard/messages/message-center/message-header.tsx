@@ -2,7 +2,7 @@
 
 import { useShop } from "@/app/context/ShopContext"
 import { useRouter } from "@/i18n/routing"
-import { Settings, Info, Bell, MessageSquare, Truck, Package, Calendar } from "lucide-react"
+import { Settings, Info, Bell, MessageSquare, Truck, Package, Calendar as CalendarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { HoverCard, HoverCardContent } from "@/components/ui/hover-card"
@@ -10,7 +10,10 @@ import { Separator } from "@/components/ui/separator"
 import { useTranslations } from "next-intl"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import { DateRangePicker } from "@/components/ui/date-range-picker"
+// ⬇️ use shadcn single-date Calendar (not the range picker)
+import { Calendar } from "@/components/ui/calendar"
+import React from "react"
+import { Label } from "@/components/ui/label"
 
 interface MessageHeaderProps {
   token: string | null
@@ -18,12 +21,42 @@ interface MessageHeaderProps {
   onSenderChange?: (senderId: string | null) => void
 }
 
-export function MessageHeader({ token, senderId, onSenderChange }: MessageHeaderProps) {
+function atStartOfDay(d: Date | null | undefined) {
+  if (!d) return null
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x
+}
+
+export default function MessageHeader({ token, senderId, onSenderChange }: MessageHeaderProps) {
   const t = useTranslations("messages")
   const { shopData, dateRange, setDateRange } = useShop()
   const router = useRouter()
   const currentDate = new Date()
   const currentWeek = `${currentDate.getFullYear()}-W${String(Math.ceil(currentDate.getDate() / 7)).padStart(2, "0")}`
+
+  const [draftStart, setDraftStart] = React.useState<Date | null>(null)
+  const [draftEnd, setDraftEnd] = React.useState<Date | null>(null)
+
+  // initialize draft from global range (once)
+  React.useEffect(() => {
+    if (dateRange?.from) setDraftStart(dateRange.from)
+    if (dateRange?.to) setDraftEnd(dateRange.to)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const canSearch = React.useMemo(() => {
+    const s = atStartOfDay(draftStart)
+    const e = atStartOfDay(draftEnd)
+    return !!(s && e && e.getTime() > s.getTime())
+  }, [draftStart, draftEnd])
+
+  const handleApplySearch = () => {
+    const s = atStartOfDay(draftStart)!
+    const eExclusive = atStartOfDay(draftEnd)! // end EXCLUSIVE at 00:00
+    if (eExclusive.getTime() <= s.getTime()) return
+    setDateRange({ from: s, to: eExclusive })
+  }
 
   const filteredSms =
     senderId && senderId !== "all"
@@ -37,146 +70,138 @@ export function MessageHeader({ token, senderId, onSenderChange }: MessageHeader
   const smsCount = filteredSms.reduce((count, item) => count + 1, 0)
 
   const handleSenderChange = (value: string) => {
-    let selectedSenderId: string | null = value === "all" ? null : value;
+    let selectedSenderId: string | null = value === "all" ? null : value
+
 
     // إذا القيمة worldexpress نحذف آخر s
-    if (selectedSenderId === "worldexpress") {
-      selectedSenderId = "worldexpres";
+    if (selectedSenderId === "worldexpres") {
+      selectedSenderId = "worldexpress"
     }
-    
-    onSenderChange?.(selectedSenderId);
+
+    onSenderChange?.(selectedSenderId)
   }
 
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
       <div className="flex flex-col space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <MessageSquare className="h-8 w-8 text-primary self-center" />
-              <h1 className="text-3xl font-bold text-primary">{t("message-center")}</h1>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Info className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="glass w-80 max-w-[95vw]">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Bell className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold">{t("smart-notifications")}</h3>
-                    </div>
-                    <Separator />
-                    <div className="space-y-2">
-                      <p className="text-sm">{t("automated-system")}</p>
-                      <ul className="text-sm space-y-2">
-                        <li className="flex items-center gap-2">
-                          <Package className="h-4 w-4 text-primary" />
-                          <span>{t("order-tracking")}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Truck className="h-4 w-4 text-primary" />
-                          <span>{t("delivery-updates")}</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <p className="text-sm text-muted-foreground ml-11">{t("enhance-experience")}</p>
-          </div>
+        <div className="grid w-full items-end gap-3 md:grid-cols-6">
+  {/* Preset */}
+  <div className="flex flex-col gap-1">
+    <Label className="text-xs text-muted-foreground">Preset</Label>
+    <Button
+      variant="outline"
+      className="h-10 glass hover:neon-border transition-all duration-300 bg-transparent"
+      onClick={() => {
+        // All time: from 2025-08-01 00:00 inclusive, to tomorrow 00:00 exclusive
+        const from = new Date(2025, 7, 1, 0, 0, 0, 0) // Aug = 7
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
+        const toExclusive = new Date(todayStart)
+        toExclusive.setDate(toExclusive.getDate() + 1) // tomorrow 00:00
+        setDraftStart(from)
+        setDraftEnd(toExclusive)
+        setDateRange({ from, to: toExclusive })
+      }}
+      title="All Time"
+    >
+      All Time
+    </Button>
+  </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="outline"
-              className="glass hover:neon-border transition-all duration-300 bg-transparent"
-              onClick={() => {
-                const from = new Date(2025, 7, 1, 0, 0, 0, 0) // Aug is 7 (0-indexed) -> 07-08-2025 00:00
-                const to = new Date()
-                to.setHours(23, 59, 59, 999)
-                setDateRange({ from, to })
-              }}
-            >
-              {t("all-time")}
-            </Button>
-            {/* Date Range Picker */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="glass flex items-center gap-2 bg-transparent">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {dateRange.from.toLocaleDateString()} - {dateRange.to.toLocaleDateString()}
-                      </>
-                    ) : (
-                      dateRange.from.toLocaleDateString()
-                    )
-                  ) : (
-                    t("select-date-range")
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 glass" align="start">
-                <DateRangePicker
-                  date={dateRange}
-                  onSelect={(range) => {
-                    setDateRange(range)
-                    // You could add a function call here to update stats based on the new range
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-            <HoverCard>
-              <HoverCardContent className="glass w-80">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    <h4 className="font-semibold">{t("delivery-integration")}</h4>
-                  </div>
-                  <Separator />
-                  <p className="text-sm">
-                    {token ? t("connected-delivery", { company: shopData.deliveryCompany }) : t("connect-delivery")}
-                  </p>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
+  {/* Start Date (inclusive) */}
+  <div className="flex flex-col gap-1">
+    <Label className="text-xs text-muted-foreground">Start Date (Inclusive)</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="h-10 w-full justify-start glass flex items-center gap-2 bg-transparent"
+          title="Select Start Date"
+        >
+          <CalendarIcon className="h-4 w-4 text-primary" />
+          <span className="truncate">
+            {draftStart ? draftStart.toLocaleDateString() : "Select Start Date"}
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 glass" align="start">
+        <Calendar
+          mode="single"
+          selected={draftStart ?? undefined}
+          onSelect={(d) => setDraftStart(d ?? null)}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
 
-            <Select value={senderId || "all"} onValueChange={handleSenderChange}>
-              <SelectTrigger className="glass w-[180px] bg-transparent">
-                <SelectValue placeholder="Select Sender" />
-              </SelectTrigger>
-              <SelectContent className="glass">
-                <SelectItem value="all">All Senders</SelectItem>
-                {shopData?.senders?.map((sender) => {
-  // نعدل القيمة للعرض والقيمة المخزنة
-  const value =
-    sender.senderId === "worldexpress"
-      ? "worldexpres"
-      : sender.senderId;
+  {/* End Date (exclusive) */}
+  <div className="flex flex-col gap-1">
+    <Label className="text-xs text-muted-foreground">End Date (Exclusive)</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="h-10 w-full justify-start glass flex items-center gap-2 bg-transparent"
+          title="Select End Date"
+        >
+          <CalendarIcon className="h-4 w-4 text-primary" />
+          <span className="truncate">
+            {draftEnd ? draftEnd.toLocaleDateString() : "Select End Date"}
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 glass" align="start">
+        <Calendar
+          mode="single"
+          selected={draftEnd ?? undefined}
+          onSelect={(d) => setDraftEnd(d ?? null)}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
 
-  return (
-    <SelectItem key={sender.senderId} value={value}>
-      {value}
-    </SelectItem>
-  );
-})}
-              </SelectContent>
-            </Select>
+  {/* Search / Apply */}
+  <div className="flex flex-col gap-1">
+    <Label className="text-xs text-muted-foreground">Actions</Label>
+    <Button
+      variant="outline"
+      className="h-10 glass hover:neon-border transition-all duration-300 bg-transparent"
+      disabled={!canSearch}
+      onClick={handleApplySearch}
+      title="Search"
+    >
+      Search
+    </Button>
+  </div>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => router.push("/dashboard/settings")}
-              className="glass hover:neon-border transition-all duration-300"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
+  {/* Sender */}
+  <div className="flex flex-col gap-1">
+    <Label className="text-xs text-muted-foreground">Sender</Label>
+    <Select value={senderId || "all"} onValueChange={handleSenderChange}>
+      <SelectTrigger className="h-10 glass w-full bg-transparent" title="Sender">
+        <SelectValue placeholder="Select Sender" />
+      </SelectTrigger>
+      <SelectContent className="glass">
+        <SelectItem value="all">All Senders</SelectItem>
+        {shopData?.senders?.map((sender) => {
+          const value =
+            sender.senderId === "worldexpress" ? "worldexpres" :
+            sender.senderId === "worldexpres" ? "worldexpres" :
+            sender.senderId
+          return (
+            <SelectItem key={sender.senderId} value={value}>
+              {value}
+            </SelectItem>
+          )
+        })}
+      </SelectContent>
+    </Select>
+  </div>
+
+</div>
 
         {/* Quick Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
@@ -203,7 +228,7 @@ export function MessageHeader({ token, senderId, onSenderChange }: MessageHeader
                     const sentCount = smsList.filter((sms) => sms.status === "sent").length
                     const successRate = (sentCount / total) * 100
 
-                    return `${successRate.toFixed(1)}%` // one decimal, e.g., 92.3%
+                    return `${successRate.toFixed(1)}%`
                   })()}
                 </p>
               </div>
