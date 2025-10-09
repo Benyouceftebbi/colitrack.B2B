@@ -59,9 +59,17 @@ export default function MessageHeader({ token, senderId, onSenderChange }: Messa
   }
 
   const filteredSms =
-    senderId && senderId !== "all"
-      ? shopData?.sms?.filter((sms) => sms.senderId === senderId) || []
-      : shopData?.sms || []
+  senderId && senderId !== "all"
+    ? shopData?.sms?.filter((sms) => {
+        const sid = (sms.senderId || "").toLowerCase();
+        const selected = senderId.toLowerCase();
+        // treat both spellings as equivalent
+        if (["worldexpress", "worldexpres"].includes(selected)) {
+          return sid === "worldexpress" || sid === "worldexpres";
+        }
+        return sid === selected;
+      }) || []
+    : shopData?.sms || [];
 
   const deliveredCount = shopData?.tracking?.reduce(
     (count, item) => (item.lastStatus === "delivered" ? count + 1 : count),

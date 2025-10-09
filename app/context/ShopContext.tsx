@@ -102,305 +102,127 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     // Default to current date if timestamp is undefined or null
     return new Date()
   }
-
+  const atStartOfDay = (d: Date) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+  const toExclusive00 = (d: Date) => { const x = atStartOfDay(d); x.setDate(x.getDate() + 1); return x; };
+  
   useEffect(() => {
-    const fetchShopData = async () => {
-      if (!userEmail) {
-        console.log("No user email provided")
-        setLoading(false)
-        return
-      }
-
+    // 1) Load shops ONCE by email, pick first, and DO NOT pull SMS here
+    let alive = true;
+    (async () => {
+      if (!userEmail) { setLoading(false); return; }
+  
       try {
-        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail))
-        const shopDocs = await getDocs(shopsQuery)
-
-        if (shopDocs.empty) {
-          console.log("No shop data found")
-          setError("No shop data found")
-          setLoading(false)
-          return
-        }
-
-        const fetchedShops = []
-
-        for (const shopDoc of shopDocs.docs) {
-          const shopData = { ...shopDoc.data(), id: shopDoc.id }
-          const shopRef = doc(db, "Clients", shopDoc.id)
-
-          // Convert dateRange to Firestore timestamps
-          const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
-          const toTimestamp = dateRange?.to ? dateToTimestamp(dateRange.to) : null
-
-          // Firestore query conditions for SMS and Tracking collections
-          const smsQuery =
-            fromTimestamp && toTimestamp
-              ? query(
-                  collection(shopRef, "SMS"),
-                  where("date", ">=", fromTimestamp),
-                  where("date", "<=", toTimestamp),orderBy('date','desc')
-                )
-              : collection(shopRef, "SMS")
-
-
-
-
-          const smsCampaignQuery = collection(shopRef, "SMScampaign")
-
-          // Fetch subcollections in parallel
-          const [smsDocs, smsCampaignDocs] = await Promise.all([
-            getDocs(smsQuery),
-
-            getDocs(smsCampaignQuery)
-
-          ])
-
-          const trackingMap = {}
-          const smsData = []
-
-
-          
-          // Process SMS data
-          smsDocs.docs.forEach((smsDoc) => {
-            const smsInfo = smsDoc.data()
-
-            // Convert timestamp fields
-            if (smsInfo.createdAt) {
-              smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
-            }
-
-            smsData.push({
-              ...smsInfo,
-              id: smsDoc.id,
-              lastStatus: trackingMap[smsInfo.trackingId] || null,
-            })
-          })
-
-          // Process SMS campaigns
-          const smsCampaignData = smsCampaignDocs.docs.map((smsDoc) => {
-            const campaignData = smsDoc.data()
-
-            // Convert timestamp fields
-            if (campaignData.createdAt) {
-              campaignData.createdAt = timestampToDate(campaignData.createdAt)
-            }
-
-            return {
-              ...campaignData,
-              id: smsDoc.id,
-            }
-          })
-
-          // Attach subcollections
-          shopData.sms = smsData
-          shopData.smsCampaign = smsCampaignData
-          fetchedShops.push(shopData)
-        }
-
-        setShopData(fetchedShops[0] || {})
-        setShops(fetchedShops)
+        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail));
+        const shopDocs = await getDocs(shopsQuery);
+  
+        if (!alive) return;
+        if (shopDocs.empty) { setError("No shop data found"); setLoading(false); return; }
+  
+        const fetchedShops = shopDocs.docs.map(d => ({ ...d.data(), id: d.id }));
+        setShops(fetchedShops);
+        // keep previously selected shop if any, otherwise first
+        setShopData(prev => prev?.id ? prev : fetchedShops[0]);
       } catch (err) {
-        console.error("Error fetching shop data:", err)
-        setError("Error fetching shop data")
+        if (!alive) return;
+        console.error("Error fetching shops:", err);
+        setError("Error fetching shop data");
       } finally {
-        setLoading(false)
+        if (alive) setLoading(false);
       }
-    }
-
-    fetchShopData()
-  }, [userEmail])
-
+    })();
+  
+    return () => { alive = false; };
+  }, [userEmail]);
   useEffect(() => {
-    const fetchShopData = async () => {
-      setLoading(true)
-      if (!shopData.id) {
-        console.log("No shop provided")
-        setLoading(false)
-        return
-      }
-
+    if (!shopData?.id) return;
+  
+    // guard against overlapping fast changes (e.g., selecting far dates)
+    const reqTag = Math.random().toString(36).slice(2);
+    let latest = reqTag;
+    (async () => {
+      setLoading(true);
+  
       try {
-        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail))
-        const shopDocs = await getDocs(shopsQuery)
-
-
-        if (shopDocs.empty) {
-          console.log("No shop data found")
-          setError("No shop data found")
-          setLoading(false)
-          return
+        const shopRef = doc(db, "Clients", shopData.id);
+        const from = dateRange?.from ? atStartOfDay(dateRange.from) : null;
+        const to = dateRange?.to ? atStartOfDay(dateRange.to) : null; // EXCLUSIVE handled below
+  
+        // build query
+        let qRef: any = collection(shopRef, "SMS");
+        if (from && to) {
+          const fromTs = dateToTimestamp(from);
+          const toTs = dateToTimestamp(to); // end is EXCLUSIVE at 00:00 of the chosen end day
+          qRef = query(
+            qRef,
+            where("date", ">=", fromTs),
+            where("date", "<", toTs),
+            orderBy("date", "desc")
+          );
+        } else {
+          qRef = query(qRef, orderBy("date", "desc"));
         }
-
-        const fetchedShops = []
-
-        const shopRef = doc(db, "Clients", shopData.id)
-
-        // Convert dateRange to Firestore timestamps
-        const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
-        const toTimestamp = dateRange?.to ? dateToTimestamp(dateRange.to) : null
-
-        const smsQuery =
-        fromTimestamp && toTimestamp
-          ? query(
-              collection(shopRef, "SMS"),
-              where("date", ">=", fromTimestamp),
-              where("date", "<", toTimestamp),orderBy('date','desc')
-            )
-          : collection(shopRef, "SMS")
-
-
-        // Fetch subcollections in parallel
-        const [smsDocs] = await Promise.all([
-          getDocs(smsQuery),
-
-        ])
-
-        const trackingMap = {}
-        const smsData = []
-
-
-
-        // Process SMS data
-        smsDocs.docs.forEach((smsDoc) => {
-          const smsInfo = smsDoc.data()
-
-          // Convert timestamp fields
-          if (smsInfo.createdAt) {
-            smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
-          }
-
-          smsData.push({
-            ...smsInfo,
-            id: smsDoc.id,
-            lastStatus: trackingMap[smsInfo.trackingId] || null,
-          })
-        })
-
-
-        setShopData((prev) => ({ ...prev,  sms: smsData }))
-        setLoading(false)
+  
+        const smsSnap = await getDocs(qRef);
+        if (latest !== reqTag) return; // stale → ignore
+  
+        const smsData = smsSnap.docs.map(d => {
+          const s = d.data();
+          if (s.date) s.date = timestampToDate(s.date);
+          return { ...s, id: d.id, lastStatus: null };
+        });
+  
+        // write minimally to avoid layout “resets”
+        setShopData(prev => prev?.id === shopData.id ? { ...prev, sms: smsData } : prev);
       } catch (err) {
-        console.error("Error fetching shop data when chaning time:", err)
-        setError("Error fetching shop data when chaning time")
+        console.error("Error fetching SMS:", err);
+        setError("Error fetching SMS");
       } finally {
-        setLoading(false)
+        if (latest === reqTag) setLoading(false);
       }
-    }
-
-    fetchShopData()
-  }, [shopData.id, dateRange])
-    useEffect(() => {
-    if (!shopData.id) return
-     
-    const unsubscribe = onSnapshot(collection(db, "Clients", shopData.id, "SMScampaign"), (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-      
- 
-        if (change.type === "added") {
-          const campaignData = change.doc.data()
- 
-          
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
-          }
-
-          const newCampaign = {
-            id: change.doc.id,
-            ...campaignData,
-          }
-         console.log("New SMS campaign added:", change.doc.id, campaignData);
-          // Update shopData only if campaign doesn't already exist
-          setShopData((prevShopData) => {
-            const campaignExists = prevShopData.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-            if (campaignExists) return prevShopData
-
-            return {
-              ...prevShopData,
-              smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign],
+    })();
+  
+    return () => { latest = ""; };
+  }, [shopData.id, dateRange?.from, dateRange?.to]);
+  useEffect(() => {
+    if (!shopData?.id) return;
+  
+    const qRef = collection(db, "Clients", shopData.id, "SMScampaign");
+    const unsub = onSnapshot(qRef, (snapshot) => {
+      setShopData(prev => {
+        if (!prev || prev.id !== shopData.id) return prev;
+        let changed = false;
+        let campaigns = prev.smsCampaign ? [...prev.smsCampaign] : [];
+  
+        snapshot.docChanges().forEach((change) => {
+          const id = change.doc.id;
+          if (change.type === "added" || change.type === "modified") {
+            const raw = change.doc.data();
+            if (raw.createdAt) raw.createdAt = timestampToDate(raw.createdAt);
+            const next = { id, ...raw };
+            const idx = campaigns.findIndex(c => c.id === id);
+            if (idx === -1) { campaigns.push(next); changed = true; }
+            else if (JSON.stringify(campaigns[idx]) !== JSON.stringify(next)) {
+              campaigns[idx] = next; changed = true;
             }
-          })
-
-          // Update shops array only if campaign doesn't already exist
-          setShops((prevShops) =>
-            prevShops.map((shop) => {
-              if (shop.id !== shopData.id) return shop
-
-              const campaignExists = shop.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-              if (campaignExists) return shop
-
-              return {
-                ...shop,
-                smsCampaign: [...(shop.smsCampaign || []), newCampaign],
-              }
-            }),
-          )
-        }
-
-        if (change.type === "modified") {
-          const campaignData = change.doc.data()
-
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
           }
-
-          const updatedCampaign = {
-            id: change.doc.id,
-            ...campaignData,
+          if (change.type === "removed") {
+            const before = campaigns.length;
+            campaigns = campaigns.filter(c => c.id !== id);
+            if (campaigns.length !== before) changed = true;
           }
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign:
-              prevShopData.smsCampaign?.map((campaign) =>
-                campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-              ) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign:
-                      shop.smsCampaign?.map((campaign) =>
-                        campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-                      ) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-
-        if (change.type === "removed") {
-          const removedCampaignId = change.doc.id
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign: prevShopData.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign: shop.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-      })
-    })
-
-    return () => unsubscribe()
-  }, [shopData.id])
+        });
+  
+        return changed ? { ...prev, smsCampaign: campaigns } : prev;
+      });
+  
+      // keep a light mirror in `shops` if you need it
+      setShops(prev =>
+        prev.map(s => (s.id !== shopData.id ? s : { ...s, smsCampaign: (s.smsCampaign || []) }))
+      );
+    });
+  
+    return () => unsub();
+  }, [shopData.id]);
   // Set up real-time listener for OrdersRetrieved collection
 
 
