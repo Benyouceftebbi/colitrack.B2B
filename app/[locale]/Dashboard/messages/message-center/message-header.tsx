@@ -188,8 +188,8 @@ export default function MessageHeader({ token, senderId, onSenderChange }: Messa
         <SelectItem value="all">All Senders</SelectItem>
         {shopData?.senders?.map((sender) => {
           const value =
-            sender.senderId === "worldexpress" ? "worldexpres" :
-            sender.senderId === "worldexpres" ? "worldexpres" :
+            sender.senderId === "worldexpress" ? "worldexpress" :
+            sender.senderId === "worldexpres" ? "worldexpress" :
             sender.senderId
           return (
             <SelectItem key={sender.senderId} value={value}>
