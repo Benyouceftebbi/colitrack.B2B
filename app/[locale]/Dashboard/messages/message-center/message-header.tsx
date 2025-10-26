@@ -14,7 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar"
 import React from "react"
 import { Label } from "@/components/ui/label"
-
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+import { Link as LinkIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 interface MessageHeaderProps {
   token: string | null
   senderId: string | null
@@ -88,7 +90,17 @@ export default function MessageHeader({ token, senderId, onSenderChange }: Messa
 
     onSenderChange?.(selectedSenderId)
   }
+  const [totalViews, setTotalViews] = useState<number>(0);
 
+  useEffect(() => {
+    const db = getFirestore();
+    const ref = doc(db, "stopdeskStats", "DHD");
+    const unsub = onSnapshot(ref, (snap) => {
+      const data = snap.data();
+      setTotalViews(data?.totalViews ?? 0);
+    });
+    return () => unsub();
+  }, []);
   return (
     <div className="glass rounded-xl p-6 shadow-lg">
       <div className="flex flex-col space-y-6">
@@ -212,7 +224,7 @@ export default function MessageHeader({ token, senderId, onSenderChange }: Messa
 </div>
 
         {/* Quick Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
           <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
@@ -264,6 +276,15 @@ export default function MessageHeader({ token, senderId, onSenderChange }: Messa
               <MessageSquare className="h-8 w-8 text-destructive opacity-50" />
             </div>
           </div>
+          <div className="glass rounded-lg p-4 hover:scale-105 transition-transform duration-200">
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="text-sm text-muted-foreground">Ouvertures du lien StopDesk</p>
+      <p className="text-2xl font-bold text-primary">{totalViews}</p>
+    </div>
+    <LinkIcon className="h-8 w-8 text-primary opacity-50" />
+  </div>
+</div>
         </div>
       </div>
     </div>

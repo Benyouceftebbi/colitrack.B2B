@@ -45,18 +45,27 @@ export const columns: ColumnDef<SMSMessage>[] = [
     accessorKey: "status",
     header: ({ t }) => t("sms-status"),
     cell: ({ row, t }) => {
-      const status = row.getValue("status") as string
+      const original = row.original; // full row object
+      const status = original.status || ""; 
+      const finalized = !!original.finalized;
+   
+      
+      const displayStatus =
+        status !== "failed" ? "delivered" : status;
+   
+      
       return (
         <Badge
           variant="outline"
-          className={ status === "failed"
-                  ? "bg-red-500/10 text-red-500"
-                  : "bg-emerald-500/10 text-emerald-500" // Default for other statuses
+          className={
+            displayStatus === "failed"
+              ? "bg-red-500/10 text-red-500"
+              : "bg-emerald-500/10 text-emerald-500"
           }
         >
-          { status} {/* Assuming translation keys like smsStatusLabels.sent */}
+          {displayStatus || "—"}
         </Badge>
-      )
+      );
     },
   },
   {

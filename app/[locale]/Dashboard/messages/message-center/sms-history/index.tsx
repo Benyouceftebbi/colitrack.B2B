@@ -23,7 +23,9 @@ export function SMSHistory({ senderId }: SenderProps) {
 
     // ⚡️ special case: إذا الـ senderId يساوي worldexpress نحذف آخر s
     const normalizedSender =
-      senderId === "worldexpress" ? "worldexpres" : senderId
+    senderId === "worldexpress" || senderId === "worldexpres"
+      ? "worldexpress"
+      : senderId;
 
     return shopData.sms.filter(
       (sms: any) => sms.senderId === normalizedSender

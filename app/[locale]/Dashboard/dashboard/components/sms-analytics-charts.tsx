@@ -23,10 +23,10 @@ interface ProcessedData {
 
 // --- Mock aggregated data (replace with your real shopData.smsAnalytics) ---
 const mockSmsAnalytics: SmsAnalytics = {
-  "2025-10-01": { SENDER_A: 120, SENDER_B: 56 },
-  "2025-10-02": { SENDER_A: 80, SENDER_C: 22 },
-  "2025-10-03": { SENDER_B: 140, SENDER_C: 12 },
-  "2025-10-04": { SENDER_A: 75, SENDER_B: 60, SENDER_C: 15 },
+  "2025-10-01": { },
+  "2025-10-02": {  },
+  "2025-10-03": { },
+  "2025-10-04": {},
 }
 
 // --- Helpers ---
