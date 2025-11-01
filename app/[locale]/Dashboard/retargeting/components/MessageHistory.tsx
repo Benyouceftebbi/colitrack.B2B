@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Download } from "lucide-react"
+import { Download, Eye, AlertCircle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { SentMessage } from "../types"
@@ -11,41 +11,99 @@ import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-type SortField = "compaignName" | "date" | "recipients" | "messageCount" | "totalCost" | "content" | "status"
+type SortField =
+  | "compaignName"
+  | "date"
+  | "recipients"
+  | "messageCount"
+  | "totalCost"
+  | "content"
+  | "status"
+  | "deliveryRate"
+  | "successLength"
+  | "failedLength"
 type SortDirection = "asc" | "desc"
 
 type MessageHistoryProps = {
   sentMessages: SentMessage[]
-  exportToExcel: (message: SentMessage) => void
+  failed: any[]
+  exportToExcel: (message: SentMessage, failed: any[]) => void
 }
 
-function SortableHeader({ field, children }: { field: SortField; children: React.ReactNode }) {
-  const t = useTranslations("retargeting")
-  const [sortField, setSortField] = useState<SortField>("date")
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
-
-  const handleSort = (field: SortField) => {
-    if (field === sortField) {
-      // Toggle direction if clicking the same field
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      // Set new field and default to ascending
-      setSortField(field)
-      setSortDirection("asc")
-    }
-  }
-
+function SortableHeader({
+  field,
+  children,
+  sortField,
+  sortDirection,
+  onSort,
+}: {
+  field: SortField
+  children: React.ReactNode
+  sortField: SortField
+  sortDirection: SortDirection
+  onSort: (field: SortField) => void
+}) {
   const isSorted = sortField === field
   const direction = isSorted ? (sortDirection === "asc" ? "ascending" : "descending") : undefined
 
   return (
-    <TableHead className="cursor-pointer group" onClick={() => handleSort(field)}>
+    <TableHead className="cursor-pointer group" onClick={() => onSort(field)}>
       <div className="flex items-center justify-between">
         {children}
         {isSorted && <span className="ml-2">{direction === "ascending" ? "▲" : "▼"}</span>}
       </div>
     </TableHead>
+  )
+}
+
+function FailedMessagesDialog({ failed, campaignName }: { failed: any[]; campaignName: string }) {
+  const t = useTranslations("retargeting")
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 px-2">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("failedMessages") || "Failed Messages"}</DialogTitle>
+          <DialogDescription>
+            {t("failedMessagesFor") || "Failed messages for"} {campaignName}
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-96">
+          <div className="space-y-2">
+            {failed.length > 0 ? (
+              failed.map((failedMsg, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <div>
+                    <p className="font-medium text-sm">{failedMsg.name}</p>
+                    <p className="text-xs text-muted-foreground">{failedMsg.phoneNumber}</p>
+                  </div>
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {t("noFailedMessages") || "No failed messages"}
+              </p>
+            )}
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -91,6 +149,17 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
         case "status":
           comparison = a.status.localeCompare(b.status)
           break
+        case "deliveryRate":
+          const totalSMS = a.successLength + a.failedLength
+          const aRate =  (a.successLength / totalSMS ) * 100 || 0
+          comparison = aRate 
+          break
+        case "successLength":
+          comparison = a.successLength - b.successLength
+          break
+        case "failedLength":
+          comparison = a.failedLength - b.failedLength
+          break
       }
 
       return sortDirection === "asc" ? comparison : -comparison
@@ -129,6 +198,11 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
     }).format(amount)
   }
 
+  const calculateDeliveryRate = (successLength: number, messageCount: number) => {
+    if (messageCount === 0) return 0
+    return ((successLength / messageCount) * 100).toFixed(1)
+  }
+
   const sortedMessages = getSortedMessages()
 
   if (sentMessages.length === 0) {
@@ -143,6 +217,9 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
                   <TableHead className="font-semibold">{t("date")}</TableHead>
                   <TableHead className="font-semibold text-right">{t("recipients")}</TableHead>
                   <TableHead className="font-semibold text-right">{t("messageCount")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("successful")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("failed")}</TableHead>
+                  <TableHead className="font-semibold text-right">{t("deliveryRate")}</TableHead>
                   <TableHead className="font-semibold text-right">{t("totalCost")}</TableHead>
                   <TableHead className="font-semibold">{t("content")}</TableHead>
                   <TableHead className="font-semibold">{t("status")}</TableHead>
@@ -151,7 +228,7 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={11} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <p>{t("noMessagesTitle") || "No data found"}</p>
                     </div>
@@ -172,19 +249,71 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <SortableHeader field="compaignName">{t("campaignName")}</SortableHeader>
-                <SortableHeader field="date">{t("date")}</SortableHeader>
-                <SortableHeader field="recipients">
+                <SortableHeader
+                  field="compaignName"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  {t("campaignName")}
+                </SortableHeader>
+                <SortableHeader field="date" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>
+                  {t("date")}
+                </SortableHeader>
+                <SortableHeader
+                  field="recipients"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
                   <div className="text-right w-full">{t("recipients")}</div>
                 </SortableHeader>
-                <SortableHeader field="messageCount">
+                <SortableHeader
+                  field="messageCount"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
                   <div className="text-right w-full">{t("messageCount")}</div>
                 </SortableHeader>
-                <SortableHeader field="totalCost">
+                <SortableHeader
+                  field="successLength"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  <div className="text-right w-full">{t("successful") || "Successful"}</div>
+                </SortableHeader>
+                <SortableHeader
+                  field="failedLength"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  <div className="text-right w-full">{t("failed") || "Failed"}</div>
+                </SortableHeader>
+                <SortableHeader
+                  field="deliveryRate"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  <div className="text-right w-full">{t("deliveryRate") || "Delivery Rate"}</div>
+                </SortableHeader>
+                <SortableHeader
+                  field="totalCost"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                >
                   <div className="text-right w-full">{t("totalCost")}</div>
                 </SortableHeader>
-                <SortableHeader field="content">{t("content")}</SortableHeader>
-                <SortableHeader field="status">{t("status")}</SortableHeader>
+                <SortableHeader field="content" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>
+                  {t("content")}
+                </SortableHeader>
+                <SortableHeader field="status" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>
+                  {t("status")}
+                </SortableHeader>
                 <TableHead className="font-semibold">{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -198,6 +327,36 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
                     </TableCell>
                     <TableCell className="text-right">{msg.recipients.length}</TableCell>
                     <TableCell className="text-right">{msg.messageCount}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="font-medium text-green-700">{msg.successLength}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-red-700">{msg.failedLength}</span>
+                        {msg.failed && msg.failed.length > 0 && (
+                          <FailedMessagesDialog failed={msg.failed} campaignName={msg.compaignName} />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <span className="font-medium">
+                          {calculateDeliveryRate(msg.successLength,  msg.successLength + msg.failedLength)}%
+                        </span>
+                        <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-green-500 transition-all duration-300"
+                            style={{
+                              width: `${calculateDeliveryRate(msg.successLength,  msg.successLength + msg.failedLength)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(msg.totalCost)}</TableCell>
                     <TableCell className="max-w-xs">
                       <TooltipProvider>
@@ -216,7 +375,7 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => exportToExcel(msg)}
+                        onClick={() => exportToExcel(msg, msg.failed)}
                         className="transition-all hover:bg-primary hover:text-primary-foreground"
                       >
                         <Download className="h-4 w-4 mr-2" />
@@ -227,7 +386,7 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={11} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <p className="text-sm">{t("noMessagesTitle") || "No data found"}</p>
                     </div>
@@ -241,4 +400,3 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
     </Card>
   )
 }
-

@@ -65,12 +65,17 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
           </Alert>
         )}
 
-        {campaign.hasArabic && (
+        {campaign.hasUnicode && campaign.unicodeValidation && (
           <Alert variant="warning" className="bg-amber-50 border-amber-200">
             <AlertTriangle className="h-4 w-4 text-amber-600 mr-2" />
-            <AlertDescription className="text-amber-600">
-              Arabic text detected. Character limit reduced to 70 per message segment.
-            </AlertDescription>
+            <AlertDescription className="text-amber-600">{campaign.unicodeValidation}</AlertDescription>
+          </Alert>
+        )}
+
+        {campaign.nameValidation.hasWarning && (
+          <Alert variant="warning" className="bg-blue-50 border-blue-200">
+            <AlertTriangle className="h-4 w-4 text-blue-600 mr-2" />
+            <AlertDescription className="text-blue-600">{campaign.nameValidation.warningMessage}</AlertDescription>
           </Alert>
         )}
 
@@ -81,7 +86,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
           onChange={(e) => campaign.setMessage(e.target.value)}
           rows={4}
           className="w-full resize-none"
-          dir={campaign.hasArabic ? "rtl" : "ltr"}
+          dir={campaign.hasRTL ? "rtl" : "ltr"}
         />
 
         <div className="flex justify-between items-center text-sm text-muted-foreground">
@@ -101,7 +106,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
 
         <div className="text-xs text-muted-foreground">
           <p>
-            Character Limit: {campaign.effectiveCharLimit} {campaign.hasArabic ? "(Arabic)" : "(Latin)"}
+            Character Limit: {campaign.effectiveCharLimit} {campaign.hasUnicode ? "(Unicode)" : "(Standard)"}
           </p>
           <p>Message Count = {campaign.messageCount}</p>
           <p>Total Recipients = {campaign.totalRecipients}</p>
@@ -111,4 +116,3 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
     </motion.div>
   )
 }
-

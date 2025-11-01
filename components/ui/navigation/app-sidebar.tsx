@@ -46,7 +46,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t("nav.messages"),
         isActive: pathname[1] === "messages",
       },
-
+      {
+        url: "/Dashboard/retargeting",
+        icon: Target,
+        title: t("nav.retargeting"),
+        isActive: pathname[1] === "retargeting",
+      },
      
       { url: "/Dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],

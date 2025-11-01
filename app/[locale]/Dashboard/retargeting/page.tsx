@@ -106,7 +106,7 @@ export default function RetargetingCampaign() {
         </div>
 
         <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
-          <MessageHistory sentMessages={shopData.smsCampaign} exportToExcel={exportToExcel} />
+          <MessageHistory sentMessages={shopData.smsCampaign || []} exportToExcel={exportToExcel} />
         </div>
       </div>
     </div>

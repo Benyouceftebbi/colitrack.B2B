@@ -67,7 +67,7 @@ export function NavigationButtons({
                 })}
                 {campaign.hasArabic && (
                   <p className="mt-2 text-amber-600 font-medium">
-                    Note: Your message contains Arabic text which uses 70 characters per message segment.
+                    Note: Your message contains Arabic text which uses 80 characters per message segment.
                   </p>
                 )}
               </AlertDialogDescription>

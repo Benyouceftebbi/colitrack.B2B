@@ -8,11 +8,16 @@ import { CLIENT_GROUPS, CHARACTER_LIMIT, COST_PER_MESSAGE } from "../components/
 import { useShop } from "@/app/context/ShopContext"
 import { functions } from "@/firebase/firebase"
 import { httpsCallable } from "firebase/functions"
-import { containsArabicCharacters } from "../utils/message"
+import {
+  containsUnicodeCharacters,
+  containsRTLCharacters,
+  validateNamePlaceholderLength,
+  getUnicodeValidationMessage,
+} from "../utils/message"
 import { useToast } from "@/hooks/use-toast"
 
 export function useRetargetingCampaign() {
-  const { toast } = useToast()
+  const { toast } = useToast() // Use the imported useToast hook
   const [selectedGroup, setSelectedGroup] = useState<ClientGroup>(CLIENT_GROUPS[0])
   const [message, setMessage] = useState("")
   const [isAlertOpen, setIsAlertOpen] = useState(false)
@@ -27,12 +32,15 @@ export function useRetargetingCampaign() {
   const [totalRecipients, setTotalRecipients] = useState(0)
   const [campaignName, setCampaignName] = useState("")
 
-  const hasArabic = containsArabicCharacters(message)
-  const effectiveCharLimit = hasArabic ? 70 : CHARACTER_LIMIT
+  const hasUnicode = containsUnicodeCharacters(message)
+  const hasRTL = containsRTLCharacters(message)
+  const effectiveCharLimit = hasUnicode ? 80 : CHARACTER_LIMIT
   const characterCount = message.length
   const messageCount = Math.ceil(characterCount / effectiveCharLimit)
   const remainingCharacters = effectiveCharLimit - (characterCount % effectiveCharLimit || effectiveCharLimit)
   const totalCost = messageCount * totalRecipients * COST_PER_MESSAGE
+  const nameValidation = validateNamePlaceholderLength(message)
+  const unicodeValidation = hasUnicode ? getUnicodeValidationMessage(message) : null
   const { shopData, setShopData } = useShop()
 
   useEffect(() => {
@@ -77,7 +85,9 @@ export function useRetargetingCampaign() {
         })),
         compaignName: campaignName, // Ensure campaign name is passed
         messageCount,
-        hasArabic, // Pass whether the message contains Arabic characters
+        collectionName:"Clients",
+        hasUnicode, // Pass whether the message contains Unicode characters
+        hasRTL, // Pass whether the message contains RTL characters
       })
 
       const responseData = response.data
@@ -186,7 +196,7 @@ export function useRetargetingCampaign() {
     setExcelData(null)
     setTotalRecipients(0)
     setCurrentStep(0)
-    setAudienceSource('')
+    setAudienceSource("")
     setProcessedData([])
   }
 
@@ -225,8 +235,10 @@ export function useRetargetingCampaign() {
     campaignName,
     setCampaignName,
     resetForm,
-    hasArabic,
+    hasUnicode,
+    hasRTL,
     effectiveCharLimit,
+    nameValidation,
+    unicodeValidation,
   }
 }
-

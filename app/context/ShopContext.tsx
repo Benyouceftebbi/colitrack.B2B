@@ -186,6 +186,42 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
   useEffect(() => {
     if (!shopData?.id) return;
   
+    const reqTag = Math.random().toString(36).slice(2);
+    let latest = reqTag;
+  
+    (async () => {
+      try {
+        const shopRef = doc(db, "Clients", shopData.id);
+        const campaignRef = query(
+          collection(shopRef, "SMScampaign"),
+          orderBy("date", "desc")
+        );
+  
+        const campaignSnap = await getDocs(campaignRef);
+        if (latest !== reqTag) return;
+  
+        const campaignData = campaignSnap.docs.map(d => {
+          const s = d.data();
+          if (s.createdAt) s.createdAt = timestampToDate(s.createdAt);
+          return { ...s, id: d.id, lastStatus: null, type: "SMSCampaign" as const };
+        });
+  
+        setShopData(prev =>
+          prev?.id === shopData.id ? { ...prev, smsCampaign: campaignData || [] } : prev
+        );
+      } catch (err) {
+        console.error("Error fetching SMSCampaign:", err);
+        setError("Error fetching SMSCampaign");
+      }
+    })();
+  
+    return () => {
+      latest = "";
+    };
+  }, [shopData.id]);
+  useEffect(() => {
+    if (!shopData?.id) return;
+  
     const qRef = collection(db, "Clients", shopData.id, "SMScampaign");
     const unsub = onSnapshot(qRef, (snapshot) => {
       setShopData(prev => {
