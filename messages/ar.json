@@ -448,6 +448,12 @@
   },
   
   "signin":{
+    "senderIdSectionTitle": "معرّف المرسِل",
+    "senderIdPlaceholder": "مثال: ANDERSON",
+    "senderIdHelperText": "بحد أقصى {{max}} حرفًا، بدون حركات أو لهجات (A–Z فقط).",
+    "saveSenderId": "حفظ معرّف المرسِل",
+    "senderIdSavedMessage": "تم حفظ معرّف المرسِل {{senderId}}.",
+    "changeSenderId": "تغيير معرّف المرسِل",
     "daily-order-volume": "حجم الطلبات اليومي",
     "checkYourEmail": "تحقق من بريدك الإلكتروني",
     "checkSpam": "تحقق من مجلد البريد العشوائي",

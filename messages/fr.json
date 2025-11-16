@@ -497,7 +497,14 @@
     "forgotPassword": "Mot de passe oublié ?",
     "signIn": "Se connecter",
     "dontHaveAccount": "Vous n'avez pas de compte ?",
-    "signUp": "S'inscrire"
+    "signUp": "S'inscrire",
+    "senderIdSectionTitle": "Identifiant d'expéditeur",
+    "senderIdPlaceholder": "Ex : ANDERSON",
+    "senderIdHelperText": "Maximum {{max}} lettres, sans accents (A–Z uniquement).",
+    "saveSenderId": "Enregistrer l'identifiant",
+    "senderIdSavedMessage": "L'identifiant {{senderId}} a été enregistré.",
+    "changeSenderId": "Modifier l'identifiant"
+
   },
   "signup":{
    "backToSignIn": "Retour à la connexion",

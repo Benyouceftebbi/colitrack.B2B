@@ -1,9 +1,10 @@
 "use client"
-import { auth } from "@/firebase/firebase";
+import { auth, functions } from "@/firebase/firebase";
 import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { httpsCallable } from "firebase/functions";
 
 interface ExtendedFirebaseUser extends FirebaseUser {
   user: {}| any,
@@ -53,25 +54,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("Logout Error:", error);
     }
   };
-
-  const signup = async (usr:any) => {
+  const signup = async (usr: any): Promise<User | null> => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, usr.email, usr.password);
-      const user = userCredential.user;
-
-      // Save user data to Firestore
-      await setDoc(doc(db, "Shops", user.uid), {
-        email: user.email,
-        ...usr // Spread additional user data
+      const { password, confirmPassword, ...safeUsr } = usr;
+  
+      // 1) Call backend signup (creates Auth user + Clients doc)
+      const signupClient = httpsCallable(functions, "signupClient");
+      const res: any = await signupClient({
+        ...safeUsr,
+        password, // we need password on backend, but NOT confirmPassword
       });
+  
+      if (!res?.data?.success) {
+        console.error("Signup error:", res?.data?.reason, res?.data?.message);
+        setIsAuthenticated(false);
+        setUser(null);
+        return null;
+      }
+  
+      // 2) Sign in with the created credentials
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        usr.email,
+        password
+      );
+  
+      const user = userCredential.user;
+  
+      // 3) Update auth state
       setUser(user);
       setIsAuthenticated(true);
-      return user; // Return the user object
+  
+      console.log("Client created with UID:", res.data.uid);
+  
+      return user;
     } catch (error) {
       console.error("Signup Error:", error);
       setIsAuthenticated(false);
       setUser(null);
-      return null; // Return null on error
+      return null;
     }
   };
 

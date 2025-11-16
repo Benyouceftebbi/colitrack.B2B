@@ -487,7 +487,14 @@
     "forgotPassword": "Forgot password?",
     "signIn": "Sign in",
     "dontHaveAccount": "Don't have an account?",
-    "signUp": "Sign up"
+    "signUp": "Sign up",
+    "senderIdSectionTitle": "Sender ID",
+    "senderIdPlaceholder": "Ex: ANDERSON",
+    "senderIdHelperText": "Maximum {{max}} letters, no accents (A–Z only).",
+    
+    "saveSenderId": "Save Sender ID",
+    "senderIdSavedMessage": "Sender ID {{senderId}} has been saved.",
+    "changeSenderId": "Change Sender ID"
   },
   "signup":{
     "backToSignIn": "Back to sign in",
