@@ -45,6 +45,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: MessageSquare,
         title: t("nav.messages"),
         isActive: pathname[1] === "messages",
+
+        
       },
       ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n"
         ? [
