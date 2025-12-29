@@ -10,7 +10,7 @@ import { useShop } from "@/app/context/ShopContext"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
-
+import { Eye, EyeOff, Copy } from "lucide-react";
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -29,6 +29,7 @@ export default function Component() {
   const t = useTranslations("settings")
   const { toast } = useToast()
   const [showInfoDiv, setShowInfoDiv] = useState(false)
+  const [showAuthToken, setShowAuthToken] =useState(false);
   const [shippingProviders, setShippingProviders] = useState<Array<{ provider: string; language: string }>>(() => {
     if (shopData.deliveryCompany && shopData.lng) {
       return [
@@ -268,7 +269,54 @@ export default function Component() {
                 </div>
               </CardContent>
             </Card>
+            <Card className="border dark:border-border mt-6">
+  <CardHeader>
+    <CardTitle>{t("authToken")}</CardTitle>
+    <CardDescription>{t("authTokenDescription")}</CardDescription>
+  </CardHeader>
 
+  <CardContent>
+    <div className="grid gap-2">
+      <Label htmlFor="auth-token">{t("authToken")}</Label>
+
+      <div className="relative">
+        <Input
+          id="auth-token"
+          type={showAuthToken ? "text" : "password"}
+          value={shopData?.id ?? ""}
+          readOnly
+          className="pr-20"
+        />
+
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowAuthToken((v) => !v)}
+            aria-label={showAuthToken ? "Hide token" : "Show token"}
+          >
+            {showAuthToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => navigator.clipboard.writeText(String(shopData?.id ?? ""))}
+            aria-label="Copy token"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {t("authTokenHint")}
+      </p>
+    </div>
+  </CardContent>
+</Card>
             <Card className="border dark:border-border">
               <CardHeader>
                 <CardTitle>Transaction History</CardTitle>
