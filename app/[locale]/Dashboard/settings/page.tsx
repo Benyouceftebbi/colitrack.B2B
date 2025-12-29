@@ -10,7 +10,7 @@ import { useShop } from "@/app/context/ShopContext"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
-import { Eye, EyeOff, Copy } from "lucide-react";
+import { EyeOff, Copy } from "lucide-react";
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
