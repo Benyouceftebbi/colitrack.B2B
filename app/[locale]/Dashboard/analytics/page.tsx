@@ -37,7 +37,7 @@ export default function SMSFilterPage() {
   const [error, setError] = useState<string>("")
   const [searchTerm, setSearchTerm] = useState("")
   const {shopData}=useShop()
-
+  const [totalSMS,setTotalSMS] = useState(0)
   const handleStationToggle = (stationName: string) => {
     setSelectedStations((prev) =>
       prev.includes(stationName) ? prev.filter((s) => s !== stationName) : [...prev, stationName],
@@ -100,14 +100,23 @@ export default function SMSFilterPage() {
       
       // 3) Read output
       const { stations} = res.data as any;
-      const transformedData: SMSData[] = Object.values(stations || {})
-      .map((s: any) => ({
-        station: s.name,
-        smsCount: Number(s.totalSms) || 0,
-      }))
-      .sort((a, b) => b.smsCount - a.smsCount);
-
-      setTableData(transformedData)
+      const transformedData: SMSData[] = [
+        ...Object.values(stations || {}).map((s: any) => ({
+          station: s.name,
+          smsCount: Number(s.totalSms) || 0,
+        })),
+        ...(Number(res.data.unknownSms) > 0
+          ? [
+              {
+                station: "Unknown",
+                smsCount: Number(res.data.unknownSms) || 0,
+              },
+            ]
+          : []),
+      ].sort((a, b) => b.smsCount - a.smsCount);
+      
+      setTableData(transformedData);  
+      setTotalSMS(res.data.totalSms)
     } catch (error) {
       console.error("[v0] Error fetching SMS data:", error)
       setError("Une erreur s'est produite lors de la récupération des données. Veuillez réessayer.")
@@ -125,7 +134,7 @@ export default function SMSFilterPage() {
     setError("")
     setSearchTerm("")
   }
-  const totalSMS = tableData.reduce((sum, item) => sum + item.smsCount, 0)
+
   const handleExportToExcel = () => {
     if (tableData.length === 0) return;
   
