@@ -1,12 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { CalendarIcon, Download, RotateCcw, ChevronDown, Loader2, AlertCircle, Search } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -26,9 +33,21 @@ interface SMSData {
   smsCount: number
 }
 
+const pad2 = (n: number) => String(n).padStart(2, "0")
+
 export default function SMSFilterPage() {
   const [startDate, setStartDate] = useState<Date>()
   const [endDate, setEndDate] = useState<Date>()
+
+  // ✅ 24h time via Select (no AM/PM)
+  const [startHour, setStartHour] = useState("00")
+  const [startMinute, setStartMinute] = useState("00")
+  const [endHour, setEndHour] = useState("23")
+  const [endMinute, setEndMinute] = useState("59")
+
+  const startTime = `${startHour}:${startMinute}`
+  const endTime = `${endHour}:${endMinute}`
+
   const [selectedStations, setSelectedStations] = useState<string[]>([])
   const [isAllSelected, setIsAllSelected] = useState(false)
   const [tableData, setTableData] = useState<SMSData[]>([])
@@ -36,8 +55,19 @@ export default function SMSFilterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>("")
   const [searchTerm, setSearchTerm] = useState("")
-  const {shopData}=useShop()
-  const [totalSMS,setTotalSMS] = useState(0)
+  const { shopData } = useShop()
+  const [totalSMS, setTotalSMS] = useState(0)
+
+  const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => pad2(i)), [])
+  const minutes = useMemo(() => ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"], [])
+
+  const combineDateAndTime = (date: Date, time: string) => {
+    const [hh, mm] = time.split(":").map((v) => parseInt(v, 10))
+    const d = new Date(date)
+    d.setHours(hh || 0, mm || 0, 0, 0)
+    return d
+  }
+
   const handleStationToggle = (stationName: string) => {
     setSelectedStations((prev) =>
       prev.includes(stationName) ? prev.filter((s) => s !== stationName) : [...prev, stationName],
@@ -61,62 +91,58 @@ export default function SMSFilterPage() {
       setError("Veuillez sélectionner au moins une station")
       return
     }
-
     if (!startDate) {
       setError("Veuillez sélectionner une date de début")
       return
     }
-
     if (!endDate) {
       setError("Veuillez sélectionner une date de fin")
       return
     }
 
-    if (startDate > endDate) {
-      setError("La date de début doit être antérieure à la date de fin")
+    const startDT = combineDateAndTime(startDate, startTime)
+    const endDT = combineDateAndTime(endDate, endTime)
+
+    if (startDT > endDT) {
+      setError("La date/heure de début doit être antérieure à la date/heure de fin")
       return
     }
 
-    const today = new Date()
-    today.setHours(23, 59, 59, 999)
-    if (startDate > today || endDate > today) {
-      setError("Les dates ne peuvent pas être dans le futur")
+    const now = new Date()
+    if (startDT > now || endDT > now) {
+      setError("Les dates/heures ne peuvent pas être dans le futur")
       return
     }
 
     setIsLoading(true)
-
     try {
-      const smsTotalsByStation = httpsCallable(functions, "smsTotalsByOffice");
-
-      // 2) Call it
+      const smsTotalsByStation = httpsCallable(functions, "smsTotalsByOffice")
       const res = await smsTotalsByStation({
         clientId: shopData.id,
-        startDate: format(startDate, "yyyy-MM-dd"),
-        endDate: format(endDate, "yyyy-MM-dd"),
-        dateField: "date",   
+        startDate: format(startDT, "yyyy-MM-dd HH:mm"),
+        endDate: format(endDT, "yyyy-MM-dd HH:mm"),
+        dateField: "date",
         stations: selectedStations,
-      });
-      
-      // 3) Read output
-      const { stations} = res.data as any;
+      })
+
+      const { stations } = res.data as any
       const transformedData: SMSData[] = [
         ...Object.values(stations || {}).map((s: any) => ({
           station: s.name,
           smsCount: Number(s.totalSms) || 0,
         })),
-        ...(Number(res.data.unknownSms) > 0
+        ...(Number((res.data as any).unknownSms) > 0
           ? [
               {
                 station: "Unknown",
-                smsCount: Number(res.data.unknownSms) || 0,
+                smsCount: Number((res.data as any).unknownSms) || 0,
               },
             ]
           : []),
-      ].sort((a, b) => b.smsCount - a.smsCount);
-      
-      setTableData(transformedData);  
-      setTotalSMS(res.data.totalSms)
+      ].sort((a, b) => b.smsCount - a.smsCount)
+
+      setTableData(transformedData)
+      setTotalSMS((res.data as any).totalSms)
     } catch (error) {
       console.error("[v0] Error fetching SMS data:", error)
       setError("Une erreur s'est produite lors de la récupération des données. Veuillez réessayer.")
@@ -128,6 +154,12 @@ export default function SMSFilterPage() {
   const handleReset = () => {
     setStartDate(undefined)
     setEndDate(undefined)
+
+    setStartHour("00")
+    setStartMinute("00")
+    setEndHour("23")
+    setEndMinute("59")
+
     setSelectedStations([])
     setIsAllSelected(false)
     setTableData([])
@@ -136,32 +168,73 @@ export default function SMSFilterPage() {
   }
 
   const handleExportToExcel = () => {
-    if (tableData.length === 0) return;
-  
+    if (tableData.length === 0) return
+
     const exportData = tableData.map((row) => ({
       Station: row.station,
       "Nombre de SMS": row.smsCount,
       Pourcentage: `${((row.smsCount / totalSMS) * 100).toFixed(2)}%`,
-    }));
-  
-    const worksheet = XLSX.utils.json_to_sheet(exportData, { origin: "A2" }); // 👈 start at row 2
-  
-    // 👇 Add merged top row (A1:C1)
-    XLSX.utils.sheet_add_aoa(worksheet, [[`Total SMS envoyés : ${totalSMS}`]], { origin: "A1" });
-    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }]; // merge A1..C1
-  
-    // optional: make it look nicer (column widths)
-    worksheet["!cols"] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }];
-  
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Rapport SMS");
-  
-    const fileName = `rapport_sms_${format(new Date(), "yyyy-MM-dd")}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-  };
+    }))
 
+    const worksheet = XLSX.utils.json_to_sheet(exportData, { origin: "A2" })
+    XLSX.utils.sheet_add_aoa(worksheet, [[`Total SMS envoyés : ${totalSMS}`]], { origin: "A1" })
+    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }]
+    worksheet["!cols"] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }]
+
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rapport SMS")
+    const fileName = `rapport_sms_${format(new Date(), "yyyy-MM-dd")}.xlsx`
+    XLSX.writeFile(workbook, fileName)
+  }
 
   const filteredTableData = tableData.filter((row) => row.station.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const TimeSelect = ({
+    label,
+    hour,
+    minute,
+    onHour,
+    onMinute,
+  }: {
+    label: string
+    hour: string
+    minute: string
+    onHour: (v: string) => void
+    onMinute: (v: string) => void
+  }) => {
+    return (
+      <div className="mt-2 space-y-2">
+        <label className="text-xs text-muted-foreground">{label}</label>
+        <div className="grid grid-cols-2 gap-2">
+          <Select value={hour} onValueChange={onHour}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Heure" />
+            </SelectTrigger>
+            <SelectContent>
+              {hours.map((h) => (
+                <SelectItem key={h} value={h}>
+                  {h}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={minute} onValueChange={onMinute}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Minute" />
+            </SelectTrigger>
+            <SelectContent>
+              {minutes.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -174,16 +247,14 @@ export default function SMSFilterPage() {
         <Card className="border-border bg-card p-6">
           <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-3">
+              {/* Start date + time */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Date de début</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !startDate && "text-muted-foreground",
-                      )}
+                      className={cn("w-full justify-start text-left font-normal", !startDate && "text-muted-foreground")}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {startDate ? format(startDate, "PPP", { locale: fr }) : "Sélectionner une date"}
@@ -193,8 +264,17 @@ export default function SMSFilterPage() {
                     <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus locale={fr} />
                   </PopoverContent>
                 </Popover>
+
+                <TimeSelect
+                  label="Heure de début (24h)"
+                  hour={startHour}
+                  minute={startMinute}
+                  onHour={setStartHour}
+                  onMinute={setStartMinute}
+                />
               </div>
 
+              {/* End date + time */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Date de fin</label>
                 <Popover>
@@ -211,8 +291,17 @@ export default function SMSFilterPage() {
                     <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus locale={fr} />
                   </PopoverContent>
                 </Popover>
+
+                <TimeSelect
+                  label="Heure de fin (24h)"
+                  hour={endHour}
+                  minute={endMinute}
+                  onHour={setEndHour}
+                  onMinute={setEndMinute}
+                />
               </div>
 
+              {/* Stations */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Stations</label>
                 <Popover open={isStationDropdownOpen} onOpenChange={setIsStationDropdownOpen}>
@@ -243,10 +332,7 @@ export default function SMSFilterPage() {
                       </div>
                       <div className="p-2">
                         {STATIONS.map((station) => (
-                          <div
-                            key={station.name}
-                            className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent"
-                          >
+                          <div key={station.name} className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent">
                             <Checkbox
                               id={station.name}
                               checked={selectedStations.includes(station.name)}
@@ -355,7 +441,7 @@ export default function SMSFilterPage() {
                             {row.smsCount.toLocaleString("fr-FR")}
                           </td>
                           <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                            {((row.smsCount / totalSMS) * 100).toFixed(2)}%
+                            {totalSMS ? ((row.smsCount / totalSMS) * 100).toFixed(2) : "0.00"}%
                           </td>
                         </tr>
                       ))
