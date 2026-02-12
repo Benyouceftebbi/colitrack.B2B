@@ -59,7 +59,7 @@ export default function SMSFilterPage() {
   const [totalSMS, setTotalSMS] = useState(0)
 
   const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => pad2(i)), [])
-  const minutes = useMemo(() => ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"], [])
+  const minutes = useMemo(() => ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55","59"], [])
 
   const combineDateAndTime = (date: Date, time: string) => {
     const [hh, mm] = time.split(":").map((v) => parseInt(v, 10))
