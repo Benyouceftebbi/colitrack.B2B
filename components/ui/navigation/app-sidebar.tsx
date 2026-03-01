@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         
       },
-      ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n"
+      ...(shopData?.id === "372ed9ea0c4cb64c89494cdc82374a8edc396f4c53bcb9817878664647013220"
         ? [
             {
               url: "/Dashboard/retargeting",
