@@ -51,6 +51,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n"
         ? [
             {
+              url: "/Dashboard/retargeting",
+              icon: Target,
+              title: t("nav.retargeting"),
+              isActive: pathname[1] === "retargeting",
+            },
+          ]
+        : []),
+      ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n"
+        ? [
+            {
               url: "/Dashboard/analytics",
               icon: Target,
               title: t("nav.analytics"),
