@@ -48,11 +48,11 @@ export function ShopSwitcher() {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
+  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg max-h-80 overflow-y-auto"
+  align="start"
+  side={isMobile ? "bottom" : "right"}
+  sideOffset={4}
+>
             <DropdownMenuLabel className="text-xs text-muted-foreground">SHOPS</DropdownMenuLabel>
             {shops.map((shop: any, index: number) => (
               <DropdownMenuItem

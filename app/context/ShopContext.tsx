@@ -112,7 +112,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
       if (!userEmail) { setLoading(false); return; }
   
       try {
-        const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail));
+        const shopsQuery = query(collection(db, "Clients"), where("ecotrack", "==", true));
         const shopDocs = await getDocs(shopsQuery);
   
         if (!alive) return;
@@ -170,7 +170,8 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           if (s.date) s.date = timestampToDate(s.date);
           return { ...s, id: d.id, lastStatus: null };
         });
-  
+        console.log("hellololol");
+        
         // write minimally to avoid layout “resets”
         setShopData(prev => prev?.id === shopData.id ? { ...prev, sms: smsData } : prev);
       } catch (err) {
@@ -183,6 +184,14 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
   
     return () => { latest = ""; };
   }, [shopData.id, dateRange?.from, dateRange?.to]);
+
+
+
+
+
+
+
+
   useEffect(() => {
     if (!shopData?.id) return;
   
