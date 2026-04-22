@@ -1,14 +1,12 @@
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { ProgressSteps } from "./ProgressSteps"
 import { SelectAudience } from "./steps/SelectAudience"
-import { MessageTypeSelector } from "./steps/MessageTypeSelector"
-import { MessageStats } from "./steps/MessageStats"
 import { CraftMessage } from "./steps/CraftMessage"
 import { PreviewAndTest } from "./steps/PreviewAndTest"
 import { SendCampaign } from "./steps/SendCampaign"
 import { NavigationButtons } from "./NavigationButtons"
 import { useRetargetingCampaign } from "../hooks/useRetargetingCampaign"
-import { STEPS, STEPS_UNIQUE } from "./constants"
+import { STEPS } from "./constants"
 import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations } from "next-intl"
 import type { SentMessage } from "../types"
@@ -20,42 +18,19 @@ type CampaignDialogProps = {
 
 export function CampaignDialog({ onClose, onAddCampaign }: CampaignDialogProps) {
   const campaign = useRetargetingCampaign()
-  const isUniqueMessage = campaign.messageType === "unique" && campaign.excelData?.messageColumn
-  const currentSteps = isUniqueMessage ? STEPS_UNIQUE : STEPS
 
   const renderStepContent = () => {
-    if (isUniqueMessage) {
-      // Unique message flow: Select Audience -> Message Type -> Message Stats -> Preview -> Send
-      switch (campaign.currentStep) {
-        case 0:
-          return <SelectAudience campaign={campaign} />
-        case 1:
-          return <MessageTypeSelector campaign={campaign} />
-        case 2:
-          return <MessageStats campaign={campaign} />
-        case 3:
-          return <PreviewAndTest campaign={campaign} />
-        case 4:
-          return <SendCampaign />
-        default:
-          return null
-      }
-    } else {
-      // Custom message flow: Select Audience -> Message Type -> Craft Message -> Preview -> Send
-      switch (campaign.currentStep) {
-        case 0:
-          return <SelectAudience campaign={campaign} />
-        case 1:
-          return <MessageTypeSelector campaign={campaign} />
-        case 2:
-          return <CraftMessage campaign={campaign} />
-        case 3:
-          return <PreviewAndTest campaign={campaign} />
-        case 4:
-          return <SendCampaign />
-        default:
-          return null
-      }
+    switch (campaign.currentStep) {
+      case 0:
+        return <SelectAudience campaign={campaign} />
+      case 1:
+        return <CraftMessage campaign={campaign} />
+      case 2:
+        return <PreviewAndTest campaign={campaign} />
+      case 3:
+        return <SendCampaign />
+      default:
+        return null
     }
   }
 
@@ -76,7 +51,7 @@ export function CampaignDialog({ onClose, onAddCampaign }: CampaignDialogProps) 
       </DialogHeader>
 
       <div className="p-6 pt-2 h-[calc(100%-80px)] flex flex-col">
-        <ProgressSteps steps={currentSteps} currentStep={campaign.currentStep} />
+        <ProgressSteps steps={STEPS} currentStep={campaign.currentStep} />
         <AnimatePresence mode="wait">
           <motion.div
             key={campaign.currentStep}
@@ -94,9 +69,8 @@ export function CampaignDialog({ onClose, onAddCampaign }: CampaignDialogProps) 
       <NavigationButtons
         campaign={campaign}
         currentStep={campaign.currentStep}
-        totalSteps={currentSteps.length}
         onPrevStep={() => campaign.setCurrentStep((prev) => Math.max(prev - 1, 0))}
-        onNextStep={() => campaign.setCurrentStep((prev) => Math.min(prev + 1, currentSteps.length - 1))}
+        onNextStep={() => campaign.setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1))}
         onClose={onClose}
         onSendCampaign={handleSendCampaign}
       />

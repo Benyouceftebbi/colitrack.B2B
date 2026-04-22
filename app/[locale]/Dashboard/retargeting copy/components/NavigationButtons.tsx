@@ -19,7 +19,6 @@ import { useTranslations } from "next-intl"
 type NavigationButtonsProps = {
   campaign: RetargetingCampaignHook
   currentStep: number
-  totalSteps: number
   onPrevStep: () => void
   onNextStep: () => void
   onClose: () => void
@@ -29,33 +28,12 @@ type NavigationButtonsProps = {
 export function NavigationButtons({
   campaign,
   currentStep,
-  totalSteps,
   onPrevStep,
   onNextStep,
   onClose,
   onSendCampaign,
 }: NavigationButtonsProps) {
   const t = useTranslations("retargeting")
-
-  // Last step is send campaign (totalSteps - 1)
-  const isLastStep = currentStep >= totalSteps - 1
-
-  // Validation for step 1 (Message Type)
-  const canProceedFromStep1 = () => {
-    if (campaign.messageType === "custom") return true
-    if (campaign.messageType === "unique") {
-      return campaign.excelData?.messageColumn && campaign.uniqueMessageStats
-    }
-    return false
-  }
-
-  // Check if next button should be disabled
-  const isNextDisabled = () => {
-    if (currentStep === 1) {
-      return !canProceedFromStep1()
-    }
-    return false
-  }
 
   return (
     <motion.div
@@ -68,8 +46,8 @@ export function NavigationButtons({
         {t("previous")}
       </Button>
 
-      {!isLastStep ? (
-        <Button onClick={onNextStep} disabled={isNextDisabled()}>{t("next")}</Button>
+      {currentStep < 3 ? (
+        <Button onClick={onNextStep}>{t("next")}</Button>
       ) : (
         <AlertDialog>
           <AlertDialogTrigger asChild>

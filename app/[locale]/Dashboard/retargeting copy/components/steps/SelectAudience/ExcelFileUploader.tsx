@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { parseExcelFile } from "../../../utils/excel"
-import type { RetargetingCampaignHook } from "../../../types"
+import type { RetargetingCampaignHook } from "../types"
 import { useTranslations } from "next-intl"
 
 type ExcelFileUploaderProps = {

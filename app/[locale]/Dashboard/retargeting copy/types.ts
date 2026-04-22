@@ -27,19 +27,25 @@ export type ExcelData = {
   headers: string[]
   phoneColumn: string
   nameColumn: string
-  messageColumn?: string
   data: Record<string, string>[]
 }
 
-export type MessageType = "custom" | "unique"
-
-export type UniqueMessageStats = {
+export type RetargetingCampaignHook = {
+  compaignName:string
+  message: string
+  setMessage: (message: string) => void
+  excelData: ExcelData | null
+  setExcelData: (data: ExcelData | null) => void
   totalRecipients: number
-  totalCharacters: number
-  averageCharacters: number
-  maxCharacters: number
-  minCharacters: number
-  messagesOverLimit: number
+  setTotalRecipients: (total: number) => void
+  CHARACTER_LIMIT: number
+  audienceSource?: "excel" | "group"
+  selectedGroup?: { recipients: { name: string; phone: string }[] }
+  totalCost?: number
+  hasArabic: boolean
+  effectiveCharLimit: number
+
+
 }
 
 export type RetargetingCampaignHook = ReturnType<typeof import("./hooks/useRetargetingCampaign").useRetargetingCampaign>

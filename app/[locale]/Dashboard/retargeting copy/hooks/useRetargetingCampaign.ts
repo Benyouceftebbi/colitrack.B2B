@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import confetti from "canvas-confetti"
 import { utils, writeFile } from "xlsx"
-import type { SentMessage, ClientGroup, ExcelData, CampaignStatus, MessageType, UniqueMessageStats } from "../types"
+import type { SentMessage, ClientGroup, ExcelData, CampaignStatus } from "../types"
 import { CLIENT_GROUPS, CHARACTER_LIMIT, COST_PER_MESSAGE } from "../components/constants"
 import { useShop } from "@/app/context/ShopContext"
 import { functions } from "@/firebase/firebase"
@@ -28,11 +28,9 @@ export function useRetargetingCampaign() {
   const [audienceSource, setAudienceSource] = useState("group")
   const [deliveryStatus, setDeliveryStatus] = useState("all")
   const [excelData, setExcelData] = useState<ExcelData | null>(null)
-  const [processedData, setProcessedData] = useState<Array<{ name: string; number: string; message?: string }>>([])
+  const [processedData, setProcessedData] = useState<Array<{ name: string; number: string }>>([])
   const [totalRecipients, setTotalRecipients] = useState(0)
   const [campaignName, setCampaignName] = useState("")
-  const [messageType, setMessageType] = useState<MessageType>("custom")
-  const [uniqueMessageStats, setUniqueMessageStats] = useState<UniqueMessageStats | null>(null)
 
   const hasUnicode = containsUnicodeCharacters(message)
   const hasRTL = containsRTLCharacters(message)
@@ -49,40 +47,19 @@ export function useRetargetingCampaign() {
     if (excelData && excelData.phoneColumn && excelData.nameColumn) {
       const phoneIndex = excelData.headers.indexOf(excelData.phoneColumn)
       const nameIndex = excelData.headers.indexOf(excelData.nameColumn)
-      const messageIndex = excelData.messageColumn ? excelData.headers.indexOf(excelData.messageColumn) : -1
 
       const processed = excelData.data.map((row) => ({
         name: row[nameIndex] as string,
         number: row[phoneIndex] as string,
-        message: messageIndex >= 0 ? (row[messageIndex] as string) : undefined,
       }))
 
       setProcessedData(processed)
       setTotalRecipients(processed.length)
 
-      // Calculate unique message stats if message column is selected
-      if (messageType === "unique" && messageIndex >= 0) {
-        const messages = processed.map(p => p.message || "").filter(m => m.length > 0)
-        const charCounts = messages.map(m => m.length)
-        const totalChars = charCounts.reduce((a, b) => a + b, 0)
-        const effectiveLimit = messages.some(m => containsUnicodeCharacters(m)) ? 80 : CHARACTER_LIMIT
-        
-        setUniqueMessageStats({
-          totalRecipients: processed.length,
-          totalCharacters: totalChars,
-          averageCharacters: messages.length > 0 ? Math.round(totalChars / messages.length) : 0,
-          maxCharacters: messages.length > 0 ? Math.max(...charCounts) : 0,
-          minCharacters: messages.length > 0 ? Math.min(...charCounts) : 0,
-          messagesOverLimit: charCounts.filter(c => c > effectiveLimit).length,
-        })
-      } else {
-        setUniqueMessageStats(null)
-      }
-
       console.log("Processed Excel Data:", processed)
       console.log("Total Recipients:", processed.length)
     }
-  }, [excelData, messageType])
+  }, [excelData])
 
   const handleSendCampaign = async () => {
     try {
@@ -98,49 +75,20 @@ export function useRetargetingCampaign() {
 
       setIsSending(true)
 
-      let response
-      let calculatedTotalCost = totalCost
-      let calculatedMessageCount = messageCount
-
-      // Use different functions based on message type
-      if (messageType === "unique" && excelData?.messageColumn) {
-        // Unique SMS - each recipient gets their own message from Excel
-        const sendUniqueBulkSMS = httpsCallable(functions, "sendUniqueBulkSMS")
-        
-        // Calculate stats for unique messages
-        const totalChars = uniqueMessageStats?.totalCharacters || 0
-        const effectiveLimit = hasUnicode ? 80 : CHARACTER_LIMIT
-        calculatedMessageCount = Math.ceil(totalChars / effectiveLimit)
-        calculatedTotalCost = calculatedMessageCount * COST_PER_MESSAGE
-
-        response = await sendUniqueBulkSMS({
-          phoneNumbers: processedData.map((recipient) => ({
-            name: recipient.name,
-            phoneNumber: recipient.number,
-            sms: recipient.message || "", // Each recipient has their own message
-          })),
-          compaignName: campaignName,
-          collectionName: "Clients",
-          hasUnicode,
-          hasRTL,
-          isUniqueMessage: true,
-        })
-      } else {
-        // Custom SMS - same message for all recipients
-        const sendBulkSMS = httpsCallable(functions, "sendBulkSMS")
-        response = await sendBulkSMS({
-          sms: message,
-          phoneNumbers: processedData.map((recipient) => ({
-            name: recipient.name,
-            phoneNumber: recipient.number,
-          })),
-          compaignName: campaignName,
-          messageCount,
-          collectionName: "Clients",
-          hasUnicode,
-          hasRTL,
-        })
-      }
+      // Firebase Cloud Function
+      const sendBulkSMS = httpsCallable(functions, "sendBulkSMS")
+      const response = await sendBulkSMS({
+        sms: message, // The SMS content
+        phoneNumbers: processedData.map((recipient) => ({
+          name: recipient.name,
+          phoneNumber: recipient.number,
+        })),
+        compaignName: campaignName, // Ensure campaign name is passed
+        messageCount,
+        collectionName:"Clients",
+        hasUnicode, // Pass whether the message contains Unicode characters
+        hasRTL, // Pass whether the message contains RTL characters
+      })
 
       const responseData = response.data
 
@@ -151,18 +99,18 @@ export function useRetargetingCampaign() {
       if (responseData.status === "failed") {
         // Handle different failure reasons
         if (responseData.error === "Not enough tokens") {
-          alert("Not enough tokens to run this campaign! You have: " + responseData.newTokens)
+          alert("⚠️ Not enough tokens to run this campaign! You have: " + responseData.newTokens)
         } else if (responseData.error === "SMS contains sensitive content") {
-          alert("SMS content was rejected. Please modify your message.")
+          alert("❌ SMS content was rejected. Please modify your message.")
         } else {
-          alert("Failed to send SMS: " + responseData.error)
+          alert("❌ Failed to send SMS: " + responseData.error)
         }
         setIsSending(false)
         return null
       }
 
       if (responseData.status === "pending") {
-        console.log("SMS Campaign Pending, handling the rest...")
+        console.log("✅ SMS Campaign Pending, handling the rest...")
         console.log("Response:", responseData)
 
         // Create a new SMS campaign entry
@@ -171,11 +119,10 @@ export function useRetargetingCampaign() {
           date: new Date(),
           recipients: totalRecipients,
           campaignName,
-          messageCount: calculatedMessageCount,
-          totalCost: calculatedTotalCost,
-          content: messageType === "unique" ? `[Unique Messages - ${totalRecipients} recipients]` : message,
-          status: "pending",
-          messageType, // Track if this was a unique or custom campaign
+          messageCount,
+          totalCost,
+          content: message,
+          status: "pending", // Set initial status
         }
 
         // Update shop data with new tokens
@@ -201,8 +148,8 @@ export function useRetargetingCampaign() {
         return null
       }
     } catch (error) {
-      console.error("Error sending SMS campaign:", error)
-      alert("An unexpected error occurred. Please try again.")
+      console.error("🚨 Error sending SMS campaign:", error)
+      alert("❌ An unexpected error occurred. Please try again.")
       setIsSending(false)
       return null
     }
@@ -251,8 +198,6 @@ export function useRetargetingCampaign() {
     setCurrentStep(0)
     setAudienceSource("")
     setProcessedData([])
-    setMessageType("custom")
-    setUniqueMessageStats(null)
   }
 
   return {
@@ -295,9 +240,5 @@ export function useRetargetingCampaign() {
     effectiveCharLimit,
     nameValidation,
     unicodeValidation,
-    messageType,
-    setMessageType,
-    uniqueMessageStats,
-    setUniqueMessageStats,
   }
 }
