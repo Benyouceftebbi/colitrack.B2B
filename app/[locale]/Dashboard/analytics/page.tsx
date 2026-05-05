@@ -32,6 +32,7 @@ interface SMSData {
   station: string
   smsCount: number
 }
+//console.log("ss0",STATIONS);
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
