@@ -68,6 +68,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         : []),
     
 
+        ...(shopData?.id === "5fb2444c1dbbc5ff1f159a86ac48b2a13c80ea1ccb7449a80ad9d58ec09da7fc"
+          ? [
+              {
+                url: "/Dashboard/stopdesks",
+                icon: Target,
+                title:"Stopdesks",
+                isActive: pathname[1] === "stopdesks",
+              },
+            ]
+          : []),
       { url: "/Dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],
   }

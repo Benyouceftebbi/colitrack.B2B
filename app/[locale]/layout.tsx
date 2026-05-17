@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from '../context/theme-provider';
 import { AuthProvider } from '../context/AuthContext';
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "sonner"
 import "./globals.css";
 import FacebookPixel from '@/components/FacebookPixel';
 
