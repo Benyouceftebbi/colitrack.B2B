@@ -252,7 +252,25 @@ export default function StopdeskManagement() {
       iframeMap: iframeUrl,
     }));
   };
-
+  const handleAddWorkingDay = () => {
+    setFormData((prev) => ({
+      ...prev,
+      hub_working_days: [
+        ...prev.hub_working_days,
+        {
+          day: "",
+          openTime: "09:00",
+          closeTime: "17:00",
+        },
+      ],
+    }));
+  };
+  const handleRemoveWorkingDay = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      hub_working_days: prev.hub_working_days.filter((_, i) => i !== index),
+    }));
+  };
   const handleWorkingDayChange = (
     index: number,
     field: "openTime" | "closeTime",
@@ -535,56 +553,91 @@ export default function StopdeskManagement() {
 
               {/* Working Hours */}
               <div className="space-y-4">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Working Hours
-                </h3>
-                <div className="space-y-2">
-                  {formData.hub_working_days.map((day, index) => (
-                    <div
-                      key={day.day}
-                      className="flex items-center gap-4 text-sm"
-                    >
-                      <span className="w-24 font-medium">{day.day}</span>
-                      <Select
-                        value={day.openTime}
-                        onValueChange={(value) =>
-                          handleWorkingDayChange(index, "openTime", value)
-                        }
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue placeholder="Open" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIME_OPTIONS.map((time) => (
-                            <SelectItem key={`open-${time}`} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span>to</span>
-                      <Select
-                        value={day.closeTime}
-                        onValueChange={(value) =>
-                          handleWorkingDayChange(index, "closeTime", value)
-                        }
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue placeholder="Close" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIME_OPTIONS.map((time) => (
-                            <SelectItem key={`close-${time}`} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
-                </div>
-              </div>
+  <h3 className="font-semibold flex items-center gap-2">
+    <Clock className="h-4 w-4" />
+    Working Hours
+  </h3>
+
+  <div className="space-y-3">
+    {formData.hub_working_days.map((day, index) => (
+      <div key={index} className="flex items-center gap-3 text-sm">
+        
+        {/* Day name input */}
+        <Input
+          value={day.day}
+          onChange={(e) =>
+            setFormData((prev) => {
+              const updated = [...prev.hub_working_days];
+              updated[index].day = e.target.value;
+              return { ...prev, hub_working_days: updated };
+            })
+          }
+          placeholder="Day name (e.g. Monday)"
+          className="w-40"
+        />
+
+        {/* Open time */}
+        <Select
+          value={day.openTime}
+          onValueChange={(value) =>
+            handleWorkingDayChange(index, "openTime", value)
+          }
+        >
+          <SelectTrigger className="w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TIME_OPTIONS.map((time) => (
+              <SelectItem key={time} value={time}>
+                {time}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <span>to</span>
+
+        {/* Close time */}
+        <Select
+          value={day.closeTime}
+          onValueChange={(value) =>
+            handleWorkingDayChange(index, "closeTime", value)
+          }
+        >
+          <SelectTrigger className="w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TIME_OPTIONS.map((time) => (
+              <SelectItem key={time} value={time}>
+                {time}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Remove button */}
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => handleRemoveWorkingDay(index)}
+        >
+          Remove
+        </Button>
+      </div>
+    ))}
+  </div>
+
+  {/* Add button */}
+  <Button
+    type="button"
+    variant="outline"
+    onClick={handleAddWorkingDay}
+  >
+    + Add Working Day
+  </Button>
+</div>
 
               {/* Language */}
               <div className="space-y-4">
