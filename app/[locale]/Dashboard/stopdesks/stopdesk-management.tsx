@@ -114,7 +114,21 @@ export default function StopdeskManagement() {
           updatedAt: docData.updatedAt?.toDate?.() || undefined,
         });
       });
-      setStopdesks(data.sort((a, b) => a.name.localeCompare(b.name)));
+      setStopdesks(
+        data.sort((a, b) => {
+          const wilayaA = Number(a.wilayaId) || 0;
+          const wilayaB = Number(b.wilayaId) || 0;
+      
+          if (wilayaA !== wilayaB) {
+            return wilayaA - wilayaB;
+          }
+      
+          // Sort by name within the same wilaya
+          return a.name.localeCompare(b.name, "fr", {
+            sensitivity: "base",
+          });
+        })
+      );
     } catch (error) {
       console.error("Error fetching stopdesks:", error);
       toast.error("Failed to load stopdesks");
