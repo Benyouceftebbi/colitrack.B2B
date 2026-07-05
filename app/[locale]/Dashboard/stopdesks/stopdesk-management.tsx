@@ -87,7 +87,7 @@ export default function StopdeskManagement() {
       const q = query(
         collection(db, "EcoStop"),
         where("company", "==", "DHD"),
-        orderBy("wilaya", "asc")
+        orderBy("wilayaId", "asc")
       );
       const querySnapshot = await getDocs(q);
       const data: StopDesk[] = [];
