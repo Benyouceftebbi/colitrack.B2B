@@ -10,6 +10,7 @@ import {
   setDoc,
   deleteDoc,
   Timestamp,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { StopDesk, createEmptyStopDesk, WILAYA_LIST, DEFAULT_WORKING_DAYS,TIME_OPTIONS  } from "@/lib/stopdesk-types";
@@ -85,7 +86,8 @@ export default function StopdeskManagement() {
     try {
       const q = query(
         collection(db, "EcoStop"),
-        where("company", "==", "DHD")
+        where("company", "==", "DHD"),
+        orderBy("wilaya", "asc")
       );
       const querySnapshot = await getDocs(q);
       const data: StopDesk[] = [];
