@@ -82,7 +82,7 @@ export default function SMSFilterPage() {
       const data = snapshot.docs
         .map((doc) => ({
           id: doc.id,
-          name: doc.data().commune,
+          name: doc.data().name,
         }))
         .sort((a, b) => a.name.localeCompare(b.name, "fr"));
   
@@ -146,7 +146,7 @@ export default function SMSFilterPage() {
 
     setIsLoading(true)
     try {
-      const smsTotalsByStation = shopData.company==="DHD LIVRAISON EXPRESS PLUS" ?httpsCallable(functions, "smsTotalsByOfficeDHD"):httpsCallable(functions, "smsTotalsByOffice")
+      const smsTotalsByStation = shopData.companyName==="DHD LIVRAISON EXPRESS PLUS" ?httpsCallable(functions, "smsTotalsByOfficeDHD"):httpsCallable(functions, "smsTotalsByOffice")
       const res = await smsTotalsByStation({
         clientId: shopData.id,
         startDate: format(startDT, "yyyy-MM-dd HH:mm"),
