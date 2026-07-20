@@ -23,8 +23,10 @@ import STATIONS_DATA from "@/lib/stations.json"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
-
-const STATIONS = Object.values(STATIONS_DATA)
+import { collection, getDocs, query, where } from "firebase/firestore"
+import { db } from "@/firebase/firebase"
+import { useEffect } from "react"
+const DEFAULT_STATIONS = Object.values(STATIONS_DATA)
   .map((station: any) => ({ name: station.name }))
   .sort((a, b) => a.name.localeCompare(b.name, "fr"))
 
@@ -58,10 +60,37 @@ export default function SMSFilterPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const { shopData } = useShop()
   const [totalSMS, setTotalSMS] = useState(0)
-
+  const [stations, setStations] = useState(DEFAULT_STATIONS)
   const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => pad2(i)), [])
   const minutes = useMemo(() => ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55","59"], [])
-
+  useEffect(() => {
+    const loadStations = async () => {
+      // Default for all companies
+      if (shopData?.companyName !== "DHD LIVRAISON EXPRESS PLUS") {
+        setStations(DEFAULT_STATIONS);
+        return;
+      }
+  
+      // DHD -> load from Firestore
+      const q = query(
+        collection(db, "EcoStop"),
+        where("company", "==", "DHD")
+      );
+  
+      const snapshot = await getDocs(q);
+  
+      const data = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          name: doc.data().commune,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+  
+      setStations(data);
+    };
+  
+    loadStations();
+  }, [shopData?.companyName]);
   const combineDateAndTime = (date: Date, time: string) => {
     const [hh, mm] = time.split(":").map((v) => parseInt(v, 10))
     const d = new Date(date)
@@ -80,7 +109,7 @@ export default function SMSFilterPage() {
       setSelectedStations([])
       setIsAllSelected(false)
     } else {
-      setSelectedStations(STATIONS.map((s) => s.name))
+      setSelectedStations(stations.map((s) => s.name))
       setIsAllSelected(true)
     }
   }
@@ -117,7 +146,7 @@ export default function SMSFilterPage() {
 
     setIsLoading(true)
     try {
-      const smsTotalsByStation = httpsCallable(functions, "smsTotalsByOffice")
+      const smsTotalsByStation = shopData.company==="DHD LIVRAISON EXPRESS PLUS" ?httpsCallable(functions, "smsTotalsByOfficeDHD"):httpsCallable(functions, "smsTotalsByOffice")
       const res = await smsTotalsByStation({
         clientId: shopData.id,
         startDate: format(startDT, "yyyy-MM-dd HH:mm"),
@@ -332,7 +361,7 @@ export default function SMSFilterPage() {
                         </div>
                       </div>
                       <div className="p-2">
-                        {STATIONS.map((station) => (
+                      {stations.map((station) => (
                           <div key={station.name} className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent">
                             <Checkbox
                               id={station.name}
