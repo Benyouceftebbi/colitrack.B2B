@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
 import { EyeOff, Copy } from "lucide-react";
+import { toJsDate } from "@/lib/dates";
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -345,7 +346,7 @@ export default function Component() {
      </div>
      <div className="text-right">
        <span className="text-sm font-mono text-muted-foreground">
-         {new Date(transaction.date.toDate()).toISOString().split("T")[0]}
+         {toJsDate(transaction.date).toISOString().split("T")[0]}
        </span>
      </div>
    </div>

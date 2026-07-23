@@ -279,7 +279,7 @@ export default function SignUp() {
         title: "Account Created Successfully!",
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
-      router.push("/Dashboard")
+      router.push("/dashboard")
       return
     } else {
       console.error("Sign up error:")

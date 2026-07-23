@@ -132,7 +132,7 @@
     "copyright": " Colitrack. All rights reserved."
   },
   "tracking":{
-  "headerTitle": "{{appName}}",
+  "headerTitle": "{appName}",
   "trackYourShipment": "Track Your Shipment",
   "enterTrackingNumber": "Enter your tracking number to get real-time updates",
   "currentLanguage": "Current Language",
@@ -490,10 +490,10 @@
     "signUp": "Sign up",
     "senderIdSectionTitle": "Sender ID",
     "senderIdPlaceholder": "Ex: ANDERSON",
-    "senderIdHelperText": "Maximum {{max}} letters, no accents (A–Z only).",
+    "senderIdHelperText": "Maximum {max} letters, no accents (A–Z only).",
     
     "saveSenderId": "Save Sender ID",
-    "senderIdSavedMessage": "Sender ID {{senderId}} has been saved.",
+    "senderIdSavedMessage": "Sender ID {senderId} has been saved.",
     "changeSenderId": "Change Sender ID"
   },
   "signup":{
@@ -637,7 +637,7 @@
     "allMessages": "All Messages",
     "timePeriodLabel": "Time Period",
     "selectTimePeriod": "Select a Time Period",
-    "timePeriodOption": "{{label}} ({{recipients}} recipients)",
+    "timePeriodOption": "{label} ({recipients} recipients)",
     "last7days": "Last 7 Days",
     "last30days": "Last 30 Days",
     "last90days": "Last 90 Days",
@@ -656,11 +656,11 @@
     "retargetingMessage": "Retargeting Message",
     "bestPractices": "Best Practices for Retargeting Messages:",
     "conciseAndClear": "Keep the Message Concise and Clear",
-    "useNamePlaceholder": "Use '{{name}}' for Personalization",
+    "useNamePlaceholder": "Use '{name}' for Personalization",
     "strongCTA": "Include a Strong Call to Action",
     "highlightValue": "Highlight Unique Selling Points",
-    "personalizationTip": "Tip: You can personalize your message using '{{name}}', it will be replaced with the customer's first name",
-    "messagePlaceholder": "Type your retargeting message here... Use '{{name}}' to personalize the message",
+    "personalizationTip": "Tip: You can personalize your message using '{name}', it will be replaced with the customer's first name",
+    "messagePlaceholder": "Type your retargeting message here... Use '{name}' to personalize the message",
     "charactersRemaining": "Characters Remaining",
     "messageCount": "Message ",
     "recipients": "Recipients",

@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { toJsDate } from "@/lib/dates"
 import {
   Dialog,
   DialogContent,
@@ -132,7 +133,7 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
           comparison = a.compaignName.localeCompare(b.compaignName)
           break
         case "date":
-          comparison = a.date.toDate().getTime() - b.date.toDate().getTime()
+          comparison = toJsDate(a.date).getTime() - toJsDate(b.date).getTime()
           break
         case "recipients":
           comparison = a.recipients.length - b.recipients.length
@@ -323,7 +324,7 @@ export function MessageHistory({ sentMessages, exportToExcel }: MessageHistoryPr
                   <TableRow key={msg.id} className="hover:bg-muted/30 transition-colors border-b last:border-b-0">
                     <TableCell className="font-medium">{msg.compaignName}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {new Date(msg.date.toDate()).toLocaleString()}
+                      {toJsDate(msg.date).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right">{msg.recipients.length}</TableCell>
                     <TableCell className="text-right">{msg.messageCount}</TableCell>

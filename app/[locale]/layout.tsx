@@ -1,5 +1,5 @@
-import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
+import IntlProvider from './IntlProvider';
 import {notFound} from 'next/navigation';
 import {routing} from '@/i18n/routing';
 import type { Metadata } from "next";
@@ -46,7 +46,7 @@ export default async function RootLayout({
     <html lang={locale.locale} suppressHydrationWarning>
       
       <body>
-        <NextIntlClientProvider locale={locale.locale} messages={messages}>
+        <IntlProvider locale={locale.locale} messages={messages}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -66,7 +66,7 @@ export default async function RootLayout({
               {children}
             <Toaster />
             </AuthProvider></ThemeProvider>
-        </NextIntlClientProvider>
+        </IntlProvider>
       </body>
     </html>
   );

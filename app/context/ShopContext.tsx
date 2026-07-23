@@ -5,6 +5,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { doc, getDocs, collection, onSnapshot, query, where, Timestamp, orderBy } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import type { DateRange } from "react-day-picker"
+import { readCache, writeCache, reviveDates } from "@/lib/cache"
 
 interface ShopData {
   id?: string
@@ -29,6 +30,7 @@ interface ShopContextProps {
   shopData: ShopData
   setShopData: (shopData: ShopData | ((prev: ShopData) => ShopData)) => void
   loading: boolean
+  smsLoading: boolean
   error: string | null
   shops: any[]
   setShops: (shops: any[]) => void
@@ -41,6 +43,7 @@ const ShopContext = createContext<ShopContextProps>({
   shopData: {},
   setShopData: () => {},
   loading: true,
+  smsLoading: false,
   error: null,
   shops: [],
   setShops: () => {},
@@ -59,6 +62,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
   const [shopData, setShopData] = useState<ShopData>({})
   const [shops, setShops] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [smsLoading, setSmsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [creativeAiItems, setCreativeAiItems] = useState<any[]>([])
   const [creativeAiLoading, setCreativeAiLoading] = useState<boolean>(true)
@@ -110,18 +114,29 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     let alive = true;
     (async () => {
       if (!userEmail) { setLoading(false); return; }
-  
+
+      // Stale-while-revalidate: hydrate from cache so the dashboard renders
+      // instantly on reload instead of showing the full-screen loader.
+      const shopsCacheKey = `shops:${userEmail}`;
+      const cachedShops = readCache<any[]>(shopsCacheKey);
+      if (cachedShops?.length) {
+        setShops(cachedShops);
+        setShopData(prev => prev?.id ? prev : cachedShops[0]);
+        setLoading(false);
+      }
+
       try {
         const shopsQuery = query(collection(db, "Clients"), where("email", "==", userEmail));
         const shopDocs = await getDocs(shopsQuery);
-  
+
         if (!alive) return;
         if (shopDocs.empty) { setError("No shop data found"); setLoading(false); return; }
-  
+
         const fetchedShops = shopDocs.docs.map(d => ({ ...d.data(), id: d.id }));
         setShops(fetchedShops);
         // keep previously selected shop if any, otherwise first
         setShopData(prev => prev?.id ? prev : fetchedShops[0]);
+        writeCache(shopsCacheKey, fetchedShops);
       } catch (err) {
         if (!alive) return;
         console.error("Error fetching shops:", err);
@@ -139,14 +154,27 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     // guard against overlapping fast changes (e.g., selecting far dates)
     const reqTag = Math.random().toString(36).slice(2);
     let latest = reqTag;
+
+    const from = dateRange?.from ? atStartOfDay(dateRange.from) : null;
+    const to = dateRange?.to ? atStartOfDay(dateRange.to) : null; // EXCLUSIVE handled below
+
+    // Cache key scoped to the shop + selected date window.
+    const smsCacheKey = `sms:${shopData.id}:${from ? from.getTime() : "all"}:${to ? to.getTime() : "all"}`;
+
+    // Show cached SMS instantly (no full-screen loader) while we revalidate.
+    const cachedSms = readCache<any[]>(smsCacheKey);
+    if (cachedSms) {
+      const revived = reviveDates(cachedSms, ["date"]);
+      setShopData(prev => prev?.id === shopData.id ? { ...prev, sms: revived } : prev);
+    }
+
     (async () => {
-      setLoading(true);
-  
+      // Background refresh — never blocks the whole dashboard behind the loader.
+      setSmsLoading(true);
+
       try {
         const shopRef = doc(db, "Clients", shopData.id);
-        const from = dateRange?.from ? atStartOfDay(dateRange.from) : null;
-        const to = dateRange?.to ? atStartOfDay(dateRange.to) : null; // EXCLUSIVE handled below
-  
+
         // build query
         let qRef: any = collection(shopRef, "SMS");
         if (from && to) {
@@ -161,23 +189,24 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         } else {
           qRef = query(qRef, orderBy("date", "desc"));
         }
-  
+
         const smsSnap = await getDocs(qRef);
         if (latest !== reqTag) return; // stale → ignore
-  
+
         const smsData = smsSnap.docs.map(d => {
           const s = d.data();
           if (s.date) s.date = timestampToDate(s.date);
           return { ...s, id: d.id, lastStatus: null };
         });
-  
+
         // write minimally to avoid layout “resets”
         setShopData(prev => prev?.id === shopData.id ? { ...prev, sms: smsData } : prev);
+        writeCache(smsCacheKey, smsData);
       } catch (err) {
         console.error("Error fetching SMS:", err);
         setError("Error fetching SMS");
       } finally {
-        if (latest === reqTag) setLoading(false);
+        if (latest === reqTag) setSmsLoading(false);
       }
     })();
   
@@ -188,7 +217,16 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
   
     const reqTag = Math.random().toString(36).slice(2);
     let latest = reqTag;
-  
+
+    const campaignCacheKey = `campaign:${shopData.id}`;
+
+    // Hydrate campaigns from cache immediately; the live onSnapshot below refreshes them.
+    const cachedCampaign = readCache<any[]>(campaignCacheKey);
+    if (cachedCampaign) {
+      const revived = reviveDates(cachedCampaign, ["createdAt"]);
+      setShopData(prev => prev?.id === shopData.id ? { ...prev, smsCampaign: revived } : prev);
+    }
+
     (async () => {
       try {
         const shopRef = doc(db, "Clients", shopData.id);
@@ -196,19 +234,20 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           collection(shopRef, "SMScampaign"),
           orderBy("date", "desc")
         );
-  
+
         const campaignSnap = await getDocs(campaignRef);
         if (latest !== reqTag) return;
-  
+
         const campaignData = campaignSnap.docs.map(d => {
           const s = d.data();
           if (s.createdAt) s.createdAt = timestampToDate(s.createdAt);
           return { ...s, id: d.id, lastStatus: null, type: "SMSCampaign" as const };
         });
-  
+
         setShopData(prev =>
           prev?.id === shopData.id ? { ...prev, smsCampaign: campaignData || [] } : prev
         );
+        writeCache(campaignCacheKey, campaignData || []);
       } catch (err) {
         console.error("Error fetching SMSCampaign:", err);
         setError("Error fetching SMSCampaign");
@@ -306,6 +345,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         value={{
           shopData,
           loading,
+          smsLoading,
           error,
           setShopData,
           setShops,

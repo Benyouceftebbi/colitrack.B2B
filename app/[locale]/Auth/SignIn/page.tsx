@@ -32,7 +32,7 @@ export default function SignIn() {
       const logged = await login(email, password, isRemembered)
 
       if (logged === true) {
-        router.push("/Dashboard")
+        router.push("/dashboard")
       } else {
         setError(true)
         toast({
