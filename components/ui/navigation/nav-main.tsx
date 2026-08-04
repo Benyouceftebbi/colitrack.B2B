@@ -1,32 +1,49 @@
 "use client"
-import { type LucideIcon } from "lucide-react"
+import type * as React from "react"
+import { ChevronRight } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Link } from "@/i18n/routing"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon: LucideIcon | string
-    isActive?: boolean
-  }[]
-}) {
+/** Lucide icons and our own SVG components both satisfy this. */
+export type NavIcon = React.ComponentType<{ className?: string }>
+
+export type NavSubItem = {
+  title: string
+  url: string
+  icon?: NavIcon
+  isActive?: boolean
+}
+
+export type NavItem = {
+  title: string
+  url: string
+  icon: NavIcon
+  isActive?: boolean
+  isSpecial?: boolean
+  gradient?: string
+  /** When present the entry renders as a collapsible section. */
+  items?: NavSubItem[]
+}
+
+export function NavMain({ items }: { items: NavItem[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
       {items.map((item) => (
-         
-         
-            <SidebarMenuItem className="overflow-hidden pb-2">
+
+
+            <SidebarMenuItem key={item.url} className="overflow-hidden pb-2">
                {item.isSpecial ? (
                     <div className="relative group">
                       {/* Animated background glow */}
@@ -87,6 +104,39 @@ export function NavMain({
                         </div>
                       </div>
                     </div>
+                  ) : item.items?.length ? (
+                    // Section with sub-pages. Stays open while one of its
+                    // children is the current route.
+                    <Collapsible defaultOpen={item.isActive} className="group/collapsible">
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          className={`mb-1 ${
+                            item.isActive
+                              ? "text-primary bg-primary/10"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          }`}
+                        >
+                          <item.icon className="w-7 h-7" />
+                          <span className="truncate font-semibold">{item.title}</span>
+                          <ChevronRight className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((sub) => (
+                            <SidebarMenuSubItem key={sub.url}>
+                              <SidebarMenuSubButton asChild isActive={sub.isActive}>
+                                <Link href={sub.url}>
+                                  {sub.icon && <sub.icon className="h-4 w-4" />}
+                                  <span className="truncate">{sub.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
                   ) : (
               <SidebarMenuButton asChild tooltip={item.title}>
                 <Link href={item.url} className={` mb-1 ${
@@ -94,8 +144,8 @@ export function NavMain({
               ? "text-primary bg-primary/10"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           }`}>
-          <item.icon className="w-7 h-7 "/> 
-                  <span className="truncate font-semibold">{item.title}</span> 
+          <item.icon className="w-7 h-7 "/>
+                  <span className="truncate font-semibold">{item.title}</span>
                 </Link>
               </SidebarMenuButton>
                   )}

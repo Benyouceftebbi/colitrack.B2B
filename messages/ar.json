@@ -1027,7 +1027,11 @@
       "retargeting": "إعادة الاستهداف",
       "ai-orders": "طلبات الذكاء الاصطناعي",
       "billing": "الفوترة",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "whatsapp": "مركز واتساب",
+      "whatsapp-dashboard": "لوحة التحكم",
+      "whatsapp-templates": "القوالب",
+      "whatsapp-messages": "الرسائل"
     },
     "user": {
       "account": "الحساب",

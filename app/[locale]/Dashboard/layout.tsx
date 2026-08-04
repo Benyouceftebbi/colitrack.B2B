@@ -19,6 +19,7 @@ import {usePathname} from "@/i18n/routing";
 import React from "react";
 import TopHeader from "@/components/ui/navigation/TopHeader";
 import { ShopProvider} from "@/app/context/ShopContext";
+import { MaintenanceBanner } from "@/components/ui/navigation/maintenance-banner";
 
 export default function DashboardLayout({
   children,
@@ -44,6 +45,7 @@ export default function DashboardLayout({
         <ShopProvider userId={user.uid} userEmail={user.email}>
       <AppSidebar />
       <SidebarInset>
+        <MaintenanceBanner />
         <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex flex-1 items-center gap-2 px-3">
             <SidebarTrigger className="-ml-1" />

@@ -1049,7 +1049,11 @@
       "ai-orders": "Commandes IA",
       "ai-order-retriver": "Récupérateur IA",
       "billing": "Facturation",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "whatsapp": "Hub WhatsApp",
+      "whatsapp-dashboard": "Tableau de bord",
+      "whatsapp-templates": "Modèles",
+      "whatsapp-messages": "Messages"
     },
     "user": {
       "account": "Compte",

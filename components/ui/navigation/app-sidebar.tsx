@@ -1,7 +1,8 @@
 "use client"
 
 import type * as React from "react"
-import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone, Sparkles, Bot  } from "lucide-react"
+import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone, Sparkles, Bot, LayoutDashboard, FileText, Send  } from "lucide-react"
+import { WhatsAppIcon } from "@/components/ui/navigation/whatsapp-icon"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
 import { NavUser } from "@/components/ui/navigation/nav-user"
@@ -14,6 +15,8 @@ import { NavSecondaryWithDialogs } from "./nav-secondary"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname().split("/").filter(Boolean)
+  // Route segments keep their original casing ("Dashboard"), so compare lowercased.
+  const whatsappSegment = pathname[1]?.toLowerCase()
   const { shopData } = useShop()
   const { shops } = useShop()
   const t = useTranslations("sidebar")
@@ -55,6 +58,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: t("nav.retargeting"),
               isActive: pathname[1] === "retargeting",
             },
+
+      {
+        url: "/Dashboard/whatsapp",
+        icon: WhatsAppIcon,
+        title: t("nav.whatsapp"),
+        isActive: whatsappSegment === "whatsapp",
+        items: [
+          {
+            url: "/Dashboard/whatsapp",
+            icon: LayoutDashboard,
+            title: t("nav.whatsapp-dashboard"),
+            isActive: whatsappSegment === "whatsapp" && !pathname[2],
+          },
+          {
+            url: "/Dashboard/whatsapp/templates",
+            icon: FileText,
+            title: t("nav.whatsapp-templates"),
+            isActive: whatsappSegment === "whatsapp" && pathname[2]?.toLowerCase() === "templates",
+          },
+          {
+            url: "/Dashboard/whatsapp/messages",
+            icon: Send,
+            title: t("nav.whatsapp-messages"),
+            isActive: whatsappSegment === "whatsapp" && pathname[2]?.toLowerCase() === "messages",
+          },
+        ],
+      },
 
       ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n" || shopData?.id === "5fb2444c1dbbc5ff1f159a86ac48b2a13c80ea1ccb7449a80ad9d58ec09da7fc"
         ? [

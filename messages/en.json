@@ -1019,7 +1019,11 @@
         "retargeting": "Retargeting",
         "ai-orders": "AI Orders",
         "billing": "Billing",
-        "settings": "Settings"
+        "settings": "Settings",
+        "whatsapp": "WhatsApp Hub",
+        "whatsapp-dashboard": "Dashboard",
+        "whatsapp-templates": "Templates",
+        "whatsapp-messages": "Messages"
       },
       "user": {
         "account": "Account",
