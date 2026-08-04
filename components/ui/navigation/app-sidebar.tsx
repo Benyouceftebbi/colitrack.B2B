@@ -34,14 +34,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     navMain: [
       {
-        url: "/Dashboard",
+        url: "/dashboard",
         icon: Home,
         title: t("nav.dashboard"),
         isActive: pathname[0] === "dashboard" && !pathname[1],
       },
       
       {
-        url: "/Dashboard/messages",
+        url: "/dashboard/messages",
         icon: MessageSquare,
         title: t("nav.messages"),
         isActive: pathname[1] === "messages",
@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
 
             {
-              url: "/Dashboard/retargeting",
+              url: "/dashboard/retargeting",
               icon: Target,
               title: t("nav.retargeting"),
               isActive: pathname[1] === "retargeting",
@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ...(shopData?.id === "EqBryQTkpV52bZKTUFB34nLt3psWzQaP6cBzUy1jUHdqOQneBlx8Ib9YEr9bce5n" || shopData?.id === "5fb2444c1dbbc5ff1f159a86ac48b2a13c80ea1ccb7449a80ad9d58ec09da7fc"
         ? [
             {
-              url: "/Dashboard/analytics",
+              url: "/dashboard/analytics",
               icon: Target,
               title: t("nav.analytics"),
               isActive: pathname[1] === "analytics",
@@ -71,14 +71,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ...(shopData?.id === "5fb2444c1dbbc5ff1f159a86ac48b2a13c80ea1ccb7449a80ad9d58ec09da7fc"
           ? [
               {
-                url: "/Dashboard/stopdesks",
+                url: "/dashboard/stopdesks",
                 icon: Target,
                 title:"Stopdesks",
                 isActive: pathname[1] === "stopdesks",
               },
             ]
           : []),
-      { url: "/Dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
+      { url: "/dashboard/settings", icon: Settings, title: t("nav.settings"), isActive: pathname[1] === "settings" },
     ],
   }
 

@@ -711,7 +711,7 @@ export default function Dashboard() {
               <Button
                 variant="link"
                 className="p-0 h-auto text-xs sm:text-sm"
-                onClick={() => router.push("/Dashboard/messages")}
+                onClick={() => router.push("/dashboard/messages")}
               >
                 {t("view-all")}
               </Button>

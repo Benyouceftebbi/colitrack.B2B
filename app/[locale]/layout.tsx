@@ -9,6 +9,7 @@ import { AuthProvider } from '../context/AuthContext';
 import { Toaster } from "sonner"
 import "./globals.css";
 import FacebookPixel from '@/components/FacebookPixel';
+import MaintenanceBanner from '@/app/components/MaintenanceBanner';
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -47,6 +48,7 @@ export default async function RootLayout({
       
       <body>
         <NextIntlClientProvider locale={locale.locale} messages={messages}>
+          <MaintenanceBanner />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
