@@ -5,6 +5,8 @@ import { redirect } from "@/i18n/routing";
 export default function App() {
 
 
+  
+
   return (
     redirect({
       href: "/Auth/SignIn",
