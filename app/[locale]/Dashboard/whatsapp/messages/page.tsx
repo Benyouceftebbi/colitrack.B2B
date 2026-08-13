@@ -34,8 +34,10 @@ import { StatCard } from "../components/stat-card"
 import { MessageStatusPill } from "../components/status-pill"
 import { MessageDetail } from "../components/messages/message-detail"
 import { useWhatsApp } from "../context/whatsapp-provider"
+import { useWhatsAppTemplates } from "../hooks/use-whatsapp-templates"
+import { useCampaigns } from "../hooks/use-campaigns"
 import { computeAnalytics } from "../lib/analytics"
-import { MESSAGE_STATUS_OPTIONS } from "../lib/constants"
+import { MESSAGE_STATUS_OPTIONS, TEMPLATE_CATEGORIES } from "../lib/constants"
 import type { WhatsAppMessage } from "../types"
 
 const PAGE_SIZE = 25
@@ -65,17 +67,57 @@ function MessagesContent() {
   const { messages, messagesLoading, error, dateRange, setDateRange } = useWhatsApp()
   const locale = LOCALES[useLocale()] ?? enUS
 
+  const { templates } = useWhatsAppTemplates()
+  const { campaigns } = useCampaigns()
+
   const [search, setSearch] = React.useState("")
   const [status, setStatus] = React.useState<string>("all")
   const [direction, setDirection] = React.useState<string>("all")
+  const [templateName, setTemplateName] = React.useState<string>("all")
+  const [category, setCategory] = React.useState<string>("all")
+  const [campaignId, setCampaignId] = React.useState<string>("all")
   const [page, setPage] = React.useState(0)
   const [selected, setSelected] = React.useState<WhatsAppMessage | null>(null)
+
+  /**
+   * Messages store the template name but not its category, so the category is
+   * resolved by joining against the live template list. A template deleted
+   * since the send has no category — those rows fall into "Uncategorised"
+   * rather than disappearing from the results.
+   */
+  const categoryByTemplate = React.useMemo(() => {
+    const map = new Map<string, string>()
+    for (const t of templates) map.set(t.name, t.category)
+    return map
+  }, [templates])
+
+  /** Only offer templates that actually appear in the loaded messages. */
+  const templateOptions = React.useMemo(() => {
+    const names = new Set<string>()
+    for (const m of messages) if (m.templateName) names.add(m.templateName)
+    return Array.from(names).sort((a, b) => a.localeCompare(b))
+  }, [messages])
+
+  /** Same for campaigns — a filter that returns nothing is noise. */
+  const campaignOptions = React.useMemo(() => {
+    const used = new Set<string>()
+    for (const m of messages) if (m.campaignId) used.add(m.campaignId)
+    return campaigns.filter((c) => used.has(c.id))
+  }, [campaigns, messages])
 
   const filtered = React.useMemo(() => {
     const needle = search.trim().toLowerCase()
     return messages.filter((m) => {
       if (status !== "all" && m.status !== status) return false
       if (direction !== "all" && m.direction !== direction) return false
+      if (templateName !== "all" && m.templateName !== templateName) return false
+      if (campaignId !== "all") {
+        if (campaignId === "none" ? Boolean(m.campaignId) : m.campaignId !== campaignId) return false
+      }
+      if (category !== "all") {
+        const resolved = m.templateName ? categoryByTemplate.get(m.templateName) : undefined
+        if (category === "UNKNOWN" ? Boolean(resolved) : resolved !== category) return false
+      }
       if (!needle) return true
       return (
         m.phoneNumber?.toLowerCase().includes(needle) ||
@@ -85,14 +127,32 @@ function MessagesContent() {
         m.wamid?.toLowerCase().includes(needle)
       )
     })
-  }, [messages, search, status, direction])
+  }, [messages, search, status, direction, templateName, category, campaignId, categoryByTemplate])
 
-  React.useEffect(() => setPage(0), [search, status, direction, dateRange])
+  React.useEffect(
+    () => setPage(0),
+    [search, status, direction, templateName, category, campaignId, dateRange],
+  )
 
   const stats = React.useMemo(() => computeAnalytics(filtered), [filtered])
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const visible = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-  const isFiltered = search !== "" || status !== "all" || direction !== "all"
+  const isFiltered =
+    search !== "" ||
+    status !== "all" ||
+    direction !== "all" ||
+    templateName !== "all" ||
+    category !== "all" ||
+    campaignId !== "all"
+
+  const resetFilters = () => {
+    setSearch("")
+    setStatus("all")
+    setDirection("all")
+    setTemplateName("all")
+    setCategory("all")
+    setCampaignId("all")
+  }
 
   const exportCsv = () => {
     const blob = new Blob([toCsv(filtered)], { type: "text/csv;charset=utf-8;" })
@@ -159,8 +219,8 @@ function MessagesContent() {
       </div>
 
       {/* filters */}
-      <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center">
-        <div className="relative flex-1 lg:max-w-sm">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="relative w-full sm:w-auto sm:min-w-[260px] sm:flex-1 lg:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search phone, name, template or text…"
@@ -171,7 +231,7 @@ function MessagesContent() {
         </div>
 
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full lg:w-[190px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -184,7 +244,7 @@ function MessagesContent() {
         </Select>
 
         <Select value={direction} onValueChange={setDirection}>
-          <SelectTrigger className="w-full lg:w-[150px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -194,8 +254,52 @@ function MessagesContent() {
           </SelectContent>
         </Select>
 
+        <Select value={templateName} onValueChange={setTemplateName}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="All templates" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All templates</SelectItem>
+            {templateOptions.map((name) => (
+              <SelectItem key={name} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectValue placeholder="All types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            {TEMPLATE_CATEGORIES.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                {c.label}
+              </SelectItem>
+            ))}
+            <SelectItem value="UNKNOWN">Uncategorised</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={campaignId} onValueChange={setCampaignId}>
+          <SelectTrigger className="w-full sm:w-[190px]">
+            <SelectValue placeholder="All campaigns" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All campaigns</SelectItem>
+            <SelectItem value="none">Not from a campaign</SelectItem>
+            {campaignOptions.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {isFiltered && (
-          <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setStatus("all"); setDirection("all") }} className="gap-1">
+          <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1">
             <X className="h-3.5 w-3.5" /> Reset
           </Button>
         )}

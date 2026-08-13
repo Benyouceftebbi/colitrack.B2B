@@ -192,6 +192,76 @@ export interface WhatsAppMessage {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                                  Campaigns                                  */
+/* -------------------------------------------------------------------------- */
+
+export type CampaignStatus =
+  /** Being built, nothing sent. */
+  | "draft"
+  /** Handed to the backend, sending in progress. */
+  | "sending"
+  /** Every recipient was accepted by Meta. */
+  | "sent"
+  /** Finished, but some recipients were rejected at send time. */
+  | "partial"
+  /** Nothing went out — usually a bad template or a billing problem. */
+  | "failed"
+
+export interface WhatsAppCampaign {
+  id: string
+  name: string
+  templateName: string
+  templateLanguage: string
+  status: CampaignStatus
+  /** Rows that passed validation and were actually attempted. */
+  recipientCount: number
+  /** Accepted by Meta at send time. Delivery is tracked per message. */
+  acceptedCount: number
+  /** Rejected by Meta at send time (bad number, template error, no credit). */
+  rejectedCount: number
+  createdAt: Date | null
+  sentAt: Date | null
+  completedAt: Date | null
+  createdByEmail?: string | null
+  /**
+   * wamids of the messages this campaign produced. Capped — the authoritative
+   * way to read a campaign's messages is a `campaignId` query, which has no
+   * size limit. This array is for quick reference and audit.
+   */
+  messageIds?: string[]
+  /** Set when the whole campaign failed rather than individual recipients. */
+  error?: string | null
+}
+
+/** One spreadsheet row turned into something sendable. */
+export interface AudienceRow {
+  /** 1-based row number in the uploaded file, for pointing at bad data. */
+  rowNumber: number
+  /** Digits only, ready for the API. */
+  phone: string
+  /** Exactly what the spreadsheet cell held. */
+  rawPhone: string
+  valid: boolean
+  issue?: string
+  /** Body variable values, in {{1}}..{{n}} order. */
+  bodyParams: string[]
+  headerParams: string[]
+  buttonParams: string[]
+}
+
+/** Which spreadsheet column feeds which part of the template. */
+export interface ColumnMapping {
+  /** Header name of the column holding phone numbers. */
+  phoneColumn: string
+  /** headerColumns[i] feeds the header's {{i+1}}. */
+  headerColumns: string[]
+  /** bodyColumns[i] feeds the body's {{i+1}}. */
+  bodyColumns: string[]
+  /** buttonColumns[i] feeds the i-th dynamic-URL button. */
+  buttonColumns: string[]
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                  Analytics                                  */
 /* -------------------------------------------------------------------------- */
 

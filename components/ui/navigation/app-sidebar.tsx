@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone, Sparkles, Bot, LayoutDashboard, FileText, Send  } from "lucide-react"
+import { Command, Home, MessageSquare, Settings, Target, Brain, Squirrel,IceCreamCone, Sparkles, Bot, LayoutDashboard, FileText, Send, Megaphone  } from "lucide-react"
 import { WhatsAppIcon } from "@/components/ui/navigation/whatsapp-icon"
 
 import { NavMain } from "@/components/ui/navigation/nav-main"
@@ -76,6 +76,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: FileText,
             title: t("nav.whatsapp-templates"),
             isActive: whatsappSegment === "whatsapp" && pathname[2]?.toLowerCase() === "templates",
+          },
+          {
+            url: "/Dashboard/whatsapp/marketing",
+            icon: Megaphone,
+            title: t("nav.whatsapp-marketing"),
+            isActive: whatsappSegment === "whatsapp" && pathname[2]?.toLowerCase() === "marketing",
           },
           {
             url: "/Dashboard/whatsapp/messages",
