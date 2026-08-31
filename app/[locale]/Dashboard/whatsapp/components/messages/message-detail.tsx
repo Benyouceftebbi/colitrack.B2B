@@ -182,17 +182,6 @@ export function MessageDetail({
                         {pickup.stationPhone ? formatForDisplay(pickup.stationPhone) : pickup.stationPhoneRaw}
                       </a>
                     </div>
-                    {pickup.mapsUrl && (
-                      <a
-                        href={pickup.mapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                        Open station on Maps
-                      </a>
-                    )}
                   </div>
 
                   <Button

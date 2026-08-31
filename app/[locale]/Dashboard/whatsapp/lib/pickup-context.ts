@@ -5,10 +5,13 @@ import { normalisePhone } from "./phone"
  * Templates that announce a parcel is ready for collection.
  *
  * Any client wanting the pickup panel simply names their template `order_stopdesk`
- * — that is the whole contract. The template must carry two variables:
+ * — that is the whole contract. The template carries:
  *
- *   {{1}}  station name          e.g. "Blida"
- *   {{2}}  station phone number  e.g. "0561041724"
+ *   {{1}}  station name          e.g. "Biskra"
+ *   {{2}}  station phone number  e.g. "0770522149"
+ *
+ * Later variables (a maps link, for instance) are ignored — only the station
+ * and its phone drive the handover.
  */
 export const ORDER_STOPDESK_TEMPLATE = "order_stopdesk"
 
@@ -24,14 +27,11 @@ export interface PickupContext {
   stationPhone: string
   /** As written in the template, for display. */
   stationPhoneRaw: string
-  mapsUrl?: string
   /** The order_stopdesk message this reply is answering. */
   sourceMessage: WhatsAppMessage
   /** True when WhatsApp itself linked the reply, rather than us inferring it. */
   linkedByReply: boolean
 }
-
-const firstUrl = (text?: string) => text?.match(/https?:\/\/\S+/)?.[0]
 
 /** Station name from the rendered text, for templates without variables. */
 const stationFromContent = (text?: string) =>
@@ -94,7 +94,6 @@ export function findPickupContext(
     station,
     stationPhone: normalised.value ?? "",
     stationPhoneRaw,
-    mapsUrl: firstUrl(source.content),
     sourceMessage: source,
     linkedByReply,
   }
