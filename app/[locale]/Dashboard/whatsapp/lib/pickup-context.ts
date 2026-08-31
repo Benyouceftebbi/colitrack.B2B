@@ -4,13 +4,13 @@ import { normalisePhone } from "./phone"
 /**
  * Templates that announce a parcel is ready for collection.
  *
- * Any client wanting the pickup panel simply names their template `order_ready`
+ * Any client wanting the pickup panel simply names their template `order_stopdesk`
  * — that is the whole contract. The template must carry two variables:
  *
  *   {{1}}  station name          e.g. "Blida"
  *   {{2}}  station phone number  e.g. "0561041724"
  */
-export const ORDER_READY_TEMPLATE = "order_ready"
+export const ORDER_STOPDESK_TEMPLATE = "order_stopdesk"
 
 /** Used only when a template predates the {{2}} variable and has no phone. */
 const FALLBACK_STATION_PHONE = "0561041724"
@@ -25,7 +25,7 @@ export interface PickupContext {
   /** As written in the template, for display. */
   stationPhoneRaw: string
   mapsUrl?: string
-  /** The order_ready message this reply is answering. */
+  /** The order_stopdesk message this reply is answering. */
   sourceMessage: WhatsAppMessage
   /** True when WhatsApp itself linked the reply, rather than us inferring it. */
   linkedByReply: boolean
@@ -38,14 +38,14 @@ const stationFromContent = (text?: string) =>
   text?.match(/station\s+([^,\n.]+)/i)?.[1]?.trim()
 
 /**
- * Given a client's inbound message, finds the order_ready template it is
+ * Given a client's inbound message, finds the order_stopdesk template it is
  * answering — and pulls the station details out of it.
  *
  * Two ways a reply gets matched, in order of confidence:
  *
  *   1. WhatsApp's own reply context. When the customer uses "reply" in the app,
  *      the webhook stores `replyToWamid`, which points at the exact message.
- *   2. Otherwise, the most recent order_ready we sent that number before this
+ *   2. Otherwise, the most recent order_stopdesk we sent that number before this
  *      message arrived. Customers usually just type rather than formally reply,
  *      so this is the common path.
  */
@@ -70,7 +70,7 @@ export function findPickupContext(
       .filter(
         (m) =>
           m.direction !== "inbound" &&
-          m.templateName === ORDER_READY_TEMPLATE &&
+          m.templateName === ORDER_STOPDESK_TEMPLATE &&
           m.phoneNumber === message.phoneNumber &&
           m.createdAt !== null &&
           m.createdAt.getTime() <= arrivedAt &&
@@ -81,7 +81,7 @@ export function findPickupContext(
       .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))[0]
   }
 
-  if (!source || source.templateName !== ORDER_READY_TEMPLATE) return null
+  if (!source || source.templateName !== ORDER_STOPDESK_TEMPLATE) return null
 
   // The values actually sent are authoritative; the rendered text is a fallback
   // for messages stored before parameters were recorded.

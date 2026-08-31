@@ -105,7 +105,7 @@ export function MessageDetail({
   message: WhatsAppMessage | null
   onOpenChange: (open: boolean) => void
   /**
-   * The messages currently on screen. Used to find the order_ready template a
+   * The messages currently on screen. Used to find the order_stopdesk template a
    * customer reply belongs to — without it the pickup panel simply never shows.
    */
   allMessages?: WhatsAppMessage[]
