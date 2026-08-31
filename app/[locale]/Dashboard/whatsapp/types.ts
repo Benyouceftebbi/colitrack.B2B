@@ -178,6 +178,8 @@ export interface WhatsAppMessage {
   sentByEmail?: string | null
   /** The values substituted into the template, kept for diagnosing failures. */
   parameters?: { header?: string[]; body?: string[]; button?: string[] }
+  /** Set on inbound messages when the customer used WhatsApp's reply action. */
+  replyToWamid?: string | null
   conversationId?: string
   /** Meta pricing category for the conversation. */
   conversationCategory?: string

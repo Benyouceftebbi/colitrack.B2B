@@ -142,6 +142,8 @@ export function useCampaign(campaignId?: string) {
               templateLanguage: raw.templateLanguage,
               content: raw.content ?? "",
               campaignId: raw.campaignId,
+              parameters: raw.parameters,
+              replyToWamid: raw.replyToWamid ?? null,
               error: raw.error ?? null,
               createdAt: toDate(raw.createdAt),
               sentAt: toDate(raw.sentAt),

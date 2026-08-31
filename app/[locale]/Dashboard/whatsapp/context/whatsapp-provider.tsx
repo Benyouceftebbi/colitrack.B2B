@@ -202,6 +202,7 @@ export function WhatsAppProvider({ children }: { children: ReactNode }) {
               source: raw.source,
               sentByEmail: raw.sentByEmail ?? null,
               parameters: raw.parameters,
+              replyToWamid: raw.replyToWamid ?? null,
               conversationId: raw.conversationId,
               conversationCategory: raw.conversationCategory,
               billable: raw.billable,

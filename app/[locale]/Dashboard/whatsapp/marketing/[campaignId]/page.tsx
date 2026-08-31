@@ -336,7 +336,11 @@ function CampaignContent({ campaignId }: { campaignId: string }) {
         </CardContent>
       </Card>
 
-      <MessageDetail message={selected} onOpenChange={(open) => !open && setSelected(null)} />
+      <MessageDetail
+        message={selected}
+        allMessages={messages}
+        onOpenChange={(open) => !open && setSelected(null)}
+      />
     </>
   )
 }

@@ -1,6 +1,20 @@
 "use client"
 
-import { AlertCircle, ArrowDownLeft, ArrowUpRight, Check, CheckCheck, Clock, XCircle } from "lucide-react"
+import * as React from "react"
+
+import {
+  AlertCircle,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Check,
+  CheckCheck,
+  Clock,
+  ExternalLink,
+  MapPin,
+  PackageCheck,
+  Phone,
+  XCircle,
+} from "lucide-react"
 import { format } from "date-fns"
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -9,7 +23,10 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 import { MESSAGE_ERROR_HINTS } from "../../lib/constants"
+import { Button } from "@/components/ui/button"
 import { MessageStatusPill } from "../status-pill"
+import { buildStationHandoverLink, findPickupContext } from "../../lib/pickup-context"
+import { formatForDisplay } from "../../lib/phone"
 import type { WhatsAppMessage } from "../../types"
 
 /** Ordered lifecycle with the timestamp we recorded for each hop. */
@@ -83,10 +100,22 @@ function Field({ label, value }: { label: string; value?: React.ReactNode }) {
 export function MessageDetail({
   message,
   onOpenChange,
+  allMessages = [],
 }: {
   message: WhatsAppMessage | null
   onOpenChange: (open: boolean) => void
+  /**
+   * The messages currently on screen. Used to find the order_ready template a
+   * customer reply belongs to — without it the pickup panel simply never shows.
+   */
+  allMessages?: WhatsAppMessage[]
 }) {
+  const pickup = React.useMemo(() => findPickupContext(message, allMessages), [message, allMessages])
+  const handoverLink = React.useMemo(
+    () => (pickup && message ? buildStationHandoverLink(pickup, message) : null),
+    [pickup, message],
+  )
+
   return (
     <Sheet open={Boolean(message)} onOpenChange={onOpenChange}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-md">
@@ -126,6 +155,64 @@ export function MessageDetail({
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Message</p>
                 <p className="whitespace-pre-wrap break-words text-sm">{message.content || "—"}</p>
               </div>
+
+              {pickup && (
+                <div className="space-y-3 rounded-lg border border-emerald-300/60 bg-emerald-50/60 p-3 dark:border-emerald-500/25 dark:bg-emerald-500/10">
+                  <div className="flex items-center gap-2">
+                    <PackageCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
+                      Reply about a pickup
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-emerald-800/90 dark:text-emerald-200/80">
+                    {pickup.linkedByReply
+                      ? "The customer replied directly to the pickup notice below."
+                      : "This is the pickup notice we last sent this customer."}
+                  </p>
+
+                  <div className="space-y-2 rounded-md bg-background/70 p-2.5">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="font-medium">Station {pickup.station}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <a href={"tel:+" + pickup.stationPhone} className="font-mono hover:underline">
+                        {pickup.stationPhone ? formatForDisplay(pickup.stationPhone) : pickup.stationPhoneRaw}
+                      </a>
+                    </div>
+                    {pickup.mapsUrl && (
+                      <a
+                        href={pickup.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                        Open station on Maps
+                      </a>
+                    )}
+                  </div>
+
+                  <Button
+                    asChild={Boolean(handoverLink)}
+                    disabled={!handoverLink}
+                    className="w-full gap-2 bg-emerald-600 text-white hover:bg-emerald-700"
+                  >
+                    {handoverLink ? (
+                      // Opens WhatsApp Web (or the app on mobile) with the note
+                      // already written, so the agent only presses send.
+                      <a href={handoverLink} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                        Forward to Station {pickup.station}
+                      </a>
+                    ) : (
+                      <span>No station number on this template</span>
+                    )}
+                  </Button>
+                </div>
+              )}
 
               <div>
                 <p className="mb-3 text-sm font-medium">Delivery timeline</p>
