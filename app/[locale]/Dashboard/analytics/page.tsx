@@ -146,7 +146,16 @@ export default function SMSFilterPage() {
 
     setIsLoading(true)
     try {
-      const smsTotalsByStation = shopData.companyName==="DHD LIVRAISON EXPRESS PLUS" ?httpsCallable(functions, "smsTotalsByOfficeDHD"):httpsCallable(functions, "smsTotalsByOffice")
+      // Wide date ranges make this a heavy scan server-side. The SDK default is
+      // 70s, far shorter than the function is allowed to run, so the browser
+      // would abandon a request that was still working. Keep in step with
+      // timeoutSeconds on smsTotalsByOffice (600s): if the client is lower, the
+      // work completes server-side but the user still sees an error.
+      const CALLABLE_TIMEOUT_MS = 600_000
+      const smsTotalsByStation =
+        shopData.companyName === "DHD LIVRAISON EXPRESS PLUS"
+          ? httpsCallable(functions, "smsTotalsByOfficeDHD", { timeout: CALLABLE_TIMEOUT_MS })
+          : httpsCallable(functions, "smsTotalsByOffice", { timeout: CALLABLE_TIMEOUT_MS })
       const res = await smsTotalsByStation({
         clientId: shopData.id,
         startDate: format(startDT, "yyyy-MM-dd HH:mm"),
