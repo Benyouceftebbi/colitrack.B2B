@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle2, X } from "lucide-react"
+import { Clock, X } from "lucide-react"
 
 /* -------------------------------------------------------------------------- */
 /*  Toggle the banner from here.                                              */
@@ -15,7 +15,7 @@ const SMS_NOTICE_ACTIVE = true
  * id, so reusing an older one would hide the new notice from everyone who
  * dismissed the previous version.
  */
-const NOTICE_ID = "sms-restored-2026-08-10"
+const NOTICE_ID = "sms-mobilis-delay-2026-09-07"
 
 export function MaintenanceBanner() {
   // Rendered only after mount: reading sessionStorage during SSR would make the
@@ -47,20 +47,21 @@ export function MaintenanceBanner() {
   return (
     <div
       role="status"
-      className="relative border-b border-emerald-300/70 bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-500/10"
+      className="relative border-b border-amber-300/70 bg-amber-50 dark:border-amber-500/25 dark:bg-amber-500/10"
     >
       <div className="flex items-start gap-3 px-4 py-3 pr-12 sm:px-6">
-        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-          <CheckCircle2 className="h-4 w-4" />
+        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+          <Clock className="h-4 w-4" />
         </span>
 
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
-            Service SMS rétabli
+          <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+            Retards sur les SMS Mobilis
           </p>
-          <p className="mt-0.5 text-sm leading-relaxed text-emerald-800/90 dark:text-emerald-200/80">
-            Le service SMS fonctionne à nouveau normalement depuis le 10 août 2026 à 13h00. Nous vous remercions de
-            votre patience pendant la résolution de cet incident.
+          <p className="mt-0.5 text-sm leading-relaxed text-amber-800/90 dark:text-amber-200/80">
+            Les SMS destinés aux numéros Mobilis peuvent mettre plus de temps que d&apos;habitude à être reçus, en
+            raison d&apos;une maintenance en cours chez l&apos;opérateur. Vos messages sont bien envoyés et seront
+            distribués. Les autres opérateurs ne sont pas concernés.
           </p>
         </div>
       </div>
@@ -69,7 +70,7 @@ export function MaintenanceBanner() {
         type="button"
         onClick={dismiss}
         aria-label="Masquer ce message"
-        className="absolute right-3 top-3 rounded-md p-1.5 text-emerald-700/70 transition-colors hover:bg-emerald-500/10 hover:text-emerald-900 dark:text-emerald-300/70 dark:hover:text-emerald-200"
+        className="absolute right-3 top-3 rounded-md p-1.5 text-amber-700/70 transition-colors hover:bg-amber-500/10 hover:text-amber-900 dark:text-amber-300/70 dark:hover:text-amber-200"
       >
         <X className="h-4 w-4" />
       </button>
