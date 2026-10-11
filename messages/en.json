@@ -757,7 +757,103 @@
   "en": "English",
   "es": "Spanish",
   "fr": "French",
-  "de": "German"
+  "de": "German",
+  "authToken": "Auth Token",
+  "authTokenDescription": "Use this token to authenticate your requests to the ColiTrack SMS API.",
+  "authTokenHint": "Keep this token private. Anyone who has it can send SMS using your balance.",
+  "senderId": "Sender ID",
+  "apiDocs": {
+    "title": "API Documentation",
+    "description": "Integrate ColiTrack SMS into your own systems: send messages, check your balance and track delivery.",
+    "version": "Version {version}",
+    "copy": "Copy",
+    "copied": "Copied",
+    "tabs": {
+      "overview": "Overview",
+      "send": "Send SMS",
+      "balance": "Balance",
+      "report": "Report",
+      "errors": "Errors",
+      "bestPractices": "Best practices"
+    },
+    "overview": {
+      "intro": "The ColiTrack SMS API lets you send transactional or marketing SMS to your clients through a secure, token-based system. All requests are made over HTTPS and return JSON responses.",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "Prefix every endpoint with this URL.",
+      "auth": "Authentication",
+      "authHint": "Token-based, sent in the Authorization header or as the authToken query parameter.",
+      "format": "Format",
+      "formatHint": "HTTPS requests with JSON bodies and JSON responses.",
+      "languages": "Languages",
+      "languagesHint": "Arabic, French and English, with automatic encoding and segmentation.",
+      "authTitle": "Authenticating your requests",
+      "authDescription": "Every request must include your authentication token, shown in the Auth Token section above. Send it in the Authorization header (recommended) or as the authToken query parameter.",
+      "authHeader": "Authorization header (recommended)",
+      "authQuery": "Query parameter",
+      "authWarning": "Keep your token secret. Never expose it in client-side code such as websites or mobile apps. Call the API from your server.",
+      "flowTitle": "Typical integration flow",
+      "flow1": "Authenticate every request with your token.",
+      "flow2": "Call GET /balance to check your remaining credits.",
+      "flow3": "Send your messages with POST /sms/send.",
+      "flow4": "Retrieve delivery data with GET /report.",
+      "flow5": "Monitor your costs and top up your credits when needed."
+    },
+    "params": {
+      "title": "Request body",
+      "field": "Field",
+      "type": "Type",
+      "status": "Required",
+      "description": "Description",
+      "required": "Required",
+      "optional": "Optional",
+      "requestExample": "Request example",
+      "response": "Response"
+    },
+    "send": {
+      "summary": "Send one or multiple SMS messages in a single request.",
+      "description": "Supports Arabic, French and English messages. GSM encoding and message segmentation are handled automatically.",
+      "clients": "A single recipient or a list of recipients.",
+      "phoneNumber": "Recipient phone number, in local (0550123456) or international (+213550123456) format.",
+      "name": "Recipient name, used to personalize the message.",
+      "text": "Message content. Use the {placeholder} placeholder to insert each recipient's name.",
+      "senderId": "Sender name shown to the recipient. It must be pre-approved by ColiTrack.",
+      "type": "Message type, for example OTP or MARKETING.",
+      "authToken": "Your API token. Only needed if you don't use the Authorization header.",
+      "costNote": "Each result shows the cost of that message in SMS units. totalUsedTokens is the total deducted from your balance."
+    },
+    "balance": {
+      "summary": "Retrieve your remaining SMS balance.",
+      "description": "Use it to check how many SMS units are available before sending a campaign."
+    },
+    "report": {
+      "summary": "Get a delivery performance report grouped by mobile operator.",
+      "description": "Operators are detected automatically from the phone number prefix.",
+      "operatorsTitle": "Operator detection",
+      "prefix": "Prefix",
+      "operator": "Operator"
+    },
+    "errors": {
+      "intro": "Errors are returned with standard HTTP status codes. The JSON body contains a reason field that explains what went wrong.",
+      "status": "Status code",
+      "meaning": "Meaning",
+      "e400": "Missing or invalid fields",
+      "e401": "Missing authentication token",
+      "e403": "Invalid authToken or unauthorized senderId",
+      "e500": "Internal server error. Retry after a delay.",
+      "exampleTitle": "Error response example"
+    },
+    "bestPractices": {
+      "bp1": "Always validate phone numbers before sending.",
+      "bp2": "Personalize your messages with {placeholder} to increase engagement.",
+      "bp3": "Use plain Latin (ASCII) text where possible to reduce cost: Arabic characters take more space, so each SMS segment holds fewer characters.",
+      "bp4": "When the server returns an error, retry after a delay.",
+      "bp5": "Store your token securely and never expose it in client-side code.",
+      "bp6": "Track costs by multiplying the number of messages sent by the cost per segment.",
+      "bp7": "Check /report regularly to compare sender ID performance, for example in A/B tests.",
+      "supportTitle": "Contact & support",
+      "support": "For technical help, token renewal or sender ID setup, contact the ColiTrack support team through your account manager."
+    }
+  }
 },
 
 "messages": {
