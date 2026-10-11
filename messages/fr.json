@@ -673,7 +673,103 @@
   "en": "Anglais",
   "es": "Espagnol",
   "fr": "Français",
-  "de": "Allemand"
+  "de": "Allemand",
+  "authToken": "Jeton d'authentification",
+  "authTokenDescription": "Utilisez ce jeton pour authentifier vos requêtes vers l'API SMS ColiTrack.",
+  "authTokenHint": "Gardez ce jeton privé. Toute personne qui le possède peut envoyer des SMS avec votre solde.",
+  "senderId": "ID de l'expéditeur",
+  "apiDocs": {
+    "title": "Documentation de l'API",
+    "description": "Intégrez les SMS ColiTrack à vos propres systèmes : envoyez des messages, consultez votre solde et suivez la livraison.",
+    "version": "Version {version}",
+    "copy": "Copier",
+    "copied": "Copié",
+    "tabs": {
+      "overview": "Aperçu",
+      "send": "Envoyer des SMS",
+      "balance": "Solde",
+      "report": "Rapport",
+      "errors": "Erreurs",
+      "bestPractices": "Bonnes pratiques"
+    },
+    "overview": {
+      "intro": "L'API SMS ColiTrack vous permet d'envoyer des SMS transactionnels ou marketing à vos clients grâce à un système sécurisé basé sur un jeton. Toutes les requêtes passent par HTTPS et renvoient des réponses JSON.",
+      "baseUrl": "URL de base",
+      "baseUrlHint": "Ajoutez cette URL devant chaque endpoint.",
+      "auth": "Authentification",
+      "authHint": "Par jeton, envoyé dans l'en-tête Authorization ou dans le paramètre de requête authToken.",
+      "format": "Format",
+      "formatHint": "Requêtes HTTPS avec corps JSON et réponses JSON.",
+      "languages": "Langues",
+      "languagesHint": "Arabe, français et anglais, avec encodage et segmentation automatiques.",
+      "authTitle": "Authentifier vos requêtes",
+      "authDescription": "Chaque requête doit inclure votre jeton d'authentification, affiché dans la section Jeton d'authentification ci-dessus. Envoyez-le dans l'en-tête Authorization (recommandé) ou dans le paramètre de requête authToken.",
+      "authHeader": "En-tête Authorization (recommandé)",
+      "authQuery": "Paramètre de requête",
+      "authWarning": "Gardez votre jeton secret. Ne l'exposez jamais dans du code côté client, comme un site web ou une application mobile. Appelez l'API depuis votre serveur.",
+      "flowTitle": "Étapes d'intégration typiques",
+      "flow1": "Authentifiez chaque requête avec votre jeton.",
+      "flow2": "Appelez GET /balance pour vérifier vos crédits restants.",
+      "flow3": "Envoyez vos messages avec POST /sms/send.",
+      "flow4": "Récupérez les données de livraison avec GET /report.",
+      "flow5": "Surveillez vos coûts et rechargez vos crédits si nécessaire."
+    },
+    "params": {
+      "title": "Corps de la requête",
+      "field": "Champ",
+      "type": "Type",
+      "status": "Obligatoire",
+      "description": "Description",
+      "required": "Obligatoire",
+      "optional": "Optionnel",
+      "requestExample": "Exemple de requête",
+      "response": "Réponse"
+    },
+    "send": {
+      "summary": "Envoyez un ou plusieurs SMS en une seule requête.",
+      "description": "Prend en charge les messages en arabe, en français et en anglais. L'encodage GSM et la segmentation des messages sont gérés automatiquement.",
+      "clients": "Un seul destinataire ou une liste de destinataires.",
+      "phoneNumber": "Numéro du destinataire, au format local (0550123456) ou international (+213550123456).",
+      "name": "Nom du destinataire, utilisé pour personnaliser le message.",
+      "text": "Contenu du message. Utilisez la variable {placeholder} pour insérer le nom de chaque destinataire.",
+      "senderId": "Nom de l'expéditeur affiché au destinataire. Il doit être approuvé au préalable par ColiTrack.",
+      "type": "Type de message, par exemple OTP ou MARKETING.",
+      "authToken": "Votre jeton API. Nécessaire uniquement si vous n'utilisez pas l'en-tête Authorization.",
+      "costNote": "Chaque résultat indique le coût du message en unités SMS. totalUsedTokens est le total déduit de votre solde."
+    },
+    "balance": {
+      "summary": "Récupérez votre solde SMS restant.",
+      "description": "Utilisez-le pour vérifier combien d'unités SMS sont disponibles avant d'envoyer une campagne."
+    },
+    "report": {
+      "summary": "Obtenez un rapport de performance de livraison regroupé par opérateur mobile.",
+      "description": "Les opérateurs sont détectés automatiquement à partir du préfixe du numéro.",
+      "operatorsTitle": "Détection de l'opérateur",
+      "prefix": "Préfixe",
+      "operator": "Opérateur"
+    },
+    "errors": {
+      "intro": "Les erreurs sont renvoyées avec des codes HTTP standard. Le corps JSON contient un champ reason qui explique le problème.",
+      "status": "Code HTTP",
+      "meaning": "Signification",
+      "e400": "Champs manquants ou invalides",
+      "e401": "Jeton d'authentification manquant",
+      "e403": "authToken invalide ou senderId non autorisé",
+      "e500": "Erreur interne du serveur. Réessayez après un délai.",
+      "exampleTitle": "Exemple de réponse d'erreur"
+    },
+    "bestPractices": {
+      "bp1": "Validez toujours les numéros de téléphone avant l'envoi.",
+      "bp2": "Personnalisez vos messages avec {placeholder} pour augmenter l'engagement.",
+      "bp3": "Utilisez du texte latin simple (ASCII) quand c'est possible pour réduire le coût : les caractères arabes prennent plus de place, donc chaque segment SMS contient moins de caractères.",
+      "bp4": "Quand le serveur renvoie une erreur, réessayez après un délai.",
+      "bp5": "Stockez votre jeton en sécurité et ne l'exposez jamais dans du code côté client.",
+      "bp6": "Suivez vos coûts en multipliant le nombre de messages envoyés par le coût par segment.",
+      "bp7": "Consultez régulièrement /report pour comparer les performances de vos sender IDs, par exemple pour des tests A/B.",
+      "supportTitle": "Contact et support",
+      "support": "Pour une assistance technique, le renouvellement du jeton ou la configuration d'un sender ID, contactez l'équipe support ColiTrack via votre gestionnaire de compte."
+    }
+  }
 },
 "billing": {
   "already-have-sender-id": "Vous avez déjà un identifiant d'expéditeur",

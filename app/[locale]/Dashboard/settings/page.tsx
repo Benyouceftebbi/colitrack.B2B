@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
 import { EyeOff, Copy } from "lucide-react";
+import ApiDocumentation from "./components/ApiDocumentation"
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -317,6 +318,7 @@ export default function Component() {
     </div>
   </CardContent>
 </Card>
+            <ApiDocumentation />
             <Card className="border dark:border-border">
               <CardHeader>
                 <CardTitle>Transaction History</CardTitle>
