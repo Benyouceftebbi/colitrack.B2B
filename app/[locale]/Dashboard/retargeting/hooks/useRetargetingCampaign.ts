@@ -40,7 +40,7 @@ export function useRetargetingCampaign() {
 
   const hasUnicode = containsUnicodeCharacters(message)
   const hasRTL = containsRTLCharacters(message)
-  const effectiveCharLimit = hasUnicode ? 80 : CHARACTER_LIMIT
+  const effectiveCharLimit = hasUnicode ? 70 : CHARACTER_LIMIT
   const characterCount = message.length
   const messageCount = Math.ceil(characterCount / effectiveCharLimit)
   const remainingCharacters = effectiveCharLimit - (characterCount % effectiveCharLimit || effectiveCharLimit)
@@ -69,7 +69,7 @@ export function useRetargetingCampaign() {
         const messages = processed.map(p => p.message || "").filter(m => m.length > 0)
         const charCounts = messages.map(m => m.length)
         const totalChars = charCounts.reduce((a, b) => a + b, 0)
-        const effectiveLimit = messages.some(m => containsUnicodeCharacters(m)) ? 80 : CHARACTER_LIMIT
+        const effectiveLimit = messages.some(m => containsUnicodeCharacters(m)) ? 70 : CHARACTER_LIMIT
         
         setUniqueMessageStats({
           totalRecipients: processed.length,
@@ -113,7 +113,7 @@ export function useRetargetingCampaign() {
         
         // Calculate stats for unique messages
         const totalChars = uniqueMessageStats?.totalCharacters || 0
-        const effectiveLimit = hasUnicode ? 80 : CHARACTER_LIMIT
+        const effectiveLimit = hasUnicode ? 70 : CHARACTER_LIMIT
         calculatedMessageCount = Math.ceil(totalChars / effectiveLimit)
         calculatedTotalCost = calculatedMessageCount * COST_PER_MESSAGE
 
