@@ -26,8 +26,8 @@ function analyzeSMS(message: string) {
   const isUnicode = [...message].some((char) => !GSM7_CHARS.includes(char)) || UNICODE_CHARS.test(message)
 
   const encoding = isUnicode ? "Unicode" : "GSM7"
-  const maxSingleSMS = isUnicode ? 80 : 160
-  const maxMultiSMS = isUnicode ? 80 : 160
+  const maxSingleSMS = isUnicode ? 70 : 160
+  const maxMultiSMS = isUnicode ? 70 : 160
 
   const messageLength = message.length
 

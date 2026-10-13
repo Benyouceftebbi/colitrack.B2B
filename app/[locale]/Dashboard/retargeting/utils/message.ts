@@ -45,8 +45,8 @@ export function calculateMessageStats(message: string, characterLimit: number) {
   const hasArabic = containsArabicCharacters(message) // Keep for backward compatibility
   const hasRTL = containsRTLCharacters(message) // Added RTL detection
 
-  // For Unicode text (including Arabic, currency symbols, emojis, etc.), use a smaller character limit (80 chars per segment)
-  const effectiveLimit = hasUnicode ? 80 : characterLimit
+  // For Unicode text (including Arabic, currency symbols, emojis, etc.), use a smaller character limit (70 chars per segment)
+  const effectiveLimit = hasUnicode ? 70 : characterLimit
   const characterCount = message.length
   const messageCount = Math.ceil(characterCount / effectiveLimit)
   const remainingCharacters = effectiveLimit - (characterCount % effectiveLimit || effectiveLimit)
@@ -67,7 +67,7 @@ export function calculateMessageStats(message: string, characterLimit: number) {
 
 export function splitMessageIntoChunks(message: string, characterLimit: number) {
   const hasUnicode = containsUnicodeCharacters(message)
-  const effectiveLimit = hasUnicode ? 80 : characterLimit
+  const effectiveLimit = hasUnicode ? 70 : characterLimit
   const chunks: string[] = []
   for (let i = 0; i < message.length; i += effectiveLimit) {
     chunks.push(message.slice(i, i + effectiveLimit))
@@ -134,7 +134,7 @@ export function validateUnicodeCharacters(message: string): {
 
   return {
     hasWarning: true,
-    warningMessage: `Message contains ${typesList}. Character limit reduced to 80 characters per SMS segment.`,
+    warningMessage: `Message contains ${typesList}. Character limit reduced to 70 characters per SMS segment.`,
     unicodeTypes,
   }
 }

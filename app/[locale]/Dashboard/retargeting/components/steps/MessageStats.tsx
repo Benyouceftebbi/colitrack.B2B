@@ -29,7 +29,7 @@ export function MessageStats({ campaign }: MessageStatsProps) {
     )
   }
 
-  const totalEstimatedSms = Math.ceil(stats.totalCharacters / (campaign.hasUnicode ? 80 : 160))
+  const totalEstimatedSms = Math.ceil(stats.totalCharacters / (campaign.hasUnicode ? 70 : 160))
   const estimatedCost = totalEstimatedSms * 10
 
   return (
@@ -85,7 +85,7 @@ export function MessageStats({ campaign }: MessageStatsProps) {
           <div className="h-8 w-px bg-border" />
           <div className="text-right px-2">
             <p className="text-xs text-muted-foreground">Limit</p>
-            <p className="text-sm font-medium">{campaign.hasUnicode ? 80 : 160}/SMS</p>
+            <p className="text-sm font-medium">{campaign.hasUnicode ? 70 : 160}/SMS</p>
           </div>
         </div>
       </div>
