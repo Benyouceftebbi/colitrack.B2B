@@ -121,7 +121,7 @@ export function ConnectCard() {
               },
               {
                 title: "Add and verify your phone number",
-                body: "You receive a code by SMS or call. The number is registered on the Cloud API automatically.",
+                body: "You receive a code by SMS or call to confirm you own the number.",
               },
               {
                 title: "Grant Colitrack permission",

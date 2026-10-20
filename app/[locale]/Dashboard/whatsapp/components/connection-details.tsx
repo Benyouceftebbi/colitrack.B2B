@@ -30,6 +30,7 @@ import { useWhatsAppAccount } from "../hooks/use-whatsapp-account"
 import { MESSAGING_TIER_LABELS, NAME_STATUS_HINTS } from "../lib/constants"
 import { QualityPill } from "./status-pill"
 import { DisconnectDialog } from "./disconnect-dialog"
+import { RegisterNumberDialog } from "./register-number-dialog"
 
 /** Click-to-copy row for the long Meta identifiers. */
 function CopyField({ label, value, icon: Icon }: { label: string; value?: string; icon: React.ElementType }) {
@@ -65,6 +66,7 @@ function CopyField({ label, value, icon: Icon }: { label: string; value?: string
 export function ConnectionDetails() {
   const { account, activePhone, activePhoneId, setActivePhoneId } = useWhatsApp()
   const { refresh, selectPhoneNumber, busy } = useWhatsAppAccount()
+  const [registerOpen, setRegisterOpen] = React.useState(false)
 
   if (!account) return null
 
@@ -165,12 +167,17 @@ export function ConnectionDetails() {
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {activePhone?.isRegistered ? (
                   <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-                    <BadgeCheck className="h-3.5 w-3.5" /> Registered on Cloud API
+                    <BadgeCheck className="h-3.5 w-3.5" /> Active — sending and receiving
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                    <AlertCircle className="h-3.5 w-3.5" /> Not registered — sending is blocked
-                  </span>
+                  <>
+                    <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="h-3.5 w-3.5" /> Not activated — messages can&apos;t be sent yet
+                    </span>
+                    <Button size="sm" className="h-7 text-xs" onClick={() => setRegisterOpen(true)}>
+                      Activate number
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -242,6 +249,10 @@ export function ConnectionDetails() {
           </div>
         </CardContent>
       </Card>
+
+      {activePhone && !activePhone.isRegistered && (
+        <RegisterNumberDialog phone={activePhone} open={registerOpen} onOpenChange={setRegisterOpen} />
+      )}
     </div>
   )
 }
