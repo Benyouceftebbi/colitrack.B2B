@@ -15,6 +15,7 @@ import {
   Signal,
   Unplug,
   Webhook,
+  ExternalLink,
 } from "lucide-react"
 import { format } from "date-fns"
 
@@ -27,7 +28,12 @@ import { cn } from "@/lib/utils"
 
 import { useWhatsApp } from "../context/whatsapp-provider"
 import { useWhatsAppAccount } from "../hooks/use-whatsapp-account"
-import { MESSAGING_TIER_LABELS, NAME_STATUS_HINTS } from "../lib/constants"
+import {
+  MESSAGING_TIER_LABELS,
+  NAME_NOT_SHOWN_STATUSES,
+  NAME_STATUS_HINTS,
+  WHATSAPP_MANAGER_PHONE_NUMBERS_URL,
+} from "../lib/constants"
 import { QualityPill } from "./status-pill"
 import { DisconnectDialog } from "./disconnect-dialog"
 import { RegisterNumberDialog } from "./register-number-dialog"

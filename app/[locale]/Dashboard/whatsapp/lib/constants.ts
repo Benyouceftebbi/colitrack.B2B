@@ -109,11 +109,17 @@ export const QUALITY_META: Record<WhatsAppQualityRating, { label: string; tone: 
  * PENDING_REVIEW / DECLINED — not PENDING / REJECTED, which is easy to get
  * wrong and produces a caption that contradicts the name shown above it.
  */
+/** Where a business submits or re-submits its display name for review. */
+export const WHATSAPP_MANAGER_PHONE_NUMBERS_URL = "https://business.facebook.com/wa/manage/phone-numbers/"
+
+/** States where recipients may see the bare number rather than the name. */
+export const NAME_NOT_SHOWN_STATUSES = new Set(["AVAILABLE_WITHOUT_REVIEW", "PENDING_REVIEW", "DECLINED", "EXPIRED", "NONE"])
+
 export const NAME_STATUS_HINTS: Record<string, string> = {
   APPROVED: "Approved — this is the name recipients see.",
   AVAILABLE_WITHOUT_REVIEW:
-    "Active without review — recipients see this name. Test numbers and some accounts skip Meta's review step.",
-  PENDING_REVIEW: "Pending Meta review. Recipients see the raw number until it is approved.",
+    "Not reviewed yet — the number can send, but many recipients will see the phone number instead of this name until Meta approves it.",
+  PENDING_REVIEW: "Under review by Meta. Recipients see the phone number until it is approved, usually within a few days.",
   DECLINED: "Declined by Meta. Submit a different name in WhatsApp Manager.",
   EXPIRED: "The approval expired. Resubmit the name in WhatsApp Manager.",
   NONE: "No display name has been submitted for this number.",
