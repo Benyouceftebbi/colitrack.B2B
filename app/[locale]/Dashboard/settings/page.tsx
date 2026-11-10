@@ -13,6 +13,26 @@ import { useRouter } from "@/i18n/routing"
 import { EyeOff, Copy } from "lucide-react";
 import ApiDocumentation from "./components/ApiDocumentation"
 import OtpSettings from "./components/OtpSettings"
+
+/*
+ * Top-ups have been saved in more than one shape — credit as text ("1 000") or
+ * a number, date as a Firestore Timestamp, a plain {seconds} object, a number
+ * or a string — and one unexpected entry used to crash the whole settings page.
+ */
+const creditAmount = (credit: unknown) => Number(String(credit ?? "").replace(/\s/g, "")) || 0
+
+function transactionDay(date: any): string {
+  const d =
+    typeof date?.toDate === "function"
+      ? date.toDate()
+      : typeof date?.seconds === "number"
+        ? new Date(date.seconds * 1000)
+        : date != null
+          ? new Date(date)
+          : null
+  return d && !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "—"
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -328,28 +348,28 @@ export default function Component() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {shopData.transactions && shopData.transactions.length > 0 ? (
+                  {Array.isArray(shopData.transactions) && shopData.transactions.length > 0 ? (
                     <div className="space-y-3">
-                     {shopData.transactions.slice().reverse().map((transaction, index) => (
+                     {shopData.transactions.filter(Boolean).slice().reverse().map((transaction, index) => (
      <div
      key={index}
      className="flex justify-between items-center p-4 bg-muted dark:bg-muted/30 rounded-lg"
    >
      <div className="flex flex-col">
        <span className="font-medium text-green-600 dark:text-green-400">
-         +{transaction.credit} Credits
+         +{String(transaction.credit ?? 0)} Credits
        </span>
        <span className="text-sm text-muted-foreground">Credit Topup</span>
      </div>
      <div className="flex flex-col items-center">
        <span className="font-medium text-blue-600 dark:text-blue-400">
-       {Math.ceil(Number(transaction.credit.replace(/\s/g, "")) / 6.23)} SMS
+       {Math.ceil(creditAmount(transaction.credit) / 6.23)} SMS
        </span>
        <span className="text-sm text-muted-foreground">SMS Gained</span>
      </div>
      <div className="text-right">
        <span className="text-sm font-mono text-muted-foreground">
-         {new Date(transaction.date.toDate()).toISOString().split("T")[0]}
+         {transactionDay(transaction.date)}
        </span>
      </div>
    </div>
