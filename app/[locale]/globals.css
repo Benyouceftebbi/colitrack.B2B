@@ -178,3 +178,33 @@
     @apply transition-shadow duration-300 hover:shadow-[0_0_15px_rgba(var(--primary)_/_0.5)];
   }
 }
+
+/* API documentation → PDF. ApiDocumentation.tsx marks the page before printing:
+   everything outside the docs gets data-print-hide, and the containers around
+   them get data-print-ancestor so they grow across pages instead of clipping. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  [data-print-ancestor] {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+}

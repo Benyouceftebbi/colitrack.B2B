@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { createContext, useContext, useRef, useState, type ReactNode } from "react"
+import { flushSync } from "react-dom"
 import { useLocale, useTranslations } from "next-intl"
 import {
   AlertTriangle,
@@ -8,6 +9,7 @@ import {
   BookOpen,
   Check,
   Copy,
+  FileDown,
   FileJson,
   Globe,
   KeyRound,
@@ -27,6 +29,14 @@ const API_VERSION = "1.0"
 const TOKEN = "YOUR_AUTH_TOKEN"
 // Kept out of the message files: ICU treats braces as arguments.
 const NAME_PLACEHOLDER = "{{name}}"
+
+/** Set after the OTP service is deployed; until then the OTP tab says it isn't enabled. */
+const OTP_API_BASE_URL = (process.env.NEXT_PUBLIC_OTP_API_BASE_URL || "").replace(/\/$/, "")
+const OTP_BASE_FOR_EXAMPLES = OTP_API_BASE_URL || "https://YOUR_OTP_API_URL"
+const SAMPLE_OTP_ID = "Xa81kQ2mZ9tRb3LcD0pF"
+
+/** True while printing to PDF: every tab and every code sample renders at once. */
+const PrintContext = createContext(false)
 
 const snippets = {
   authHeader: `Authorization: ${TOKEN}`,
@@ -86,6 +96,80 @@ console.log(data);`,
   errorResponse: `{
   "reason": "Invalid authToken"
 }`,
+  otpSendCurl: `curl -X POST "${OTP_BASE_FOR_EXAMPLES}/otp/send" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: ${TOKEN}" \\
+  -d '{
+    "phoneNumber": "0550123456",
+    "code": "482915",
+    "channel": "whatsapp"
+  }'`,
+  otpSendNode: `import { randomInt } from "node:crypto";
+
+// Generate the code on your server and keep it there with an expiry time.
+const code = String(randomInt(100000, 1000000));
+
+const res = await fetch("${OTP_BASE_FOR_EXAMPLES}/otp/send", {
+  method: "POST",
+  headers: {
+    "Authorization": "${TOKEN}",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    phoneNumber: "0550123456",
+    code,
+    channel: "whatsapp", // sent by SMS if WhatsApp can't deliver
+  }),
+});
+
+const data = await res.json();
+if (res.status === 429) {
+  // Asked again too soon: wait data.retryAfter seconds.
+}`,
+  otpSendResponse: `{
+  "success": true,
+  "otpId": "${SAMPLE_OTP_ID}",
+  "channel": "whatsapp",
+  "fallbackUsed": false,
+  "status": "queued",
+  "cost": 0
+}`,
+  otpCooldownResponse: `{
+  "success": false,
+  "error": "cooldown",
+  "reason": "A code was already sent to this number less than 2 minutes ago.",
+  "retryAfter": 87
+}`,
+  otpStatusCurl: `curl "${OTP_BASE_FOR_EXAMPLES}/otp/${SAMPLE_OTP_ID}" \\
+  -H "Authorization: ${TOKEN}"`,
+  otpStatusResponse: `{
+  "success": true,
+  "otpId": "${SAMPLE_OTP_ID}",
+  "phoneNumber": "213550123456",
+  "channelRequested": "whatsapp",
+  "channel": "sms",
+  "fallbackUsed": true,
+  "status": "sent",
+  "cost": 1,
+  "error": null,
+  "createdAt": "2026-11-09T10:00:00.000Z",
+  "updatedAt": "2026-11-09T10:00:04.000Z"
+}`,
+  otpHistoryCurl: `curl "${OTP_BASE_FOR_EXAMPLES}/otp/history?phoneNumber=0550123456&from=2026-11-01&limit=20" \\
+  -H "Authorization: ${TOKEN}"`,
+  otpHistoryResponse: `{
+  "success": true,
+  "items": [
+    {
+      "otpId": "${SAMPLE_OTP_ID}",
+      "phoneNumber": "213550123456",
+      "channel": "sms",
+      "status": "sent",
+      "createdAt": "2026-11-09T10:00:00.000Z"
+    }
+  ],
+  "nextCursor": "Lm4pQ8sT2vWx9YzA1bCd"
+}`,
 }
 
 function CopyButton({ value, className }: { value: string; className?: string }) {
@@ -113,12 +197,15 @@ function CopyButton({ value, className }: { value: string; className?: string })
 
 function CodeBlock({ code, label }: { code: string; label: string }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950" dir="ltr">
+    <div
+      className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 [-webkit-print-color-adjust:exact] [print-color-adjust:exact] print:break-inside-avoid"
+      dir="ltr"
+    >
       <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-1.5">
         <span className="font-mono text-xs text-zinc-400">{label}</span>
-        <CopyButton value={code} className="text-zinc-300 hover:bg-zinc-800 hover:text-white" />
+        <CopyButton value={code} className="text-zinc-300 hover:bg-zinc-800 hover:text-white print:hidden" />
       </div>
-      <pre className="overflow-x-auto p-4 text-left text-xs leading-relaxed text-zinc-100 sm:text-sm">
+      <pre className="overflow-x-auto p-4 text-left text-xs leading-relaxed text-zinc-100 sm:text-sm print:overflow-visible print:whitespace-pre-wrap print:break-words">
         <code>{code}</code>
       </pre>
     </div>
@@ -126,6 +213,17 @@ function CodeBlock({ code, label }: { code: string; label: string }) {
 }
 
 function CodeTabs({ items }: { items: Array<{ id: string; label: string; code: string }> }) {
+  const printing = useContext(PrintContext)
+  // On paper there are no tabs to click, so every language is printed.
+  if (printing) {
+    return (
+      <div className="space-y-2">
+        {items.map((item) => (
+          <CodeBlock key={item.id} code={item.code} label={item.label} />
+        ))}
+      </div>
+    )
+  }
   return (
     <Tabs defaultValue={items[0].id} dir="ltr">
       <TabsList className="h-8">
@@ -144,7 +242,15 @@ function CodeTabs({ items }: { items: Array<{ id: string; label: string; code: s
   )
 }
 
-function Endpoint({ method, path }: { method: "GET" | "POST"; path: string }) {
+function Endpoint({
+  method,
+  path,
+  baseUrl = SMS_API_BASE_URL,
+}: {
+  method: "GET" | "POST"
+  path: string
+  baseUrl?: string
+}) {
   return (
     <div
       className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 font-mono text-sm"
@@ -159,10 +265,12 @@ function Endpoint({ method, path }: { method: "GET" | "POST"; path: string }) {
         {method}
       </span>
       <span className="font-semibold">{path}</span>
-      <span className="hidden truncate text-xs text-muted-foreground sm:inline">
-        {SMS_API_BASE_URL}
-        {path}
-      </span>
+      {baseUrl && (
+        <span className="hidden truncate text-xs text-muted-foreground sm:inline">
+          {baseUrl}
+          {path}
+        </span>
+      )}
     </div>
   )
 }
@@ -201,7 +309,7 @@ function Callout({ variant, children }: { variant: "warning" | "info"; children:
 
 function DataTable({ headers, rows }: { headers: string[]; rows: ReactNode[][] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    <div className="overflow-x-auto rounded-lg border print:overflow-visible">
       <table className="w-full text-sm">
         <thead className="bg-muted/50">
           <tr>
@@ -236,9 +344,68 @@ function Mono({ children }: { children: ReactNode }) {
   )
 }
 
+function PrintHeading({ children }: { children: ReactNode }) {
+  return <h2 className="hidden border-b pb-2 text-lg font-bold print:block">{children}</h2>
+}
+
+/**
+ * Hides everything on the page except the docs for printing, and marks their
+ * containers so they can grow across pages instead of clipping at one screen.
+ * Returns what was marked so it can be undone.
+ */
+function markForPrint(root: HTMLElement) {
+  const marked: Array<[Element, string]> = []
+  let node: HTMLElement = root
+  while (node.parentElement) {
+    const parent = node.parentElement
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === node) continue
+      sibling.setAttribute("data-print-hide", "")
+      marked.push([sibling, "data-print-hide"])
+    }
+    parent.setAttribute("data-print-ancestor", "")
+    marked.push([parent, "data-print-ancestor"])
+    if (parent === document.body) break
+    node = parent
+  }
+  return marked
+}
+
 export default function ApiDocumentation() {
   const t = useTranslations("settings.apiDocs")
   const dir = useLocale() === "ar" ? "rtl" : "ltr"
+  const [printing, setPrinting] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const printAll = printing ? ({ forceMount: true } as const) : {}
+
+  /** Prints every tab to the browser's "Save as PDF". */
+  const exportPdf = () => {
+    const root = rootRef.current
+    if (!root) return
+    const html = document.documentElement
+    const wasDark = html.classList.contains("dark")
+    const previousTitle = document.title
+    const marked = markForPrint(root)
+
+    let restored = false
+    const restore = () => {
+      if (restored) return
+      restored = true
+      window.removeEventListener("afterprint", restore)
+      for (const [el, attr] of marked) el.removeAttribute(attr)
+      if (wasDark) html.classList.add("dark")
+      document.title = previousTitle
+      setPrinting(false)
+    }
+    window.addEventListener("afterprint", restore)
+
+    // Light colours on paper: dark-theme text without its dark background is unreadable.
+    if (wasDark) html.classList.remove("dark")
+    // The browser uses the page title as the PDF's default file name.
+    document.title = t("pdfTitle")
+    flushSync(() => setPrinting(true))
+    window.print()
+  }
 
   const requiredBadge = (required: boolean) => (
     <span
@@ -256,7 +423,9 @@ export default function ApiDocumentation() {
   const paramHeaders = [t("params.field"), t("params.type"), t("params.status"), t("params.description")]
 
   return (
-    <Card className="border dark:border-border" dir={dir}>
+    <PrintContext.Provider value={printing}>
+    <div ref={rootRef}>
+    <Card className="border dark:border-border print:border-0 print:shadow-none" dir={dir}>
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="space-y-1.5">
@@ -266,15 +435,21 @@ export default function ApiDocumentation() {
             </CardTitle>
             <CardDescription>{t("description")}</CardDescription>
           </div>
-          <span className="rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {t("version", { version: API_VERSION })}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {t("version", { version: API_VERSION })}
+            </span>
+            <Button type="button" variant="outline" size="sm" onClick={exportPdf} className="h-7 gap-1.5 text-xs print:hidden">
+              <FileDown className="h-3.5 w-3.5" />
+              {t("exportPdf")}
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent>
         <Tabs defaultValue="overview" dir={dir}>
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 print:hidden">
             <TabsTrigger value="overview" className="gap-1.5">
               <Globe className="h-3.5 w-3.5" />
               {t("tabs.overview")}
@@ -282,6 +457,10 @@ export default function ApiDocumentation() {
             <TabsTrigger value="send" className="gap-1.5">
               <Send className="h-3.5 w-3.5" />
               {t("tabs.send")}
+            </TabsTrigger>
+            <TabsTrigger value="otp" className="gap-1.5">
+              <KeyRound className="h-3.5 w-3.5" />
+              {t("tabs.otp")}
             </TabsTrigger>
             <TabsTrigger value="balance" className="gap-1.5">
               <Wallet className="h-3.5 w-3.5" />
@@ -302,7 +481,8 @@ export default function ApiDocumentation() {
           </TabsList>
 
           {/* Overview */}
-          <TabsContent value="overview" className="mt-6 space-y-6">
+          <TabsContent value="overview" className="mt-6 space-y-6" {...printAll}>
+            <PrintHeading>{t("tabs.overview")}</PrintHeading>
             <p className="text-sm text-muted-foreground">{t("overview.intro")}</p>
 
             <div className="grid gap-3 md:grid-cols-3">
@@ -364,7 +544,8 @@ export default function ApiDocumentation() {
           </TabsContent>
 
           {/* POST /sms/send */}
-          <TabsContent value="send" className="mt-6 space-y-6">
+          <TabsContent value="send" className="mt-6 space-y-6 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.send")}</PrintHeading>
             <Endpoint method="POST" path="/sms/send" />
             <div className="space-y-1">
               <p className="text-sm font-medium">{t("send.summary")}</p>
@@ -401,8 +582,169 @@ export default function ApiDocumentation() {
             </Section>
           </TabsContent>
 
+          {/* Verification codes (OTP) */}
+          <TabsContent value="otp" className="mt-6 space-y-8 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.otp")}</PrintHeading>
+
+            {OTP_API_BASE_URL ? (
+              <Section title={t("otp.baseUrl")}>
+                <CodeBlock code={OTP_API_BASE_URL} label="Base URL" />
+              </Section>
+            ) : (
+              <Callout variant="warning">{t("otp.notConfigured")}</Callout>
+            )}
+            <Callout variant="warning">{t("otp.serverOnly")}</Callout>
+
+            {/* POST /otp/send */}
+            <div className="space-y-6">
+              <Endpoint method="POST" path="/otp/send" baseUrl={OTP_API_BASE_URL} />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">{t("otp.sendSummary")}</p>
+                <p className="text-sm text-muted-foreground">{t("otp.sendDescription")}</p>
+              </div>
+
+              <Section title={t("otp.howTitle")}>
+                <ol className="list-decimal space-y-1.5 ps-5 text-sm">
+                  {(["how1", "how2", "how3", "how4"] as const).map((key) => (
+                    <li key={key}>{t(`otp.${key}`)}</li>
+                  ))}
+                </ol>
+              </Section>
+
+              <Section title={t("otp.rulesTitle")}>
+                <ul className="space-y-2">
+                  {(["ruleCooldown", "ruleLimits", "ruleFallback", "rulePrivacy", "ruleSetup"] as const).map((key) => (
+                    <li key={key} className="flex items-start gap-3 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                      <span>{t(`otp.${key}`)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+
+              <Section title={t("params.title")}>
+                <DataTable
+                  headers={paramHeaders}
+                  rows={[
+                    [<Mono key="f">phoneNumber</Mono>, <Mono key="t">string</Mono>, requiredBadge(true), t("otp.phoneNumber")],
+                    [<Mono key="f">code</Mono>, <Mono key="t">string</Mono>, requiredBadge(true), t("otp.code")],
+                    [<Mono key="f">channel</Mono>, <Mono key="t">string</Mono>, requiredBadge(false), t("otp.channel")],
+                    [<Mono key="f">fallback</Mono>, <Mono key="t">boolean</Mono>, requiredBadge(false), t("otp.fallback")],
+                  ]}
+                />
+              </Section>
+
+              <Section title={t("params.requestExample")}>
+                <CodeTabs
+                  items={[
+                    { id: "otp-curl", label: "cURL", code: snippets.otpSendCurl },
+                    { id: "otp-node", label: "Node.js", code: snippets.otpSendNode },
+                  ]}
+                />
+              </Section>
+
+              <Section title={t("params.response")}>
+                <CodeBlock code={snippets.otpSendResponse} label="200 OK · application/json" />
+                <Callout variant="info">{t("otp.costNote")}</Callout>
+              </Section>
+
+              <Section title={t("otp.tooSoonTitle")}>
+                <CodeBlock code={snippets.otpCooldownResponse} label="429 Too Many Requests · application/json" />
+              </Section>
+            </div>
+
+            {/* GET /otp/{otpId} */}
+            <div className="space-y-6 border-t pt-8">
+              <Endpoint method="GET" path="/otp/{otpId}" baseUrl={OTP_API_BASE_URL} />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">{t("otp.statusSummary")}</p>
+                <p className="text-sm text-muted-foreground">{t("otp.statusDescription")}</p>
+              </div>
+
+              <Section title={t("otp.statusValues")}>
+                <DataTable
+                  headers={[t("otp.statusColumn"), t("params.description")]}
+                  rows={(
+                    [
+                      ["queued", "sQueued"],
+                      ["sent", "sSent"],
+                      ["delivered", "sDelivered"],
+                      ["read", "sRead"],
+                      ["failed", "sFailed"],
+                    ] as const
+                  ).map(([value, key]) => [<Mono key="s">{value}</Mono>, t(`otp.${key}`)])}
+                />
+                <Callout variant="info">{t("otp.smsNote")}</Callout>
+              </Section>
+
+              <Section title={t("params.requestExample")}>
+                <CodeBlock code={snippets.otpStatusCurl} label="cURL" />
+              </Section>
+              <Section title={t("params.response")}>
+                <CodeBlock code={snippets.otpStatusResponse} label="200 OK · application/json" />
+              </Section>
+            </div>
+
+            {/* GET /otp/history */}
+            <div className="space-y-6 border-t pt-8">
+              <Endpoint method="GET" path="/otp/history" baseUrl={OTP_API_BASE_URL} />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">{t("otp.historySummary")}</p>
+                <p className="text-sm text-muted-foreground">{t("otp.historyDescription")}</p>
+              </div>
+
+              <Section title={t("otp.queryParams")}>
+                <DataTable
+                  headers={paramHeaders}
+                  rows={[
+                    [<Mono key="f">phoneNumber</Mono>, <Mono key="t">string</Mono>, requiredBadge(false), t("otp.hPhone")],
+                    [<Mono key="f">channel</Mono>, <Mono key="t">string</Mono>, requiredBadge(false), t("otp.hChannel")],
+                    [<Mono key="f">status</Mono>, <Mono key="t">string</Mono>, requiredBadge(false), t("otp.hStatus")],
+                    [<Mono key="f">from</Mono>, <Mono key="t">date</Mono>, requiredBadge(false), t("otp.hFrom")],
+                    [<Mono key="f">to</Mono>, <Mono key="t">date</Mono>, requiredBadge(false), t("otp.hTo")],
+                    [<Mono key="f">limit</Mono>, <Mono key="t">number</Mono>, requiredBadge(false), t("otp.hLimit")],
+                    [<Mono key="f">cursor</Mono>, <Mono key="t">string</Mono>, requiredBadge(false), t("otp.hCursor")],
+                  ]}
+                />
+                <Callout variant="info">{t("otp.pageNote")}</Callout>
+              </Section>
+
+              <Section title={t("params.requestExample")}>
+                <CodeBlock code={snippets.otpHistoryCurl} label="cURL" />
+              </Section>
+              <Section title={t("params.response")}>
+                <CodeBlock code={snippets.otpHistoryResponse} label="200 OK · application/json" />
+              </Section>
+            </div>
+
+            {/* OTP errors */}
+            <div className="space-y-4 border-t pt-8">
+              <Section title={t("otp.errorsTitle")}>
+                <p className="text-sm text-muted-foreground">{t("otp.errorsIntro")}</p>
+                <DataTable
+                  headers={[t("errors.status"), t("errors.meaning")]}
+                  rows={(["400", "402", "404", "405", "422", "429", "502"] as const).map((code) => [
+                    <span
+                      key="c"
+                      className={cn(
+                        "rounded px-2 py-0.5 font-mono text-xs font-bold",
+                        code === "502"
+                          ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+                      )}
+                    >
+                      {code}
+                    </span>,
+                    t(`otp.e${code}`),
+                  ])}
+                />
+              </Section>
+            </div>
+          </TabsContent>
+
           {/* GET /balance */}
-          <TabsContent value="balance" className="mt-6 space-y-6">
+          <TabsContent value="balance" className="mt-6 space-y-6 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.balance")}</PrintHeading>
             <Endpoint method="GET" path="/balance" />
             <div className="space-y-1">
               <p className="text-sm font-medium">{t("balance.summary")}</p>
@@ -417,7 +759,8 @@ export default function ApiDocumentation() {
           </TabsContent>
 
           {/* GET /report */}
-          <TabsContent value="report" className="mt-6 space-y-6">
+          <TabsContent value="report" className="mt-6 space-y-6 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.report")}</PrintHeading>
             <Endpoint method="GET" path="/report" />
             <div className="space-y-1">
               <p className="text-sm font-medium">{t("report.summary")}</p>
@@ -442,7 +785,8 @@ export default function ApiDocumentation() {
           </TabsContent>
 
           {/* Errors */}
-          <TabsContent value="errors" className="mt-6 space-y-6">
+          <TabsContent value="errors" className="mt-6 space-y-6 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.errors")}</PrintHeading>
             <p className="text-sm text-muted-foreground">{t("errors.intro")}</p>
             <DataTable
               headers={[t("errors.status"), t("errors.meaning")]}
@@ -467,7 +811,8 @@ export default function ApiDocumentation() {
           </TabsContent>
 
           {/* Best practices */}
-          <TabsContent value="bestPractices" className="mt-6 space-y-6">
+          <TabsContent value="bestPractices" className="mt-6 space-y-6 print:break-before-page" {...printAll}>
+            <PrintHeading>{t("tabs.bestPractices")}</PrintHeading>
             <ul className="space-y-3">
               {(["bp1", "bp2", "bp3", "bp4", "bp5", "bp6", "bp7"] as const).map((key) => (
                 <li key={key} className="flex items-start gap-3 text-sm">
@@ -487,5 +832,7 @@ export default function ApiDocumentation() {
         </Tabs>
       </CardContent>
     </Card>
+    </div>
+    </PrintContext.Provider>
   )
 }

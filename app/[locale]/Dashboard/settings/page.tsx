@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
 import { EyeOff, Copy } from "lucide-react";
 import ApiDocumentation from "./components/ApiDocumentation"
+import OtpSettings from "./components/OtpSettings"
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
@@ -318,6 +319,7 @@ export default function Component() {
     </div>
   </CardContent>
 </Card>
+            <OtpSettings />
             <ApiDocumentation />
             <Card className="border dark:border-border">
               <CardHeader>
